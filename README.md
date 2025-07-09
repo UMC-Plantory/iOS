@@ -11,7 +11,7 @@
 | 팀장 👑  | 팀원 👩🏻‍💻 | 팀원 👩🏻‍💻 | 팀원 👨🏻‍💻 | 팀원 👩🏻‍💻 |
 |:------:|:------:|:------:|:------:|:------:|
 |<img src="https://github.com/minyoy.png" width="160px" />|<img src="https://github.com/jiwookim1202.png" width="160px" />|<img src="https://github.com/Byeongseon-Park.png" width="160px" />|<img src="https://github.com/Jhw9n.png" width="160px" />|<img src="https://github.com/Hyohyoju.png" width="160px" />|
-| [주민영 (민요이)](https://github.com/minyoy) | [김지우 (카이)](https://github.com/jiwookim1202) | [박병선 (고니)](https://github.com/Hyohyoju) | [박정환 (파머)](https://github.com/Jhw9n) | [이효주 (김리쭈)](https://github.com/Hyohyoju) |
+| [주민영 (민요이)](https://github.com/minyoy) | [김지우 (카이)](https://github.com/jiwookim1202) | [박병선 (고니)](https://github.com/Byeongseon-Park) | [박정환 (파머)](https://github.com/Jhw9n) | [이효주 (김리쭈)](https://github.com/Hyohyoju) |
 
 <br/>
 
