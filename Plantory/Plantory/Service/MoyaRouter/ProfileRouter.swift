@@ -2,12 +2,12 @@ import Moya
 import Combine
 import Foundation
 
-enum SleepAPI: APITargetType {
+enum ProfileRouter: APITargetType {
     case weeklyStats
     case monthlyStats
 }
 
-extension SleepAPI {
+extension ProfileRouter {
     var baseURL: URL {
         URL(string: "https://example.com")!
     }
@@ -72,33 +72,5 @@ extension SleepAPI {
         }
 
         return Data(json.utf8)
-    }
-}
-
-// MARK: - JSONDecoder Extension for 날짜 디코딩
-extension JSONDecoder {
-    static var customDateDecoder: JSONDecoder {
-        let decoder = JSONDecoder()
-        let fmt = DateFormatter()
-        fmt.dateFormat = "yyyy-MM-dd"
-        decoder.dateDecodingStrategy = .formatted(fmt)
-        return decoder
-    }
-}
-
-// MARK: - SleepAPI Provider Extension
-extension MoyaProvider where Target == SleepAPI {
-    func fetchWeeklyStats() -> AnyPublisher<WeeklySleepResponse, MoyaError> {
-        requestPublisher(.weeklyStats)
-            .filterSuccessfulStatusCodes()
-            .map(WeeklySleepResponse.self, using: JSONDecoder.customDateDecoder)
-            .eraseToAnyPublisher()
-    }
-
-    func fetchMonthlyStats() -> AnyPublisher<MonthlySleepResponse, MoyaError> {
-        requestPublisher(.monthlyStats)
-            .filterSuccessfulStatusCodes()
-            .map(MonthlySleepResponse.self, using: JSONDecoder.customDateDecoder)
-            .eraseToAnyPublisher()
     }
 }

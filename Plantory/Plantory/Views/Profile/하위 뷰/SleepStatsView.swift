@@ -25,6 +25,8 @@ struct SleepStatsView: View {
                     .foregroundColor(.gray06)
                 Text(viewModel.averageText)
                     .font(.pretendardSemiBold(32))
+                Text(viewModel.averageComment)
+                    .font(.pretendardRegular(14))
             }
             .padding(.horizontal, 28)
 
