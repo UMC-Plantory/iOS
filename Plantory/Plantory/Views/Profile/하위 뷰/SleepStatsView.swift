@@ -2,15 +2,23 @@ import SwiftUI
 
 struct SleepStatsView: View {
     @StateObject private var viewModel: SleepStatsViewModel
-    @State private var page = 0
+    @State private var page: Int = 0    // 0 = Week, 1 = Month
 
-    init(response: WeeklySleepResponse) {
-        _viewModel = StateObject(wrappedValue: SleepStatsViewModel(response: response))
+    init(viewModel: SleepStatsViewModel = .init()) {
+        _viewModel = StateObject(wrappedValue: viewModel)
     }
 
     var body: some View {
         VStack(spacing: 24) {
             WeekMonthPicker(selection: $page)
+                .onChange(of: page) { oldValue, newValue in
+                    if newValue == 0 {
+                        viewModel.fetchWeekly()
+                    } else {
+                        viewModel.fetchMonthly()
+                    }
+                }
+
             VStack(alignment: .leading, spacing: 8) {
                 Text(viewModel.periodText)
                     .font(.pretendardRegular(14))
@@ -19,15 +27,18 @@ struct SleepStatsView: View {
                     .font(.pretendardSemiBold(32))
             }
             .padding(.horizontal, 28)
+
             if page == 0 {
                 WeekChartView(daily: viewModel.daily)
             } else {
-                MonthChartView(daily: viewModel.daily)
+                MonthChartView(weekly: viewModel.weekly)
             }
+
             Spacer()
         }
     }
 }
+
 
 // MARK: - 페이징 탭
 struct WeekMonthPicker: View {
@@ -94,40 +105,80 @@ struct WeekChartView: View {
 
 // MARK: - 월간 뷰
 struct MonthChartView: View {
-    let daily: [DailySleep]
+    let weekly: [WeeklySleep]
+
+    // 축에 표시할 시간 라벨 (상단부터 순서대로)
+    private let timeLabels = ["21:00", "01:00", "05:00", "09:00", "13:00", "17:00", "21:00"]
+    // 최대 시간: 24시간으로 잡으면 전체 높이를 풀 스케일로 사용
+    private let maxHours: Double = 24
 
     var body: some View {
-        Text("월간 차트 구현 자리")
-            .font(.pretendardRegular(16))
-            .foregroundColor(.gray06)
+        GeometryReader { geo in
+            let chartHeight = geo.size.height
+            let chartWidth  = geo.size.width
+            // 수평 그리드 라인을 몇 개로 나눌지
+            let lineCount = timeLabels.count
+
+            ZStack(alignment: .bottomLeading) {
+                // 1) 그리드(dashed)
+                Path { path in
+                    for i in 0..<lineCount {
+                        let y = chartHeight * CGFloat(i) / CGFloat(lineCount - 1)
+                        path.move(to: CGPoint(x: 0, y: y))
+                        path.addLine(to: CGPoint(x: chartWidth, y: y))
+                    }
+                }
+                .stroke(style: StrokeStyle(lineWidth: 1, dash: [5,5]))
+                .foregroundColor(Color.gray06.opacity(0.2))
+
+                // 2) 막대 그래프
+                HStack(alignment: .bottom, spacing: 24) {
+                    ForEach(weekly, id: \.week) { week in
+                        VStack(spacing: 4) {
+                            if let h = week.hours, let m = week.minutes {
+                                let total = Double(h) + Double(m)/60
+                                Capsule()
+                                    .fill(Color.green04)
+                                    .frame(width: 20,
+                                           height: CGFloat((total / maxHours) * chartHeight))
+                            } else {
+                                // 데이터 없을 때 얇은 회색 선
+                                Capsule()
+                                    .fill(Color.gray06.opacity(0.2))
+                                    .frame(width: 20, height: 4)
+                            }
+                            Text(week.week)
+                                .font(.pretendardRegular(12))
+                                .foregroundColor(.gray06)
+                        }
+                        .frame(maxWidth: .infinity)
+                    }
+                }
+                .padding(.leading, 40)  // 왼쪽 축 라벨 공간 확보
+
+                // 3) 왼쪽 축 라벨
+                VStack(spacing: 0) {
+                    ForEach(timeLabels.indices, id: \.self) { i in
+                        Text(timeLabels[i])
+                            .font(.pretendardRegular(12))
+                            .foregroundColor(.gray06)
+                            .frame(height: chartHeight / CGFloat(lineCount - 1),
+                                   alignment: .top)
+                    }
+                }
+            }
+            .padding(.horizontal, 28)
+        }
+        .frame(height: 200)  // 필요에 따라 조절
     }
 }
+
 
 // MARK: - Preview
-
 struct SleepStatsView_Previews: PreviewProvider {
     static var previews: some View {
-        // 1) 샘플 JSON 디코더 (필요 시 .iso8601 → .formatted(DateFormatter())로 바꿔주세요)
-        let decoder = JSONDecoder()
-        decoder.dateDecodingStrategy = .iso8601
-
-        // 2) 디코딩 시도 & 실패 시 빈 AverageEntry 로 대체
-        let response: WeeklySleepResponse = {
-            do {
-                return try decoder.decode(
-                    WeeklySleepResponse.self,
-                    from: SleepAPI.weeklyStats.sampleData
-                )
-            } catch {
-                return WeeklySleepResponse(
-                    startDate: Date(),
-                    endDate:   Date(),
-                    daily:     [],
-                    average:   .init(hours: 0, minutes: 0)  // ← 여기를 수정
-                )
-            }
-        }()
-
-        return SleepStatsView(response: response)
+        let viewModel = SleepStatsViewModel()
+        return SleepStatsView(viewModel: viewModel)
     }
 }
+

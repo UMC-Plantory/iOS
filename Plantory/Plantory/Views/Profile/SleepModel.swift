@@ -1,6 +1,7 @@
 // SleepModel.swift
 import Foundation
 
+// MARK: - Weekly Model
 /// 서버 응답을 바로 디코딩할 DTO
 public struct WeeklySleepResponse: Decodable {
     public let startDate: Date
@@ -52,7 +53,7 @@ public struct DailySleep: Identifiable {
     }
 }
 
-/// WeeklySleepResponse → WeeklySleepStatsModel 변환기
+/// WeeklySleepResponse → DailySleep 변환기
 public struct WeeklySleepStatsModel {
     public let startDate: Date
     public let endDate: Date
@@ -77,6 +78,81 @@ public struct WeeklySleepStatsModel {
                 weekday: wd,
                 hours: entry.hours,
                 minutes: entry.minutes
+            )
+        }
+    }
+}
+
+// MARK: - Monthly Model
+/// 서버 응답을 바로 디코딩할 DTO
+public struct MonthlySleepResponse: Decodable {
+    public let startDate: Date
+    public let endDate: Date
+    public let weekly: [WeeklyEntry]
+    public let average: AverageEntry
+    
+    public struct WeeklyEntry: Decodable, Identifiable {
+        public let id: UUID
+        public let week: String
+        public let hours: Int?
+        public let minutes: Int?
+        
+        enum CodingKeys: String, CodingKey {
+            case week, hours, minutes
+        }
+        
+        public init(from decoder: Decoder) throws {
+            let c = try decoder.container(keyedBy: CodingKeys.self)
+            self.week = try c.decode(String.self, forKey: .week)
+            self.hours = try c.decodeIfPresent(Int.self, forKey: .hours)
+            self.minutes = try c.decodeIfPresent(Int.self, forKey: .minutes)
+            self.id = UUID()
+        }
+    }
+    
+    public struct AverageEntry: Decodable {
+        public let hours: Int?
+        public let minutes: Int?
+    }
+    
+    enum CodingKeys: String, CodingKey {
+        case startDate, endDate, weekly, average
+    }
+}
+
+///뷰에서 쓸 도메인 모델
+public struct WeeklySleep: Identifiable {
+    public let id = UUID()
+    public let week: String
+    public let hours: Int?
+    public let minutes: Int?
+    
+    /// 시각 표시용: "7h 40m", "6h 0m", "—"
+    public var displayText: String {
+        guard let h = hours, let m = minutes else { return "—" }
+        return "\(h)h \(m)m"
+    }
+}
+
+/// MonthlySleepResponse → WeeklySleep 변환기
+public struct MonthlySleepStatsModel {
+    public let startDate: Date
+    public let endDate: Date
+    public let weekly: [WeeklySleep]
+    public let averageHours: Int?
+    public let averageMinutes: Int?
+    
+    public init(from resp: MonthlySleepResponse) {
+        self.startDate = resp.startDate
+        self.endDate = resp.endDate
+        self.averageHours = resp.average.hours
+        self.averageMinutes = resp.average.minutes
+        
+        self.weekly = resp.weekly.map {
+            WeeklySleep(
+                week: $0.week,
+                hours: $0.hours,
+                minutes: $0.minutes
             )
         }
     }
