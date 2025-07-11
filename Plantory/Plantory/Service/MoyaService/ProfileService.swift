@@ -46,4 +46,11 @@ extension MoyaProvider where Target == ProfileRouter {
             // Combine Publisher 타입 통일
             .eraseToAnyPublisher()
     }
+    
+    func weeklyEmotionStats() -> AnyPublisher<WeeklyEmotionResponse, MoyaError> {
+        return requestPublisher(.weeklyEmotionStats)
+            .filterSuccessfulStatusCodes()
+            .map(WeeklyEmotionResponse.self, using: JSONDecoder.customDateDecoder)
+            .eraseToAnyPublisher()
+    }
 }

@@ -1,124 +1,111 @@
-//
-// SleepStatsViewModel.swift
-//
-
 import Foundation
 import Combine
 import Moya
 import CombineMoya
 
-/// ViewModel: 수면 통계 데이터를 Fetch하고 가공하여 View에 바인딩합니다
+/// SleepStatsViewModel.swift
+/// 리팩토링된 뷰모델 전체 코드 (주간/월간 지원)
 public class SleepStatsViewModel: ObservableObject {
     // MARK: - Published Properties
+    @Published public private(set) var daily: [DailySleep]        = []
+    @Published public private(set) var monthly: [WeeklySleep]    = []
+    @Published public private(set) var todayWeekday: String      = ""
+    @Published public private(set) var periodText: String        = ""
+    @Published public private(set) var averageText: String       = ""
+    @Published public private(set) var averageComment: String    = ""
 
-    /// 일별 수면 데이터 배열
-    @Published public private(set) var daily: [DailySleep] = []
-    /// 주간/월간 통계용 배열
-    @Published public private(set) var weekly: [WeeklySleep] = []
-    /// 표시할 통계 기간 텍스트 ("시작일 ~ 종료일")
-    @Published public private(set) var periodText: String = ""
-    /// 평균 수면 시간 텍스트 ("Xh Ym")
-    @Published public private(set) var averageText: String = ""
-    /// 평균 수면 시간에 대한 코멘트
-    @Published public private(set) var averageComment: String = ""
-    
-    // Combine 구독 취소를 관리하는 Set
-    private var cancellables = Set<AnyCancellable>()
-    // 네트워크 요청을 처리하는 Moya 프로바이더 (DI 가능)
+    // MARK: - Dependencies
     private let provider: MoyaProvider<ProfileRouter>
+    private let calendar: Calendar
+    private let today: Date
+    private var cancellables = Set<AnyCancellable>()
 
-    // MARK: - Init
-
-    /// 초기화: 프로바이더 주입 및 주간 통계 자동 Fetch
-    /// - Parameter provider: 네트워크 프로바이더 (기본: 테스트 모드 프로바이더)
-    init(provider: MoyaProvider<ProfileRouter> = APIManager.shared.testProvider(for: ProfileRouter.self)) {
-        self.provider = provider
-        fetchWeekly() // 초기 로드시 주간 통계 데이터를 가져옵니다
-    }
-
-    // MARK: - Fetch Methods
-
-    /// 주간 통계 데이터 요청
-    public func fetchWeekly() {
-        provider.fetchWeeklyStats()
-            .receive(on: DispatchQueue.main) // UI 업데이트는 메인 스레드에서
-            .sink(
-                receiveCompletion: { completion in
-                    if case let .failure(err) = completion {
-                        // 에러 발생 시 콘솔 출력
-                        print("Error fetching weekly stats:", err)
-                    }
-                },
-                receiveValue: { [weak self] resp in
-                    // 응답 수신 후 데이터 갱신
-                    self?.updateWeekly(with: resp)
-                }
-            )
-            .store(in: &cancellables)
-    }
-
-    /// 월간 통계 데이터 요청
-    public func fetchMonthly() {
-        provider.fetchMonthlyStats()
-            .receive(on: DispatchQueue.main) // UI 업데이트는 메인 스레드에서
-            .sink(
-                receiveCompletion: { completion in
-                    if case let .failure(err) = completion {
-                        // 에러 발생 시 콘솔 출력
-                        print("Error fetching monthly stats:", err)
-                    }
-                },
-                receiveValue: { [weak self] resp in
-                    // 응답 수신 후 데이터 갱신
-                    self?.updateMonthly(with: resp)
-                }
-            )
-            .store(in: &cancellables)
-    }
-
-    // MARK: - Update Helpers
-
-    /// WeeklySleepResponse로부터 뷰모델 프로퍼티를 업데이트합니다
-    /// - Parameter response: 주간 통계 응답 모델
-    public func updateWeekly(with response: WeeklySleepResponse) {
-        let model = WeeklySleepStatsModel(from: response)
-
-        // 일별 데이터 설정
-        daily = model.daily
-
-        // 기간 텍스트 포맷 설정
+    // MARK: - Formatters & Mappings
+    private static let periodFormatter: DateFormatter = {
         let df = DateFormatter()
         df.dateFormat = "yyyy.MM.dd"
-        periodText = "\(df.string(from: model.startDate)) ~ \(df.string(from: model.endDate))"
+        return df
+    }()
+    private static let koreanWeekdays = ["일","월","화","수","목","금","토"]
 
-        // 평균 수면 시간 텍스트 설정
-        let h = model.averageHours ?? 0
-        let m = model.averageMinutes ?? 0
-        averageText = "\(h)h \(m)m"
+    // MARK: - Init
+    /// 의존성 주입으로 테스트 용이성 확보
+    init(
+        provider: MoyaProvider<ProfileRouter> = APIManager.shared.testProvider(for: ProfileRouter.self),
+        calendar: Calendar = .current,
+        today: Date = Date()
+    ) {
+        self.provider = provider
+        self.calendar = calendar
+        self.today = today
+        fetchWeekly()
+    }
 
-        // 평균 수면 시간에 대한 코멘트 설정
+    // MARK: - API Fetch
+    /// 주간 통계 호출
+    public func fetchWeekly() {
+        provider.fetchWeeklyStats()
+            .receive(on: DispatchQueue.main)
+            .sink(
+                receiveCompletion: { completion in
+                    if case let .failure(error) = completion {
+                        print("Error fetching weekly stats:", error)
+                    }
+                },
+                receiveValue: { [weak self] response in
+                    self?.handleWeekly(response)
+                }
+            )
+            .store(in: &cancellables)
+    }
+
+    /// 월간 통계 호출
+    public func fetchMonthly() {
+        provider.fetchMonthlyStats()
+            .receive(on: DispatchQueue.main)
+            .sink(
+                receiveCompletion: { completion in
+                    if case let .failure(error) = completion {
+                        print("Error fetching monthly stats:", error)
+                    }
+                },
+                receiveValue: { [weak self] response in
+                    self?.handleMonthly(response)
+                }
+            )
+            .store(in: &cancellables)
+    }
+
+    // MARK: - Handlers
+    private func handleWeekly(_ response: WeeklySleepResponse) {
+        // 모델 변환
+        let model = WeeklySleepStatsModel(from: response, calendar: calendar)
+        daily = model.daily
+
+        // 오늘 요일 한글 매핑
+        let idx = calendar.component(.weekday, from: today) - 1
+        todayWeekday = Self.koreanWeekdays[idx]
+
+        // 기간 텍스트 설정
+        periodText = "\(Self.periodFormatter.string(from: model.startDate)) ~ " +
+                     "\(Self.periodFormatter.string(from: model.endDate))"
+
+        // 평균 시간 텍스트 및 코멘트
+        averageText    = "\(model.averageHours ?? 0)h \(model.averageMinutes ?? 0)m"
         averageComment = model.comment
     }
 
-    /// MonthlySleepResponse로부터 뷰모델 프로퍼티를 업데이트합니다
-    /// - Parameter response: 월간 통계 응답 모델
-    public func updateMonthly(with response: MonthlySleepResponse) {
+    private func handleMonthly(_ response: MonthlySleepResponse) {
+        // 모델 변환
         let model = MonthlySleepStatsModel(from: response)
+        monthly = model.weekly
 
-        // 주간/월간 데이터 설정
-        weekly = model.weekly
+        // 기간 텍스트 설정
+        periodText = "\(Self.periodFormatter.string(from: model.startDate)) ~ " +
+                     "\(Self.periodFormatter.string(from: model.endDate))"
 
-        // 기간 텍스트 포맷 설정
-        let df = DateFormatter()
-        df.dateFormat = "yyyy.MM.dd"
-        periodText = "\(df.string(from: model.startDate)) ~ \(df.string(from: model.endDate))"
-
-        // 평균 수면 시간 텍스트 설정
-        let h = model.averageHours ?? 0
-        let m = model.averageMinutes ?? 0
-        averageText = "\(h)h \(m)m"
-
-        // 평균 수면 시간에 대한 코멘트 설정
+        // 평균 시간 텍스트 및 코멘트
+        averageText    = "\(model.averageHours ?? 0)h \(model.averageMinutes ?? 0)m"
         averageComment = model.comment
     }
 }
