@@ -80,25 +80,7 @@ struct WeekChartView: View {
     let daily: [DailySleep]
 
     var body: some View {
-        HStack(alignment: .bottom, spacing: 16) {
-            ForEach(daily, id: \.id) { day in
-                // 모델에서 계산된 hours/minutes 사용
-                let total = Double(day.hours ?? 0) + Double(day.minutes ?? 0) / 60
-
-                VStack(spacing: 4) {
-                    Capsule()
-                        .fill(total > 0 ? Color.green04 : Color.gray06.opacity(0.2))
-                        .frame(width: 20, height: CGFloat((total / 12) * 100))
-
-                    Text(day.weekday)
-                        .font(.pretendardRegular(12))
-                    Text("\(Calendar.current.component(.day, from: day.date))")
-                        .font(.pretendardRegular(12))
-                }
-                .frame(maxWidth: .infinity)
-            }
-        }
-        .padding(.horizontal, 28)
+        
     }
 }
 

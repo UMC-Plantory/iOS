@@ -1,27 +1,23 @@
-/// SleepModel.swift
-///
-/// 이 파일은 수면 통계 관련 도메인 모델과 DTO(응답 데이터)를 정의합니다.
-/// 1. SleepStats 프로토콜: 평균 수면 정보와 코멘트 제공
-/// 2. WeeklySleepResponse, MonthlySleepResponse: 서버 응답을 디코딩하는 DTO
-/// 3. WeeklySleepStatsModel, MonthlySleepStatsModel: 뷰에서 사용할 모델
-/// 4. DailySleep: 차트 렌더링용 뷰 모델
-
 import Foundation
 
 // MARK: - 공통 프로토콜
-/// 평균 수면 시간(hours, minutes)을 제공하는 프로토콜
+/// SleepStats 프로토콜: 평균 수면 시간(시/분) 관련 속성과
+/// totalHours, comment 로직을 제공
 public protocol SleepStats {
+    /// 평균 시간(시) 부분
     var averageHours: Int?    { get }
+    /// 평균 시간(분) 부분
     var averageMinutes: Int?  { get }
 }
 
 public extension SleepStats {
-    /// 평균 수면 시간을 시간 단위 소수로 변환
+    /// 평균 수면 시간을 시간 단위(Double)로 변환
+    /// 예: 450분 → 7.5시간
     var totalHours: Double {
         Double(averageHours ?? 0) + Double(averageMinutes ?? 0) / 60
     }
 
-    /// 총 수면 시간에 따라 보여줄 추천 멘트 생성
+    /// totalHours 범위별로 적절한 코멘트 제공
     var comment: String {
         switch totalHours {
         case ..<5:
@@ -46,95 +42,117 @@ public extension SleepStats {
 }
 
 // MARK: - Weekly DTO
+/// 서버 주간 수면 통계 응답 모델
 public struct WeeklySleepResponse: Decodable {
-    public let startDate: Date
-    public let endDate: Date
-    public let averageSleepMinutes: Int
-    public let dailySleepRecords: [DailySleepRecord]
+    public let startDate: Date        // 통계 기간 시작일
+    public let endDate: Date          // 통계 기간 종료일
+    public let averageSleepMinutes: Int // 평균 수면 시간(분)
+    public let dailySleepRecords: [DailySleepRecord] // 일별 수면 레코드
 
     public struct DailySleepRecord: Decodable {
-        public let day: Int
-        public let date: Date
-        public let sleepStartTime: String  // "HH:mm"
-        public let wakeUpTime: String      // "HH:mm"
+        public let day: Int             // 주 내 순번 (1~7)
+        public let date: Date           // 해당 날짜 (기상일)
+        public let sleepStartTime: String // 취침 시각 문자열 ("HH:mm")
+        public let wakeUpTime: String     // 기상 시각 문자열 ("HH:mm")
     }
 }
 
-// MARK: - DailySleep (View Data)
+// MARK: - DailySleep (뷰 모델)
+/// 뷰에서 사용하기 위한 일별 수면 데이터 모델
 public struct DailySleep: Identifiable {
-    public let id = UUID()
-    public let day: Int
-    public let date: Date
-    public let weekday: String
-    public let hours: Int?
-    public let minutes: Int?
+    public let id = UUID()              // 고유 식별자
+    public let day: Int                 // 주 내 순번
+    public let date: Date               // 기상 날짜
+    public let weekday: String          // 요일 (한글)
+    public let startTime: Date          // 실제 취침 시각 (날짜 포함)
+    public let endTime: Date            // 실제 기상 시각 (날짜 포함)
 
-    public var totalHours: Double {
-        Double(hours ?? 0) + Double(minutes ?? 0) / 60
-    }
-
-    public init(day: Int, date: Date, weekday: String, hours: Int?, minutes: Int?) {
-        self.day = day
-        self.date = date
+    public init(
+        day: Int,
+        date: Date,
+        weekday: String,
+        startTime: Date,
+        endTime: Date
+    ) {
+        self.day = day; self.date = date
         self.weekday = weekday
-        self.hours = hours
-        self.minutes = minutes
+        self.startTime = startTime; self.endTime = endTime
     }
 }
 
-// MARK: - Weekly View Model
+// MARK: - Weekly View Model (WeeklySleepStatsModel)
+/// WeeklySleepResponse를 기반으로 DailySleep 배열 및 평균 시/분 분리
 public struct WeeklySleepStatsModel: SleepStats {
-    public let startDate: Date
-    public let endDate: Date
-    public let daily: [DailySleep]
-    public let averageHours: Int?
-    public let averageMinutes: Int?
+    public let startDate: Date      // 통계 시작일
+    public let endDate: Date        // 통계 종료일
+    public let daily: [DailySleep]  // 변환된 일별 수면 데이터
+    public let averageHours: Int?   // 평균 수면 시
+    public let averageMinutes: Int? // 평균 수면 분
 
-    // 포맷터 & 캘린더 재사용
+    /// 내부 DateFormatter: "HH:mm" 형식 파싱용
     private static let formatter: DateFormatter = {
         let df = DateFormatter()
         df.dateFormat = "HH:mm"
         return df
     }()
-    private static let koreanWeekdays = ["일","월","화","수","목","금","토"]
+    /// 요일 매핑용 (Calendar.weekday 기준)
+    private static let weekdaysKR = ["일","월","화","수","목","금","토"]
 
-    /// response → UI용 모델 변환
-    public init(
-        from response: WeeklySleepResponse,
-        calendar: Calendar = .current
-    ) {
+    /**
+     초기화:
+     - 응답 DTO로부터 날짜 계산 및 평균 시간 분리 로직 수행
+     */
+    public init(from response: WeeklySleepResponse, calendar: Calendar = .current) {
         self.startDate = response.startDate
         self.endDate   = response.endDate
 
-        // 평균 분 → 시/분
-        let total = response.averageSleepMinutes
-        self.averageHours   = total / 60
-        self.averageMinutes = total % 60
+        // 평균 시간을 시/분으로 분리
+        let totalMin = response.averageSleepMinutes
+        self.averageHours   = totalMin / 60
+        self.averageMinutes = totalMin % 60
 
-        // dailySleepRecords → DailySleep 배열
-        self.daily = response.dailySleepRecords.map { record in
-            let start = Self.formatter.date(from: record.sleepStartTime) ?? Date()
-            let end   = Self.formatter.date(from: record.wakeUpTime)    ?? Date()
-            var interval = end.timeIntervalSince(start)
-            if interval < 0 { interval += 24 * 3600 }
-            let hrs  = Int(interval / 3600)
-            let mins = Int((interval.truncatingRemainder(dividingBy: 3600)) / 60)
+        // 일별 레코드를 DailySleep으로 변환
+        self.daily = response.dailySleepRecords.map { rec in
+            // HH:mm 문자열을 Date 타입으로 변환
+            let compStart = Self.formatter.date(from: rec.sleepStartTime)!
+            let compEnd   = Self.formatter.date(from: rec.wakeUpTime)!
+            let dayStart  = calendar.startOfDay(for: rec.date)
 
-            let idx = calendar.component(.weekday, from: record.date) - 1
-            let kwd = Self.koreanWeekdays[idx]
+            // 기상 시각: rec.date 기준에 시간 설정
+            let endDT = calendar.date(
+                bySettingHour: calendar.component(.hour, from: compEnd),
+                minute: calendar.component(.minute, from: compEnd),
+                second: 0,
+                of: dayStart
+            )!
+            // 취침 시각 계산: endDT보다 늦으면 전날로 조정
+            let tentative = calendar.date(
+                bySettingHour: calendar.component(.hour, from: compStart),
+                minute: calendar.component(.minute, from: compStart),
+                second: 0,
+                of: dayStart
+            )!
+            let startDT = tentative <= endDT
+                ? tentative
+                : calendar.date(byAdding: .day, value: -1, to: tentative)!
+
+            // 요일 한글 매핑
+            let idx = calendar.component(.weekday, from: rec.date) - 1
+            let kw = Self.weekdaysKR[idx]
 
             return DailySleep(
-                day:     record.day,
-                date:    record.date,
-                weekday: kwd,
-                hours:   hrs,
-                minutes: mins
+                day: rec.day,
+                date: rec.date,
+                weekday: kw,
+                startTime: startDT,
+                endTime: endDT
             )
         }
     }
 }
 
-// MARK: - Monthly DTO
+// MARK: - Monthly DTO & Model
+/// 서버 월간 수면 통계 응답 모델
 public struct MonthlySleepResponse: Decodable {
     public let startDate: Date
     public let endDate: Date
@@ -142,39 +160,49 @@ public struct MonthlySleepResponse: Decodable {
     public let weeklySleepRecords: [WeeklyRecord]
 
     public struct WeeklyRecord: Decodable {
-        public let week: Int
-        public let sleepStartTime: String
-        public let wakeUpTime: String
+        public let week: Int            // 순번 (1~4)
+        public let sleepStartTime: String // 취침 시각
+        public let wakeUpTime: String     // 기상 시각
     }
 }
 
-// MARK: - Monthly View Model
+/// 월간 통계 모델: DTO → UI 모델(WeeklySleep)로 변환
 public struct MonthlySleepStatsModel: SleepStats {
     public let startDate: Date
     public let endDate: Date
-    public let weekly: [WeeklySleep]
-    public let averageHours: Int?
-    public let averageMinutes: Int?
+    public let weekly: [WeeklySleep] // 주별 요약 데이터
+    public let averageHours: Int?    // 평균 시
+    public let averageMinutes: Int?  // 평균 분
 
+    /// HH:mm 파싱용
     private static let formatter: DateFormatter = {
         let df = DateFormatter()
         df.dateFormat = "HH:mm"
         return df
     }()
 
+    /**
+     초기화: 날짜 및 평균 시간 계산,
+     주별 수면 간격 계산 로직 포함
+     */
     public init(from response: MonthlySleepResponse) {
-        self.startDate = response.startDate
-        self.endDate   = response.endDate
+        self.startDate  = response.startDate
+        self.endDate    = response.endDate
 
-        let total = response.averageSleepMinutes
-        self.averageHours   = total / 60
-        self.averageMinutes = total % 60
+        // 평균 시간 분리
+        let totalMin = response.averageSleepMinutes
+        self.averageHours   = totalMin / 60
+        self.averageMinutes = totalMin % 60
 
+        // 주별 기록을 WeeklySleep 모델로 변환
         self.weekly = response.weeklySleepRecords.map { rec in
-            let start = Self.formatter.date(from: rec.sleepStartTime) ?? Date()
-            let end   = Self.formatter.date(from: rec.wakeUpTime)    ?? Date()
-            var interval = end.timeIntervalSince(start)
+            // 문자열 → Date
+            let compStart = Self.formatter.date(from: rec.sleepStartTime)!
+            let compEnd   = Self.formatter.date(from: rec.wakeUpTime)!
+            // 시간 간격 계산, 음수 시 24h 보정
+            var interval = compEnd.timeIntervalSince(compStart)
             if interval < 0 { interval += 24 * 3600 }
+            // 시/분 분리
             let hrs  = Int(interval / 3600)
             let mins = Int((interval.truncatingRemainder(dividingBy: 3600)) / 60)
             return WeeklySleep(week: "\(rec.week)", hours: hrs, minutes: mins)
@@ -182,13 +210,12 @@ public struct MonthlySleepStatsModel: SleepStats {
     }
 }
 
-// 재사용 가능한 주간 단위 모델
+/// UI 표시용 주별 수면 요약 모델
 public struct WeeklySleep: Identifiable {
-    public let id = UUID()
-    public let week: String
-    public let hours: Int?
-    public let minutes: Int?
-    public var totalHours: Double {
-        Double(hours ?? 0) + Double(minutes ?? 0) / 60
-    }
+    public let id = UUID()          // 고유 식별자
+    public let week: String         // 주차 ("1","2",...)
+    public let hours: Int?          // 수면 시간(시)
+    public let minutes: Int?        // 수면 시간(분)
+    /// 총 수면 시간을 시간(Double) 단위로 반환
+    public var totalHours: Double { Double(hours ?? 0) + Double(minutes ?? 0) / 60 }
 }
