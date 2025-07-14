@@ -44,10 +44,13 @@ struct TermsOfServiceView: View {
         }
         .padding(.top, 10)
         .customNavigation(
-            leadingContent: "leftChevron",
-            leadingAction: {
-                print("뒤로가기")
-            },
+            leading:
+                Button(action: {
+                    print("뒤로가기")
+                }, label: {
+                    Image("leftChevron")
+                        .fixedSize()
+                }),
         )
     }
     
