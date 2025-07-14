@@ -21,6 +21,11 @@ extension JSONDecoder {
     }
 }
 
+public enum SortOrder: String {
+        case oldest
+        case latest
+}
+
 // MARK: - ProfileRouter Provider Extension
 extension MoyaProvider where Target == ProfileRouter {
     /// 주간 수면 통계 API 호출
@@ -52,5 +57,13 @@ extension MoyaProvider where Target == ProfileRouter {
             .filterSuccessfulStatusCodes()
             .map(WeeklyEmotionResponse.self, using: JSONDecoder.customDateDecoder)
             .eraseToAnyPublisher()
+    }
+    
+    func fetchTemp(sort: SortOrder = .latest) -> AnyPublisher<[Diary], MoyaError> {
+            return requestPublisher(.temporary(sort: sort.rawValue))
+                    .filterSuccessfulStatusCodes()
+                    .map(TempResponse.self, using: JSONDecoder.customDateDecoder)
+                    .map { $0.diaries }
+                    .eraseToAnyPublisher()
     }
 }
