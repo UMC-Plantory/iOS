@@ -28,50 +28,43 @@ public enum SortOrder: String {
 
 // MARK: - ProfileRouter Provider Extension
 extension MoyaProvider where Target == ProfileRouter {
-    /// 주간 수면 통계 API 호출
-    /// - 반환: WeeklySleepResponse를 발행하는 AnyPublisher
-    func fetchWeeklyStats() -> AnyPublisher<WeeklySleepResponse, MoyaError> {
-        return requestPublisher(.weeklyStats)
-            // HTTP 2xx 상태 코드만 통과
+    // 공통 JSON 디코딩 + 상태 코드 필터링 파이프라인
+    private func requestDecoded<Response: Decodable>(
+        _ target: ProfileRouter,
+        as type: Response.Type
+    ) -> AnyPublisher<Response, MoyaError> {
+        requestPublisher(target)
             .filterSuccessfulStatusCodes()
-            // JSONDecoder.customDateDecoder를 사용해 WeeklySleepResponse로 매핑
-            .map(WeeklySleepResponse.self, using: JSONDecoder.customDateDecoder)
-            // Combine Publisher 타입 통일
+            .map(type, using: JSONDecoder.customDateDecoder)
             .eraseToAnyPublisher()
     }
 
-    /// 월간 수면 통계 API 호출
-    /// - 반환: MonthlySleepResponse를 발행하는 AnyPublisher
+    func fetchWeeklyStats() -> AnyPublisher<WeeklySleepResponse, MoyaError> {
+        requestDecoded(.weeklyStats, as: WeeklySleepResponse.self)
+    }
+
     func fetchMonthlyStats() -> AnyPublisher<MonthlySleepResponse, MoyaError> {
-        return requestPublisher(.monthlyStats)
-            // HTTP 2xx 상태 코드만 통과
-            .filterSuccessfulStatusCodes()
-            // JSONDecoder.customDateDecoder를 사용해 MonthlySleepResponse로 매핑
-            .map(MonthlySleepResponse.self, using: JSONDecoder.customDateDecoder)
-            // Combine Publisher 타입 통일
-            .eraseToAnyPublisher()
+        requestDecoded(.monthlyStats, as: MonthlySleepResponse.self)
     }
-    
-    func weeklyEmotionStats() -> AnyPublisher<WeeklyEmotionResponse, MoyaError> {
-        return requestPublisher(.weeklyEmotionStats)
-            .filterSuccessfulStatusCodes()
-            .map(WeeklyEmotionResponse.self, using: JSONDecoder.customDateDecoder)
-            .eraseToAnyPublisher()
+
+    func fetchWeeklyEmotionStats() -> AnyPublisher<WeeklyEmotionResponse, MoyaError> {
+        requestDecoded(.weeklyEmotionStats, as: WeeklyEmotionResponse.self)
     }
-    
+
     func fetchTemp(sort: SortOrder = .latest) -> AnyPublisher<[Diary], MoyaError> {
-            return requestPublisher(.temporary(sort: sort.rawValue))
-                    .filterSuccessfulStatusCodes()
-                    .map(TempResponse.self, using: JSONDecoder.customDateDecoder)
-                    .map { $0.diaries }
-                    .eraseToAnyPublisher()
+        requestDecoded(.temporary(sort: sort.rawValue), as: TempResponse.self)
+            .map { $0.diaries }
+            .eraseToAnyPublisher()
+    }
+
+    func fetchWaste(sort: SortOrder = .latest) -> AnyPublisher<[Diary], MoyaError> {
+        requestDecoded(.waste(sort: sort.rawValue), as: WasteResponse.self)
+            .map { $0.diaries }
+            .eraseToAnyPublisher()
     }
     
-    func fetchWaste(sort: SortOrder = .latest) -> AnyPublisher<[Diary], MoyaError> {
-            return requestPublisher(.waste(sort: sort.rawValue))
-                    .filterSuccessfulStatusCodes()
-                    .map(TempResponse.self, using: JSONDecoder.customDateDecoder)
-                    .map { $0.diaries }
-                    .eraseToAnyPublisher()
+    func deleteWaste(diaryIds: [Int]) -> AnyPublisher<WastePatchResponse, MoyaError> {
+        requestDecoded(.wastePatch(diaryIds: diaryIds), as: WastePatchResponse.self)
     }
 }
+

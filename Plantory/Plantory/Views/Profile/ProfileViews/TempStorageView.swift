@@ -62,7 +62,12 @@ struct TempStorageView: View {
                 isEditing: $isEditing,
                 isEmpty: checkedItems.isEmpty,
                 onDelete: {
-                    // 삭제 처리
+                    // 1) API 호출해서 휴지통으로 이동
+                            viewModel.moveToTrash(ids: Array(checkedItems))
+                            // 2) 로컬 UI에서도 선택 해제
+                            checkedItems.removeAll()
+                            // 3) 편집 모드 종료(선택 사항)
+                            isEditing = false
                 }
             )
         }

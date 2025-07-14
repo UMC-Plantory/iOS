@@ -36,11 +36,7 @@ struct TempResponse: Decodable {
     }
 }
 
-public struct Diary: Decodable, Identifiable {
-    public let id: Int
-    public let date: Date    // JSONDecoder.customDateDecoder로 "yyyy-MM-dd" 디코딩
-    public let title: String
-}
+
 
 
 

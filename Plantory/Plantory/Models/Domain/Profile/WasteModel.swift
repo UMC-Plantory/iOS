@@ -33,3 +33,14 @@ struct WasteResponse: Decodable {
         diaries = try resultContainer.decode([Diary].self, forKey: .diaries)
     }
 }
+
+
+/// 휴지통 일기 삭제 응답 모델
+public struct WastePatchResponse: Decodable {
+    /// 요청 성공 여부
+    public let isSuccess: Bool
+    /// HTTP 상태 코드
+    public let code: Int
+    /// 응답 메시지
+    public let message: String
+}

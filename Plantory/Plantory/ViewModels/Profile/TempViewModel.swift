@@ -55,6 +55,31 @@ public class TempViewModel: ObservableObject {
             }
             .store(in: &cancellables)
     }
+    
+    /// 선택된 일기를 휴지통으로 이동(PATCH)하고, 성공 시 로컬 배열에서 제거
+    public func moveToTrash(ids: [Int]) {
+        isLoading = true
+        errorMessage = nil
+
+        provider
+            .deleteWaste(diaryIds: ids)               // PATCH /diary/waste 호출
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] completion in
+                self?.isLoading = false
+                if case let .failure(error) = completion {
+                    self?.errorMessage = error.localizedDescription
+                }
+            } receiveValue: { [weak self] response in
+                guard let self = self else { return }
+                if response.isSuccess {
+                    // 실제로 삭제된 것처럼 로컬 상태에서 제거
+                    self.diaries.removeAll { ids.contains($0.id) }
+                } else {
+                    self.errorMessage = response.message
+                }
+            }
+            .store(in: &cancellables)
+    }
 
     // MARK: - Handlers
     private func handleTemp(_ diaries: [Diary]) {
