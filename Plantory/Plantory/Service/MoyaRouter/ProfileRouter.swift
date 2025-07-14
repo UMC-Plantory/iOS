@@ -6,6 +6,8 @@ enum ProfileRouter: APITargetType {
     case weeklyStats
     case monthlyStats
     case weeklyEmotionStats
+    case temporary(sort: String)
+    case waste
 }
 
 extension ProfileRouter {
@@ -15,23 +17,38 @@ extension ProfileRouter {
 
     var path: String {
         switch self {
-        case .weeklyStats: return "/sleep/weekly"
-        case .monthlyStats: return "/sleep/monthly"
-        case .weeklyEmotionStats: return "/emotion/weekly"
+        case .weeklyStats:
+            return "/sleep/weekly"
+        case .monthlyStats:
+            return "/sleep/monthly"
+        case .weeklyEmotionStats:
+            return "/emotion/weekly"
+        case .temporary:
+            return "/diary/temp"
+        case .waste:
+            return "/diary/waste"
         }
     }
 
     var method: Moya.Method {
         switch self {
-        case .weeklyStats, .monthlyStats, .weeklyEmotionStats:
+        case .weeklyStats, .monthlyStats, .weeklyEmotionStats, .temporary:
             return .get
+        case .waste:
+            return .patch
         }
     }
 
     var task: Task {
         switch self {
-        case .weeklyStats, .monthlyStats, .weeklyEmotionStats:
+        case .weeklyStats, .monthlyStats, .weeklyEmotionStats, .waste:
             return .requestPlain
+            
+        case .temporary(let sort):
+                return .requestParameters(
+                        parameters: ["sort": sort],
+                        encoding: URLEncoding.default
+                )
         }
     }
 
@@ -98,8 +115,8 @@ extension ProfileRouter {
                 }
               ]
             }
-
             """
+
         case .monthlyStats:
             json = """
             {
@@ -136,19 +153,52 @@ extension ProfileRouter {
               ]
             }
             """
+
         case .weeklyEmotionStats:
             json = """
             {
-                "startDate": "2025-06-08",
-                "endDate": "2025-06-14",
-                "stats": [
-                    { "emotion": "기쁨", "percentage": 45 },
-                    { "emotion": "놀람", "percentage": 15 },
-                    { "emotion": "슬픔", "percentage": 20 },
-                    { "emotion": "화남", "percentage": 5 },
-                    { "emotion": "그저그럼", "percentage": 15 }
-                ],
-                "comment": "기쁨"
+              "startDate": "2025-06-08",
+              "endDate": "2025-06-14",
+              "stats": [
+                { "emotion": "기쁨", "percentage": 45 },
+                { "emotion": "놀람", "percentage": 15 },
+                { "emotion": "슬픔", "percentage": 20 },
+                { "emotion": "화남", "percentage": 5 },
+                { "emotion": "그저그럼", "percentage": 15 }
+              ],
+              "comment": "기쁨"
+            }
+            """
+
+        case .temporary:
+            json = """
+    {
+      "isSuccess": true,
+      "code": 200,
+      "message": "임시보관한 일기 목록 조회 성공",
+      "result": {
+        "diaries": [
+          { "id": 1, "date": "2025-06-20", "title": "일기 제목 1" },
+          { "id": 2, "date": "2025-06-21", "title": "일기 제목 2" },
+          { "id": 3, "date": "2025-06-22", "title": "일기 제목 3" },
+          { "id": 4, "date": "2025-06-23", "title": "일기 제목 4" },
+          { "id": 5, "date": "2025-06-24", "title": "일기 제목 5" },
+          { "id": 6, "date": "2025-06-25", "title": "일기 제목 6" },
+          { "id": 7, "date": "2025-06-26", "title": "일기 제목 7" },
+          { "id": 8, "date": "2025-06-27", "title": "일기 제목 8" },
+          { "id": 9, "date": "2025-06-28", "title": "일기 제목 9" },
+          { "id": 10, "date": "2025-06-29", "title": "일기 제목 10" }
+        ]
+      }
+    }
+    """
+        case .waste:
+            json = """
+            {
+              "id": 1,
+              "date": "2025-06-22",
+              "status": "waste",
+              "message": "쓰레기 처리 완료"
             }
             """
         }
