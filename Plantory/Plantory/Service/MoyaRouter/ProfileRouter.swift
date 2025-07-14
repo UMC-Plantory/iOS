@@ -7,7 +7,7 @@ enum ProfileRouter: APITargetType {
     case monthlyStats
     case weeklyEmotionStats
     case temporary(sort: String)
-    case waste
+    case waste(sort: String)
 }
 
 extension ProfileRouter {
@@ -32,19 +32,17 @@ extension ProfileRouter {
 
     var method: Moya.Method {
         switch self {
-        case .weeklyStats, .monthlyStats, .weeklyEmotionStats, .temporary:
+        case .weeklyStats, .monthlyStats, .weeklyEmotionStats, .temporary, .waste:
             return .get
-        case .waste:
-            return .patch
         }
     }
 
     var task: Task {
         switch self {
-        case .weeklyStats, .monthlyStats, .weeklyEmotionStats, .waste:
+        case .weeklyStats, .monthlyStats, .weeklyEmotionStats:
             return .requestPlain
             
-        case .temporary(let sort):
+        case .temporary(let sort), .waste(let sort):
                 return .requestParameters(
                         parameters: ["sort": sort],
                         encoding: URLEncoding.default
@@ -194,13 +192,26 @@ extension ProfileRouter {
     """
         case .waste:
             json = """
-            {
-              "id": 1,
-              "date": "2025-06-22",
-              "status": "waste",
-              "message": "쓰레기 처리 완료"
-            }
-            """
+    {
+      "isSuccess": true,
+      "code": 200,
+      "message": "휴지통 일기 목록 조회 성공",
+      "result": {
+        "diaries": [
+          { "id": 1,  "date": "2025-06-20", "title": "일기 제목 1"  },
+          { "id": 2,  "date": "2025-06-21", "title": "일기 제목 2"  },
+          { "id": 3,  "date": "2025-06-22", "title": "일기 제목 3"  },
+          { "id": 4,  "date": "2025-06-23", "title": "일기 제목 4"  },
+          { "id": 5,  "date": "2025-06-24", "title": "일기 제목 5"  },
+          { "id": 6,  "date": "2025-06-25", "title": "일기 제목 6"  },
+          { "id": 7,  "date": "2025-06-26", "title": "일기 제목 7"  },
+          { "id": 8,  "date": "2025-06-27", "title": "일기 제목 8"  },
+          { "id": 9,  "date": "2025-06-28", "title": "일기 제목 9"  },
+          { "id": 10, "date": "2025-06-29", "title": "일기 제목 10" }
+        ]
+      }
+    }
+    """
         }
 
         return Data(json.utf8)

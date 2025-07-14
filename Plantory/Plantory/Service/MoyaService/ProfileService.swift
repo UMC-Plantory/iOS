@@ -66,4 +66,12 @@ extension MoyaProvider where Target == ProfileRouter {
                     .map { $0.diaries }
                     .eraseToAnyPublisher()
     }
+    
+    func fetchWaste(sort: SortOrder = .latest) -> AnyPublisher<[Diary], MoyaError> {
+            return requestPublisher(.waste(sort: sort.rawValue))
+                    .filterSuccessfulStatusCodes()
+                    .map(TempResponse.self, using: JSONDecoder.customDateDecoder)
+                    .map { $0.diaries }
+                    .eraseToAnyPublisher()
+    }
 }
