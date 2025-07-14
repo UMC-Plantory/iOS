@@ -10,6 +10,7 @@ enum ProfileRouter: APITargetType {
     case temporary(sort: String)
     case waste(sort: String)
     case wastePatch(diaryIds: [Int])
+    case deleteDiary(diaryIds: [Int])
 }
 
 extension ProfileRouter {
@@ -31,6 +32,8 @@ extension ProfileRouter {
             return "/diary/temp"
         case .waste, .wastePatch:
             return "/diary/waste"
+        case .deleteDiary:
+            return "/diary"
         }
     }
 
@@ -39,6 +42,8 @@ extension ProfileRouter {
         switch self {
         case .wastePatch:
             return .patch
+        case .deleteDiary:
+            return .delete
         default:
             return .get
         }
@@ -59,7 +64,7 @@ extension ProfileRouter {
             )
 
         // PATCH: diaryIds JSON body
-        case .wastePatch(let diaryIds):
+        case .wastePatch(let diaryIds), .deleteDiary(let diaryIds):
             return .requestParameters(
                 parameters: ["diaryIds": diaryIds],
                 encoding: JSONEncoding.default
@@ -200,6 +205,15 @@ extension ProfileRouter {
               "isSuccess": true,
               "code": 200,
               "message": "일기 삭제 성공"
+            }
+            """
+            
+        case .deleteDiary:
+            json = """
+            {
+              "isSuccess": true,
+              "code": 200,
+              "message": "일기 영구 삭제 성공"
             }
             """
         }

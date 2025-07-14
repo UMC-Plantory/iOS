@@ -68,6 +68,11 @@ struct TrashView: View {
                 },
                 onDelete: {
                     // 영구 삭제 처리
+                            viewModel.deleteForever(ids: Array(checkedItems))
+                            // 2) 로컬 UI에서도 선택 해제
+                            checkedItems.removeAll()
+                            // 3) 편집 모드 종료(선택 사항)
+                            isEditing = false
                 }
             )
         }

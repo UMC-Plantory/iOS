@@ -62,7 +62,7 @@ public class TempViewModel: ObservableObject {
         errorMessage = nil
 
         provider
-            .deleteWaste(diaryIds: ids)               // PATCH /diary/waste 호출
+            .patchWaste(diaryIds: ids)               // PATCH /diary/waste 호출
             .receive(on: DispatchQueue.main)
             .sink { [weak self] completion in
                 self?.isLoading = false

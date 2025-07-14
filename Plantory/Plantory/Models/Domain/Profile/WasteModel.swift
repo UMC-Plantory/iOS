@@ -44,3 +44,13 @@ public struct WastePatchResponse: Decodable {
     /// 응답 메시지
     public let message: String
 }
+
+/// 휴지통 일기 삭제 응답 모델
+public struct WasteDeleteResponse: Decodable {
+    /// 요청 성공 여부
+    public let isSuccess: Bool
+    /// HTTP 상태 코드
+    public let code: Int
+    /// 응답 메시지
+    public let message: String
+}
