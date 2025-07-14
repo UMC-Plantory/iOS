@@ -1,9 +1,11 @@
 import SwiftUI
 
 struct TempStorageView: View {
+    @Environment(\.dismiss) private var dismiss
+
     @StateObject private var viewModel = TempViewModel()
     @State private var isNewSorting = true
-    @State private var isEditing = true
+    @State private var isEditing = false
     @State private var checkedItems = Set<Int>()
 
     // 체크된 아이템 개수
@@ -38,8 +40,11 @@ struct TempStorageView: View {
                                 isChecked: Binding(
                                     get: { checkedItems.contains(cell.id) },
                                     set: { newVal in
-                                        if newVal { checkedItems.insert(cell.id) }
-                                        else        { checkedItems.remove(cell.id) }
+                                        if newVal {
+                                            checkedItems.insert(cell.id)
+                                        } else {
+                                            checkedItems.remove(cell.id)
+                                        }
                                     }
                                 ),
                                 onNavigate: {
@@ -53,8 +58,6 @@ struct TempStorageView: View {
                 }
             }
 
-            Spacer()
-
             TempFootView(
                 isEditing: $isEditing,
                 isEmpty: checkedItems.isEmpty,
@@ -64,11 +67,59 @@ struct TempStorageView: View {
             )
         }
         .padding(.horizontal)
-        // 정렬 방식 변경 시 API 재호출
         .onChange(of: isNewSorting) { oldValue, newValue in
             viewModel.fetchTemp(sort: newValue ? .latest : .oldest)
         }
-
+        .customNavigation(
+            title: "임시보관함",
+            leading: AnyView(
+                Group {
+                    if isEditing {
+                        Button {
+                            // 전체 선택/해제 로직
+                            if checkedItems.count == sortedCells.count {
+                                checkedItems.removeAll()
+                            } else {
+                                sortedCells.forEach { checkedItems.insert($0.id) }
+                            }
+                        } label: {
+                            Text(checkedItems.count == sortedCells.count ? "전체 선택 해제" : "전체 선택")
+                                .font(.pretendardRegular(14))
+                                .foregroundStyle(.green07)
+                        }
+                    } else {
+                        Button {
+                            dismiss()
+                        } label: {
+                            Image("leftChevron")
+                                .fixedSize()
+                        }
+                    }
+                }
+            ),
+            trailing: AnyView(
+                Group {
+                    if isEditing {
+                        Button {
+                            isEditing = false
+                        } label: {
+                            Text("취소")
+                                .font(.pretendardRegular(14))
+                                .foregroundStyle(.green07)
+                        }
+                    } else {
+                        Button {
+                            isEditing = true
+                        } label: {
+                            Text("편집")
+                                .font(.pretendardRegular(14))
+                                .foregroundStyle(.green07)
+                        }
+                    }
+                }
+            )
+        )
+        .navigationBarBackButtonHidden(true)
     }
 }
 
@@ -161,6 +212,7 @@ struct TemporaryContentView: View {
                     .font(.pretendardMedium(12))
                     .foregroundColor(.gray)
             }
+            .frame(height: 48)
             Spacer()
             if isEditing {
                 Button { isChecked.toggle() } label: {
@@ -183,13 +235,6 @@ struct TemporaryContentView: View {
     }
 }
 
-
-struct TempItem: Identifiable {
-    let id: Int
-    let title: String
-    let date: String
-}
-
 struct TempFootView: View {
     @Binding var isEditing: Bool
     let isEmpty: Bool
@@ -201,32 +246,18 @@ struct TempFootView: View {
                 HStack {
                     Spacer()
 
-                    Button(action: onDelete) {
-                        if isEmpty {
-                            Text("삭제")
-                                .font(.pretendardMedium(14))
-                                .foregroundColor(.gray02)
-                                .padding(.horizontal, 8)
-                                .padding(.vertical, 5)
-                                .background(Color.gray07)
-                                .cornerRadius(8)
-                        } else {
-                            Text("삭제")
-                                .font(.pretendardMedium(14))
-                                .foregroundColor(.white01)
-                                .padding(.horizontal, 8)
-                                .padding(.vertical, 5)
-                                .background(Color.green06)
-                                .cornerRadius(8)
-                        }
-                    }
-                    .buttonStyle(.plain)
+                    MainSmallButton(
+                        text: "삭제",
+                        isDisabled: isEmpty,
+                        action: onDelete
+                    )
                 }
             } else {
                 HStack {
                     Text("보관함에 있는 항목은 이동된 날짜로부터 30일 뒤 휴지통으로 이동합니다.")
                         .font(.PretendardLight(12))
                         .foregroundColor(.gray07)
+                        .padding(.vertical, 11)
                 }
             }
         }
@@ -236,5 +267,7 @@ struct TempFootView: View {
 
 
 #Preview {
-    TempStorageView()
+    NavigationStack {
+        TempStorageView()
+    }
 }
