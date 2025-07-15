@@ -11,6 +11,7 @@ enum ProfileRouter: APITargetType {
     case waste(sort: String)
     case wastePatch(diaryIds: [Int])
     case deleteDiary(diaryIds: [Int])
+    case patchProfile(memberId: UUID, name: String, profileImgUrl: String, gender: String, birth: String)
 }
 
 extension ProfileRouter {
@@ -34,13 +35,15 @@ extension ProfileRouter {
             return "/diary/waste"
         case .deleteDiary:
             return "/diary"
+        case .patchProfile:
+            return "/member/profile"
         }
     }
 
     /// HTTP 메서드 설정
     var method: Moya.Method {
         switch self {
-        case .wastePatch:
+        case .wastePatch, .patchProfile:
             return .patch
         case .deleteDiary:
             return .delete
@@ -67,6 +70,19 @@ extension ProfileRouter {
         case .wastePatch(let diaryIds), .deleteDiary(let diaryIds):
             return .requestParameters(
                 parameters: ["diaryIds": diaryIds],
+                encoding: JSONEncoding.default
+            )
+        
+        // PATCH: patchProfile JSON body
+        case .patchProfile(let memberId, let name, let profileImgUrl, let gender, let birth):
+            return .requestParameters(
+                parameters: [
+                    "memberId":      memberId.uuidString,  // UUID → String
+                    "name":          name,
+                    "profileImgUrl": profileImgUrl,
+                    "gender":        gender,
+                    "birth":         birth               // "YYYY-MM-DD"
+                ],
                 encoding: JSONEncoding.default
             )
         }
@@ -216,6 +232,33 @@ extension ProfileRouter {
               "message": "일기 영구 삭제 성공"
             }
             """
+            
+        case .patchProfile(let memberId, let name, let profileImgUrl, let gender, let birth):
+                if name.lowercased() == "duplicate" {
+                    // 실패 케이스: 닉네임 중복
+                    json = """
+                    {
+                      "code": 409,
+                      "message": "이미 사용 중인 닉네임입니다.",
+                      "data": null
+                    }
+                    """
+                } else {
+                    // 성공 케이스
+                    json = """
+                    {
+                      "code": 200,
+                      "message": "프로필 수정 성공",
+                      "data": {
+                        "memberId": "\(memberId.uuidString)",
+                        "name": "\(name)",
+                        "profileImgUrl": "\(profileImgUrl)",
+                        "gender": "\(gender)",
+                        "birth": "\(birth)"
+                      }
+                    }
+                    """
+                }
         }
         return Data(json.utf8)
     }

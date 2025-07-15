@@ -70,5 +70,24 @@ extension MoyaProvider where Target == ProfileRouter {
     func deleteWaste(diaryIds: [Int]) -> AnyPublisher<WasteDeleteResponse, MoyaError> {
         requestDecoded(.wastePatch(diaryIds: diaryIds), as: WasteDeleteResponse.self)
     }
+    
+    func patchProfile(
+        memberId: UUID,
+        name: String,
+        profileImgUrl: String,
+        gender: String,
+        birth: String
+    ) -> AnyPublisher<PatchProfileResponse, MoyaError> {
+        requestDecoded(
+            .patchProfile(
+                memberId: memberId,
+                name: name,
+                profileImgUrl: profileImgUrl,
+                gender: gender,
+                birth: birth
+            ),
+            as: PatchProfileResponse.self
+        )
+    }
 }
 

@@ -7,6 +7,7 @@
 
 import Foundation
 
+// 임시보관함, 휴지통 뷰에서 공통적으로 이용하는 모델
 public struct Diary: Decodable, Identifiable {
     public let id: Int
     public let date: Date    // JSONDecoder.customDateDecoder로 "yyyy-MM-dd" 디코딩

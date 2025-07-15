@@ -136,6 +136,7 @@ struct TrashView: View {
 
     private func performDeletion() {
         viewModel.deleteForever(ids: Array(checkedItems))
+        // 실제로 삭제할 때는 fetch()로 수정된 리스트 불러오기 !!
         checkedItems.removeAll()
         isEditing = false
         showDeletePopUp = false
