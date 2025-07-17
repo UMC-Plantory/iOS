@@ -15,75 +15,69 @@ struct LoginView: View {
             logoView
             
             Spacer()
-                .frame(maxHeight: 264)
+                .frame(maxHeight: 94)
             
-            VStack(spacing: 27) {
+            VStack(spacing: 22) {
                 loginIndicatorView
                 
                 socialLoginView
             }
         }
         .padding(.horizontal, 16)
-        .padding(.top, 160)
+        .padding(.top, 128)
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .background(
+            RadialGradient(
+                colors: [.white01, .green01],
+                center: .center,
+                startRadius: 0,
+                endRadius: 130
+            )
+        )
+        .ignoresSafeArea()
     }
     
     // 로고+텍스트
     private var logoView: some View {
-        VStack(spacing: 14.5) {
-            Image("logo")
-                .resizable()
-                .aspectRatio(contentMode: .fit)
-                .frame(width: 224, height: 52)
+        VStack(spacing: 0) {
+            Image("icon")
+                .fixedSize()
             
             Text("기록으로 꽃 피우는 마음 정원")
-                .font(.pretendardRegular(16))
+                .font(.pretendardRegular(20))
                 .foregroundStyle(.green08)
+                .padding(.top, 24)
+            
+            Image("logo")
+                .fixedSize()
         }
     }
     
     // 간편로그인 인디케이터
     private var loginIndicatorView: some View {
-        HStack(spacing: 28) {
-            VStack {
-                Divider()
-                    .foregroundStyle(.gray08)
-                    .frame(height: 1)
-            }
-            
-            Text("간편로그인")
-                .font(.pretendardRegular(14))
-                .foregroundStyle(.gray08)
-            
-            VStack {
-                Divider()
-                    .foregroundStyle(.gray08)
-                    .frame(height: 1)
-            }
-        }
+        Text("간편하게 로그인하세요!")
+            .font(.pretendardRegular(14))
+            .foregroundStyle(.gray08)
     }
     
     // 소셜로그인 버튼뷰
     private var socialLoginView: some View {
-        HStack(spacing: 12) {
+        VStack(spacing: 12) {
             Button(action: {
-                print("apple_login")
-                router.reset()
-                router.push(.baseTab)
+                print("kakaoLogin")
+                router.push(.permit)
             }, label: {
-                Image("apple_login")
-                    .resizable()
-                    .aspectRatio(contentMode: .fit)
-                    .frame(width: 54, height: 54)
+                Image("kakaoLogin")
+                    .fixedSize()
             })
             
             Button(action: {
-                print("kakao_login")
-                router.push(.permit)
+                print("appleLogin")
+                router.reset()
+                router.push(.baseTab)
             }, label: {
-                Image("kakao_login")
-                    .resizable()
-                    .aspectRatio(contentMode: .fit)
-                    .frame(width: 54, height: 54)
+                Image("appleLogin")
+                    .fixedSize()
             })
         }
     }
