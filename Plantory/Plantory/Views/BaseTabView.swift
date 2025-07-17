@@ -71,8 +71,7 @@ struct BaseTabView: View {
             UITabBar.appearance().backgroundColor = .white01
             UITabBar.appearance().unselectedItemTintColor = .black01
         }
-        .navigationTitle("")
-        .navigationBarHidden(true)
+        .navigationBarBackButtonHidden(true)
     }
 }
 

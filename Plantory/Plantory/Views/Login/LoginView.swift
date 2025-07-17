@@ -8,6 +8,8 @@
 import SwiftUI
 
 struct LoginView: View {
+    @Environment(NavigationRouter.self) private var router
+    
     var body: some View {
         VStack {
             logoView
@@ -65,6 +67,8 @@ struct LoginView: View {
         HStack(spacing: 12) {
             Button(action: {
                 print("apple_login")
+                router.reset()
+                router.push(.baseTab)
             }, label: {
                 Image("apple_login")
                     .resizable()
@@ -74,6 +78,7 @@ struct LoginView: View {
             
             Button(action: {
                 print("kakao_login")
+                router.push(.permit)
             }, label: {
                 Image("kakao_login")
                     .resizable()
@@ -86,4 +91,5 @@ struct LoginView: View {
 
 #Preview {
     LoginView()
+        .environment(NavigationRouter())
 }
