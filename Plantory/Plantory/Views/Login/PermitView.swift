@@ -1,5 +1,5 @@
 //
-//  TermsOfServiceView.swift
+//  PermitView.swift
 //  Plantory
 //
 //  Created by 주민영 on 7/8/25.
@@ -7,7 +7,9 @@
 
 import SwiftUI
 
-struct TermsOfServiceView: View {
+struct PermitView: View {
+    @Environment(NavigationRouter.self) private var router
+    
     @State var viewModel: PermitViewModel = PermitViewModel()
     
     var body: some View {
@@ -30,11 +32,13 @@ struct TermsOfServiceView: View {
                         .frame(height: 168)
                 }
                 
-                MainSmallButton(
+                MainMiddleButton(
                     text: "다음",
                     isDisabled: !(viewModel.fourteenPermit && viewModel.termsOfServicePermit && viewModel.informationPermit),
                     action: {
                         print("다음")
+                        router.reset()
+                        router.push(.baseTab)
                     }
                 )
                 
@@ -43,10 +47,12 @@ struct TermsOfServiceView: View {
             .padding(.horizontal, 16)
         }
         .padding(.top, 10)
+        .navigationBarBackButtonHidden(true)
         .customNavigation(
             leading:
                 Button(action: {
                     print("뒤로가기")
+                    router.pop()
                 }, label: {
                     Image("leftChevron")
                         .fixedSize()
@@ -111,7 +117,6 @@ struct TermsOfServiceView: View {
 }
 
 #Preview {
-    NavigationStack {
-        TermsOfServiceView()
-    }
+    PermitView()
+        .environment(NavigationRouter())
 }
