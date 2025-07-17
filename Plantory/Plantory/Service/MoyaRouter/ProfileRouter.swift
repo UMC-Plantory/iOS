@@ -12,6 +12,7 @@ enum ProfileRouter: APITargetType {
     case wastePatch(diaryIds: [Int])
     case deleteDiary(diaryIds: [Int])
     case patchProfile(memberId: UUID, name: String, profileImgUrl: String, gender: String, birth: String)
+    case fetchProfile(memberId: UUID)
 }
 
 extension ProfileRouter {
@@ -35,7 +36,7 @@ extension ProfileRouter {
             return "/diary/waste"
         case .deleteDiary:
             return "/diary"
-        case .patchProfile:
+        case .patchProfile, .fetchProfile:
             return "/member/profile"
         }
     }
@@ -43,12 +44,12 @@ extension ProfileRouter {
     /// HTTP 메서드 설정
     var method: Moya.Method {
         switch self {
+        case .fetchProfile, .weeklyStats, .monthlyStats, .weeklyEmotionStats, .temporary, .waste:
+            return .get
         case .wastePatch, .patchProfile:
             return .patch
         case .deleteDiary:
             return .delete
-        default:
-            return .get
         }
     }
 
@@ -66,22 +67,29 @@ extension ProfileRouter {
                 encoding: URLEncoding.default
             )
 
+        // GET: member_id 쿼리 파라미터 (프로필 조회)
+        case .fetchProfile(let memberId):
+            return .requestParameters(
+                parameters: ["member_id": memberId.uuidString],
+                encoding: URLEncoding.default
+            )
+
         // PATCH: diaryIds JSON body
         case .wastePatch(let diaryIds), .deleteDiary(let diaryIds):
             return .requestParameters(
                 parameters: ["diaryIds": diaryIds],
                 encoding: JSONEncoding.default
             )
-        
+
         // PATCH: patchProfile JSON body
         case .patchProfile(let memberId, let name, let profileImgUrl, let gender, let birth):
             return .requestParameters(
                 parameters: [
-                    "memberId":      memberId.uuidString,  // UUID → String
+                    "memberId":      memberId.uuidString,
                     "name":          name,
                     "profileImgUrl": profileImgUrl,
                     "gender":        gender,
-                    "birth":         birth               // "YYYY-MM-DD"
+                    "birth":         birth
                 ],
                 encoding: JSONEncoding.default
             )
@@ -259,6 +267,27 @@ extension ProfileRouter {
                     }
                     """
                 }
+            case .fetchProfile:
+            json = """
+            {
+              "code": 200,
+              "message": "프로필 조회 성공",
+              "data": {
+                "memberId": "uuid123",
+                "name": "손가영",
+                "email": "user@email.com",
+                "gender": "female",
+                "birth": "2004-03-15",
+                "profileImgUrl": "https://...",
+                "wateringCanCnt": 5,
+                "continuousRecordCnt": 3,
+                "totalRecordCnt": 10,
+                "avgSleepTime": "07:30",
+                "totalBloomCnt": 2,
+                "status": "ACTIVE"
+              }
+            }
+            """
         }
         return Data(json.utf8)
     }

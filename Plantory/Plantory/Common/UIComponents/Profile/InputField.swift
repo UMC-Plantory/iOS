@@ -7,7 +7,7 @@
 
 import SwiftUI
 
-enum FieldState {
+public enum FieldState {
     case normal
     case success(message: String)
     case error(message: String)

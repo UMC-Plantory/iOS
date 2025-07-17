@@ -1,69 +1,97 @@
-//
-//  ProfileViewModel.swift
-//  Plantory
-//
-//  Created by 이효주 on 7/15/25.
-//
-
 import Foundation
 import Moya
 import Combine
 import CombineMoya
 
+/// 프로필 조회 및 수정 기능을 담당하는 뷰모델
+/// 뷰모델 초기화 시 기본 샘플 ID로 즉시 조회 수행
 final public class ProfileViewModel: ObservableObject {
     // MARK: - Published Properties
-    @Published public private(set) var updatedProfile: ProfileData?
-    @Published public private(set) var isLoading = false
-    @Published public private(set) var errorMessage: String?
-    
-    @Published var birth: String = ""
-    @Published var id: String = ""
-    @Published var name: String = ""
-    // 검증 결과
-    @Published var nameState: FieldState = .normal
-    @Published var idState: FieldState = .normal
-    @Published var birthState: FieldState = .normal
+    /// GET /member/profile 응답의 data 부분 타입
+    @Published public private(set) var updatedProfile: FetchProfileData?
+    @Published public private(set) var isLoading    = false
+    @Published public private(set) var errorMessage = ""
+
+    // MARK: - Form Inputs
+    @Published public var id            = ""
+    @Published public var name          = ""
+    @Published public var email         = ""
+    @Published public var gender        = ""
+    @Published public var birth         = ""
+    @Published public var profileImgUrl = ""
+
+    // MARK: - Validation States
+    @Published public var nameState  = FieldState.normal
+    @Published public var idState    = FieldState.normal
+    @Published public var emailState = FieldState.normal
+    @Published public var birthState = FieldState.normal
 
     // MARK: - Dependencies
     private let provider: MoyaProvider<ProfileRouter>
     private var cancellables = Set<AnyCancellable>()
 
-    // MARK: - Init
-    /// 기본적으로 stub 테스트용 provider 사용합니다.
+    // MARK: - Initialization
+    /// - memberId: 조회에 사용할 회원 UUID 문자열 (기본값: 샘플 "uuid123")
+    /// - provider: 네트워크/테스트용 Moya Provider (기본값 stub 즉시 응답)
     init(
+        memberId: String = "uuid123",
         provider: MoyaProvider<ProfileRouter> = APIManager.shared.testProvider(for: ProfileRouter.self)
     ) {
         self.provider = provider
-        
-        // name 검증
-                $name
-                    .map(Self.validateName)
-                    .assign(to: &$nameState)
-                // id 검증
-                $id
-                    .map(Self.validateID)
-                    .assign(to: &$idState)
-                // birth 검증
-                $birth
-                    .map(Self.validateBirthDate)
-                    .assign(to: &$birthState)
+        self.id       = memberId
+        setupValidationBindings()
+        fetchProfile()
     }
-    
-    // MARK: - API
-    /// 프로필 수정 요청 (PATCH /member/profile)
-    public func patchProfile(
-        memberId: UUID,
-        name: String,
-        profileImgUrl: String,
-        gender: String,
-        birth: String
-    ) {
-        isLoading = true
-        errorMessage = nil
+
+    // MARK: - API Methods
+    /// 프로필 조회
+    public func fetchProfile() {
+        guard let uuid = UUID(uuidString: id) else {
+            errorMessage = "유효하지 않은 회원 ID입니다."
+            return
+        }
+        isLoading    = true
+        errorMessage = ""
 
         provider
+            .fetchProfile(memberId: uuid)
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] completion in
+                guard let self = self else { return }
+                self.isLoading = false
+                if case let .failure(err) = completion {
+                    self.errorMessage = err.localizedDescription
+                }
+            } receiveValue: { [weak self] response in
+                guard let self = self else { return }
+                if response.code == 200, let data = response.data {
+                    // FetchProfileData로 바로 바인딩
+                    self.updatedProfile = data
+                    // 바인딩된 값으로 폼 초기화
+                    self.name          = data.name
+                    self.email         = data.email
+                    self.gender        = data.gender
+                    self.birth         = data.birth
+                    self.profileImgUrl = data.profileImgUrl
+                } else {
+                    self.errorMessage = response.message
+                }
+            }
+            .store(in: &cancellables)
+    }
+
+    /// 프로필 수정
+    public func patchProfile() {
+        guard let uuid = UUID(uuidString: id) else {
+            errorMessage = "유효하지 않은 회원 ID입니다."
+            return
+        }
+        isLoading    = true
+        errorMessage = ""
+        
+        provider
             .patchProfile(
-                memberId:       memberId,
+                memberId:      uuid,
                 name:           name,
                 profileImgUrl:  profileImgUrl,
                 gender:         gender,
@@ -73,50 +101,58 @@ final public class ProfileViewModel: ObservableObject {
             .sink { [weak self] completion in
                 guard let self = self else { return }
                 self.isLoading = false
-                if case let .failure(error) = completion {
-                    self.errorMessage = error.localizedDescription
+                if case let .failure(err) = completion {
+                    self.errorMessage = err.localizedDescription
                 }
             } receiveValue: { [weak self] response in
                 guard let self = self else { return }
-                if response.code == 200, let data = response.data {
-                    self.updatedProfile = data
+                if response.code == 200 {
+                    // → 수정이 성공하면, GET /member/profile을 다시 호출
+                    self.fetchProfile()
                 } else {
                     self.errorMessage = response.message
                 }
             }
             .store(in: &cancellables)
     }
-    
-    private static func validateName(_ input: String) -> FieldState {
-            guard !input.isEmpty else { return .normal }
-            if input.count < 2 || input.count > 20 {
-                return .error(message: "이름은 2자 이상, 20자 이내로 설정해주세요.")
-            }
-            return .success(message: "해당 이름으로 변경이 가능합니다.")
-        }
 
-        private static func validateID(_ input: String) -> FieldState {
-            guard !input.isEmpty else { return .normal }
-            let pattern = "^[A-Za-z0-9_]{2,20}$"
-            if input.range(of: pattern, options: .regularExpression) == nil {
-                return .error(message: "아이디는 2~20자의 영문, 숫자, 또는 밑줄만 가능합니다.")
-            }
-            return .success(message: "해당 아이디로 변경이 가능합니다.")
-        }
-    
+    // MARK: - Validation Setup
+    private func setupValidationBindings() {
+        $name.map(Self.validateName).assign(to: &$nameState)
+        $id.map(Self.validateID).assign(to: &$idState)
+        $email.map(Self.validateEmail).assign(to: &$emailState)
+        $birth.map(Self.validateBirthDate).assign(to: &$birthState)
+    }
+
+    // MARK: - Validation Methods
+    private static func validateName(_ input: String) -> FieldState {
+        guard !input.isEmpty else { return .normal }
+        return input.count >= 2 && input.count <= 20
+            ? .success(message: "사용 가능한 이름입니다.")
+            : .error(message: "이름은 2~20자여야 합니다.")
+    }
+
+    private static func validateID(_ input: String) -> FieldState {
+        guard !input.isEmpty else { return .normal }
+        let regex = "^[A-Za-z0-9_]{2,20}$"
+        return input.range(of: regex, options: .regularExpression) != nil
+            ? .success(message: "사용 가능한 ID입니다.")
+            : .error(message: "2~20자의 영문, 숫자 또는 밑줄만 가능합니다.")
+    }
+
+    private static func validateEmail(_ input: String) -> FieldState {
+        guard !input.isEmpty else { return .normal }
+        let regex = "^[A-Z0-9a-z._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}$"
+        return input.range(of: regex, options: .regularExpression) != nil
+            ? .success(message: "유효한 이메일입니다.")
+            : .error(message: "올바른 이메일 형식을 입력하세요.")
+    }
+
     private static func validateBirthDate(_ input: String) -> FieldState {
-            guard !input.isEmpty else { return .normal }
-            let pattern = #"^\d{4}\.\d{2}\.\d{2}$"#
-            guard input.range(of: pattern, options: .regularExpression) != nil else {
-                return .error(message: "생년월일 입력 양식은 YYYY.MM.DD를 따라야 합니다.")
-            }
-            let fmt = DateFormatter()
-            fmt.locale = Locale(identifier: "en_US_POSIX")
-            fmt.dateFormat = "yyyy.MM.dd"
-            fmt.isLenient = false
-            guard fmt.date(from: input) != nil else {
-                return .error(message: "유효하지 않은 날짜입니다.")
-            }
-            return .success(message: "해당 생년월일로 변경이 가능합니다.")
-        }
+        guard !input.isEmpty else { return .normal }
+        let regex = #"^\d{4}-\d{2}-\d{2}$"#
+        return input.range(of: regex, options: .regularExpression) != nil
+            ? .success(message: "유효한 생년월일입니다.")
+            : .error(message: "YYYY-MM-DD 형식이어야 합니다.")
+    }
 }

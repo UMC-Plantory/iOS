@@ -71,6 +71,11 @@ extension MoyaProvider where Target == ProfileRouter {
         requestDecoded(.wastePatch(diaryIds: diaryIds), as: WasteDeleteResponse.self)
     }
     
+    /// 유저 프로필 조회 (GET /member/profile?member_id=...)
+    func fetchProfile(memberId: UUID) -> AnyPublisher<FetchProfileResponse, MoyaError> {
+        requestDecoded(.fetchProfile(memberId: memberId), as: FetchProfileResponse.self)
+    }
+    
     func patchProfile(
         memberId: UUID,
         name: String,
@@ -90,4 +95,3 @@ extension MoyaProvider where Target == ProfileRouter {
         )
     }
 }
-
