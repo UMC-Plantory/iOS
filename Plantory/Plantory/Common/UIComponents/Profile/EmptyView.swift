@@ -39,6 +39,7 @@ struct EmptyView: View {
                 Text(mainText)
                     .font(.pretendardSemiBold(16))
                     .foregroundStyle(.gray10)
+                Spacer().frame(height: 5)
                 Text(subText)
                     .font(.pretendardMedium(14))
                     .foregroundStyle(.gray07)
@@ -48,7 +49,7 @@ struct EmptyView: View {
                let action = buttonAction {
                 Button(action: action) {
                     Text(title)
-                        .font(.pretendardMedium(14))
+                        .font(.pretendardRegular(14))
                         .foregroundStyle(.green06)
                         .padding(.horizontal, 8)
                         .padding(.vertical, 4)

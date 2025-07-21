@@ -111,7 +111,7 @@ extension ProfileRouter {
               "startDate": "2025-06-15",
               "endDate": "2025-06-21",
               "todayWeekday": "Saturday",
-              "averageSleepMinutes": 420,
+              "averageSleepMinutes": 697,
               "dailySleepRecords": [
                 { "day": 1, "date": "2025-06-15", "weekday": "Saturday",  "sleepStartTime": "00:30", "wakeUpTime": "07:30" },
                 { "day": 2, "date": "2025-06-16", "weekday": "Sunday",    "sleepStartTime": "23:45", "wakeUpTime": "06:45" },

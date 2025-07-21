@@ -18,7 +18,10 @@ public class SleepStatsViewModel: ObservableObject {
     @Published public private(set) var averageText: String = ""
     /// 평균 수면 시간에 따른 코멘트 (SleepStats 프로토콜의 comment)
     @Published public private(set) var averageComment: String = ""
-
+    @Published public private(set) var comment: String = ""
+    // 24시간 대비 평균 수면 비율
+    @Published public private(set) var progress: Double = 0
+    
     // MARK: - Dependencies (의존성 주입)
     /// 네트워크 요청을 수행할 Moya 프로바이더
     private let provider: MoyaProvider<ProfileRouter>
@@ -30,10 +33,11 @@ public class SleepStatsViewModel: ObservableObject {
     private var cancellables = Set<AnyCancellable>()
 
     // MARK: - Formatters & Mappings
-    /// 기간 텍스트 생성을 위한 DateFormatter (yyyy.MM.dd)
+    /// 기간 텍스트 생성을 위한 DateFormatter ("2025년 6월 8일" 포맷)
     private static let periodFormatter: DateFormatter = {
         let df = DateFormatter()
-        df.dateFormat = "yyyy.MM.dd"
+        df.locale = Locale(identifier: "ko_KR")      // 한국어 로케일
+        df.dateFormat = "yyyy년 M월 d일"             // 연, 월, 일을 글자로 표시
         return df
     }()
     /// Swift의 .weekday 결과(1~7)를 한글 요일로 매핑하기 위한 배열
@@ -118,6 +122,8 @@ public class SleepStatsViewModel: ObservableObject {
         // 4. 평균 수면 시간 텍스트 및 코멘트 설정
         averageText    = "\(model.averageHours ?? 0)h \(model.averageMinutes ?? 0)m"
         averageComment = model.comment
+        comment = "주간 평균 수면 시간"
+        progress = model.totalHours / 24
     }
 
     /**
@@ -137,5 +143,8 @@ public class SleepStatsViewModel: ObservableObject {
         // 3. 평균 수면 시간 텍스트 및 코멘트 설정
         averageText    = "\(model.averageHours ?? 0)h \(model.averageMinutes ?? 0)m"
         averageComment = model.comment
+        comment = "월간 평균 수면 시간"
+        
+        progress = model.totalHours / 24
     }
 }

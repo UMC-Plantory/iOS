@@ -9,37 +9,54 @@ struct SleepStatsView: View {
     }
 
     var body: some View {
-        VStack(spacing: 24) {
-            WeekMonthPicker(selection: $page)
-                .onChange(of: page) { oldValue, newValue in
-                    if newValue == 0 {
-                        viewModel.fetchWeekly()
-                    } else {
-                        viewModel.fetchMonthly()
+        VStack(alignment: .leading, spacing: 24) {
+                WeekMonthPicker(selection: $page)
+                    .frame(maxWidth: .infinity, alignment: .center)
+                    .onChange(of: page) { old, new in
+                        if new == 0 { viewModel.fetchWeekly() }
+                        else       { viewModel.fetchMonthly() }
                     }
-                }
 
+
+            // ——— 여기부터 텍스트 섹션 ———
             VStack(alignment: .leading, spacing: 8) {
+                Text(viewModel.comment)
+                    .font(.pretendardSemiBold(18))
                 Text(viewModel.periodText)
-                    .font(.pretendardRegular(14))
-                    .foregroundColor(.gray06)
-                Text(viewModel.averageText)
-                    .font(.pretendardSemiBold(32))
-                Text(viewModel.averageComment)
-                    .font(.pretendardRegular(14))
+                    .font(.pretendardRegular(16))
+                    .foregroundColor(.gray09)
+                HStack {
+                        Text(viewModel.averageComment)
+                            .font(.pretendardRegular(12))
+                            .foregroundColor(.green06)
+                            .fixedSize(horizontal: false, vertical: true)
+                            .frame(minHeight: 68, alignment: .topLeading)
+                    Spacer()
+                    SleepGaugeView(
+                        progress: viewModel.progress,
+                        label: viewModel.averageText
+                    )
+                    .frame(width: 120, height: 120)
+                    .offset(y: 50)
+                }
+                .offset(y: -20)
             }
-            .padding(.horizontal, 28)
-
+            
+            // ——— 차트 뷰 ———
             if page == 0 {
                 WeekChartView(daily: viewModel.daily)
+                    .frame(maxWidth: .infinity, alignment: .leading)
             } else {
                 MonthChartView(weekly: viewModel.monthly)
+                    .frame(maxWidth: .infinity, alignment: .leading)
             }
 
             Spacer()
         }
+        .padding(.horizontal, 28) // ③ 전체 좌우 여백
     }
 }
+
 
 
 // MARK: - 페이징 탭
@@ -49,15 +66,15 @@ struct WeekMonthPicker: View {
 
     var body: some View {
         VStack(spacing: 8) {
-            HStack {
+            HStack(spacing: 25) {
                 ForEach(0..<titles.count, id: \.self) { idx in
                     Button {
                         withAnimation { selection = idx }
                     } label: {
                         Text(titles[idx])
-                            .font(.pretendardMedium(16))
+                            .font(.pretendardSemiBold(20))
                             .foregroundColor(selection == idx ? .black : .gray06)
-                            .frame(maxWidth: .infinity)
+                            .frame(maxWidth: 60)
                     }
                     .buttonStyle(PlainButtonStyle())
                 }
@@ -66,14 +83,81 @@ struct WeekMonthPicker: View {
                 ForEach(0..<titles.count, id: \.self) { idx in
                     Rectangle()
                         .fill(selection == idx ? Color.black : Color.clear)
-                        .frame(height: 2)
-                        .frame(maxWidth: .infinity)
+                        .frame(height: 1)
+                        .frame(width: 84)
                 }
             }
         }
-        .padding(.horizontal, 28)
     }
 }
+
+
+struct SleepGaugeView: View {
+    /// 0.0 ~ 1.0
+    let progress: Double
+    /// 예: "7h 01m"
+    let label: String
+
+    @State private var animatedProgress: Double = 0
+
+    //— 한 번에 조절하기 편한 값
+    private let gaugeDiameter: CGFloat = 120
+    private let strokeWidth:   CGFloat = 16
+
+    private var outerDiameter: CGFloat { gaugeDiameter + strokeWidth }
+    private var innerDiameter: CGFloat { gaugeDiameter - strokeWidth }
+
+    var body: some View {
+        ZStack {
+            // 큰 원
+            Circle()
+                .fill(Color.white)
+                .frame(width: outerDiameter, height: outerDiameter)
+                .shadow(color: Color.black.opacity(0.05), radius: 8, x: 0, y: 4)
+
+            // 게이지
+            Circle()
+                .trim(from: 0, to: CGFloat(animatedProgress))
+                .stroke(
+                    AngularGradient(
+                        gradient: Gradient(stops: [
+                                                    .init(color: Color.green01, location: 0.0),
+                                                    .init(color: Color.green02, location: 0.5),
+                                                    .init(color: Color.green03, location: 1.0)
+                                                ]),
+                        center: .center,
+                        startAngle: .degrees(-90),
+                        endAngle:   .degrees(270)
+                    ),
+                    style: StrokeStyle(lineWidth: strokeWidth, lineCap: .round)
+                )
+                .frame(width: gaugeDiameter, height: gaugeDiameter)
+                .rotationEffect(.degrees(-90))
+
+            // 작은 원
+            Circle()
+                .fill(Color.white)
+                .frame(width: innerDiameter, height: innerDiameter)
+
+            // 텍스트
+            Text(label)
+                .font(.pretendardSemiBold(24))
+                .foregroundColor(.green07)
+        }
+        .onAppear {
+            withAnimation(.easeOut(duration: 0.8)) {
+                animatedProgress = progress
+            }
+        }
+        .onChange(of: progress) { oldValue, newValue in
+            withAnimation(.easeOut(duration: 0.8)) {
+                animatedProgress = newValue
+            }
+        }
+
+    }
+}
+
 
 // MARK: - 주간 막대 차트
 struct WeekChartView: View {

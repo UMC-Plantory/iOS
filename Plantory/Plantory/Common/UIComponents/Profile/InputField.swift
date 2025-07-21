@@ -33,12 +33,6 @@ public enum FieldState {
         case .error(let msg):   return msg
         }
     }
-    var textColor: Color {
-        switch self {
-        case .error:   return Color.red
-        default:       return Color.primary
-        }
-    }
 }
 
 struct InputField: View {
@@ -56,7 +50,7 @@ struct InputField: View {
             TextField(placeholder, text: $text)
                 .font(.pretendardRegular(14))
                 .focused($isFocused)
-                .foregroundColor(state.textColor)
+                .foregroundColor(.black01)
                 .padding(.horizontal, 16)
                 .padding(.vertical, 12)
                 .background(
