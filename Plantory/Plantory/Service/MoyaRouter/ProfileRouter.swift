@@ -70,7 +70,7 @@ extension ProfileRouter {
         // GET: member_id 쿼리 파라미터 (프로필 조회)
         case .fetchProfile(let memberId):
             return .requestParameters(
-                parameters: ["member_id": memberId.uuidString],
+                parameters: ["memberId": memberId.uuidString],
                 encoding: URLEncoding.default
             )
 
@@ -273,7 +273,7 @@ extension ProfileRouter {
               "code": 200,
               "message": "프로필 조회 성공",
               "data": {
-                "memberId": "uuid123",
+                "memberId": "123E4567-E89B-12D3-A456-426614174000",
                 "name": "손가영",
                 "email": "user@email.com",
                 "gender": "female",

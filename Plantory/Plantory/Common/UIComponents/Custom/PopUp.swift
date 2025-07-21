@@ -32,7 +32,7 @@ struct PopUp: View {
                 Text(message)
                     .font(.pretendardMedium(14))
                     .foregroundColor(.gray09)
-                    .multilineTextAlignment(.center)
+                    .multilineTextAlignment(.leading)
                     .fixedSize(horizontal: false, vertical: true)
 
                 Spacer().frame(height: 27)

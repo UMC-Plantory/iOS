@@ -25,6 +25,7 @@ final public class ProfileViewModel: ObservableObject {
     @Published public var idState    = FieldState.normal
     @Published public var emailState = FieldState.normal
     @Published public var birthState = FieldState.normal
+    @Published public var genderState = FieldState.normal
 
     // MARK: - Dependencies
     private let provider: MoyaProvider<ProfileRouter>
@@ -34,7 +35,8 @@ final public class ProfileViewModel: ObservableObject {
     /// - memberId: 조회에 사용할 회원 UUID 문자열 (기본값: 샘플 "uuid123")
     /// - provider: 네트워크/테스트용 Moya Provider (기본값 stub 즉시 응답)
     init(
-        memberId: String = "uuid123",
+        // 실제로는 memberId 받아오기
+        memberId: String = "123E4567-E89B-12D3-A456-426614174000",
         provider: MoyaProvider<ProfileRouter> = APIManager.shared.testProvider(for: ProfileRouter.self)
     ) {
         self.provider = provider
@@ -73,6 +75,12 @@ final public class ProfileViewModel: ObservableObject {
                     self.gender        = data.gender
                     self.birth         = data.birth
                     self.profileImgUrl = data.profileImgUrl
+                    
+                    self.nameState  = .normal
+                    self.idState    = .normal
+                    self.emailState = .normal
+                    self.birthState = .normal
+                    self.genderState = .normal
                 } else {
                     self.errorMessage = response.message
                 }
@@ -120,7 +128,6 @@ final public class ProfileViewModel: ObservableObject {
     private func setupValidationBindings() {
         $name.map(Self.validateName).assign(to: &$nameState)
         $id.map(Self.validateID).assign(to: &$idState)
-        $email.map(Self.validateEmail).assign(to: &$emailState)
         $birth.map(Self.validateBirthDate).assign(to: &$birthState)
     }
 
@@ -138,14 +145,6 @@ final public class ProfileViewModel: ObservableObject {
         return input.range(of: regex, options: .regularExpression) != nil
             ? .success(message: "사용 가능한 ID입니다.")
             : .error(message: "2~20자의 영문, 숫자 또는 밑줄만 가능합니다.")
-    }
-
-    private static func validateEmail(_ input: String) -> FieldState {
-        guard !input.isEmpty else { return .normal }
-        let regex = "^[A-Z0-9a-z._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}$"
-        return input.range(of: regex, options: .regularExpression) != nil
-            ? .success(message: "유효한 이메일입니다.")
-            : .error(message: "올바른 이메일 형식을 입력하세요.")
     }
 
     private static func validateBirthDate(_ input: String) -> FieldState {
