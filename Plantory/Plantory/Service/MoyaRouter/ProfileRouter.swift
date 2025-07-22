@@ -109,17 +109,17 @@ extension ProfileRouter {
             json = """
             {
               "startDate": "2025-06-15",
-              "endDate": "2025-06-21",
+              "endDate":   "2025-06-21",
               "todayWeekday": "Saturday",
               "averageSleepMinutes": 697,
               "dailySleepRecords": [
-                { "day": 1, "date": "2025-06-15", "weekday": "Saturday",  "sleepStartTime": "20:30", "wakeUpTime": "07:30" },
-                { "day": 2, "date": "2025-06-16", "weekday": "Sunday",    "sleepStartTime": "23:45", "wakeUpTime": "06:45" },
-                { "day": 3, "date": "2025-06-17", "weekday": "Monday",    "sleepStartTime": "00:15", "wakeUpTime": "07:15" },
-                { "day": 4, "date": "2025-06-18", "weekday": "Tuesday",   "sleepStartTime": "15:55", "wakeUpTime": "23:55" },
-                { "day": 5, "date": "2025-06-19", "weekday": "Wednesday", "sleepStartTime": "00:20", "wakeUpTime": "07:20" },
-                { "day": 6, "date": "2025-06-20", "weekday": "Thursday",  "sleepStartTime": "17:10", "wakeUpTime": "07:10" },
-                { "day": 7, "date": "2025-06-21", "weekday": "Friday",    "sleepStartTime": "00:00", "wakeUpTime": "07:00" }
+                { "day": 1, "date": "2025-06-15", "weekday": "Sunday",    "sleepStartTime": "20:30", "wakeUpTime": "07:30" },
+                { "day": 2, "date": "2025-06-16", "weekday": "Monday",    "sleepStartTime": "23:45", "wakeUpTime": "06:45" },
+                { "day": 3, "date": "2025-06-17", "weekday": "Tuesday",   "sleepStartTime": "00:15", "wakeUpTime": "07:15" },
+                { "day": 4, "date": "2025-06-18", "weekday": "Wednesday", "sleepStartTime": "15:55", "wakeUpTime": "23:55" },
+                { "day": 5, "date": "2025-06-19", "weekday": "Thursday",  "sleepStartTime": "00:20", "wakeUpTime": "07:20" },
+                { "day": 6, "date": "2025-06-20", "weekday": "Friday",    "sleepStartTime": "17:10", "wakeUpTime": "07:10" },
+                { "day": 7, "date": "2025-06-21", "weekday": "Saturday",  "sleepStartTime": "00:00", "wakeUpTime": "07:00" }
               ]
             }
             """

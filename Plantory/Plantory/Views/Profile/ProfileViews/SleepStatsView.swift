@@ -203,9 +203,8 @@ struct WeekChartView: View {
         .chartYAxis {
             AxisMarks(position: .leading, values: yTickValues) { value in
                 AxisGridLine(stroke: StrokeStyle(lineWidth: 1, dash: [5,5]))
-                AxisTick()
                 if let v = value.as(Double.self),
-                   let idx = yTickValues.firstIndex(of: v) {
+                   let idx = Array(yTickValues.reversed()).firstIndex(of: v) {
                     AxisValueLabel(yTickLabels[idx])
                         .font(.pretendardRegular(12))
                         .foregroundStyle(.gray06)
