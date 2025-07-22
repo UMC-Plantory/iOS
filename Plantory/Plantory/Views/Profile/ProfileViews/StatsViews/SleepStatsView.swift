@@ -96,72 +96,6 @@ struct WeekMonthPicker: View {
     }
 }
 
-struct SleepGaugeView: View {
-    /// 0.0 ~ 1.0
-    let progress: Double
-    /// 예: "7h 24m"
-    let label: String
-
-    @State private var animatedProgress: Double = 0
-
-    var body: some View {
-        GeometryReader { geo in
-            let diameter = min(geo.size.width, geo.size.height)
-            let lineWidth = diameter * (16 / 120)
-
-            ZStack {
-                // 1) 큰 흰색 원
-                Circle()
-                    .fill(Color.white)
-                    .frame(width: diameter, height: diameter)
-
-                // 2) 흰색 테두리 + 그림자
-                Circle()
-                    .stroke(Color.white, style: StrokeStyle(lineWidth: lineWidth))
-                    .frame(width: diameter, height: diameter)
-                    .shadow(color: Color.black.opacity(0.1),
-                            radius: lineWidth/5,
-                            x: 0, y: lineWidth/4)
-
-                // 3) 그라디언트 게이지
-                Circle()
-                    .trim(from: 0, to: CGFloat(animatedProgress))
-                    .stroke(
-                        AngularGradient(
-                            gradient: Gradient(stops: [
-                                .init(color: Color.green01, location: 0.0),
-                                .init(color: Color.green02, location: 0.5),
-                                .init(color: Color.green03, location: 1.0)
-                            ]),
-                            center: .center,
-                            startAngle: .degrees(-90),
-                            endAngle: .degrees(270)
-                        ),
-                        style: StrokeStyle(lineWidth: lineWidth, lineCap: .round)
-                    )
-                    .frame(width: diameter, height: diameter)
-                    .rotationEffect(.degrees(-90))
-
-                // 4) 중앙 텍스트
-                Text(label)
-                    .font(.pretendardSemiBold(diameter * 0.2))
-                    .foregroundColor(.green06)
-            }
-            .frame(width: geo.size.width, height: geo.size.height)
-        }
-        .onAppear {
-            withAnimation(.easeOut(duration: 0.8)) {
-                animatedProgress = progress
-            }
-        }
-        .onChange(of: progress) { oldValue, newValue in
-            withAnimation(.easeOut(duration: 0.8)) {
-                animatedProgress = newValue
-            }
-        }
-    }
-}
-
 
 // MARK: - WeekChartView
 struct WeekChartView: View {
@@ -186,6 +120,7 @@ struct WeekChartView: View {
                     width:  .fixed(20)
                 )
                 .cornerRadius(50)
+                .shadow(color: .black.opacity(0.1), radius: 2, x:2, y:1)
                 .foregroundStyle(
                     LinearGradient(
                         gradient: Gradient(stops: [
@@ -248,77 +183,85 @@ struct WeekChartView: View {
     }
 }
 
-
-
-// MARK: - 월간 뷰
+// MARK: - MonthChartView
 struct MonthChartView: View {
-    let weekly: [WeeklySleep]
+    // 외부에서 호출가능한 기본 생성자
+    init(weekly: [WeeklyInterval]) {
+        self.weekly = weekly
+    }
 
-    // 축에 표시할 시간 라벨 (상단부터 순서대로)
-    private let timeLabels = ["21:00", "01:00", "05:00", "09:00", "13:00", "17:00", "21:00"]
-    // 최대 시간: 24시간으로 잡으면 전체 높이를 풀 스케일로 사용
-    private let maxHours: Double = 24
+    let weekly: [WeeklyInterval]
+
+    private let axisMin = 21.0
+    private var domainLower: Double { axisMin }
+    private var domainUpper: Double { axisMin + 24 }
+    private var yTicks: [Double] { [21,25,29,33,37,41,45] }
+    private var yLabels = ["21:00","01:00","05:00","09:00","13:00","17:00","21:00"]
 
     var body: some View {
-        GeometryReader { geo in
-            let chartHeight = geo.size.height
-            let chartWidth  = geo.size.width
-            // 수평 그리드 라인을 몇 개로 나눌지
-            let lineCount = timeLabels.count
-
-            ZStack(alignment: .bottomLeading) {
-                // 1) 그리드(dashed)
-                Path { path in
-                    for i in 0..<lineCount {
-                        let y = chartHeight * CGFloat(i) / CGFloat(lineCount - 1)
-                        path.move(to: CGPoint(x: 0, y: y))
-                        path.addLine(to: CGPoint(x: chartWidth, y: y))
-                    }
+        Chart {
+            ForEach(weekly) { rec in
+                BarMark(
+                    x: .value("주차", rec.week),
+                    yStart: .value("취침", flipped(numericHour(from: rec.startTime))),
+                    yEnd:   .value("기상", flipped(numericHour(from: rec.endTime))),
+                    width:  .fixed(20)
+                )
+                .cornerRadius(50)
+                .shadow(color: .black.opacity(0.1), radius: 2, x: 2, y: 1)
+                .foregroundStyle(
+                    LinearGradient(
+                        gradient: Gradient(stops: [
+                            .init(color: Color.green01, location: 0),
+                            .init(color: Color.green02, location: 0.5),
+                            .init(color: Color.green03, location: 1)
+                        ]),
+                        startPoint: .top,
+                        endPoint: .bottom
+                    )
+                )
+            }
+        }
+        .chartYScale(domain: domainLower...domainUpper)
+        .chartYAxis {
+            AxisMarks(position: .leading, values: yTicks) { value in
+                AxisGridLine(stroke: StrokeStyle(lineWidth: 1, dash: [5,5]))
+                    .foregroundStyle(Color.gray09)
+                if let v = value.as(Double.self),
+                   let i = Array(yTicks.reversed()).firstIndex(of: v) {
+                    AxisValueLabel(yLabels[i])
+                        .font(.pretendardRegular(12))
+                        .foregroundStyle(.gray09)
                 }
-                .stroke(style: StrokeStyle(lineWidth: 1, dash: [5,5]))
-                .foregroundColor(Color.gray06.opacity(0.2))
-
-                // 2) 막대 그래프
-                HStack(alignment: .bottom, spacing: 24) {
-                    ForEach(weekly, id: \.week) { week in
-                        VStack(spacing: 4) {
-                            if let h = week.hours, let m = week.minutes {
-                                let total = Double(h) + Double(m)/60
-                                Capsule()
-                                    .fill(Color.green04)
-                                    .frame(width: 20,
-                                           height: CGFloat((total / maxHours) * chartHeight))
-                            } else {
-                                // 데이터 없을 때 얇은 회색 선
-                                Capsule()
-                                    .fill(Color.gray06.opacity(0.2))
-                                    .frame(width: 20, height: 4)
-                            }
-                            Text(week.week)
-                                .font(.pretendardRegular(12))
-                                .foregroundColor(.gray06)
-                        }
-                        .frame(maxWidth: .infinity)
-                    }
-                }
-                .padding(.leading, 40)  // 왼쪽 축 라벨 공간 확보
-
-                // 3) 왼쪽 축 라벨
-                VStack(spacing: 0) {
-                    ForEach(timeLabels.indices, id: \.self) { i in
-                        Text(timeLabels[i])
+            }
+        }
+        .chartXAxis {
+            AxisMarks(values: weekly.map(\.week)) { value in
+                AxisValueLabel {
+                    if let w = value.as(String.self) {
+                        Text("\(w)주차")
                             .font(.pretendardRegular(12))
-                            .foregroundColor(.gray06)
-                            .frame(height: chartHeight / CGFloat(lineCount - 1),
-                                   alignment: .top)
+                            .foregroundStyle(.gray09)
                     }
                 }
             }
-            .padding(.horizontal, 28)
         }
-        .frame(height: 200)  // 필요에 따라 조절
+        .frame(height: 283)
+    }
+
+    private func numericHour(from date: Date) -> Double {
+        let comps = Calendar.current.dateComponents([.hour, .minute], from: date)
+        var h = Double(comps.hour ?? 0) + Double(comps.minute ?? 0)/60
+        if h < axisMin { h += 24 }
+        return h
+    }
+
+    private func flipped(_ v: Double) -> Double {
+        domainLower + domainUpper - v
     }
 }
+
+
 
 
 // MARK: - Preview

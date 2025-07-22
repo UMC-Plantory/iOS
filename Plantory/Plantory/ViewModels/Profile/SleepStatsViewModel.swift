@@ -9,7 +9,7 @@ public class SleepStatsViewModel: ObservableObject {
     /// 일별 수면 데이터를 담는 배열 (주간)
     @Published public private(set) var daily: [DailySleep] = []
     /// 주별 수면 데이터를 담는 배열 (월간)
-    @Published public private(set) var monthly: [WeeklySleep] = []
+    @Published public private(set) var monthly: [WeeklyInterval] = []
     /// 오늘 요일을 한글로 표시 ("일", "월", ...)
     @Published public private(set) var todayWeekday: String = ""
     /// 통계 기간을 "yyyy.MM.dd ~ yyyy.MM.dd" 형식으로 표시

@@ -175,7 +175,7 @@ public struct MonthlySleepResponse: Decodable {
 public struct MonthlySleepStatsModel: SleepStats {
     public let startDate: Date
     public let endDate: Date
-    public let weekly: [WeeklySleep] // 주별 요약 데이터
+    public let weekly: [WeeklyInterval] // 주별 요약 데이터
     public let averageHours: Int?    // 평균 시
     public let averageMinutes: Int?  // 평균 분
 
@@ -186,41 +186,55 @@ public struct MonthlySleepStatsModel: SleepStats {
         return df
     }()
 
-    /**
-     초기화: 날짜 및 평균 시간 계산,
-     주별 수면 간격 계산 로직 포함
-     */
-    public init(from response: MonthlySleepResponse) {
-        self.startDate  = response.startDate
-        self.endDate    = response.endDate
-
-        // 평균 시간 분리
-        let totalMin = response.averageSleepMinutes
-        self.averageHours   = totalMin / 60
-        self.averageMinutes = totalMin % 60
-
-        // 주별 기록을 WeeklySleep 모델로 변환
-        self.weekly = response.weeklySleepRecords.map { rec in
-            // 문자열 → Date
-            let compStart = Self.formatter.date(from: rec.sleepStartTime)!
-            let compEnd   = Self.formatter.date(from: rec.wakeUpTime)!
-            // 시간 간격 계산, 음수 시 24h 보정
-            var interval = compEnd.timeIntervalSince(compStart)
-            if interval < 0 { interval += 24 * 3600 }
-            // 시/분 분리
-            let hrs  = Int(interval / 3600)
-            let mins = Int((interval.truncatingRemainder(dividingBy: 3600)) / 60)
-            return WeeklySleep(week: "\(rec.week)", hours: hrs, minutes: mins)
+    public init(
+            from response: MonthlySleepResponse,
+            calendar: Calendar = .current
+        ) {
+            self.startDate  = response.startDate
+            self.endDate    = response.endDate
+            
+            let totalMin = response.averageSleepMinutes
+            self.averageHours   = totalMin / 60
+            self.averageMinutes = totalMin % 60
+            
+            // 기준일: 통계 시작일 00:00
+            let baseDay = calendar.startOfDay(for: response.startDate)
+            
+            // 주별 레코드를 WeeklyInterval로 변환
+            self.weekly = response.weeklySleepRecords.map { rec in
+                let compStart = Self.formatter.date(from: rec.sleepStartTime)!
+                let compEnd   = Self.formatter.date(from: rec.wakeUpTime)!
+                
+                // 기상 시각: baseDay에 compEnd 시간 설정
+                let endDT = calendar.date(
+                    bySettingHour: calendar.component(.hour, from: compEnd),
+                    minute: calendar.component(.minute, from: compEnd),
+                    second: 0, of: baseDay
+                )!
+                
+                // 취침 시각: baseDay에 compStart 설정, 단 compStart > endDT면 전날로 조정
+                let tentative = calendar.date(
+                    bySettingHour: calendar.component(.hour, from: compStart),
+                    minute: calendar.component(.minute, from: compStart),
+                    second: 0, of: baseDay
+                )!
+                let startDT = tentative <= endDT
+                    ? tentative
+                    : calendar.date(byAdding: .day, value: -1, to: tentative)!
+                
+                return WeeklyInterval(
+                    week: "\(rec.week)",
+                    startTime: startDT,
+                    endTime: endDT
+                )
+            }
         }
-    }
 }
 
 /// UI 표시용 주별 수면 요약 모델
-public struct WeeklySleep: Identifiable {
-    public let id = UUID()          // 고유 식별자
-    public let week: String         // 주차 ("1","2",...)
-    public let hours: Int?          // 수면 시간(시)
-    public let minutes: Int?        // 수면 시간(분)
-    /// 총 수면 시간을 시간(Double) 단위로 반환
-    public var totalHours: Double { Double(hours ?? 0) + Double(minutes ?? 0) / 60 }
+public struct WeeklyInterval: Identifiable {
+    public let id = UUID()
+    public let week: String       // "1", "2", ...
+    public let startTime: Date    // 실제 취침 시각 (날짜 포함)
+    public let endTime: Date      // 실제 기상 시각 (날짜 포함)
 }
