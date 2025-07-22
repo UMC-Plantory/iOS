@@ -10,6 +10,11 @@ final class EmotionStatsViewModel: ObservableObject {
     @Published var mappedEmotionFrequency: [String: Int] = [:]   // 한글 매핑된 키
     @Published var periodText: String = ""                       // "yyyy년 M월 d일 ~ yyyy년 M월 d일"
     @Published var errorMessage: String?
+
+    /// 최다 감정 비율 (0.0 ~ 1.0)
+    @Published var topEmotionRatio: Double = 0.0
+    /// 최다 감정 키 ("joy", "sadness" 등)
+    @Published var topEmotionKey: String = ""
     @Published public private(set) var comment: String = ""
 
     private let provider: MoyaProvider<ProfileRouter>
@@ -85,18 +90,26 @@ final class EmotionStatsViewModel: ObservableObject {
             let korean = Self.emotionLabelMap[pair.key] ?? pair.key
             result[korean] = pair.value
         }
+
+        // 3) 최다 감정 비율 및 키 계산
+        let totalCount = resp.emotionFrequency.values.reduce(0, +)
+        let topKey = resp.mostFrequentEmotion
+        let topCount = resp.emotionFrequency[topKey] ?? 0
+        topEmotionRatio = totalCount > 0 ? Double(topCount) / Double(totalCount) : 0
+        topEmotionKey = topKey
         
         comment = "주간 감정 통계"
     }
 }
 
+// MARK: - ViewModel Extensions (뷰용 데이터)
 extension EmotionStatsViewModel {
     /// 한글 요일 (뷰에서 바로 사용)
     var todayWeekdayLabel: String {
         guard let resp = response else { return "" }
         return Self.weekdayMap[resp.todayWeekday] ?? resp.todayWeekday
     }
-    
+
     /// 한글 감정 레이블 (뷰에서 바로 사용)
     var mostFrequentEmotionLabel: String {
         guard let resp = response else { return "" }

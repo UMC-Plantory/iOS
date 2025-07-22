@@ -44,13 +44,18 @@ struct EmotionStatsView: View {
                     .font(.pretendardRegular(12))
                     .foregroundColor(.green06)
                     .fixedSize(horizontal: false, vertical: true)
-                    .frame(minHeight: 68, alignment: .topLeading)
+                    .frame(minHeight: 50, alignment: .topLeading)
                     Spacer()
                 }
                 HStack{
                     Spacer()
-                    EmotionGuageView()
+                    if viewModel.topEmotionKey != "" {
+                        EmotionGaugeView(
+                            progress: viewModel.topEmotionRatio,
+                            emotionKey: viewModel.topEmotionKey
+                        )
                         .frame(width: 120, height: 120)
+                    }
                 }
             }
             Spacer()
