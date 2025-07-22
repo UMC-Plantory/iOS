@@ -1,4 +1,5 @@
 import SwiftUI
+import Charts
 
 struct SleepStatsView: View {
     @StateObject private var viewModel: SleepStatsViewModel
@@ -10,6 +11,8 @@ struct SleepStatsView: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 24) {
+            Spacer().frame(height: 45)
+            
                 WeekMonthPicker(selection: $page)
                     .frame(maxWidth: .infinity, alignment: .center)
                     .onChange(of: page) { old, new in
@@ -91,58 +94,58 @@ struct WeekMonthPicker: View {
     }
 }
 
-
 struct SleepGaugeView: View {
     /// 0.0 ~ 1.0
     let progress: Double
-    /// 예: "7h 01m"
+    /// 예: "7h 24m"
     let label: String
 
     @State private var animatedProgress: Double = 0
 
-    //— 한 번에 조절하기 편한 값
-    private let gaugeDiameter: CGFloat = 120
-    private let strokeWidth:   CGFloat = 16
-
-    private var outerDiameter: CGFloat { gaugeDiameter + strokeWidth }
-    private var innerDiameter: CGFloat { gaugeDiameter - strokeWidth }
-
     var body: some View {
-        ZStack {
-            // 큰 원
-            Circle()
-                .fill(Color.white)
-                .frame(width: outerDiameter, height: outerDiameter)
-                .shadow(color: Color.black.opacity(0.05), radius: 8, x: 0, y: 4)
+        GeometryReader { geo in
+            let diameter = min(geo.size.width, geo.size.height)
+            let lineWidth = diameter * (16 / 120)
 
-            // 게이지
-            Circle()
-                .trim(from: 0, to: CGFloat(animatedProgress))
-                .stroke(
-                    AngularGradient(
-                        gradient: Gradient(stops: [
-                                                    .init(color: Color.green01, location: 0.0),
-                                                    .init(color: Color.green02, location: 0.5),
-                                                    .init(color: Color.green03, location: 1.0)
-                                                ]),
-                        center: .center,
-                        startAngle: .degrees(-90),
-                        endAngle:   .degrees(270)
-                    ),
-                    style: StrokeStyle(lineWidth: strokeWidth, lineCap: .round)
-                )
-                .frame(width: gaugeDiameter, height: gaugeDiameter)
-                .rotationEffect(.degrees(-90))
+            ZStack {
+                // 1) 큰 흰색 원
+                Circle()
+                    .fill(Color.white)
+                    .frame(width: diameter, height: diameter)
 
-            // 작은 원
-            Circle()
-                .fill(Color.white)
-                .frame(width: innerDiameter, height: innerDiameter)
+                // 2) 흰색 테두리 + 그림자
+                Circle()
+                    .stroke(Color.white, style: StrokeStyle(lineWidth: lineWidth))
+                    .frame(width: diameter, height: diameter)
+                    .shadow(color: Color.black.opacity(0.1),
+                            radius: lineWidth/5,
+                            x: 0, y: lineWidth/4)
 
-            // 텍스트
-            Text(label)
-                .font(.pretendardSemiBold(24))
-                .foregroundColor(.green07)
+                // 3) 그라디언트 게이지
+                Circle()
+                    .trim(from: 0, to: CGFloat(animatedProgress))
+                    .stroke(
+                        AngularGradient(
+                            gradient: Gradient(stops: [
+                                .init(color: Color.green01, location: 0.0),
+                                .init(color: Color.green02, location: 0.5),
+                                .init(color: Color.green03, location: 1.0)
+                            ]),
+                            center: .center,
+                            startAngle: .degrees(-90),
+                            endAngle: .degrees(270)
+                        ),
+                        style: StrokeStyle(lineWidth: lineWidth, lineCap: .round)
+                    )
+                    .frame(width: diameter, height: diameter)
+                    .rotationEffect(.degrees(-90))
+
+                // 4) 중앙 텍스트
+                Text(label)
+                    .font(.pretendardSemiBold(diameter * 0.2))
+                    .foregroundColor(.green06)
+            }
+            .frame(width: geo.size.width, height: geo.size.height)
         }
         .onAppear {
             withAnimation(.easeOut(duration: 0.8)) {
@@ -154,9 +157,10 @@ struct SleepGaugeView: View {
                 animatedProgress = newValue
             }
         }
-
     }
 }
+
+
 
 
 // MARK: - 주간 막대 차트
