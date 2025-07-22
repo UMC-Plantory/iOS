@@ -6,7 +6,7 @@ import Foundation
 enum ProfileRouter: APITargetType {
     case weeklyStats
     case monthlyStats
-    case weeklyEmotionStats
+    case weeklyEmotionStats(today: String)
     case temporary(sort: String)
     case waste(sort: String)
     case wastePatch(diaryIds: [Int])
@@ -29,7 +29,7 @@ extension ProfileRouter {
         case .monthlyStats:
             return "/sleep/monthly"
         case .weeklyEmotionStats:
-            return "/emotion/weekly"
+            return "/emotion-stat/week"
         case .temporary:
             return "/diary/temp"
         case .waste, .wastePatch:
@@ -57,8 +57,16 @@ extension ProfileRouter {
     var task: Task {
         switch self {
         // GET: 본문 없이
-        case .weeklyStats, .monthlyStats, .weeklyEmotionStats:
+        case .weeklyStats, .monthlyStats:
             return .requestPlain
+            
+        // GET: today 쿼리 파라미터
+        case .weeklyEmotionStats(let today):
+            return .requestParameters(
+                parameters: ["today": today],
+                encoding: URLEncoding.default
+            )
+
 
         // GET: sort 쿼리 파라미터
         case .temporary(let sort), .waste(let sort):
@@ -164,16 +172,17 @@ extension ProfileRouter {
         case .weeklyEmotionStats:
             json = """
             {
-              "startDate": "2025-06-08",
-              "endDate": "2025-06-14",
-              "stats": [
-                { "emotion": "기쁨", "percentage": 45 },
-                { "emotion": "놀람", "percentage": 15 },
-                { "emotion": "슬픔", "percentage": 20 },
-                { "emotion": "화남", "percentage": 5 },
-                { "emotion": "그저그럼", "percentage": 15 }
-              ],
-              "comment": "기쁨"
+                "startDate": "2025-07-05",
+                "endDate": "2025-07-11",
+                "todayWeekday": "monday",
+                "mostFrequentEmotion": "joy",
+                "emotionFrequency": {
+                    "joy": 3,
+                    "surprise": 1,
+                    "sadness": 1,
+                    "anger": 0,
+                    "soso": 1
+                }
             }
             """
 

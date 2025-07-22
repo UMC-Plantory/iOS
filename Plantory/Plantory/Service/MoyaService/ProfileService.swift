@@ -47,8 +47,8 @@ extension MoyaProvider where Target == ProfileRouter {
         requestDecoded(.monthlyStats, as: MonthlySleepResponse.self)
     }
 
-    func fetchWeeklyEmotionStats() -> AnyPublisher<WeeklyEmotionResponse, MoyaError> {
-        requestDecoded(.weeklyEmotionStats, as: WeeklyEmotionResponse.self)
+    func fetchWeeklyEmotionStats(today: String) -> AnyPublisher<WeeklyEmotionResponse, MoyaError> {
+        requestDecoded(.weeklyEmotionStats(today: today), as: WeeklyEmotionResponse.self)
     }
 
     func fetchTemp(sort: SortOrder = .latest) -> AnyPublisher<[Diary], MoyaError> {
