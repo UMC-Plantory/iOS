@@ -115,4 +115,22 @@ extension EmotionStatsViewModel {
         guard let resp = response else { return "" }
         return Self.emotionLabelMap[resp.mostFrequentEmotion] ?? resp.mostFrequentEmotion
     }
+    
+    /// 차트용 감정 점유율 모델
+        struct EmotionPercentage: Identifiable {
+            let id: String              // emotion label
+            let emotion: String         // 한글 레이블
+            let percentage: Double      // 0.0 ~ 100.0
+        }
+
+        /// 감정 빈도에서 점유율 계산 (한글 레이블 순서 보장)
+        var emotionPercentages: [EmotionPercentage] {
+            let order = ["기쁨", "놀람", "슬픔", "화남", "그저그럼"]
+            let total = emotionFrequency.values.reduce(0, +)
+            return order.compactMap { label in
+                guard let count = mappedEmotionFrequency[label], total > 0 else { return nil }
+                let pct = (Double(count) / Double(total)) * 100
+                return EmotionPercentage(id: label, emotion: label, percentage: pct)
+            }
+        }
 }
