@@ -49,9 +49,11 @@ struct SleepStatsView: View {
             if page == 0 {
                 WeekChartView(daily: viewModel.daily)
                     .frame(maxWidth: .infinity, alignment: .leading)
+                    .offset(y: 50)
             } else {
                 MonthChartView(weekly: viewModel.monthly)
                     .frame(maxWidth: .infinity, alignment: .leading)
+                    .offset(y: 50)
             }
 
             Spacer()
@@ -161,9 +163,7 @@ struct SleepGaugeView: View {
 }
 
 
-import SwiftUI
-import Charts
-
+// MARK: - WeekChartView
 struct WeekChartView: View {
     let daily: [DailySleep]
     
@@ -182,9 +182,10 @@ struct WeekChartView: View {
                 BarMark(
                     x: .value("요일", record.weekday),
                     yStart: .value("취침", flipped(numericHour(from: record.startTime))),
-                    yEnd:   .value("기상", flipped(numericHour(from: record.endTime)))
+                    yEnd:   .value("기상", flipped(numericHour(from: record.endTime))),
+                    width:  .fixed(20)
                 )
-                .cornerRadius(8)
+                .cornerRadius(50)
                 .foregroundStyle(
                     LinearGradient(
                         gradient: Gradient(stops: [
@@ -203,11 +204,12 @@ struct WeekChartView: View {
         .chartYAxis {
             AxisMarks(position: .leading, values: yTickValues) { value in
                 AxisGridLine(stroke: StrokeStyle(lineWidth: 1, dash: [5,5]))
+                    .foregroundStyle(Color.gray09)
                 if let v = value.as(Double.self),
                    let idx = Array(yTickValues.reversed()).firstIndex(of: v) {
                     AxisValueLabel(yTickLabels[idx])
                         .font(.pretendardRegular(12))
-                        .foregroundStyle(.gray06)
+                        .foregroundStyle(.gray09)
                 }
             }
         }
@@ -224,12 +226,12 @@ struct WeekChartView: View {
                                                         .day(.defaultDigits))
                         }
                         .font(.pretendardRegular(12))
-                        .foregroundStyle(.gray06)
+                        .foregroundStyle(.gray09)
                     }
                 }
             }
         }
-        .frame(height: 200)
+        .frame(height: 300)
     }
     
     // Date → 연속값(시간) 변환: 21시 기준 넘어가면 +24h
