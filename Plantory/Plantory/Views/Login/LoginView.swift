@@ -73,7 +73,6 @@ struct LoginView: View {
             
             Button(action: {
                 print("appleLogin")
-                router.reset()
                 router.push(.baseTab)
             }, label: {
                 Image("appleLogin")

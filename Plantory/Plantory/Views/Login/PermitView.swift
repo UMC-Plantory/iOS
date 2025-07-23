@@ -37,7 +37,6 @@ struct PermitView: View {
                     isDisabled: !(viewModel.fourteenPermit && viewModel.termsOfServicePermit && viewModel.informationPermit),
                     action: {
                         print("다음")
-                        router.reset()
                         router.push(.baseTab)
                     }
                 )
