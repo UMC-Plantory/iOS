@@ -32,7 +32,7 @@ struct MainBigButton: View {
             Text(text)
                 .font(.pretendardSemiBold(24))
                 .padding(.horizontal, 20)
-                .padding(.vertical, 16)
+                .padding(.vertical, 12)
         }
         .buttonStyle(MainButtonStyle(isDisabled: isDisabled))
         .disabled(isDisabled)
@@ -42,7 +42,7 @@ struct MainBigButton: View {
 #Preview {
     MainBigButton(
         text: "적용하기",
-        isDisabled: true,
+        isDisabled: false,
         action: {
             print("적용하기")
         }
