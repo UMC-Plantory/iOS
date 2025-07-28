@@ -54,7 +54,7 @@ struct BaseTabView: View {
                     image: selectedTab == .profile ? "Profile_fill" : "Profile",
                     value: TabItem.profile
                 ) {
-                    ProfileView()
+                    MyPageView()
                 }
             }
             
