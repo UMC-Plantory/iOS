@@ -13,6 +13,7 @@ struct BaseTabView: View {
     }
 
     @State private var selectedTab: TabItem = .home
+    @State private var isFilterSheetPresented: Bool = false
 
     var body: some View {
         ZStack(alignment: .bottom) {
@@ -30,7 +31,7 @@ struct BaseTabView: View {
                     image: selectedTab == .diary ? "Diary_fill" : "Diary",
                     value: TabItem.diary
                 ) {
-                    DiaryView()
+                    DiaryListView(isFilterSheetPresented: $isFilterSheetPresented)
                 }
                 
                 Tab(
