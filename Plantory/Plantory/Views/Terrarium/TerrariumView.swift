@@ -39,7 +39,7 @@ struct TerrariumView: View {
                             
                             Spacer()
 
-                            // 서버에서 받은 flowerImgUrl 값이 존재할 경우에만 이미지를 화면에 보여줌
+                            // 서버에서 받은 flowerImgUrl 값이 존재할 경우 이미지를, 없으면 기본 Rose 이미지를 보여줌
                             if let urlString = viewModel.terrariumData?.flowerImgUrl,
                                let url = URL(string: urlString) {
                                 AsyncImage(url: url) { image in
@@ -49,6 +49,10 @@ struct TerrariumView: View {
                                 } placeholder: {
                                     ProgressView()
                                 }
+                            } else {
+                                Image("Rose")
+                                    .resizable()
+                                    .frame(width: 286, height: 286)
                             }
 
                             Spacer()
@@ -60,14 +64,14 @@ struct TerrariumView: View {
                                 }
                             )
                             .padding(.bottom,151)
-                            .background(
-                                Ellipse()
-                                    .fill(Color("green04"))
-                                    .frame(width: 631, height: 363)
-                                    .offset(y: 60),
-                                alignment: .bottom
-                            )
                         }
+                        .background(
+                            Ellipse()
+                                .fill(Color("green04"))
+                                .frame(width: 631, height: 363)
+                                .offset(y: 60),
+                            alignment: .bottom
+                        )
                     }
                 } else {
                     MyGardenContent(onPlantTap: { index in

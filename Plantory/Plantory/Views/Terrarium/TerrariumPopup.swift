@@ -10,24 +10,18 @@ import SwiftUI
 
 struct TerrariumPopup: View {
     @Binding var isVisible: Bool
-
+    
     var body: some View {
         if isVisible {
-            ZStack {
-                Color.black.opacity(0.7)
+            ZStack{
+                Color.black.opacity(0.4)
                     .edgesIgnoringSafeArea(.all)
-
-                VStack(spacing: 0) {
-                    Image("TerrariumGuideTop")
-                        .offset(x: 6, y: -211)
-                    Image("TerrariumGuideMiddle")
-                        .scaleEffect(1.01)
-                        .offset(x: 0, y: -155)
-                    Image("TerrariumGuideBottom")
-                        .offset(x: 55, y: 140)
-                }
-                .transition(.opacity)
-                .animation(.easeInOut, value: isVisible)
+                
+                Image("tutorial")
+                    .resizable()
+                    .scaledToFill()
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+                    .edgesIgnoringSafeArea(.all)
 
                 // 닫기 버튼
                 VStack {
@@ -49,11 +43,9 @@ struct TerrariumPopup: View {
     }
 }
 
+
 struct TerrariumPopup_Previews: PreviewProvider {
     static var previews: some View {
-        ZStack {
-            TerrariumView()
-            TerrariumPopup(isVisible: .constant(true))
-        }
+        TerrariumPopup(isVisible: .constant(true))
     }
 }
