@@ -4,6 +4,7 @@
 //
 //  Created by 박병선 on 7/20/25.
 //
+
 import SwiftUI
 
 extension Color {
@@ -21,3 +22,4 @@ extension Color {
         self.init(red: r, green: g, blue: b)
     }
 }
+
