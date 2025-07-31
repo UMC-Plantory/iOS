@@ -50,7 +50,7 @@ struct TermsOfServiceView: View {
                 }, label: {
                     Image("leftChevron")
                         .fixedSize()
-                }),
+                })
         )
     }
     
