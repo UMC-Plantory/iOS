@@ -39,7 +39,7 @@ extension Font {
         return .custom(type.value, size: size)
     }
     
-    static func PretendardLight(_ size: CGFloat) -> Font {
+    static func pretendardLight(_ size: CGFloat) -> Font {
         return .pretend(type: .light, size: size)
     }
     
