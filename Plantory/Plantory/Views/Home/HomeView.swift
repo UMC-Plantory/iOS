@@ -78,6 +78,7 @@ struct HomeView: View {
         }
     }
     
+    
     private var CalendarHeaderView: some View {
         VStack {
             HStack {
@@ -111,8 +112,7 @@ struct HomeView: View {
         
         VStack(alignment: .leading) {
             
-           
-            HStack {
+            HStack{
                 Text("\(date, formatter: dateFormatter)")
                     .font(.pretendardRegular(16))
                 Spacer()
@@ -144,7 +144,9 @@ struct HomeView: View {
                             .foregroundColor(.black)
                     }
                     .padding()
-                    .background(RoundedRectangle(cornerRadius: 8).fill(entry.emotion.EmotionColor))
+                    .background(RoundedRectangle(cornerRadius: 8).fill(entry.emotion.EmotionColor)
+                        .stroke(Color.black, lineWidth: 0.5))
+                    
                 }
             }
             else {
@@ -320,33 +322,33 @@ struct ProgressView: View{
     let currentStreak: Int = 7
     
     var body: some View {
+        
         HStack{
             VStack(alignment:.leading,spacing:3){
                 Text("나의 플랜토리")
                     .font(.pretendardRegular(18))
                     .foregroundStyle(.black01)
-                
-                
-                
-                ZStack(alignment:.trailing){
-                    progressbar
-                    Circle()
-                        .fill(Color.brown01)
-                        .frame(width: 36, height: 36)
-                        .overlay(
-                            Text("꽃나무")
-                                .font(.pretendardRegular(10))
-                                .foregroundColor(.black)
-                        )
-                }//ZStack_end
+                progressbar
             }//VStack_end
             
-            Divider()
-                .frame(width:0.5,height: 43)
-                .background(.gray10)
+            //구분선 사이 간격 조정(다른 곳에 Spacer를 넣으니까 스택이 너무 많아서 조정이 안됨)
+            HStack{
+                Spacer()
+                    .frame(width:16)
+                Divider()
+                    .frame(width:0.5,height: 43)
+                    .background(.gray10)
+                
+                Spacer()
+                    .frame(width:26)
+            }
+            
+            
             
             VStack(alignment:.leading, spacing: 2) {
                 HStack(spacing: 4) {
+                    
+                   
                     Image(.clover)
 
                     HStack(spacing:0.1){
@@ -366,6 +368,7 @@ struct ProgressView: View{
             }
             
         }//HStack_end
+        .frame(maxWidth: .infinity, alignment: .leading)
         .padding()
         .background(
             RoundedRectangle(cornerRadius: 10)
@@ -375,10 +378,10 @@ struct ProgressView: View{
     }
     
     private var progressbar: some View {
-        
-        VStack(alignment: .leading){
-            HStack{
-                VStack(alignment:.center,spacing:3){
+        VStack(alignment: .leading) {
+            // 상단 텍스트와 점 표시
+            HStack {
+                VStack(spacing: 3) {
                     Text("새싹")
                         .font(.pretendardRegular(10))
                         .foregroundStyle(.green06)
@@ -386,11 +389,11 @@ struct ProgressView: View{
                         .fill(Color.green06)
                         .frame(width: 3, height: 3)
                 }
-                
+
                 Spacer()
-                    .frame(width:74)
-                
-                VStack(alignment:.center,spacing:3){
+                    .frame(width:68)
+
+                VStack(spacing: 3) {
                     Text("잎새")
                         .font(.pretendardRegular(10))
                         .foregroundStyle(.green06)
@@ -400,17 +403,36 @@ struct ProgressView: View{
                 }
             }
             
-            ZStack(alignment:.leading){
+       
+            ZStack(alignment: .leading) {
+                // 배경 바
                 Capsule()
                     .fill(Color.brown01)
-                    .frame(width:176,height:4)
+                    .frame(width: 187, height: 4)
+
+                // 진행 바
                 Capsule()
                     .fill(Color.green04)
-                    .frame(width:70,height:4)
-            }//ZStack_end
+                    .frame(width: 187 * progress, height: 4)
+
+              
+                HStack {
+                    Spacer()
+                        .frame(width:180)
+                    Circle()
+                        .fill(Color.brown01)
+                        .frame(width: 36, height: 36)
+                        .overlay(
+                            Text("꽃나무")
+                                .font(.pretendardRegular(10))
+                                .foregroundColor(.black)
+                        )
+                }
+                .frame(width: 230, height: 10) // ZStack 안에서 우측 정렬을 위한 고정 크기
+            }
         }
     }
-    }
+}
 
 
 #Preview {
