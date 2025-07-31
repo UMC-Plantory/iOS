@@ -23,20 +23,22 @@ struct DiaryView: View {
     @Bindable var viewModel: StepIndicatorViewModel
 
     var body: some View {
-        ZStack {
+        ZStack(alignment: .top) {
             if viewModel.isCompleted {
                 CompletedView()
             } else {
                 Color.diarybackground.ignoresSafeArea()
-                
-                
+
                 VStack(spacing: 24) {
-                    headerView
+                    Spacer().frame(height: 160) // header 고정 공간 확보
                     stepContentView
                     navigationButtons
-                    
                 }
                 .padding()
+
+                headerView
+                    .background(Color.diarybackground)
+                    .padding()
             }
         }
     }
@@ -244,8 +246,7 @@ struct EmotionStepView: View {
 
 
 
-/// 꾹 누르는 순간부터 tappedImage를 보여주고,
-/// 손을 뗐을 때 action()을 호출하는 재사용 버튼
+/// 꾹 누르는 순간부터 tappedImage를 보여주고, 손을 뗐을 때 action()을 호출하는 재사용 버튼
 struct LongPressEmotionButton: View {
     let untappedImage: ImageResource   // 기본 이미지
     let tappedImage: ImageResource     // 누르고 있는 동안 보여줄 이미지
@@ -333,8 +334,7 @@ struct DiaryStepView: View {
                     }
             }
             .frame(width:355,height: 376)
-            Spacer()
-                .frame(height:30)
+            
             
         }//VStack_end
     }
@@ -346,7 +346,7 @@ struct PhotoStepView: View {
 
     var body: some View {
         Spacer()
-            .frame(height:40)
+            .frame(height:20)
         VStack {
             Text("오늘의 사진을 선택한다면 무엇인가요?")
                 .font(.pretendardSemiBold(20))
@@ -403,7 +403,9 @@ struct PhotoStepView: View {
         }
         
         Spacer()
-            .frame(height:70)
+            .frame(height:20)
+        
+        
     }
 }
 
@@ -431,7 +433,7 @@ struct SleepStepView: View {
                 .font(.pretendardSemiBold(20))
                 .foregroundColor(.diaryfont)
             
-            VStack(spacing: 16) {
+            VStack(spacing: 12) {
                 Text("기상")
                     .font(.pretendardSemiBold(20))
                     .foregroundStyle(.diaryfont)
