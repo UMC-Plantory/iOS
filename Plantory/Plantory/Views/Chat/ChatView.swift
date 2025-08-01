@@ -8,35 +8,49 @@
 import SwiftUI
 
 struct ChatView: View {
-    @State var viewModel: ChatViewModel = ChatViewModel()
+    
+    // MARK: - Property
+    
+    @State var viewModel: ChatViewModel
     
     @FocusState private var isFocused: Bool
+    
+    // MARK: - Init
+
+    /// DIContainer을 주입받아 초기화
+    init(
+        container: DIContainer,
+    ) {
+        self.viewModel = .init(container: container)
+    }
+    
+    // MARK: - Body
     
     var body: some View {
         VStack(alignment: .leading) {
             
-            //MARK: - Chat Message List
+            // MARK: - Chat Message List
             ScrollViewReader(content: { proxy in
                 ScrollView {
                     LazyVStack(spacing: 16) {
-                        ForEach(viewModel.messages) { chatMessage in
+                        ForEach(viewModel.messages, id: \.id) { chat in
                             //MARK: - Chat Message View
-                            chatMessageView(chatMessage)
+                            chatMessageView(chat)
                         }
                     }
                 }
                 .scrollIndicators(.never)
-                .onAppear {
-                    scrollToLastMessage(proxy: proxy)
+                .task {
+                    viewModel.getLatestChat()
                 }
-                .onChange(of: viewModel.messages) {
+                .onChange(of: viewModel.shouldScrollToBottom) {
                     scrollToLastMessage(proxy: proxy)
                 }
             })
             
-            //MARK: - Input Field
+            // MARK: - Input Field
             Group {
-                if viewModel.loadingResponse {
+                if viewModel.isLoading {
                     //MARK: - Loading indicator
                     ProgressView()
                         .tint(.white)
@@ -47,13 +61,19 @@ struct ChatView: View {
                             .font(.pretendardRegular(12))
                             .foregroundStyle(.black)
                             .focused($isFocused)
-                            .disabled(viewModel.loadingResponse)
+                            .disabled(viewModel.isLoading)
+                            .submitLabel(.send)
+                            .onSubmit({
+                                viewModel.sendMessage()
+                                isFocused = true
+                            })
                         
                         //MARK: - Send Button
                         SendButton(
                             isDisabled: viewModel.textInput.isEmpty,
                             action: {
-                                print("send")
+                                viewModel.sendMessage()
+                                isFocused = true
                             }
                         )
                     }
@@ -82,13 +102,13 @@ struct ChatView: View {
         }
     }
     
-    //MARK: - Chat Message View
+    // MARK: - Chat Message View
     @ViewBuilder private func chatMessageView(_ message: ChatMessage) -> some View {
-        //MARK: - Chat Message Box
+        // MARK: - Chat Message Box
         ChatBox(chatModel: message)
     }
     
-    //MARK: 스크롤 제일 아래 메세지로 향하게
+    // MARK: 스크롤 제일 아래 메세지로 향하게
     private func scrollToLastMessage(proxy: ScrollViewProxy) {
         guard let recentMessage = viewModel.messages.last else { return }
                             
@@ -101,5 +121,5 @@ struct ChatView: View {
 }
 
 #Preview {
-    ChatView()
+    ChatView(container: .init())
 }
