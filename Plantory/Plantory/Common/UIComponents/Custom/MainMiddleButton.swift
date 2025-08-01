@@ -1,13 +1,13 @@
 //
-//  MainSmallButton.swift
+//  MainMiddleButton.swift
 //  Plantory
 //
-//  Created by 주민영 on 7/10/25.
+//  Created by 주민영 on 7/17/25.
 //
 
 import SwiftUI
 
-struct MainSmallButton: View {
+struct MainMiddleButton: View {
     let text: String
     let action: () -> Void
     var isDisabled: Bool = false
@@ -30,9 +30,9 @@ struct MainSmallButton: View {
     var body: some View {
         Button(action: action) {
             Text(text)
-                .font(.pretendardRegular(14))
-                .padding(.horizontal, 8)
-                .padding(.vertical, 4)
+                .font(.pretendardRegular(18))
+                .padding(.horizontal, 12)
+                .padding(.vertical, 8)
         }
         .buttonStyle(MainButtonStyle(isDisabled: isDisabled))
         .disabled(isDisabled)
@@ -40,7 +40,8 @@ struct MainSmallButton: View {
 }
 
 #Preview {
-    MainSmallButton(text: "적용하기", isDisabled: false, action: {
+    MainMiddleButton(text: "적용하기", isDisabled: false, action: {
         print("hello")
     })
 }
+
