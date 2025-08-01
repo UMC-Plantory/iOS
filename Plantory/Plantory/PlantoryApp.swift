@@ -6,9 +6,16 @@
 //
 
 import SwiftUI
+import KakaoSDKCommon
+import KakaoSDKAuth
 
 @main
 struct PlantoryApp: App {
+    
+    init() {
+        KakaoSDK.initSDK(appKey: Config.kakaoKey)
+    }
+    
     var body: some Scene {
         WindowGroup {
             NavigationRoutingView()
