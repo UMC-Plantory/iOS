@@ -8,52 +8,25 @@
 import SwiftUI
 
 struct BaseTabView: View {
-    enum TabItem: String, CaseIterable {
-        case home, diary, terrarium, chat, profile
-    }
 
+    // MARK: - Property
+    
     @State private var selectedTab: TabItem = .home
+    
+    /// 의존성 주입을 위한 DI 컨테이너
+    @EnvironmentObject var container: DIContainer
 
     var body: some View {
         TabView(selection: $selectedTab) {
-            Tab(
-                "",
-                image: selectedTab == .home ? "Home_fill" : "Home",
-                value: TabItem.home
-            ) {
-                HomeView()
-            }
-            
-            Tab(
-                "",
-                image: selectedTab == .diary ? "Diary_fill" : "Diary",
-                value: TabItem.diary
-            ) {
-                DiaryView()
-            }
-            
-            Tab(
-                "",
-                image: selectedTab == .terrarium ? "Terrarium_fill" : "Terrarium",
-                value: TabItem.terrarium
-            ) {
-                TerrariumView()
-            }
-            
-            Tab(
-                "",
-                image: selectedTab == .chat ? "Chat_fill" : "Chat",
-                value: TabItem.chat
-            ) {
-                ChatView()
-            }
-            
-            Tab(
-                "",
-                image: selectedTab == .profile ? "Profile_fill" : "Profile",
-                value: TabItem.profile
-            ) {
-                ProfileView()
+            ForEach(TabItem.allCases, id: \.rawValue) { tab in
+                Tab(
+                    "",
+                    image: selectedTab == tab ? "\(tab.rawValue)_fill" : "\(tab.rawValue)",
+                    value: tab,
+                    content: {
+                        tabView(tab: tab)
+                    }
+                )
             }
         }
         .overlay(alignment: .bottom) {
@@ -66,12 +39,32 @@ struct BaseTabView: View {
             }
             .allowsHitTesting(false)
         }
-        .onAppear {
+        .task {
             UITabBar.appearance().backgroundColor = .white01
             UITabBar.appearance().unselectedItemTintColor = .black01
         }
         .ignoresSafeArea(.keyboard)
         .navigationBarBackButtonHidden(true)
+    }
+    
+    /// 각 탭에 해당하는 뷰
+    @ViewBuilder
+    private func tabView(tab: TabItem) -> some View {
+        Group {
+            switch tab {
+            case .home:
+                HomeView()
+            case .diary:
+                DiaryView()
+            case .terrarium:
+                TerrariumView()
+            case .chat:
+                ChatView(container: container)
+            case .profile:
+                ProfileView()
+            }
+        }
+        .environmentObject(container)
     }
 }
 
