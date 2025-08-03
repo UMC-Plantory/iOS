@@ -13,6 +13,8 @@ struct BaseTabView: View {
     }
 
     @State private var selectedTab: TabItem = .home
+    @State private var hasShownTerrariumPopup = false
+    @State private var isTerrariumPopupVisible = false
 
     var body: some View {
         ZStack(alignment: .bottom) {
@@ -58,6 +60,11 @@ struct BaseTabView: View {
                 }
             }
             
+            if isTerrariumPopupVisible {
+                TerrariumPopup(isVisible: $isTerrariumPopupVisible)
+                    .zIndex(10)
+            }
+            
             VStack(spacing: 0) {
                 Divider()
                     .background(.gray04)
@@ -67,12 +74,14 @@ struct BaseTabView: View {
             .edgesIgnoringSafeArea(.bottom)
             .allowsHitTesting(false)
         }
-        .onAppear {
-            UITabBar.appearance().backgroundColor = .white01
-            UITabBar.appearance().unselectedItemTintColor = .black01
-        }
         .navigationTitle("")
         .navigationBarHidden(true)
+        .onChange(of: selectedTab) { oldValue, newValue in
+            if newValue == .terrarium && !hasShownTerrariumPopup {
+                isTerrariumPopupVisible = true
+                hasShownTerrariumPopup = true
+            }
+        }
     }
 }
 

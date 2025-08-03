@@ -19,7 +19,7 @@ struct CustomSegmentView: View {
                 .frame(height: 1)
 
             HStack(alignment: .center) {
-                HStack(spacing: 31) {
+                HStack(spacing: 96) {
                     Button(action: {
                         withAnimation {
                             selectedSegment = .terrarium
@@ -28,7 +28,7 @@ struct CustomSegmentView: View {
                     }) {
                         Text(TerrariumTab.terrarium.rawValue)
                             .font(.pretendardSemiBold(20))
-                            .foregroundColor(selectedSegment == .terrarium ? Color("black01") : Color("gray08"))
+                            .foregroundColor(selectedSegment == .terrarium ? Color("green06") : Color("gray08"))
                     }
 
                     Button(action: {
@@ -39,36 +39,26 @@ struct CustomSegmentView: View {
                     }) {
                         Text(TerrariumTab.myGarden.rawValue)
                             .font(.pretendardSemiBold(20))
-                            .foregroundColor(selectedSegment == .myGarden ? Color("black01") : Color("gray08"))
+                            .foregroundColor(selectedSegment == .myGarden ? Color("green06") : Color("gray08"))
                     }
                 }
-                .padding(.leading, 22)
                 .padding(.bottom, 16)
-
-                Spacer()
-
-                Button(action: {
-                    // 점 3개 버튼 액션
-                }) {
-                    Image("Dot Menu")
-                }
-                .padding(.trailing, 16)
             }
 
             HStack {
                 if selectedSegment == .terrarium {
                     Rectangle()
                         .fill(Color("green06"))
-                        .frame(width: 76, height: 4)
+                        .frame(width: 134, height: 4)
                         .cornerRadius(20)
-                        .padding(.leading, 18)
+                        .padding(.leading, 50)
                         .offset(y: 1)
                 } else if selectedSegment == .myGarden {
                     Rectangle()
                         .fill(Color("green06"))
-                        .frame(width: 76, height: 4)
+                        .frame(width: 134, height: 4)
                         .cornerRadius(20)
-                        .padding(.leading, 122)
+                        .padding(.leading, 216)
                         .offset(y: 1)
                 }
             }
@@ -78,6 +68,15 @@ struct CustomSegmentView: View {
     }
 }
 
+
+struct CustomSegmentView_Previews: View {
+    @State private var selectedSegment: TerrariumTab = .terrarium
+
+    var body: some View {
+        CustomSegmentView(selectedSegment: $selectedSegment)
+    }
+}
+
 #Preview {
-    CustomSegmentView(selectedSegment: .constant(.terrarium))
+    CustomSegmentView_Previews()
 }

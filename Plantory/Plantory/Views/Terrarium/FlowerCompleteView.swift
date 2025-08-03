@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import Foundation
 
 struct FlowerCompleteView: View {
     var body: some View {
@@ -16,8 +17,10 @@ struct FlowerCompleteView: View {
                 Image("Rose")
                     .resizable()
                     .frame(width: 286, height: 286)
+                    .padding(.bottom, 16)
                 
                 middleContent
+                    .padding(.bottom, 16)
                 
                 lowContent
                 
@@ -32,7 +35,7 @@ struct FlowerCompleteView: View {
                 )
                 .frame(maxWidth: .infinity, alignment: .trailing)
                 .padding(.trailing, 16)
-                .padding(.bottom, 71)
+                .padding(.bottom, 90)
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity)
             .background(
@@ -77,24 +80,6 @@ private var middleContent: some View {
             .strokeBorder(Color("yellow04"), lineWidth: 2)
             .background(RoundedRectangle(cornerRadius: 8).fill(Color.white))
     )
-    .padding(.top, 32)
-}
-
-//감정 기록(model)
-private struct EmotionStat: Identifiable {
-    let id = UUID()
-    let imageName: String
-    let count: Int
-}
-
-private var emotionStats: [EmotionStat] {
-    return [
-        EmotionStat(imageName: "face_angry", count: 3),
-        EmotionStat(imageName: "face_happy", count: 2),
-        EmotionStat(imageName: "face_neutral", count: 2),
-        EmotionStat(imageName: "face_neutral", count: 2),
-        EmotionStat(imageName: "face_neutral", count: 2)
-    ]
 }
 
 private var lowContent: some View {
@@ -121,9 +106,7 @@ private var lowContent: some View {
             )
         }
     }
-    .padding(.top, 24)
 }
-
 
 #Preview {
     FlowerCompleteView()

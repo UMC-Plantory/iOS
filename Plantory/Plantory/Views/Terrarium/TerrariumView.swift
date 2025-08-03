@@ -8,8 +8,6 @@
 import SwiftUI
 
 struct TerrariumView: View {
-    @AppStorage("hasSeenTerrariumPopup") private var hasSeenPopup: Bool = false
-    @State private var isPopupVisible: Bool = false
     @StateObject private var viewModel = TerrariumViewModel()
     @State private var selectedPlantIndex: Int? = nil
     @State private var isPlantPopupPresented: Bool = false
@@ -81,10 +79,6 @@ struct TerrariumView: View {
                 }
             }
             
-            // 팝업
-            if isPopupVisible {
-                TerrariumPopup(isVisible: $isPopupVisible)
-            }
             if let index = selectedPlantIndex, isPlantPopupPresented {
                 PlantPopupView(
                     viewModel: PlantPopupModel(
@@ -106,10 +100,6 @@ struct TerrariumView: View {
         }
         .onAppear {
             viewModel.fetchTerrarium(memberId: 1) //로그인한 아이디
-            if !hasSeenPopup {
-                isPopupVisible = true
-                hasSeenPopup = true
-            }
         }
     }
 }

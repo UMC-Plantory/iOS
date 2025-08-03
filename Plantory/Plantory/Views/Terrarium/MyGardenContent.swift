@@ -92,7 +92,11 @@ struct PlantListView: View {
                             }
                         }
                         .frame(width: 114, height: 114)
-                        .background(Color("brown02"))
+                        .background(Color("brown01"))
+                        .overlay(
+                            RoundedRectangle(cornerRadius: 5)
+                                .stroke(Color("brown03"), lineWidth: 1)
+                        )
                         .cornerRadius(5)
                     }
                 }

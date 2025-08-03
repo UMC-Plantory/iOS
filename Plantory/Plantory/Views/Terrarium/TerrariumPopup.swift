@@ -33,9 +33,10 @@ struct TerrariumPopup: View {
                             Image(systemName: "xmark")
                                 .font(.system(size: 48, weight: .light))
                                 .foregroundColor(.white)
-                                .padding(16)
                         }
                     }
+                    .padding(.top, 47)
+                    .padding(.trailing, 16)
                     Spacer()
                 }
             }
