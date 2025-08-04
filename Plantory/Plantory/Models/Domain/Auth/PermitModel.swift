@@ -9,7 +9,13 @@ import SwiftUI
 
 struct PermitItem: Identifiable {
     let id = UUID()
+    let num: Int
     let title: String
-    let showDetail: Bool
     let binding: Binding<Bool>
+}
+
+struct TermsSection: Identifiable {
+    let id = UUID()
+    let title: String
+    let body: String
 }

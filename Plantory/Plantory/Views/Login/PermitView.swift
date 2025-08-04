@@ -8,7 +8,7 @@
 import SwiftUI
 
 struct PermitView: View {
-    @Environment(NavigationRouter.self) private var router
+    @EnvironmentObject var container: DIContainer
     
     @State var viewModel: PermitViewModel = PermitViewModel()
     
@@ -34,10 +34,10 @@ struct PermitView: View {
                 
                 MainMiddleButton(
                     text: "다음",
-                    isDisabled: !(viewModel.fourteenPermit && viewModel.termsOfServicePermit && viewModel.informationPermit),
+                    isDisabled: !(viewModel.termsOfServicePermit && viewModel.informationPermit),
                     action: {
-                        print("다음")
-                        router.push(.baseTab)
+                        // FIX-ME: 개인정보 입력 뷰로 이동
+                        container.navigationRouter.push(.baseTab)
                     }
                 )
                 
@@ -51,7 +51,7 @@ struct PermitView: View {
             leading:
                 Button(action: {
                     print("뒤로가기")
-                    router.pop()
+                    container.navigationRouter.pop()
                 }, label: {
                     Image("leftChevron")
                         .fixedSize()
@@ -89,15 +89,13 @@ struct PermitView: View {
                     
                     Spacer()
                     
-                    if (item.showDetail) {
-                        Button(action: {
-                            // MARK: 이용약관 볼 수 있도록
-                        }, label: {
-                            Image("rightChevron")
-                                .fixedSize()
-                                .foregroundStyle(.gray10)
-                        })
-                    }
+                    Button(action: {
+                        container.navigationRouter.push(.policy(num: item.num))
+                    }, label: {
+                        Image("rightChevron")
+                            .fixedSize()
+                            .foregroundStyle(.gray10)
+                    })
                 }
             }
         }
@@ -106,16 +104,13 @@ struct PermitView: View {
     
     var permitItems: [PermitItem] {
         [
-            PermitItem(title: "(필수) 만 14세 이상입니다", showDetail: false, binding: $viewModel.fourteenPermit),
-            PermitItem(title: "(필수) 서비스 이용약관", showDetail: true, binding: $viewModel.termsOfServicePermit),
-            PermitItem(title: "(필수) 개인정보 수집/이용동의", showDetail: true, binding: $viewModel.informationPermit),
-            PermitItem(title: "(선택) 위치정보 제공", showDetail: true, binding: $viewModel.locationPermit),
-            PermitItem(title: "(선택) 마케팅 수신 동의", showDetail: true, binding: $viewModel.marketingPermit)
+            PermitItem(num: 0, title: "(필수) 서비스 이용약관", binding: $viewModel.termsOfServicePermit),
+            PermitItem(num: 1, title: "(필수) 개인정보 수집/이용동의", binding: $viewModel.informationPermit),
+            PermitItem(num: 2, title: "(선택) 마케팅 수신 동의", binding: $viewModel.marketingPermit)
         ]
     }
 }
 
 #Preview {
     PermitView()
-        .environment(NavigationRouter())
 }

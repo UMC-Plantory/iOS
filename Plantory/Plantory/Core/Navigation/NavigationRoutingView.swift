@@ -25,6 +25,8 @@ struct NavigationRoutingView: View {
                             LoginView(container: container)
                         case .permit:
                             PermitView()
+                        case .policy(let num):
+                            PolicyView(num: num)
                         case .baseTab:
                             BaseTabView()
                         }
