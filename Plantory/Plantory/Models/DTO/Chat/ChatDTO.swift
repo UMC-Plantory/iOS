@@ -7,14 +7,12 @@
 
 import Foundation
 
+/// 챗봇 채팅 요청 구조체
 struct ChatRequest: Codable {
     let content: String
 }
 
-struct BeforeChatRequest: Codable {
-    let before: String
-}
-
+/// 챗봇 채팅장 조회 응답 구조체
 struct ChatResponse: Codable {
     let content: String
     let createAt: String

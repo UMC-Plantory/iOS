@@ -14,13 +14,13 @@ import Combine
 protocol ChatServiceProtocol {
     
     /// 채팅 요청
-    func postChat(chatData: ChatRequest) -> AnyPublisher<String, ChatError>
+    func postChat(chatData: ChatRequest) -> AnyPublisher<String, APIError>
     
     /// 최초 진입 시, 이전 대화 기록 조회
-    func getLatestChat() -> AnyPublisher<[ChatResponse], ChatError>
+    func getLatestChat() -> AnyPublisher<[ChatResponse], APIError>
     
     /// 이전 대화 기록 조회에서, 커서 페이징
-    func getBeforeChat(beforeData: BeforeChatRequest) -> AnyPublisher<[ChatResponse], ChatError>
+    func getBeforeChat(beforeData: String) -> AnyPublisher<[ChatResponse], APIError>
 }
 
 /// Chat API를 사용하는 서비스
@@ -32,7 +32,7 @@ final class ChatService: ChatServiceProtocol {
     // MARK: - Initializer
     
     /// 기본 initializer - verbose 로그 플러그인을 포함한 provider 생성
-    init(provider: MoyaProvider<ChatRouter> = APIManager.shared.testProvider(for: ChatRouter.self)) {
+    init(provider: MoyaProvider<ChatRouter> = APIManager.shared.createProvider(for: ChatRouter.self)) {
         self.provider = provider
     }
     
@@ -41,17 +41,8 @@ final class ChatService: ChatServiceProtocol {
     /// 채팅 요청
     /// - Parameter request: 채팅 요청 모델
     /// - Returns: 채팅 응답을 Combine Publisher 형태로 반환
-    func postChat(chatData: ChatRequest) -> AnyPublisher<String, ChatError> {
-        return provider.requestPublisher(.postChat(chatData: chatData))
-            .map(APIResponse<String>.self)
-            .tryMap { response in
-                guard let result = response.result else {
-                    throw ChatError.decodingError
-                }
-                return result
-            }
-            .mapError { ChatError.moyaError($0 as! MoyaError) }
-            .eraseToAnyPublisher()
+    func postChat(chatData: ChatRequest) -> AnyPublisher<String, APIError> {
+        return provider.requestResult(.postChat(chatData: chatData), type: String.self)
     }
 
     // MARK: - 최초 진입 시, 이전 대화 기록 조회
@@ -59,33 +50,15 @@ final class ChatService: ChatServiceProtocol {
     /// 채팅 요청
     /// - Parameter request: 채팅 요청 모델
     /// - Returns: 채팅 응답을 Combine Publisher 형태로 반환
-    func getLatestChat() -> AnyPublisher<[ChatResponse], ChatError> {
-        return provider.requestPublisher(.getLatestChat)
-            .map(APIResponse<[ChatResponse]>.self)
-            .tryMap { response in
-                guard let result = response.result else {
-                    throw ChatError.decodingError
-                }
-                return result
-            }
-            .mapError { ChatError.moyaError($0 as! MoyaError) }
-            .eraseToAnyPublisher()
+    func getLatestChat() -> AnyPublisher<[ChatResponse], APIError> {
+        return provider.requestResult(.getLatestChat, type: [ChatResponse].self)
     }
 
     // MARK: - 이전 대화 기록 조회에서, 커서 페이징
     /// 채팅 요청
     /// - Parameter request: 마지막 메세제의 시간을 요청
     /// - Returns: 채팅 응답을 Combine Publisher 형태로 반환
-    func getBeforeChat(beforeData: BeforeChatRequest) -> AnyPublisher<[ChatResponse], ChatError> {
-        return provider.requestPublisher(.getBeforeChat(beforeData: beforeData))
-            .map(APIResponse<[ChatResponse]>.self)
-            .tryMap { response in
-                guard let result = response.result else {
-                    throw ChatError.decodingError  // 적절한 에러 던지기
-                }
-                return result
-            }
-            .mapError { ChatError.moyaError($0 as! MoyaError) }
-            .eraseToAnyPublisher()
+    func getBeforeChat(beforeData: String) -> AnyPublisher<[ChatResponse], APIError> {
+        return provider.requestResult(.getBeforeChat(beforeData: beforeData), type: [ChatResponse].self)
     }
 }

@@ -11,12 +11,12 @@ import Moya
 enum ChatRouter {
     case postChat(chatData: ChatRequest) // 채팅 보내기
     case getLatestChat // 최초 진입 시 이전 대화 기록 조회
-    case getBeforeChat(beforeData: BeforeChatRequest) // 최초 이후, 채팅창 스크롤 업
+    case getBeforeChat(beforeData: String) // 최초 이후, 채팅창 스크롤 업
 }
 
 extension ChatRouter: APITargetType {
     var baseURL: URL {
-        return URL(string: "https://plantory")!
+        return URL(string: "\(Config.baseUrl)")!
     }
     
     var path: String {
@@ -46,7 +46,7 @@ extension ChatRouter: APITargetType {
         case .getLatestChat:
             return .requestPlain
         case .getBeforeChat(let beforeData):
-            return .requestJSONEncodable(beforeData)
+            return .requestParameters(parameters: ["before": beforeData], encoding: URLEncoding.queryString)
         }
     }
     

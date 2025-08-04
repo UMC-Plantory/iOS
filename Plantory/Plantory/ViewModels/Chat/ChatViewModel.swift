@@ -113,10 +113,8 @@ class ChatViewModel {
     public func getLatestChat(before: String) {
         guard !isLoading, !isLast else { return }
         isLoading = true
-
-        let request = BeforeChatRequest(before: before)
         
-        container.useCaseService.chatService.getBeforeChat(beforeData: request)
+        container.useCaseService.chatService.getBeforeChat(beforeData: before)
             .receive(on: DispatchQueue.main)
             .sink(receiveCompletion: { [weak self] completion in
                 // 오류 발생 시 처리
