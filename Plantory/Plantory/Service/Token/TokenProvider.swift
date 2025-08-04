@@ -21,9 +21,7 @@ class TokenProvider: TokenProviding {
         set {
             guard var userInfo = keyChain.loadToken() else { return }
             userInfo.accessToken = newValue ?? "토큰 정보 없음"
-            if keyChain.saveToken(userInfo) {
-                print("유저 액세스 토큰 갱신됨: \(String(describing: newValue))")
-            }
+            keyChain.saveToken(userInfo)
         }
     }
     
@@ -36,9 +34,7 @@ class TokenProvider: TokenProviding {
         set {
             guard var userInfo = keyChain.loadToken() else { return }
             userInfo.refreshToken = newValue ?? "토큰 정보 없음"
-            if keyChain.saveToken(userInfo) {
-                print("유저 리프레시 갱신됨")
-            }
+            keyChain.saveToken(userInfo)
         }
     }
     

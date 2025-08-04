@@ -6,16 +6,19 @@
 //
 
 import Foundation
+import Combine
 
 /// 로그인 화면에서 사용되는 ViewModel
 /// 사용자 ID/비밀번호 로그인 및 카카오 로그인 기능을 제공하며, 키체인과 앱 흐름 전환을 관리함
 @Observable
 class LoginViewModel {
     
-    // MARK: - Property
+    // MARK: - 의존성 주입 및 비동기 처리
     
-    /// 의존성 주입 컨테이너
-    var container: DIContainer
+    /// DIContainer를 통해 의존성 주입
+    let container: DIContainer
+    /// Combine 구독 해제를 위한 Set
+    var cancellables = Set<AnyCancellable>()
     
     // MARK: - Init
         
@@ -37,9 +40,25 @@ class LoginViewModel {
     @MainActor
     public func kakaoLogin() async {
         do {
-            let user = try await container.useCaseService.kakaoManager.login()
-            print(user)
-            container.navigationRouter.push(.baseTab)
+            let idToken = try await container.useCaseService.kakaoManager.login()
+            container.useCaseService.authService.kakaoLogin(idToken: idToken)
+                .receive(on: DispatchQueue.main)
+                .sink(receiveCompletion: { completion in
+                    if case .failure(let error) = completion {
+                        print("로그인 오류: \(error.errorDescription ?? "알 수 없는 에러")")
+                    }
+                }, receiveValue: { [weak self] response in
+                    let tokenInfo = TokenInfo(
+                        accessToken: response.accessToken,
+                        refreshToken: response.refreshToken
+                    )
+                    /// 받은 토큰을 키체인에 저장
+                    self?.keychainManager.saveToken(tokenInfo)
+                    
+                    /// 서비스 이용 동의 뷰로 이동
+                    self?.container.navigationRouter.push(.permit)
+                })
+                .store(in: &cancellables)
         } catch {
             if let kakaoError = error as? KakaoLoginError {
                 print("카카오 에러메시지:", kakaoError.localizedDescription)

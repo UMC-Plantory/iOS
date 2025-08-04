@@ -75,10 +75,9 @@ class KeychainService {
         return SecItemDelete(query as CFDictionary)
     }
     
-    public func saveToken(_ tokenInfo: TokenInfo) -> Bool {
+    public func saveToken(_ tokenInfo: TokenInfo) {
         let saveStatus = self.saveTokenInfo(tokenInfo)
-        print("토큰이 저장됨")
-        return saveStatus == errSecSuccess
+        print("토큰이 저장됨, \(saveStatus == errSecSuccess)")
     }
     
     public func loadToken() -> TokenInfo? {

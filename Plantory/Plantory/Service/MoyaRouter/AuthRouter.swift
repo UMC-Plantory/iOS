@@ -9,13 +9,13 @@ import Foundation
 import Moya
 
 enum AuthRouter {
-    case kakaoLogin(idToken: String) // 카카오 로그인
+    case kakaoLogin(idToken: KakaoUser) // 카카오 로그인
     case sendRefreshToken(refreshToken: String) // 리프레시 토큰 갱신
 }
 
 extension AuthRouter: APITargetType {
     var baseURL: URL {
-        return URL(string: "https://plantory")!
+        return URL(string: "\(Config.baseUrl)")!
     }
     
     var path: String {

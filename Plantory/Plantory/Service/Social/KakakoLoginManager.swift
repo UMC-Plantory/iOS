@@ -68,6 +68,6 @@ class KakakoLoginManager {
         guard let idToken = token.idToken else {
             throw KakaoLoginError.failedToFetchIDToken
         }
-        return KakaoUser(id_token: idToken)
+        return KakaoUser(idToken: idToken)
     }
 }
