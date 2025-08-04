@@ -28,19 +28,6 @@ class APIManager: @unchecked Sendable {
         )
     }
     
-    /// 이미지 요청 시 MoyaProvidder
-    func createImageProvider<T: TargetType>(for targetType: T.Type) -> MoyaProvider<T> {
-        let config = URLSessionConfiguration.default
-        config.timeoutIntervalForRequest = 300
-        config.timeoutIntervalForResource = 300
-
-        let session = Session(configuration: config)
-        return MoyaProvider<T>(
-            session: session,
-            plugins: [loggerPlugin]
-        )
-    }
-    
     /// 테스트용 MoyaProvider
     public func testProvider<T: TargetType>(for targetType: T.Type) -> MoyaProvider<T> {
         return MoyaProvider<T>(

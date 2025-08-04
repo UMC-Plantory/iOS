@@ -20,7 +20,7 @@
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
-		C08E31CD2E3C7672005E8529 /* Exceptions for "Plantory" folder in "Plantory" target */ = {
+		C05ED0022E152C840023AC5C /* Exceptions for "Plantory" folder in "Plantory" target */ = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
 				Info.plist,
@@ -33,7 +33,7 @@
 		C05ECEEF2E15232F0023AC5C /* Plantory */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
 			exceptions = (
-				C08E31CD2E3C7672005E8529 /* Exceptions for "Plantory" folder in "Plantory" target */,
+				C05ED0022E152C840023AC5C /* Exceptions for "Plantory" folder in "Plantory" target */,
 			);
 			path = Plantory;
 			sourceTree = "<group>";
@@ -296,7 +296,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = LZH7U3MUHK;
+				DEVELOPMENT_TEAM = "";
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = Plantory/Info.plist;
@@ -329,7 +329,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = LZH7U3MUHK;
+				DEVELOPMENT_TEAM = "";
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = Plantory/Info.plist;
