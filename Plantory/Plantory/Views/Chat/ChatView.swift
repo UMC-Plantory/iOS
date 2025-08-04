@@ -39,7 +39,7 @@ struct ChatView: View {
                         }
                     }
                 }
-                .scrollIndicators(.never)
+                .scrollIndicators(.hidden)
                 .task {
                     viewModel.getLatestChat()
                 }

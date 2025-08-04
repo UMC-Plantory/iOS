@@ -31,6 +31,7 @@ struct PolicyView: View {
                     .font(.pretendardRegular(14))
                     .foregroundStyle(.black01)
             }
+            .scrollIndicators(.hidden)
         }
         .padding(.horizontal, 16)
         .navigationBarBackButtonHidden(true)

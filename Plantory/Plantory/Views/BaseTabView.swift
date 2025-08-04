@@ -39,7 +39,7 @@ struct BaseTabView: View {
             }
             .allowsHitTesting(false)
         }
-        .task {
+        .onAppear {
             UITabBar.appearance().backgroundColor = .white01
             UITabBar.appearance().unselectedItemTintColor = .black01
         }
