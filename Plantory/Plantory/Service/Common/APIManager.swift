@@ -12,11 +12,15 @@ import Alamofire
 class APIManager: @unchecked Sendable {
     static let shared = APIManager()
     
+    private let tokenProvider: TokenProviding
+    private let accessTokenRefresher: AccessTokenRefresher
     private let session: Session
     private let loggerPlugin: PluginType
     
     private init() {
-        session = Session()
+        tokenProvider = TokenProvider()
+        accessTokenRefresher = AccessTokenRefresher(tokenProviding: tokenProvider)
+        session = Session(interceptor: accessTokenRefresher)
         loggerPlugin = NetworkLoggerPlugin(configuration: .init(logOptions: .verbose))
     }
     
