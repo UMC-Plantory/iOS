@@ -8,13 +8,15 @@
 import SwiftUI
 
 struct HomeView: View {
-    @StateObject private var diaryStore = DiaryStore()
-    @State private var month: Date = Date()
-    @State private var selectedDate: Date? = nil
+    @StateObject private var diaryStore = DiaryStore() //일기 데이터
+    @State private var month: Date = Date() //현재 보여지는 달
+    @State private var selectedDate: Date? = nil //사용자가 선택한 날짜
     @State var progress: CGFloat = 0.5
     @State private var showingDetailSheet = false
+    @State private var showMonthPicker = false // 년월 선택 모달
 
     
+    //날짜를 정해진 형식으로 지정하는 DateFormatter
     private let calendar = Calendar.current
     private let dateFormatter: DateFormatter = {
         let df = DateFormatter()
@@ -33,7 +35,7 @@ struct HomeView: View {
                 CalendarHeaderView
                 Spacer().frame(height: 4)
                 
-                //전체 캘린더 뷰
+                //전체 캘린더 뷰(배경 사각형+캘린더)
                 ZStack {
                     RoundedRectangle(cornerRadius: 10)
                         .fill(Color.white01)
@@ -66,6 +68,21 @@ struct HomeView: View {
             }
             .padding(.horizontal, 32)
             .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
+            
+            if showMonthPicker {
+                            Color.black.opacity(0.3)
+                                .ignoresSafeArea()
+                                .onTapGesture {
+                                    showMonthPicker = false
+                                }
+
+                            VStack {
+                                MonthYearPickerView(selectedDate: $month) {
+                                    showMonthPicker = false
+                                }
+                            }
+                            .zIndex(1)
+                        }
         }
         
     }
@@ -94,6 +111,16 @@ struct HomeView: View {
                     }
                 )
                 Spacer()
+                
+                Button {
+                    showMonthPicker = true
+                } label: {
+                    Image(systemName: "calendar")
+                        .font(.title)
+                        .foregroundColor(.black)
+                }
+                
+                
                 Button(
                     action: { print("새로운 일기 추가") },
                     label: { Image(systemName: "plus").font(.title).foregroundColor(.black) }
