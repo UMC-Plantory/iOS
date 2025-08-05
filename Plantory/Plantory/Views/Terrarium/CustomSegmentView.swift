@@ -17,53 +17,63 @@ struct CustomSegmentView: View {
             Rectangle()
                 .fill(Color("green04"))
                 .frame(height: 1)
+                .padding(.bottom, 1)
 
             HStack(alignment: .center) {
-                HStack(spacing: 96) {
-                    Button(action: {
-                        withAnimation {
-                            selectedSegment = .terrarium
-                            onTabSelected?(.terrarium)
+                HStack(spacing: 32) {
+                    VStack {
+                        Button(action: {
+                            withAnimation {
+                                selectedSegment = .terrarium
+                                onTabSelected?(.terrarium)
+                            }
+                        }) {
+                            VStack{
+                                Text(TerrariumTab.terrarium.rawValue)
+                                    .font(.pretendardSemiBold(20))
+                                    .foregroundColor(selectedSegment == .terrarium ? Color("green06") : Color("gray08"))
+                                    .padding(.bottom, 14)
+                                
+                                if selectedSegment == .terrarium {
+                                    Rectangle()
+                                        .fill(Color("green06"))
+                                        .frame(width: 134, height: 4)
+                                        .cornerRadius(20)
+                                } else {
+                                    Color.clear.frame(height: 4)
+                                }
+                            }
                         }
-                    }) {
-                        Text(TerrariumTab.terrarium.rawValue)
-                            .font(.pretendardSemiBold(20))
-                            .foregroundColor(selectedSegment == .terrarium ? Color("green06") : Color("gray08"))
                     }
+                    .frame(width: 134)
 
-                    Button(action: {
-                        withAnimation {
-                            selectedSegment = .myGarden
-                            onTabSelected?(.myGarden)
+                    VStack {
+                        Button(action: {
+                            withAnimation {
+                                selectedSegment = .myGarden
+                                onTabSelected?(.myGarden)
+                            }
+                        }) {
+                            VStack{
+                                Text(TerrariumTab.myGarden.rawValue)
+                                    .font(.pretendardSemiBold(20))
+                                    .foregroundColor(selectedSegment == .myGarden ? Color("green06") : Color("gray08"))
+                                    .padding(.bottom, 14)
+                                
+                                if selectedSegment == .myGarden {
+                                    Rectangle()
+                                        .fill(Color("green06"))
+                                        .frame(width: 134, height: 4)
+                                        .cornerRadius(20)
+                                } else {
+                                    Color.clear.frame(height: 4)
+                                }
+                            }
                         }
-                    }) {
-                        Text(TerrariumTab.myGarden.rawValue)
-                            .font(.pretendardSemiBold(20))
-                            .foregroundColor(selectedSegment == .myGarden ? Color("green06") : Color("gray08"))
                     }
-                }
-                .padding(.bottom, 16)
-            }
-
-            HStack {
-                if selectedSegment == .terrarium {
-                    Rectangle()
-                        .fill(Color("green06"))
-                        .frame(width: 134, height: 4)
-                        .cornerRadius(20)
-                        .padding(.leading, 50)
-                        .offset(y: 1)
-                } else if selectedSegment == .myGarden {
-                    Rectangle()
-                        .fill(Color("green06"))
-                        .frame(width: 134, height: 4)
-                        .cornerRadius(20)
-                        .padding(.leading, 216)
-                        .offset(y: 1)
+                    .frame(width: 134)
                 }
             }
-            .animation(.easeInOut, value: selectedSegment)
-            .frame(maxWidth: .infinity, alignment: .leading)
         }
     }
 }
