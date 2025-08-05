@@ -12,6 +12,8 @@ struct HomeView: View {
     @State private var month: Date = Date()
     @State private var selectedDate: Date? = nil
     @State var progress: CGFloat = 0.5
+    @State private var showingDetailSheet = false
+
     
     private let calendar = Calendar.current
     private let dateFormatter: DateFormatter = {
@@ -57,7 +59,7 @@ struct HomeView: View {
                 
                 //선택된 날짜 없이 기본으로 나의 플랜토리 프로그래스 보여주기
                 if selectedDate == nil {
-                    ProgressView()
+                    MyProgressView()
                 }
                 
                 
@@ -111,7 +113,6 @@ struct HomeView: View {
         let selDay = calendar.startOfDay(for: date)
         
         VStack(alignment: .leading) {
-            
             HStack{
                 Text("\(date, formatter: dateFormatter)")
                     .font(.pretendardRegular(16))
@@ -129,8 +130,6 @@ struct HomeView: View {
                 Text("미래의 일기는 작성할 수 없어요!")
                     .font(.pretendardRegular(14))
                     .foregroundColor(.gray11)
-               
-                
             }
             else if let entry = diaryStore.entries[key] {
                 Button { /* 상세 이동 */ } label: {
@@ -146,21 +145,18 @@ struct HomeView: View {
                     .padding()
                     .background(RoundedRectangle(cornerRadius: 8).fill(entry.emotion.EmotionColor)
                         .stroke(Color.black, lineWidth: 0.5))
-                    
                 }
             }
             else {
-                
                 Text("작성된 일기가 없어요!")
                     .font(.pretendardRegular(14))
                     .foregroundColor(.gray11)
                     .padding(0.0)
             }
         }
-        
         .background(RoundedRectangle(cornerRadius: 15).fill(Color.white01).frame(width:405,height:300))
-        
     }
+    
     
     static func key(from date: Date) -> String {
         let fmt = DateFormatter()
@@ -169,69 +165,10 @@ struct HomeView: View {
     }
 }
 
-//캘린더뷰+셀뷰
-struct CalendarView: View {
-    @State private var clickedDate: Date?
-    let month: Date
-    @Binding var selectedDate: Date?
-    let diaryStore: DiaryStore
-
-    var body: some View {
-        let today = calendar.startOfDay(for: Date())
-        let daysInMonth = numberOfDays(in: month)
-        let firstDay = getDate(for: 0)
-        
-
-        VStack {
-            HStack {
-                ForEach(CalendarView.weekdaySymbols.indices, id: \.self) { i in
-                    Text(CalendarView.weekdaySymbols[i])
-                        .font(.pretendardRegular(14))
-                        .foregroundColor(.gray11)
-                        .frame(maxWidth: .infinity)
-                }
-            }
-            .padding(.vertical, 5)
-
-            LazyVGrid(columns: Array(repeating: GridItem(), count: 7), spacing: 10) {
-                ForEach(0..<daysInMonth, id: \.self) { idx in
-                    let date = calendar.date(byAdding: .day, value: idx, to: firstDay)!
-                    let selDay = calendar.startOfDay(for: date)
-                    let isFuture = selDay > today
-                    let day = Calendar.current.component(.day, from: date)
-                    let isToday = calendar.isDate(date, inSameDayAs: Date())
-                    let key = HomeView.key(from: date)
-                    let entry = diaryStore.entries[key]
-                    let hasEntry = (entry != nil) && !isFuture
 
 
-                    CellView(
-                        day: day,
-                        isToday: isToday,
-                        isSelected: selectedDate.map { calendar.isDate($0, inSameDayAs: date) } ?? false,
-                        emotionColor: entry?.emotion.EmotionColor,
-                        isFuture: isFuture,
-                        hasEntry:
-                            hasEntry
-                    )
-                    .onTapGesture { selectedDate = date }
-                }
-            }
-            .padding(10)
-        }
-    }
-
-    private var calendar: Calendar { .current }
-    private func getDate(for i: Int) -> Date {
-        let comps = calendar.dateComponents([.year, .month], from: month)
-        return calendar.date(from: comps)!
-    }
-    private func numberOfDays(in d: Date) -> Int {
-        calendar.range(of: .day, in: .month, for: d)?.count ?? 0
-    }
-}
-
-private struct CellView: View {
+//CellView 분리
+struct CellView: View {
     let day: Int
     let isToday: Bool
     let isSelected: Bool
@@ -275,49 +212,12 @@ private struct CellView: View {
                                             : .gray10)
                             )
         }
-        .frame(width: cellSize, height: cellSize)                
-    }
-}
-
-extension CalendarView {
-    static func makeYearMonthView(month: Date, changeMonth: @escaping (Int) -> Void) -> some View {
-        HStack(spacing: 20) {
-            Button(action: { changeMonth(-1) }) {
-                Image(systemName: "chevron.left")
-                    .font(.pretendardRegular(20))
-                    .foregroundColor(.black)
-            }
-            Text(month, formatter: calendarHeaderDateFormatter)
-                .font(.pretendardRegular(20))
-                .foregroundStyle(.black01)
-            Button(action: { changeMonth(1) }) {
-                Image(systemName: "chevron.right")
-                    .font(.pretendardRegular(20))
-                    .foregroundColor(.black)
-            }
-        }
-    }
-    static let calendarHeaderDateFormatter: DateFormatter = {
-        let f = DateFormatter()
-        f.dateFormat = "YYYY년 MM월"
-        return f
-    }()
-    static let weekdaySymbols: [String] = ["월","화","수","목","금","토","일"]
-}
-
-extension Date {
-    static let calendarDayDateFormatter: DateFormatter = {
-        let f = DateFormatter()
-        f.dateFormat = "MMMM yyyy dd"
-        return f
-    }()
-    var formattedCalendarDayDate: String {
-        Self.calendarDayDateFormatter.string(from: self)
+        .frame(width: cellSize, height: cellSize)
     }
 }
 
 //나의 플랜토리 ProgressBar
-struct ProgressView: View{
+struct MyProgressView: View{
     let progress: CGFloat = 0.7
     let currentStreak: Int = 7
     

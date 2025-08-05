@@ -8,7 +8,7 @@
 import Foundation
 
 //더미데이터
-struct DiaryEntry {
+struct CalendarEntry {
     let date: Date
     let emotion: EmotionColors
     let text: String
