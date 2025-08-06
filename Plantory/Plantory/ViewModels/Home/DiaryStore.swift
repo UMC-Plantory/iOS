@@ -18,7 +18,12 @@ class DiaryStore: ObservableObject {
         let key = fmt.string(from: yesterday)
 
         self.entries = [
-            key: DiaryEntryData(date: yesterday, emotion: .happy, text: "친구를 만나 즐거웠던 하루", emotiontext: "•기쁨")
+            key: DiaryEntryData(
+                date: yesterday,
+                emotion: .happy,
+                text: "친구를 만나 즐거웠던 하루",
+                emotiontext: "•기쁨"
+            )
         ]
     }
 }
