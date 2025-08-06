@@ -1,21 +1,13 @@
 //
-//  MainSmallButton.swift
+//  StrokeSmallButton.swift
 //  Plantory
 //
-//  Created by 김지우 on 7/24/25.
-//
-
-
-//
-//  MainSmallButton.swift
-//  Plantory
-//
-//  Created by 주민영 on 7/10/25.
+//  Created by 주민영 on 7/17/25.
 //
 
 import SwiftUI
 
-struct MainSmallButton: View {
+struct StrokeSmallButton: View {
     let text: String
     let action: () -> Void
     var isDisabled: Bool = false
@@ -38,17 +30,20 @@ struct MainSmallButton: View {
     var body: some View {
         Button(action: action) {
             Text(text)
-                .font(.pretendardRegular(18))
-                .padding(.horizontal, 12)
-                .padding(.vertical, 8)
+                .font(.pretendardRegular(14))
+                .padding(.horizontal, 8)
+                .padding(.vertical, 4)
         }
-        .buttonStyle(MainButtonStyle(isDisabled: isDisabled))
+        .buttonStyle(StrokeButtonStyle())
         .disabled(isDisabled)
     }
 }
 
 #Preview {
-    MainSmallButton(text: "다음", isDisabled: false, action: {
-        print("next")
-    })
+    StrokeSmallButton(
+        text: "취소",
+        action: {
+            print("취소")
+        }
+    )
 }

@@ -2,14 +2,6 @@
 //  MainButtonStyle.swift
 //  Plantory
 //
-//  Created by 김지우 on 7/24/25.
-//
-
-
-//
-//  MainButtonStyle.swift
-//  Plantory
-//
 //  Created by 주민영 on 7/10/25.
 //
 
