@@ -128,3 +128,52 @@ extension Date {
         Self.calendarDayDateFormatter.string(from: self)
     }
 }
+
+//CellView 분리
+struct CellView: View {
+    let day: Int
+    let isToday: Bool
+    let isSelected: Bool
+    let emotionColor: Color?
+    let isFuture: Bool
+    let hasEntry: Bool
+    
+    private let cellSize: CGFloat = 48
+
+    var body: some View {
+        
+        ZStack {
+            //감정 색상 원
+            if let c = emotionColor {
+                Circle()
+                    .fill(c)
+                    .frame(width: 40, height: 40)
+            }
+            //오늘 날짜 표시 녹색 테두리
+            if isToday {
+                Image(.currentday)
+                    .resizable()
+                    .frame(width: 48, height: 48)
+            }
+            //날짜 선택 시 검은 원
+            if isSelected {
+                Circle()
+                    .fill(Color.black)
+                    .frame(width: 28, height: 28)
+            }
+            //날짜 텍스트
+            Text("\(day)")
+                .font(.pretendardBold(18))
+                            .foregroundColor(
+                                isSelected
+                                    ? .white
+                                    : isFuture
+                                        ? .gray06
+                                        : (hasEntry
+                                           ? Color(.green05)
+                                            : .gray10)
+                            )
+        }
+        .frame(width: cellSize, height: cellSize)
+    }
+}
