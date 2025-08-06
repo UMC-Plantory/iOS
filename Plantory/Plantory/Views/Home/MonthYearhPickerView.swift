@@ -9,7 +9,7 @@ import SwiftUI
 
 struct MonthYearPickerView: View {
     @Binding var selectedDate: Date
-    var onApply: () -> Void // HomeView에서 호출
+    var onApply: () -> Void
 
     @State private var selectedYear: Int
     @State private var selectedMonth: Int
@@ -25,8 +25,8 @@ struct MonthYearPickerView: View {
 
     var body: some View {
         VStack(spacing: 20) {
-           
-            //드롭다운 년도 선택
+
+            // 연도 선택: 선택 즉시 반영
             Picker("연도", selection: $selectedYear) {
                 ForEach(availableYears, id: \.self) {
                     Text("\($0)년")
@@ -35,14 +35,18 @@ struct MonthYearPickerView: View {
             .pickerStyle(.menu)
             .font(.pretendardRegular(20))
             .foregroundColor(.black01)
+            .onChange(of: selectedYear) { _ in
+                applySelection()
+                onApply()
+            }
 
-
-
-            //월 선택
+            // 월 선택: 선택 즉시 반영
             LazyVGrid(columns: Array(repeating: GridItem(.flexible()), count: 4), spacing: 16) {
                 ForEach(1...12, id: \.self) { month in
                     Button {
                         selectedMonth = month
+                        applySelection()
+                        onApply()
                     } label: {
                         Text("\(month)월")
                             .font(.pretendardRegular(18))

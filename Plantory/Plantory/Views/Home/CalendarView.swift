@@ -10,7 +10,7 @@ import SwiftUI
 //캘린더뷰+셀뷰
 struct CalendarView: View {
     @State private var clickedDate: Date?
-    let month: Date
+    @Binding var month: Date
     @Binding var selectedDate: Date?
     let diaryStore: DiaryStore
 
@@ -56,6 +56,26 @@ struct CalendarView: View {
                 }
             }
             .padding(10)
+            .gesture(
+                DragGesture()
+                    .onEnded { value in
+                        if value.translation.width < -50 {
+                            if let newMonth = calendar.date(byAdding: .month, value: 1, to: month) {
+                                withAnimation {
+                                    month = newMonth
+                                    selectedDate = nil
+                                }
+                            }
+                        } else if value.translation.width > 50 {
+                            if let newMonth = calendar.date(byAdding: .month, value: -1, to: month) {
+                                withAnimation {
+                                    month = newMonth
+                                    selectedDate = nil
+                                }
+                            }
+                        }
+                    }
+            )
         }
     }
 

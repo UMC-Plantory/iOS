@@ -41,7 +41,7 @@ struct HomeView: View {
                         .fill(Color.white01)
                         .frame(width: 356, height: 345)
                     CalendarView(
-                        month: month,
+                        month: $month,
                         selectedDate: $selectedDate,
                         diaryStore: diaryStore
                     )
