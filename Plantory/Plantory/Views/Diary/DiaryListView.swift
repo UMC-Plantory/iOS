@@ -29,11 +29,17 @@ struct DiaryListView: View {
                 
                 DiaryMonthSectionView(isFilterSheetPresented: $isFilterSheetPresented)
                 
+                //일기 각각의 뷰
                 ScrollView {
                     LazyVStack(spacing: 16) {
                         ForEach(viewModel.entries) { entry in
-                            DiaryRow(entry: entry)
-                                .onAppear {
+                            Button(action: {
+                                print("Tapped : \(entry.title)")
+                            }){
+                                DiaryRow(entry: entry)
+                            }
+                            .buttonStyle(PlainButtonStyle())
+                                 .onAppear {
                                     if entry == viewModel.entries.last {
                                         viewModel.loadMore()
                                     }

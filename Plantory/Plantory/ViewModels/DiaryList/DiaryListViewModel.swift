@@ -19,6 +19,14 @@ class DiaryListViewModel: ObservableObject {
         loadMore()
     }
     
+    @Published var editedTitle: String = "친구를 만나 좋았던 하루"
+    @Published var editedContent: String = """
+    오늘은 점심에 유엠이랑 밥을 먹었는데 너무 맛있었다. 
+    저녁에는 친구 집들이를 갔다. 선물로 유리 컵과 접시 세트를 사 갔는데 마침 집에 이런한 것들이 필요했다고 해서 너무 다행이었다. 
+    친구들과 재밌는 시간을 보내고 집으로 돌아와서 이렇게 일기를 쓰고 있는 지금이 참 좋은 것 같다.
+    """
+
+    
     func loadMore() {
         guard !isLoading else { return }
         isLoading = true

@@ -79,7 +79,8 @@ struct DiaryFilterView: View {
                     Button(action: { selectedYear -= 1 }) {
                         Image(systemName: "chevron.left")
                     }
-                    Text("\(String(selectedYear))년")                        .font(.pretendardRegular(16))
+                    Text("\(String(selectedYear))년")
+                        .font(.pretendardRegular(16))
                     
                     Button(action: { selectedYear += 1 }) {
                         Image(systemName: "chevron.right")
@@ -235,6 +236,7 @@ struct EmotionTag: View {
     var body: some View {
         Text(emotion.rawValue)
             .font(.pretendardRegular(14))
+            .fixedSize()
             .padding(.horizontal, 12)
             .padding(.vertical, 8)
             .background(isSelected ? Color("green04") : Color.white)
