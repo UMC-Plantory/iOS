@@ -55,7 +55,7 @@ struct PermitView: View {
                 }, label: {
                     Image("leftChevron")
                         .fixedSize()
-                }),
+                })
         )
     }
     
