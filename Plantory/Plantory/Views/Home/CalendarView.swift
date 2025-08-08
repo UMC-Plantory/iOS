@@ -9,10 +9,10 @@ import SwiftUI
 
 //캘린더뷰+셀뷰
 struct CalendarView: View {
-    @State private var clickedDate: Date?
-    @Binding var month: Date
-    @Binding var selectedDate: Date?
-    let diaryStore: DiaryStore
+    @State private var clickedDate: Date? // (미사용 상태) 클릭한 날짜
+    @Binding var month: Date              // 현재 보여지고 있는 달
+    @Binding var selectedDate: Date?      // 유저가 선택한 날짜
+    let diaryStore: DiaryStore            // 일기 데이터
 
     var body: some View {
         let today = calendar.startOfDay(for: Date())
@@ -21,15 +21,7 @@ struct CalendarView: View {
         
 
         VStack {
-            HStack {
-                ForEach(CalendarView.weekdaySymbols.indices, id: \.self) { i in
-                    Text(CalendarView.weekdaySymbols[i])
-                        .font(.pretendardRegular(14))
-                        .foregroundColor(.gray11)
-                        .frame(maxWidth: .infinity)
-                }
-            }
-            .padding(.vertical, 5)
+            
 
             LazyVGrid(columns: Array(repeating: GridItem(), count: 7), spacing: 10) {
                 ForEach(0..<daysInMonth, id: \.self) { idx in
@@ -42,7 +34,7 @@ struct CalendarView: View {
                     let entry = diaryStore.entries[key]
                     let hasEntry = (entry != nil) && !isFuture
 
-
+                    //CellView를 VGrid로 설정
                     CellView(
                         day: day,
                         isToday: isToday,
@@ -53,10 +45,12 @@ struct CalendarView: View {
                             hasEntry
                     )
                     .onTapGesture { selectedDate = date }
+                    .padding(.horizontal, (idx % 7 == 0 || idx % 7 == 6) ? 0 : 2)
                 }
             }
             .padding(10)
             .gesture(
+                //손으로 스와이프 했을 때 이전/이후 달로 넘어가는 제스쳐 추가
                 DragGesture()
                     .onEnded { value in
                         if value.translation.width < -50 {
@@ -91,6 +85,7 @@ struct CalendarView: View {
 
 
 
+// MARK: - 유틸 함수들
 extension CalendarView {
     static func makeYearMonthView(month: Date, changeMonth: @escaping (Int) -> Void) -> some View {
         HStack(spacing: 20) {
@@ -128,6 +123,7 @@ extension Date {
         Self.calendarDayDateFormatter.string(from: self)
     }
 }
+
 
 //CellView 분리
 struct CellView: View {
