@@ -11,6 +11,7 @@ struct TerrariumView: View {
     @StateObject private var viewModel = TerrariumViewModel()
     @State private var selectedPlantIndex: Int? = nil
     @State private var isPlantPopupPresented: Bool = false
+    var onInfoTapped: () -> Void = {}
 
     var body: some View {
         ZStack {
@@ -61,7 +62,17 @@ struct TerrariumView: View {
                                     viewModel.waterPlant(memberId: 1)
                                 }
                             )
-                            .padding(.bottom,151)
+                            Spacer()
+                            
+                            //도움말 버튼
+                            HStack {
+                                Button(action: { onInfoTapped() }) {
+                                    Image("information")
+                                }
+                                Spacer()
+                            }
+                            .padding(.bottom, 96).padding(.leading, 16)
+
                         }
                         .background(
                             Ellipse()
@@ -176,5 +187,5 @@ struct WateringButton: View {
 
 
 #Preview {
-    TerrariumView()
+    TerrariumView(onInfoTapped: {})
 }

@@ -13,7 +13,6 @@ struct BaseTabView: View {
     }
 
     @State private var selectedTab: TabItem = .home
-    @State private var hasShownTerrariumPopup = false
     @State private var isTerrariumPopupVisible = false
 
     var body: some View {
@@ -40,7 +39,9 @@ struct BaseTabView: View {
                     image: selectedTab == .terrarium ? "Terrarium_fill" : "Terrarium",
                     value: TabItem.terrarium
                 ) {
-                    TerrariumView()
+                    TerrariumView(onInfoTapped: {
+                        isTerrariumPopupVisible = true
+                    })
                 }
                 
                 Tab(
@@ -79,12 +80,6 @@ struct BaseTabView: View {
         }
         .ignoresSafeArea(.keyboard)
         .navigationBarBackButtonHidden(true)
-        .onChange(of: selectedTab) { oldValue, newValue in
-            if newValue == .terrarium && !hasShownTerrariumPopup {
-                isTerrariumPopupVisible = true
-                hasShownTerrariumPopup = true
-            }
-        }
     }
 }
 
