@@ -13,6 +13,8 @@ struct MonthYearPickerView: View {
 
     @State private var selectedYear: Int
     @State private var selectedMonth: Int
+    @State private var isYearSheetPresented = false
+
     private let availableYears = Array(2000...2030)
 
     init(selectedDate: Binding<Date>, onApply: @escaping () -> Void) {
@@ -25,7 +27,6 @@ struct MonthYearPickerView: View {
 
     var body: some View {
         VStack(spacing: 20) {
-
             // 연도 선택: 선택 즉시 반영
             Picker("연도", selection: $selectedYear) {
                 ForEach(availableYears, id: \.self) {
@@ -41,6 +42,51 @@ struct MonthYearPickerView: View {
             }
 
             // 월 선택: 선택 즉시 반영
+
+            //커스텀 연도 선택 버튼
+            Button {
+                isYearSheetPresented.toggle()
+            } label: {
+                Text("\(selectedYear)년")
+                    .font(.pretendardSemiBold(20))
+                    .foregroundColor(.black01)
+                    .padding(.vertical, 8)
+                    .padding(.horizontal, 16)
+                    .background(RoundedRectangle(cornerRadius: 8).stroke(Color.gray03))
+            }
+            .sheet(isPresented: $isYearSheetPresented) {
+                VStack(spacing: 0) {
+                    Text("연도 선택")
+                        .font(.pretendardSemiBold(20))
+                        .padding(.top, 24)
+
+                    ScrollView {
+                        VStack(spacing: 16) {
+                            ForEach(availableYears, id: \.self) { year in
+                                Button {
+                                    selectedYear = year
+                                    isYearSheetPresented = false
+                                } label: {
+                                    Text("\(year)년")
+                                        .font(.pretendardRegular(18))
+                                        .foregroundColor(.black01)
+                                        .frame(maxWidth: .infinity)
+                                }
+                            }
+                        }
+                        .padding()
+                    }
+                    .frame(maxHeight: .infinity)
+
+                    Button("닫기") {
+                        isYearSheetPresented = false
+                    }
+                    .padding()
+                }
+                .presentationDetents([.medium, .large])
+            }
+
+            //월 선택 그리드
             LazyVGrid(columns: Array(repeating: GridItem(.flexible()), count: 4), spacing: 16) {
                 ForEach(1...12, id: \.self) { month in
                     Button {
