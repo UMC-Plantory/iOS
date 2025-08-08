@@ -4,9 +4,7 @@
 //
 //  Created by 박병선 on 7/22/25.
 //
-
 import SwiftUI
-
 
 struct DiaryCheckView: View{
     @StateObject private var viewModel = DiaryListViewModel()
@@ -15,8 +13,6 @@ struct DiaryCheckView: View{
     @State private var isEditing = false // 수정 상태변수
     @Environment(\.presentationMode) var presentationMode
     @State private var isBookmarked: Bool = false
-    
-    
     
     var body: some View {
         ZStack(alignment: .topTrailing) {

@@ -8,7 +8,7 @@ import SwiftUI
 
 struct DiaryFilterView: View {
     @Environment(\.dismiss) private var dismiss
-    
+    @StateObject private var viewModel = DiaryFilterViewModel()
     @State private var selectedOrder: Order = .latest
     @State private var selectedYear: Int = 2025
     @State private var selectedMonths: Set<Int>
@@ -16,13 +16,11 @@ struct DiaryFilterView: View {
     
     private let currentDate = Date()
     private let calendar = Calendar.current
-    //private var isBetween = true //@State는 뷰의 UI상태 저장용인데 isBetween은 그때그때 계산되는 일시적인 값이므로 이런 선언이 불필요(트러블슈팅에)
     
     //유저가 초기값 설정할 수 있도록 근데 지금은 프리뷰에 파라미터를 넘겨주도록
     init(initialSelectedMonths: Set<Int>) {
             _selectedMonths = State(initialValue: initialSelectedMonths)
         }
-
     
     var body: some View {
         VStack(alignment: .leading, spacing: 24) {
@@ -107,8 +105,7 @@ struct DiaryFilterView: View {
                     HStack(spacing: 0) {
                         ForEach(1...12, id: \.self) { month in
                             let isSelected = selectedMonths.contains(month)
-                            let isFuture = isFutureMonth(year: selectedYear, month: month)
-
+                            let isFuture = viewModel.isFutureMonth(year: selectedYear, month: month)
                             let backgroundColor: Color = isSelected ? Color("green04") : (isFuture ? Color("gray03") : Color("white01"))
                             let borderColor: Color = isSelected ? Color("green06") : Color("gray04")
                             let textColor: Color = isSelected ? Color("green06") : (isFuture ? Color("gray06") : Color("black01"))
@@ -145,6 +142,7 @@ struct DiaryFilterView: View {
                     HStack {
                         Text("감정")
                             .font(.pretendardSemiBold(16))
+                            
                         Button(action: {
                             selectedEmotions = [.all]
                         }) {
@@ -153,6 +151,9 @@ struct DiaryFilterView: View {
                                 .foregroundColor(.gray)
                         }
                     }
+                    .padding(.leading, 4)
+                    .padding(.top,10)
+                    
                     HStack(spacing: 12) {
                         ForEach(Emotion.allCases, id: \ .self) { emotion in
                             EmotionTag(emotion: emotion, isSelected: selectedEmotions.contains(emotion)) {
@@ -169,6 +170,7 @@ struct DiaryFilterView: View {
                             }
                         }
                     }
+                    .padding(.top,10)
                 }
                 .padding(.horizontal)
                 
@@ -194,63 +196,10 @@ struct DiaryFilterView: View {
             }
             .padding(.top, 16)
         }
-        
-    }
-    
-    //날짜 비교, 현재 날짜보다 미래는 회색으로 처리
-    private func isFutureMonth(year: Int, month: Int) -> Bool{
-        guard let compareDate = calendar.date(from: DateComponents(year: year, month: month)) else {
-            return false
-        }
-        return compareDate > currentDate
-    }
-    
-}
-//선택된 버튼에 초록색 채워넣는 부분
-struct OrderButton: View {
-    let title: String
-    let isSelected: Bool
-    let action: () -> Void
-
-    var body: some View {
-        Button(action: action) {
-            HStack(spacing: 8) {
-                Image(isSelected ? "radio_green" : "radio_gray")
-                    .resizable()
-                    .frame(width: 20, height: 20)
-                    .foregroundColor(isSelected ? Color("green04") : .gray)
-
-                Text(title)
-                    .foregroundColor(Color("black01"))
-                    .font(.pretendardRegular(16))
-            }
-        }
     }
 }
 
-struct EmotionTag: View {
-    let emotion: Emotion
-    let isSelected: Bool
-    let action: () -> Void
 
-    var body: some View {
-        Text(emotion.rawValue)
-            .font(.pretendardRegular(14))
-            .fixedSize()
-            .padding(.horizontal, 12)
-            .padding(.vertical, 8)
-            .background(isSelected ? Color("green04") : Color.white)
-            .foregroundColor(isSelected ? .white : .gray)
-            .overlay(
-                RoundedRectangle(cornerRadius: 20)
-                    .stroke(Color.gray.opacity(0.3), lineWidth: 1)
-            )
-            .cornerRadius(20)
-            .onTapGesture {
-                action()
-            }
-    }
-}
 
 #Preview {
     DiaryFilterView(initialSelectedMonths: [4, 5])
