@@ -7,12 +7,13 @@
 import SwiftUI
 
 struct DiaryCheckView: View{
+    let diary: DiaryEntry
     @StateObject private var viewModel = DiaryListViewModel()
     @Binding var isDeleteSheetPresented: Bool//삭제 상태변수
     @State private var isSaved = false //저장 상태변수
     @State private var isEditing = false // 수정 상태변수
     @Environment(\.presentationMode) var presentationMode
-    @State private var isBookmarked: Bool = false
+    @State private var isScrapped: Bool = false
     
     var body: some View {
         ZStack(alignment: .topTrailing) {
@@ -78,15 +79,16 @@ struct DiaryCheckView: View{
                         }
                         Spacer()
                         //북마크 버튼
-                        Button(action: {
-                            isBookmarked.toggle()
-                        }) {
-                            Image(isBookmarked ? "bookmark_green": "bookmark_empty")
-                                .resizable()
-                                .frame(width:20, height: 23)
-                                .padding([.top, .trailing], -35)
+                            Button(action: {
+                                viewModel.toggleScrap(for: diary.id)
+                            }) {
+                                Image(isScrapped ? "bookmark_green": "bookmark_empty")
+                                    .resizable()
+                                    .frame(width:20, height: 23)
+                                    .padding([.top, .trailing], -35)
+                            }
                         }
-                    }
+                    
 
                     // 이미지 placeholder
                     ZStack {
@@ -189,8 +191,19 @@ struct DiaryCheckView: View{
     // 프리뷰용 래퍼 뷰
     struct DiaryCheckPreviewWrapper: View {
         @State private var isDeleteSheetPresented = false
+        
+        private let mockDiary = DiaryEntry(
+                id: 1,
+                date: Date(),
+                title: "프리뷰용 제목",
+                content: "이건 프리뷰용 내용입니다.",
+                emotion: .happy,
+                isFavorite: false
+            )
 
         var body: some View {
-            DiaryCheckView(isDeleteSheetPresented: $isDeleteSheetPresented)
+            DiaryCheckView(
+                diary: mockDiary,
+                isDeleteSheetPresented: $isDeleteSheetPresented)
         }
     }

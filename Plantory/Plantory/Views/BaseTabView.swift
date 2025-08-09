@@ -31,7 +31,9 @@ struct BaseTabView: View {
                     image: selectedTab == .diary ? "Diary_fill" : "Diary",
                     value: TabItem.diary
                 ) {
-                    DiaryListView(isFilterSheetPresented: $isFilterSheetPresented)
+                    NavigationStack {
+                        DiaryListView(isFilterSheetPresented: $isFilterSheetPresented)
+                    }
                 }
                 
                 Tab(

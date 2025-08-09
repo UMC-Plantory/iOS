@@ -6,7 +6,7 @@
 //
 import SwiftUI
 
-
+//삭제 확인 시트
 struct DeleteConfirmationSheet: View {
     
     @Binding var isPresented: Bool

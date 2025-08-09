@@ -4,7 +4,7 @@
 //
 //  Created by 박병선 on 7/22/25.
 //
-//감정에 따른 책갈피에서 오른쪽만 둥글게 되어있는 roundedRectangle 구현
+// 감정에 따른 책갈피에서 오른쪽만 둥글게 되어있는 roundedRectangle 구현
 
 import SwiftUI
 import UIKit

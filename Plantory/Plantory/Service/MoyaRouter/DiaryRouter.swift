@@ -2,13 +2,13 @@
 //  DiaryAPI.swift
 //  Plantory
 //
-//  Created by 박병선 on 8/8/25.
+//  Created by 박병선 on 8/2/25.
 //
 import Foundation
 import Moya
 import Alamofire
 
-
+//일기를 서버에 보낼 때 사용하는 요청 데이터 모델
 struct DiaryRequest: Codable {
     let emotion: String
     let content: String
@@ -20,7 +20,7 @@ struct DiaryRequest: Codable {
 }
 
 
-enum DiaryAPI {
+enum DiaryAPI : APITargetType{
     case write(DiaryRequest)
     case fetchDiary(id: Int) //특정 일기 하나 조회
     case editDiary(id: Int, data: DiaryRequest)//일기 수정
@@ -30,7 +30,7 @@ enum DiaryAPI {
     case unScrapDiary(id: Int) //스크랩 취소
 }
 
-extension DiaryAPI: APITargetType {
+extension DiaryAPI {
     var baseURL: URL {
         return URL(string: "https://api.plantory.app")!
     }
