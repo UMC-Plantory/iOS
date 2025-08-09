@@ -12,6 +12,8 @@ import KakaoSDKAuth
 @main
 struct PlantoryApp: App {
     
+    @UIApplicationDelegateAdaptor(AppDelegate.self) var appDelegate
+    
     init() {
         KakaoSDK.initSDK(appKey: Config.kakaoKey)
     }
