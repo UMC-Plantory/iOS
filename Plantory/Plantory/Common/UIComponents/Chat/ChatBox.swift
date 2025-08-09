@@ -7,6 +7,8 @@
 
 import SwiftUI
 
+// MARK: - 채팅 셀
+
 struct ChatBox: View {
     
     // MARK: - Property
@@ -61,27 +63,46 @@ struct ChatBox: View {
     
     /// 채팅에서 시간을 나타내는 뷰
     private var createAtView: some View {
-        Text(chatModel.createAt)
+        Text(extractHourAndMinute(from: chatModel.createAt) ?? "시간 없음")
             .font(.pretendardRegular(10))
             .foregroundStyle(.black01)
     }
     
     /// 채팅에서 메시지를 나타내는 뷰
     private var messageView: some View {
-        Group {
-            if chatModel.content.isEmpty {
+        Text(chatModel.content)
+            .padding(.horizontal, 16)
+            .padding(.vertical, 10)
+            .font(.pretendardRegular(14))
+            .foregroundColor(.gray11)
+    }
+}
+
+// MARK: - 로딩 전용 셀
+
+struct ChatLoadingBox: View {
+    
+    // MARK: - Body
+    
+    var body: some View {
+        HStack(alignment: .bottom, spacing: 6) {
+            HStack(alignment: .top) {
+                Image("chat_logo")
+                    .resizable()
+                    .frame(width: 32, height: 32)
+
                 ProgressView()
                     .padding()
                     .tint(.gray11)
-                
-            } else {
-                Text(chatModel.content)
-                    .padding(.horizontal, 16)
-                    .padding(.vertical, 10)
-                    .font(.pretendardRegular(14))
-                    .foregroundColor(.gray11)
+                    .background(.white01)
+                    .clipShape(ModelChatBubbleShape())
+                    .overlay(
+                        ModelChatBubbleShape()
+                            .stroke(.black01, lineWidth: 1)
+                    )
             }
         }
+        .frame(maxWidth: .infinity, alignment: .topLeading)
     }
 }
 
@@ -107,4 +128,18 @@ struct ModelChatBubbleShape: Shape {
         )
         return Path(path.cgPath)
     }
+}
+
+// MARK: - 시간 변환 함수
+
+/// datetime 문자열을 시간만 반환
+func extractHourAndMinute(from datetime: String) -> String? {
+    let parts = datetime.components(separatedBy: "T")
+    guard parts.count == 2 else { return nil }
+
+    let timeString = parts[1]  // "17:21:17.720818"
+    let timeComponents = timeString.components(separatedBy: ":")
+    guard timeComponents.count >= 2 else { return nil }
+
+    return "\(timeComponents[0]):\(timeComponents[1])"
 }

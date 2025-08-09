@@ -17,6 +17,9 @@ class ChatViewModel {
     /// 화면에 띄울 메시지 목록
     var messages: [ChatMessage] = []
     
+    /// 페이지네이션을 위해, 마지막 메시지 저장
+    var lastMessage: ChatMessage? = nil
+    
     /// 로딩 중임을 나타냄
     var isLoading: Bool = false
     
@@ -46,24 +49,28 @@ class ChatViewModel {
     
     // MARK: - 함수
     public func sendMessage() {
+        let text = textInput
+        self.textInput = ""
+        
         let newMessage = ChatMessage(
             role: .user,
-            content: textInput,
+            content: text,
             createAt: Date().hourMinuteString
         )
         messages.append(newMessage)
-        shouldScrollToBottom = true
-        self.postChat()
+        
+        self.postChat(text: text)
     }
     
     
     // MARK: - API
     
     /// 채팅 요청
-    public func postChat() {
+    public func postChat(text: String) {
+        guard !isLoading else { return }
         isLoading = true
 
-        let request = ChatRequest(content: textInput)
+        let request = ChatRequest(content: text)
 
         container.useCaseService.chatService.postChat(chatData: request)
             .receive(on: DispatchQueue.main)
@@ -72,6 +79,8 @@ class ChatViewModel {
                 if case .failure(let failure) = completion {
                     print("채팅 요청 오류: \(failure)")
                     self?.isLoading = false
+                    // FIX-ME: 에러 토스트 추가하기
+                    self?.messages.removeLast()
                 }
             }, receiveValue: { [weak self] response in
                 let newChat = ChatMessage(
@@ -81,57 +90,69 @@ class ChatViewModel {
                 )
                 self?.messages.append(newChat)
                 self?.isLoading = false
-                self?.textInput = ""
+                self?.shouldScrollToBottom = true
             })
             .store(in: &cancellables)
     }
     
     /// 최초 진입 시, 이전 대화 기록 조회
     public func getLatestChat() {
-        isLoading = true
-
+        guard !isLoading else { return }
+        
         container.useCaseService.chatService.getLatestChat()
             .receive(on: DispatchQueue.main)
-            .sink(receiveCompletion: { [weak self] completion in
+            .sink(receiveCompletion: { completion in
                 // 오류 발생 시 처리
                 if case .failure(let failure) = completion {
                     print("채팅 불러오기 오류: \(failure)")
-                    self?.isLoading = false
                 }
             }, receiveValue: { [weak self] response in
-                self?.messages = response
+                let convertedResponse = response
                     .map { ChatMessage(from: $0) }
+                
+                self?.messages = convertedResponse
                     .reversed()
                     .map { $0 }
+                
                 self?.shouldScrollToBottom = true
-                self?.isLoading = false
+                self?.isLast = false
+                
+                /// 페이지네이션을 위해 마지막 메시지를 저장
+                if let last = convertedResponse.last {
+                    self?.lastMessage = last
+                }
             })
             .store(in: &cancellables)
     }
     
     /// 이전 대화 기록 조회에서, 커서 페이징
-    public func getLatestChat(before: String) {
-        guard !isLoading, !isLast else { return }
-        isLoading = true
+    public func getBeforeChat() {
+        guard let lastCreateAt = lastMessage?.createAt, !isLoading, !isLast else { return }
         
-        container.useCaseService.chatService.getBeforeChat(beforeData: before)
+        container.useCaseService.chatService.getBeforeChat(beforeData: lastCreateAt)
             .receive(on: DispatchQueue.main)
-            .sink(receiveCompletion: { [weak self] completion in
+            .sink(receiveCompletion: { completion in
                 // 오류 발생 시 처리
                 if case .failure(let failure) = completion {
                     print("채팅 불러오기 오류: \(failure)")
-                    self?.isLoading = false
                 }
             }, receiveValue: { [weak self] response in
                 if response.isEmpty {
                     self?.isLast = true
-                    self?.isLoading = false
                     return
                 } else {
-                    let mappedMessages = response
+                    let convertedResponse = response
                         .map { ChatMessage(from: $0) }
-                    self?.messages.insert(contentsOf: mappedMessages, at: 0)
-                    self?.isLoading = false
+                    
+                    let reversedResponse = convertedResponse
+                        .reversed()
+                        .map { $0 }
+                    self?.messages.insert(contentsOf: reversedResponse, at: 0)
+                    
+                    /// 페이지네이션을 위해 마지막 메시지를 저장
+                    if let last = convertedResponse.last {
+                        self?.lastMessage = last
+                    }
                 }
             })
             .store(in: &cancellables)
@@ -142,7 +163,7 @@ class ChatViewModel {
 extension Date {
     var hourMinuteString: String {
         let formatter = DateFormatter()
-        formatter.dateFormat = "HH:mm"
+        formatter.dateFormat = "yyyy-MM-dd'T'HH:mm:ss.SSSSSS"
         formatter.locale = Locale(identifier: "ko_KR")
         return formatter.string(from: self)
     }
