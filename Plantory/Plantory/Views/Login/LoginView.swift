@@ -92,7 +92,11 @@ struct LoginView: View {
             
             Button(action: {
                 Task {
-                    await viewModel.appleLogin()
+                    if let window = UIApplication.shared.connectedScenes
+                        .compactMap({ $0 as? UIWindowScene })
+                        .first?.windows.first {
+                        await viewModel.appleLogin(presentationAnchor: window)
+                    }
                 }
             }, label: {
                 Image("appleLogin")

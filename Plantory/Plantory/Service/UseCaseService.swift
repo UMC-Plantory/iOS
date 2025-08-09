@@ -11,11 +11,13 @@ import Foundation
 class UseCaseService {
     
     let kakaoManager: KakakoLoginManager
+    let appleManager: AppleLoginManager
     let authService: AuthService
     let chatService: ChatService
     
     init() {
         self.kakaoManager = .init()
+        self.appleManager = .init()
         self.authService = .init()
         self.chatService = .init()
     }
