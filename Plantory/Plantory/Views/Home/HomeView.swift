@@ -67,9 +67,8 @@ struct HomeView: View {
 
                 Color.clear.frame(height: 20)
 
-                if selectedDate == nil {
-                    MyProgressView()
-                }
+              MyProgressView()
+                
             }
             .padding(.horizontal, 32)
             .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
