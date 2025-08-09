@@ -23,5 +23,5 @@ extension APITargetType {
         }
     }
     
-    var validationType: ValidationType { .successCodes }
+    var validationType: ValidationType { .none }
 }

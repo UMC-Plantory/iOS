@@ -10,5 +10,6 @@ import Foundation
 enum NavigationDestination: Equatable, Hashable {
     case login
     case permit
+    case policy(num: Int)
     case baseTab
 }

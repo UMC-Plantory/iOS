@@ -12,29 +12,20 @@ import Alamofire
 class APIManager: @unchecked Sendable {
     static let shared = APIManager()
     
+    private let tokenProvider: TokenProviding
+    private let accessTokenRefresher: AccessTokenRefresher
     private let session: Session
     private let loggerPlugin: PluginType
     
     private init() {
-        session = Session()
+        tokenProvider = TokenProvider()
+        accessTokenRefresher = AccessTokenRefresher(tokenProviding: tokenProvider)
+        session = Session(interceptor: accessTokenRefresher)
         loggerPlugin = NetworkLoggerPlugin(configuration: .init(logOptions: .verbose))
     }
     
     /// 실제 API 요청용 MoyaProvider
     public func createProvider<T: TargetType>(for targetType: T.Type) -> MoyaProvider<T> {
-        return MoyaProvider<T>(
-            session: session,
-            plugins: [loggerPlugin]
-        )
-    }
-    
-    /// 이미지 요청 시 MoyaProvidder
-    func createImageProvider<T: TargetType>(for targetType: T.Type) -> MoyaProvider<T> {
-        let config = URLSessionConfiguration.default
-        config.timeoutIntervalForRequest = 300
-        config.timeoutIntervalForResource = 300
-
-        let session = Session(configuration: config)
         return MoyaProvider<T>(
             session: session,
             plugins: [loggerPlugin]

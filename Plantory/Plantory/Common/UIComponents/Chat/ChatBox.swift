@@ -8,7 +8,12 @@
 import SwiftUI
 
 struct ChatBox: View {
+    
+    // MARK: - Property
+    
     let chatModel: ChatMessage
+    
+    // MARK: - Body
     
     var body: some View {
         if chatModel.role == .model {
@@ -18,34 +23,21 @@ struct ChatBox: View {
         }
     }
     
+    /// 유저가 요청한 메시지를 담는 뷰
     private var userMessage: some View {
         HStack(alignment: .bottom, spacing: 6) {
-            Text(extractTime(from: chatModel.time) ?? "시간없음")
-                .font(.pretendardRegular(10))
-                .foregroundStyle(.black01)
+            createAtView
             
             HStack(alignment: .top) {
-                Group {
-                    if chatModel.message.isEmpty {
-                        ProgressView()
-                            .padding()
-                            .tint(.gray11)
-                        
-                    } else {
-                        Text(chatModel.message)
-                            .padding(.horizontal, 16)
-                            .padding(.vertical, 10)
-                            .font(.pretendardRegular(14))
-                            .foregroundColor(.gray11)
-                    }
-                }
-                .background(.green02)
-                .clipShape(UserChatBubbleShape())
+                messageView
+                    .background(.green02)
+                    .clipShape(UserChatBubbleShape())
             }
         }
         .frame(maxWidth: .infinity, alignment: .topTrailing)
     }
     
+    /// AI가 답변한 메시지를 담는 뷰
     private var modelMessage: some View {
         HStack(alignment: .bottom, spacing: 6) {
             HStack(alignment: .top) {
@@ -53,41 +45,47 @@ struct ChatBox: View {
                     .resizable()
                     .frame(width: 32, height: 32)
                 
-                Group {
-                    if chatModel.message.isEmpty {
-                        ProgressView()
-                            .padding()
-                            .tint(.gray11)
-                        
-                    } else {
-                        Text(chatModel.message)
-                            .padding(.horizontal, 16)
-                            .padding(.vertical, 10)
-                            .font(.pretendardRegular(14))
-                            .foregroundColor(.gray11)
-                    }
-                }
-                .background(.white01)
-                .clipShape(ModelChatBubbleShape())
-                .overlay(
-                    ModelChatBubbleShape()
-                        .stroke(.black01, lineWidth: 1)
-                )
+                messageView
+                    .background(.white01)
+                    .clipShape(ModelChatBubbleShape())
+                    .overlay(
+                        ModelChatBubbleShape()
+                            .stroke(.black01, lineWidth: 1)
+                    )
             }
             
-            Text(extractTime(from: chatModel.time) ?? "시간없음")
-                .font(.pretendardRegular(10))
-                .foregroundStyle(.black01)
+            createAtView
         }
         .frame(maxWidth: .infinity, alignment: .topLeading)
     }
     
-    // datetime 문자열을 공백 기준으로 나눠서 시간만 반환
-    func extractTime(from datetime: String) -> String? {
-        let components = datetime.components(separatedBy: " ")
-        return components.count == 2 ? components.last : nil
+    /// 채팅에서 시간을 나타내는 뷰
+    private var createAtView: some View {
+        Text(chatModel.createAt)
+            .font(.pretendardRegular(10))
+            .foregroundStyle(.black01)
+    }
+    
+    /// 채팅에서 메시지를 나타내는 뷰
+    private var messageView: some View {
+        Group {
+            if chatModel.content.isEmpty {
+                ProgressView()
+                    .padding()
+                    .tint(.gray11)
+                
+            } else {
+                Text(chatModel.content)
+                    .padding(.horizontal, 16)
+                    .padding(.vertical, 10)
+                    .font(.pretendardRegular(14))
+                    .foregroundColor(.gray11)
+            }
+        }
     }
 }
+
+// MARK: - Shape
 
 struct UserChatBubbleShape: Shape {
     func path(in rect: CGRect) -> Path {

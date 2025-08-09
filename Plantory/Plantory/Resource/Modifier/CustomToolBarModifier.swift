@@ -33,6 +33,7 @@ struct CustomModifier<Leading: View, Trailing: View>: ViewModifier {
                 if let title = title {
                     ToolbarItem(placement: .principal) {
                         Text(title)
+                            .font(.pretendardSemiBold(20))
                             .padding(.top, topPadding)
                             .padding(.bottom, bottomPadding)
                     }
