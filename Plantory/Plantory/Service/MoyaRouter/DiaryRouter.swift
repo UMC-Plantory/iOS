@@ -19,8 +19,7 @@ struct DiaryRequest: Codable {
     let isImgDeleted: Bool
 }
 
-
-enum DiaryAPI : APITargetType{
+enum DiaryAPI : APITargetType {
     case write(DiaryRequest)
     case fetchDiary(id: Int) //특정 일기 하나 조회
     case editDiary(id: Int, data: DiaryRequest)//일기 수정
