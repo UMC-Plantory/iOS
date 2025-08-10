@@ -12,25 +12,19 @@ import Observation
 class PermitViewModel {
     var allPermit: Bool {
         get {
-            fourteenPermit &&
             termsOfServicePermit &&
             informationPermit &&
-            locationPermit &&
             marketingPermit        }
         set {
             withAnimation {
-                fourteenPermit = newValue
                 termsOfServicePermit = newValue
                 informationPermit = newValue
-                locationPermit = newValue
                 marketingPermit = newValue
             }
         }
     }
     
-    var fourteenPermit: Bool = false
     var termsOfServicePermit: Bool = false
     var informationPermit: Bool = false
-    var locationPermit: Bool = false
     var marketingPermit: Bool = false
 }
