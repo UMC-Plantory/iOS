@@ -8,17 +8,19 @@
 import SwiftUI
 
 struct BaseTabView: View {
-
+    
     // MARK: - Property
     
+    enum TabItem: String, CaseIterable {
+        case home, diary, terrarium, chat, profile
+    }
+    
     @State private var selectedTab: TabItem = .home
-
-    @State private var hasShownTerrariumPopup = false
     @State private var isTerrariumPopupVisible = false
     
     /// 의존성 주입을 위한 DI 컨테이너
     @EnvironmentObject var container: DIContainer
-
+    
     var body: some View {
         ZStack(alignment: .bottom) {
             TabView(selection: $selectedTab) {
@@ -33,7 +35,7 @@ struct BaseTabView: View {
                     )
                 }
             }
-
+            
             if isTerrariumPopupVisible {
                 TerrariumPopup(isVisible: $isTerrariumPopupVisible)
                     .zIndex(10)
@@ -54,12 +56,6 @@ struct BaseTabView: View {
         }
         .ignoresSafeArea(.keyboard)
         .navigationBarBackButtonHidden(true)
-        .onChange(of: selectedTab) { oldValue, newValue in
-            if newValue == .terrarium && !hasShownTerrariumPopup {
-                isTerrariumPopupVisible = true
-                hasShownTerrariumPopup = true
-            }
-        }
     }
     
     /// 각 탭에 해당하는 뷰
@@ -72,7 +68,9 @@ struct BaseTabView: View {
             case .diary:
                 DiaryView()
             case .terrarium:
-                TerrariumView()
+                TerrariumView(onInfoTapped: {
+                    isTerrariumPopupVisible = true
+                })
             case .chat:
                 ChatView(container: container)
             case .profile:
@@ -82,7 +80,17 @@ struct BaseTabView: View {
         .environmentObject(container)
     }
 }
-
+    
+    
 #Preview {
     BaseTabView()
+        .environmentObject(makePreviewContainer())
 }
+
+#if DEBUG
+private func makePreviewContainer() -> DIContainer {
+    // TODO: 프로젝트의 DIContainer 초기화 방식에 맞게 수정하세요.
+    // 예: DIContainer(authService: MockAuthService(), api: MockAPI(), ...)
+    return DIContainer()
+}
+#endif

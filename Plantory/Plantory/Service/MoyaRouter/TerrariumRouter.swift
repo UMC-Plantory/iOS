@@ -14,7 +14,9 @@ enum TerrariumRouter {
 }
 
 extension TerrariumRouter: TargetType {
-    var baseURL: URL { URL(string: "http://localhost:9999")! }
+    var baseURL: URL {
+        return URL(string: "\(Config.baseUrl)")!
+    }
     
     var path: String {
         switch self {
