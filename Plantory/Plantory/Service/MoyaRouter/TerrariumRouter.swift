@@ -8,12 +8,12 @@
 import Moya
 import Foundation
 
-enum TerrariumAPI {
+enum TerrariumRouter {
     case getTerrarium(memberId: Int)
     case water(terrariumId: Int, memberId: Int)
 }
 
-extension TerrariumAPI: TargetType {
+extension TerrariumRouter: TargetType {
     var baseURL: URL { URL(string: "http://localhost:9999")! }
     
     var path: String {

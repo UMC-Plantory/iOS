@@ -17,10 +17,10 @@ class TerrariumViewModel: ObservableObject {
     @Published var errorMessage: String?
 
     // 2. Moya Provider
-    private let provider: MoyaProvider<TerrariumAPI>
+    private let provider: MoyaProvider<TerrariumRouter>
 
     init() {
-        self.provider = APIManager.shared.testProvider(for: TerrariumAPI.self)
+        self.provider = APIManager.shared.testProvider(for: TerrariumRouter.self)
     }
 
     // 3. API 요청 함수
