@@ -268,7 +268,7 @@ struct TempFootView: View {
             } else {
                 HStack {
                     Text("보관함에 있는 항목은 이동된 날짜로부터 30일 뒤 휴지통으로 이동합니다.")
-                        .font(.PretendardLight(12))
+                        .font(.pretendardLight(12))
                         .foregroundColor(.gray08)
                         .padding(.vertical, 11)
                 }

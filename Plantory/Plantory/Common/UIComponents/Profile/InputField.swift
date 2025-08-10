@@ -64,7 +64,7 @@ struct InputField: View {
                 }
 
             Text(state.messageText ?? "")
-                .font(.PretendardLight(10))
+                .font(.pretendardLight(10))
                 .foregroundColor(state.messageColor)
         }
     }

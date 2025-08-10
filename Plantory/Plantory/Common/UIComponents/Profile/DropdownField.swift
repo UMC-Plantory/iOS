@@ -78,7 +78,7 @@ public struct DropdownField: View {
             // 상태 메시지
             if let msg = state.messageText {
                 Text(msg)
-                    .font(.PretendardLight(12))
+                    .font(.pretendardLight(12))
                     .foregroundColor(state.messageColor)
             }
         }

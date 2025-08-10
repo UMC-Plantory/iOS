@@ -233,7 +233,7 @@ struct ProfileMemberInfoView: View {
                 HStack {
                     Spacer()
                     Text("회원 탈퇴하기")
-                        .font(.PretendardLight(12))
+                        .font(.pretendardLight(12))
                         .foregroundStyle(.gray08)
                         .underline()
                     Spacer()
@@ -314,7 +314,7 @@ struct ReadOnlyInputField: View {
             // 안내 메시지가 있을 경우 표시
             if let message = message {
                 Text(message)
-                    .font(.PretendardLight(12))
+                    .font(.pretendardLight(12))
                     .foregroundColor(Color.gray08)
             }
         }
