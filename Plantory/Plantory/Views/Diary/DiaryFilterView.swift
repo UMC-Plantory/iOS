@@ -9,7 +9,7 @@ import SwiftUI
 struct DiaryFilterView: View {
     @Environment(\.dismiss) private var dismiss
     @StateObject private var viewModel = DiaryFilterViewModel()
-    @State private var selectedOrder: Order = .latest
+    @State private var selectedOrder: DiarySort = .latest
     @State private var selectedYear: Int = 2025
     @State private var selectedMonths: Set<Int>
     @State private var selectedEmotions: Set<Emotion> = [.all]

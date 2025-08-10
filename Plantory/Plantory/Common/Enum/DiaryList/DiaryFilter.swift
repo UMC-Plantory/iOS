@@ -6,7 +6,7 @@
 //
 import Foundation
 
-enum Order {
+enum Order : String, Codable{
     case latest
     case oldest
 }

@@ -4,13 +4,37 @@
 //
 //  Created by 박병선 on 8/2/25.
 //
-// 실제 요청 함수들 모음
 import Foundation
+import Combine
 import Moya
+
+//프로토콜 정의
+protocol DiaryServieProtocol {
+    //개별 일기 조회
+    
+    //일기 스크랩
+    
+    //일기 스크랩 취소
+    
+    //일기 수정
+    
+    //일기 휴지통 이동
+    
+    //일기 임시 보관
+    
+    //일기 검색
+    
+    //일기 목록 필터 조회
+    
+    //
+    
+}
+
+
 
 final class DiaryService {
     
-    private let provider = MoyaProvider<DiaryAPI>()
+    private let provider = MoyaProvider<DiaryRouter>()
 
     
     /// 일기 스크랩
