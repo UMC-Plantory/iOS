@@ -29,6 +29,18 @@ struct NavigationRoutingView: View {
                             PolicyView(num: num)
                         case .baseTab:
                             BaseTabView()
+                            
+                        // 마이페이지
+                        case .scrap:
+                            ScrapView()
+                        case .tempStorage:
+                            TempStorageView()
+                        case .trash:
+                            TrashView()
+                        case .emotionStats:
+                            EmotionStatsView()
+                        case .profileManage:
+                            ProfileManageView()
                         }
                     }
                     .environmentObject(container)

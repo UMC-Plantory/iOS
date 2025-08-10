@@ -9,7 +9,8 @@ struct MyPageView: View {
         Stat(value: "4개", label: "피어난 꽃의 수")
     ]
     
-    @State private var path = NavigationPath()
+    @EnvironmentObject var container: DIContainer
+
     @State private var showSleepSheet = false
     @State private var showEmotionSheet = false
     @State private var showLogout = false
@@ -17,7 +18,6 @@ struct MyPageView: View {
     private let SleepViewModel = SleepStatsViewModel()
     
     var body: some View {
-        NavigationStack(path: $path) {
             ScrollView {
                 VStack {
                     HeaderView()
@@ -28,7 +28,7 @@ struct MyPageView: View {
                     
                     // 프로필 관리
                     ProfileSection {
-                        path.append(MyPageRoute.profileManage)
+                        container.navigationRouter.push(.profileManage)
                     }
                     
                     Spacer().frame(height: 45)
@@ -49,9 +49,9 @@ struct MyPageView: View {
                     
                     // 메뉴 (스크랩 / 임시보관함 / 휴지통)
                     MenuSection(
-                        scrapAction:     { path.append(MyPageRoute.scrap) },
-                        tempAction:      { path.append(MyPageRoute.tempStorage) },
-                        trashAction:     { path.append(MyPageRoute.trash) }, logoutAction: {
+                        scrapAction:     { container.navigationRouter.push(.scrap) },
+                        tempAction:      { container.navigationRouter.push(.tempStorage) },
+                        trashAction:     { container.navigationRouter.push(.trash) }, logoutAction: {
                             // 로그아웃 판넬
                             showLogout = true
                         }
@@ -83,20 +83,8 @@ struct MyPageView: View {
                 }
             }
             .navigationBarHidden(true)
-            .navigationDestination(for: MyPageRoute.self) { route in
-                switch route {
-                case .scrap:
-                    ScrapView()
-                case .tempStorage:    TempStorageView()
-                case .trash:
-                    TrashView()
-                case .emotionStats:   EmotionStatsView()
-                case .profileManage:  ProfileManageView()
-                }
-            }
         }
     }
-}
 
 // MARK: — 헤더
 private struct HeaderView: View {
