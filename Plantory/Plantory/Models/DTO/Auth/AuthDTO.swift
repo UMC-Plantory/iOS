@@ -25,6 +25,7 @@ struct LoginResponse: Codable {
     let accessToken: String
     let refreshToken: String
     let accessTokenExpireAt: String
+    let memberStatus: MemberStatus
 }
 
 /// 토큰 재발급 요청 구조체
