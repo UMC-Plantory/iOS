@@ -8,56 +8,29 @@
 import SwiftUI
 
 struct BaseTabView: View {
-    enum TabItem: String, CaseIterable {
-        case home, diary, terrarium, chat, profile
-    }
 
+    // MARK: - Property
+    
     @State private var selectedTab: TabItem = .home
+
+    @State private var hasShownTerrariumPopup = false
     @State private var isTerrariumPopupVisible = false
+    
+    /// 의존성 주입을 위한 DI 컨테이너
+    @EnvironmentObject var container: DIContainer
 
     var body: some View {
         ZStack(alignment: .bottom) {
             TabView(selection: $selectedTab) {
-                Tab(
-                    "",
-                    image: selectedTab == .home ? "Home_fill" : "Home",
-                    value: TabItem.home
-                ) {
-                    HomeView()
-                }
-                
-                Tab(
-                    "",
-                    image: selectedTab == .diary ? "Diary_fill" : "Diary",
-                    value: TabItem.diary
-                ) {
-                    DiaryView()
-                }
-                
-                Tab(
-                    "",
-                    image: selectedTab == .terrarium ? "Terrarium_fill" : "Terrarium",
-                    value: TabItem.terrarium
-                ) {
-                    TerrariumView(onInfoTapped: {
-                        isTerrariumPopupVisible = true
-                    })
-                }
-                
-                Tab(
-                    "",
-                    image: selectedTab == .chat ? "Chat_fill" : "Chat",
-                    value: TabItem.chat
-                ) {
-                    ChatView()
-                }
-                
-                Tab(
-                    "",
-                    image: selectedTab == .profile ? "Profile_fill" : "Profile",
-                    value: TabItem.profile
-                ) {
-                    ProfileView()
+                ForEach(TabItem.allCases, id: \.rawValue) { tab in
+                    Tab(
+                        "",
+                        image: selectedTab == tab ? "\(tab.rawValue)_fill" : "\(tab.rawValue)",
+                        value: tab,
+                        content: {
+                            tabView(tab: tab)
+                        }
+                    )
                 }
             }
 
@@ -65,7 +38,8 @@ struct BaseTabView: View {
                 TerrariumPopup(isVisible: $isTerrariumPopupVisible)
                     .zIndex(10)
             }
-
+        }
+        .overlay(alignment: .bottom) {
             VStack(spacing: 0) {
                 Divider()
                     .background(Color.gray.opacity(0.4))
@@ -80,6 +54,32 @@ struct BaseTabView: View {
         }
         .ignoresSafeArea(.keyboard)
         .navigationBarBackButtonHidden(true)
+        .onChange(of: selectedTab) { oldValue, newValue in
+            if newValue == .terrarium && !hasShownTerrariumPopup {
+                isTerrariumPopupVisible = true
+                hasShownTerrariumPopup = true
+            }
+        }
+    }
+    
+    /// 각 탭에 해당하는 뷰
+    @ViewBuilder
+    private func tabView(tab: TabItem) -> some View {
+        Group {
+            switch tab {
+            case .home:
+                HomeView()
+            case .diary:
+                DiaryView()
+            case .terrarium:
+                TerrariumView()
+            case .chat:
+                ChatView(container: container)
+            case .profile:
+                ProfileView()
+            }
+        }
+        .environmentObject(container)
     }
 }
 

@@ -13,6 +13,8 @@
 		C05ED3E92E153BC80023AC5C /* KakaoSDK in Frameworks */ = {isa = PBXBuildFile; productRef = C05ED3E82E153BC80023AC5C /* KakaoSDK */; };
 		C05ED3EB2E153BC80023AC5C /* KakaoSDKAuth in Frameworks */ = {isa = PBXBuildFile; productRef = C05ED3EA2E153BC80023AC5C /* KakaoSDKAuth */; };
 		C05ED3ED2E153BC80023AC5C /* KakaoSDKCommon in Frameworks */ = {isa = PBXBuildFile; productRef = C05ED3EC2E153BC80023AC5C /* KakaoSDKCommon */; };
+		C072380E2E45EF9000EF9CF0 /* FirebaseCore in Frameworks */ = {isa = PBXBuildFile; productRef = C072380D2E45EF9000EF9CF0 /* FirebaseCore */; };
+		C07238102E45EF9000EF9CF0 /* FirebaseMessaging in Frameworks */ = {isa = PBXBuildFile; productRef = C072380F2E45EF9000EF9CF0 /* FirebaseMessaging */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -45,10 +47,12 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				C07238102E45EF9000EF9CF0 /* FirebaseMessaging in Frameworks */,
 				C05ED3E62E153B830023AC5C /* Kingfisher in Frameworks */,
 				C05ED3E92E153BC80023AC5C /* KakaoSDK in Frameworks */,
 				C05ED3E32E153B6B0023AC5C /* Moya in Frameworks */,
 				C05ED3E12E153B6B0023AC5C /* CombineMoya in Frameworks */,
+				C072380E2E45EF9000EF9CF0 /* FirebaseCore in Frameworks */,
 				C05ED3ED2E153BC80023AC5C /* KakaoSDKCommon in Frameworks */,
 				C05ED3EB2E153BC80023AC5C /* KakaoSDKAuth in Frameworks */,
 			);
@@ -99,6 +103,8 @@
 				C05ED3E82E153BC80023AC5C /* KakaoSDK */,
 				C05ED3EA2E153BC80023AC5C /* KakaoSDKAuth */,
 				C05ED3EC2E153BC80023AC5C /* KakaoSDKCommon */,
+				C072380D2E45EF9000EF9CF0 /* FirebaseCore */,
+				C072380F2E45EF9000EF9CF0 /* FirebaseMessaging */,
 			);
 			productName = Plantory;
 			productReference = C05ECEED2E15232F0023AC5C /* Plantory.app */;
@@ -132,6 +138,7 @@
 				C05ED3DF2E153B6B0023AC5C /* XCRemoteSwiftPackageReference "Moya" */,
 				C05ED3E42E153B830023AC5C /* XCRemoteSwiftPackageReference "Kingfisher" */,
 				C05ED3E72E153BC80023AC5C /* XCRemoteSwiftPackageReference "kakao-ios-sdk" */,
+				C072380C2E45EF9000EF9CF0 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */,
 			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = C05ECEEE2E15232F0023AC5C /* Products */;
@@ -166,6 +173,8 @@
 /* Begin XCBuildConfiguration section */
 		C05ECEF62E1523300023AC5C /* Debug */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReferenceAnchor = C05ECEEF2E15232F0023AC5C /* Plantory */;
+			baseConfigurationReferenceRelativePath = Core/Utils/Secret.xcconfig;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
@@ -230,6 +239,8 @@
 		};
 		C05ECEF72E1523300023AC5C /* Release */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReferenceAnchor = C05ECEEF2E15232F0023AC5C /* Plantory */;
+			baseConfigurationReferenceRelativePath = Core/Utils/Secret.xcconfig;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
@@ -290,6 +301,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = "";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = 4FHBGGZU96;
@@ -307,11 +319,15 @@
 					"@executable_path/Frameworks",
 				);
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = com.plantory.Plantory;
+				PRODUCT_BUNDLE_IDENTIFIER = com.umc.plantory.Plantory;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SUPPORTS_MACCATALYST = NO;
+				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = NO;
+				SUPPORTS_XR_DESIGNED_FOR_IPHONE_IPAD = NO;
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = "1,2";
+				TARGETED_DEVICE_FAMILY = 1;
 			};
 			name = Debug;
 		};
@@ -320,6 +336,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = "";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = 4FHBGGZU96;
@@ -337,11 +354,15 @@
 					"@executable_path/Frameworks",
 				);
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = com.plantory.Plantory;
+				PRODUCT_BUNDLE_IDENTIFIER = com.umc.plantory.Plantory;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SUPPORTS_MACCATALYST = NO;
+				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = NO;
+				SUPPORTS_XR_DESIGNED_FOR_IPHONE_IPAD = NO;
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = "1,2";
+				TARGETED_DEVICE_FAMILY = 1;
 			};
 			name = Release;
 		};
@@ -393,6 +414,14 @@
 				minimumVersion = 2.24.4;
 			};
 		};
+		C072380C2E45EF9000EF9CF0 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/firebase/firebase-ios-sdk";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 12.1.0;
+			};
+		};
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
@@ -425,6 +454,16 @@
 			isa = XCSwiftPackageProductDependency;
 			package = C05ED3E72E153BC80023AC5C /* XCRemoteSwiftPackageReference "kakao-ios-sdk" */;
 			productName = KakaoSDKCommon;
+		};
+		C072380D2E45EF9000EF9CF0 /* FirebaseCore */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = C072380C2E45EF9000EF9CF0 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = FirebaseCore;
+		};
+		C072380F2E45EF9000EF9CF0 /* FirebaseMessaging */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = C072380C2E45EF9000EF9CF0 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = FirebaseMessaging;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};
