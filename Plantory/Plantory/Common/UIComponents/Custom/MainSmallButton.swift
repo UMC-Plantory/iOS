@@ -30,9 +30,9 @@ struct MainSmallButton: View {
     var body: some View {
         Button(action: action) {
             Text(text)
-                .font(.pretendardRegular(18))
-                .padding(.horizontal, 12)
-                .padding(.vertical, 8)
+                .font(.pretendardRegular(14))
+                .padding(.horizontal, 8)
+                .padding(.vertical, 4)
         }
         .buttonStyle(MainButtonStyle(isDisabled: isDisabled))
         .disabled(isDisabled)
