@@ -12,7 +12,7 @@ import SwiftUI
 ///  subText: "오래 보관하고 싶은 일기를 스크랩 해보세요!",
 ///  buttonTitle: "리스트 페이지로 이동하기",
 ///  buttonAction: {})
-struct EmptyView: View {
+struct NothingView: View {
     let mainText: String
     let subText: String
     let buttonTitle: String?
@@ -63,5 +63,5 @@ struct EmptyView: View {
 }
 
 #Preview {
-    EmptyView(mainText: "스크랩 한 일기가 없어요", subText: "오래 보관하고 싶은 일기를 스크랩 해보세요!", buttonTitle: "리스트 페이지로 이동하기", buttonAction: {})
+    NothingView(mainText: "스크랩 한 일기가 없어요", subText: "오래 보관하고 싶은 일기를 스크랩 해보세요!", buttonTitle: "리스트 페이지로 이동하기", buttonAction: {})
 }

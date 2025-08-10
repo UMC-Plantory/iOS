@@ -47,7 +47,7 @@ struct TrashView: View {
         } else if let error = viewModel.errorMessage {
             Text(error).foregroundColor(.red)
         } else if sortedCells.isEmpty {
-            EmptyView(mainText: "휴지통이 비어있습니다", subText: "삭제된 일기가 없습니다.")
+            NothingView(mainText: "휴지통이 비어있습니다", subText: "삭제된 일기가 없습니다.")
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
         } else {
             diaryList
@@ -177,7 +177,7 @@ struct TrashFootView: View {
                 HStack {
                     Text("휴지통에 있는 항목은 이동된 날짜로부터 30일 뒤 영구삭제 됩니다.")
                         .font(.PretendardLight(12))
-                        .foregroundColor(.gray07)
+                        .foregroundColor(.gray08)
                         .padding(.vertical, 11)
                 }
             }

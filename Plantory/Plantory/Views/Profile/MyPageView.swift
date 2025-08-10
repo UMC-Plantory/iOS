@@ -11,36 +11,50 @@ struct MyPageView: View {
     
     @State private var path = NavigationPath()
     @State private var showSleepSheet = false
+    @State private var showEmotionSheet = false
+    @State private var showLogout = false
     @State private var weeklyResponse: WeeklySleepResponse? = nil
     private let SleepViewModel = SleepStatsViewModel()
     
     var body: some View {
         NavigationStack(path: $path) {
             ScrollView {
-                VStack(spacing: 32) {
+                VStack {
                     HeaderView()
+                    
+                    Divider()
+                    
+                    Spacer().frame(height: 45)
                     
                     // 프로필 관리
                     ProfileSection {
                         path.append(MyPageRoute.profileManage)
                     }
                     
+                    Spacer().frame(height: 45)
+                    
                     Divider()
                     
+                    Spacer().frame(height: 24)
                     // 통계 카드
                     StatsSection(
                         stats: stats,
                         actions: [
-                            stats[1].id: { path.append(MyPageRoute.emotionStats) },
+                            stats[1].id: { showEmotionSheet = true },
                             stats[2].id: { showSleepSheet = true }
                         ]
                     )
+                    
+                    Spacer().frame(height: 24)
                     
                     // 메뉴 (스크랩 / 임시보관함 / 휴지통)
                     MenuSection(
                         scrapAction:     { path.append(MyPageRoute.scrap) },
                         tempAction:      { path.append(MyPageRoute.tempStorage) },
-                        trashAction:     { path.append(MyPageRoute.trash) }
+                        trashAction:     { path.append(MyPageRoute.trash) }, logoutAction: {
+                            // 로그아웃 판넬
+                            showLogout = true
+                        }
                     )
                 }
                 .padding(.vertical, 24)
@@ -48,12 +62,34 @@ struct MyPageView: View {
             .sheet(isPresented: $showSleepSheet) {
                 SleepStatsView(viewModel: SleepViewModel)
             }
+            .sheet(isPresented: $showEmotionSheet) {
+                 EmotionStatsView(viewModel: EmotionStatsViewModel())
+            }
+            .overlay {
+                if showLogout {
+                    PopUp(
+                        title: "로그아웃 하시겠습니까?",
+                        message: "로그아웃 시, 로그인 화면으로 돌아갑니다.",
+                        confirmTitle: "로그아웃",
+                        cancelTitle: "취소",
+                        onConfirm: {
+                            // 삭제 로직
+                            showLogout = false
+                        },
+                        onCancel: {
+                            showLogout = false
+                        }
+                    )
+                }
+            }
             .navigationBarHidden(true)
             .navigationDestination(for: MyPageRoute.self) { route in
                 switch route {
-                case .scrap:          ScrapView()
+                case .scrap:
+                    ScrapView()
                 case .tempStorage:    TempStorageView()
-                case .trash:          TrashView()
+                case .trash:
+                    TrashView()
                 case .emotionStats:   EmotionStatsView()
                 case .profileManage:  ProfileManageView()
                 }
@@ -68,7 +104,7 @@ private struct HeaderView: View {
         HStack {
             Text("마이페이지")
                 .font(.pretendardMedium(20))
-            Spacer()
+            Spacer().frame(height: 17)
         }
         .padding(.horizontal, 28)
     }
@@ -79,7 +115,7 @@ private struct ProfileSection: View {
     let action: () -> Void
     
     var body: some View {
-        HStack(spacing: 16) {
+        HStack(spacing: 18) {
             Circle()
                 .fill(Color.gray.opacity(0.2))
                 .frame(width: 64, height: 64)
@@ -89,7 +125,7 @@ private struct ProfileSection: View {
                     .font(.pretendardMedium(20))
                 Text("songe2")
                     .font(.pretendardRegular(16))
-                    .foregroundColor(.gray06)
+                    .foregroundColor(.gray09)
             }
             Spacer()
             Button(action: action) {
@@ -99,7 +135,7 @@ private struct ProfileSection: View {
                     .padding(.vertical, 8)
                     .padding(.horizontal, 12)
                     .background(Color.green04)
-                    .cornerRadius(8)
+                    .cornerRadius(5)
             }
             .buttonStyle(PlainButtonStyle())
         }
@@ -117,12 +153,12 @@ private struct StatsSection: View {
     ]
     
     var body: some View {
-        VStack(alignment: .leading, spacing: 16) {
+        VStack(alignment: .leading, spacing: 24) {
             Text("통계")
                 .font(.pretendardMedium(20))
                 .padding(.horizontal, 28)
             
-            LazyVGrid(columns: columns, spacing: 25) {
+            LazyVGrid(columns: columns, spacing: 24) {
                 ForEach(stats) { stat in
                     StatCard(stat: stat, action: actions[stat.id] ?? {})
                 }
@@ -162,13 +198,15 @@ private struct MenuSection: View {
     let scrapAction: () -> Void
     let tempAction:  () -> Void
     let trashAction: () -> Void
+    let logoutAction: () -> Void
     
     var body: some View {
         VStack(spacing: 0) {
             Divider().padding(.vertical, 8)
             MenuRow(icon: "bookmark", title: "스크랩", action: scrapAction)
-            MenuRow(icon: "tray.and.arrow.down", title: "임시보관함", action: tempAction)
-            MenuRow(icon: "trash", title: "휴지통", action: trashAction)
+            MenuRow(icon: "scrap", title: "임시보관함", action: tempAction)
+            MenuRow(icon: "delete", title: "휴지통", action: trashAction)
+            MenuRow(icon: "logout", title: "로그아웃", action: logoutAction)
         }
         .background(Color.white)
     }
@@ -181,15 +219,16 @@ private struct MenuRow: View {
     
     var body: some View {
         Button(action: action) {
-            HStack(spacing: 12) {
-                Image(systemName: icon)
-                    .font(.title3)
+            HStack(spacing: 4) {
+                Image(icon)
+                    .resizable()
+                    .frame(width: 48, height: 48)
                 Text(title)
-                    .font(.pretendardRegular(16))
+                    .font(.pretendardRegular(18))
                 Spacer()
             }
-            .padding(.horizontal, 28)
-            .padding(.vertical, 12)
+            .padding(.horizontal, 12)
+            .padding(.vertical, 8)
         }
         .buttonStyle(PlainButtonStyle())
     }

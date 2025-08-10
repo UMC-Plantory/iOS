@@ -151,7 +151,7 @@ struct ProfileImageView: View {
                             }
                         }
                         .background(Color.white)
-                        .cornerRadius(6)
+                        .cornerRadius(5)
                         .shadow(color: Color.black.opacity(0.1), radius: 2, x: 0, y: 2)
                         .frame(width: 90)
                         .offset(x: 60, y: 50)
@@ -184,7 +184,7 @@ struct ProfileMemberInfoView: View {
             Spacer().frame(height: 9)
             // 이름 입력 필드: 뷰모델 바인딩
             InputField(
-                title: "이름",
+                title: "닉네임",
                 text: $vm.name,
                 placeholder: "이름을 입력하세요",
                 state: $vm.nameState
@@ -227,7 +227,7 @@ struct ProfileMemberInfoView: View {
                 message: "소셜 로그인인 경우 이메일 변경이 불가합니다."
             )
 
-            Spacer().frame(height: 30)
+            Spacer().frame(height: 48)
             // 탈퇴 버튼: onSignOut 호출
             Button(action: onSignOut) {
                 HStack {
@@ -240,7 +240,7 @@ struct ProfileMemberInfoView: View {
                 }
             }
 
-            Spacer().frame(height: 30)
+            Spacer().frame(height: 54)
             // 취소/저장 버튼
             ActionButtons(onCancel: {}, onSave: {})
         }
@@ -263,7 +263,7 @@ struct ActionButtons: View {
                     .frame(maxWidth: .infinity)
                     .padding(.vertical, 8)
                     .background(
-                        RoundedRectangle(cornerRadius: 6)
+                        RoundedRectangle(cornerRadius: 5)
                             .fill(Color.gray06)
                     )
             }
@@ -276,7 +276,7 @@ struct ActionButtons: View {
                     .frame(maxWidth: .infinity)
                     .padding(.vertical, 8)
                     .background(
-                        RoundedRectangle(cornerRadius: 6)
+                        RoundedRectangle(cornerRadius: 5)
                             .fill(Color.green06)
                     )
             }
@@ -306,7 +306,7 @@ struct ReadOnlyInputField: View {
             .padding(.horizontal, 16)
             .padding(.vertical, 12)
             .background(
-                RoundedRectangle(cornerRadius: 6)
+                RoundedRectangle(cornerRadius: 5)
                     .fill(Color.gray04)
                     .stroke(Color.gray08, lineWidth: 1)
             )

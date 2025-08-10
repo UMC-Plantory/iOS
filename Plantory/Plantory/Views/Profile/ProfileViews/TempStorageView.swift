@@ -47,7 +47,7 @@ struct TempStorageView: View {
         } else if let error = viewModel.errorMessage {
             Text(error).foregroundColor(.red)
         } else if sortedCells.isEmpty {
-            EmptyView(mainText: "보관한 일기가 없어요", subText: "작성 중인 일기를 보관함에 저장해 놓을 수 있어요!")
+            NothingView(mainText: "보관한 일기가 없어요", subText: "작성 중인 일기를 보관함에 저장해 놓을 수 있어요!")
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
         } else {
             diaryList
@@ -91,7 +91,7 @@ struct TempStorageView: View {
             if isEditing {
                 Button(action: toggleAllSelection) {
                     Text(checkedItems.count == sortedCells.count ? "전체 선택 해제" : "전체 선택")
-                        .font(.pretendardRegular(14)).foregroundStyle(.green07)
+                        .font(.pretendardRegular(16)).foregroundStyle(.green07)
                 }
             } else {
                 Button(action: dismiss.callAsFunction) {
@@ -104,7 +104,7 @@ struct TempStorageView: View {
     private var navigationTrailing: some View {
         Button(action: { isEditing.toggle() }) {
             Text(isEditing ? "취소" : "편집")
-                .font(.pretendardRegular(14)).foregroundStyle(.green07)
+                .font(.pretendardRegular(16)).foregroundStyle(.green07)
         }
     }
 
@@ -193,7 +193,7 @@ struct AlignmentView: View {
                         }
                     }
                     .background(Color.white)
-                    .cornerRadius(6)
+                    .cornerRadius(8)
                     .shadow(color: .black.opacity(0.1), radius: 0, x: 2, y: 2)
                     .frame(width: 80)
                     .offset(x: 0, y: 40) // 버튼 바로 아래에 위치
@@ -269,7 +269,7 @@ struct TempFootView: View {
                 HStack {
                     Text("보관함에 있는 항목은 이동된 날짜로부터 30일 뒤 휴지통으로 이동합니다.")
                         .font(.PretendardLight(12))
-                        .foregroundColor(.gray07)
+                        .foregroundColor(.gray08)
                         .padding(.vertical, 11)
                 }
             }

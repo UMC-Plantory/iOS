@@ -54,7 +54,7 @@ struct InputField: View {
                 .padding(.horizontal, 16)
                 .padding(.vertical, 12)
                 .background(
-                    RoundedRectangle(cornerRadius: 6)
+                    RoundedRectangle(cornerRadius: 5)
                         .stroke(state.borderColor, lineWidth: 1)
                 )
                 .onChange(of: isFocused) {
