@@ -12,6 +12,7 @@ struct BaseTabView: View {
     // MARK: - Property
     
     @State private var selectedTab: TabItem = .home
+    @State private var isFilterSheetPresented: Bool = false
 
     @State private var hasShownTerrariumPopup = false
     @State private var isTerrariumPopupVisible = false
@@ -22,6 +23,7 @@ struct BaseTabView: View {
     var body: some View {
         ZStack(alignment: .bottom) {
             TabView(selection: $selectedTab) {
+
                 ForEach(TabItem.allCases, id: \.rawValue) { tab in
                     Tab(
                         "",
