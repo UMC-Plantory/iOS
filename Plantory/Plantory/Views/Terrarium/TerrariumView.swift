@@ -8,9 +8,10 @@
 import SwiftUI
 
 struct TerrariumView: View {
-    @StateObject private var viewModel = TerrariumViewModel()
+    @State private var viewModel = TerrariumViewModel(container: DIContainer())
     @State private var selectedPlantIndex: Int? = nil
     @State private var isPlantPopupPresented: Bool = false
+    @State private var popupVM = PlantPopupViewModel(container: DIContainer())
     var onInfoTapped: () -> Void = {}
 
     private var isRunningInPreviews: Bool {
@@ -18,12 +19,62 @@ struct TerrariumView: View {
     }
 
     var body: some View {
+        @Bindable var vm = viewModel
         ZStack {
             Color("yellow01")
                 .ignoresSafeArea()
 
             VStack(spacing: 0) {
-                CustomSegmentView(selectedSegment: $viewModel.selectedTab)
+                CustomSegmentView(selectedSegment: $vm.selectedTab)
+
+#if DEBUG
+                // DEBUG: 서버 응답 확인용 패널
+                VStack(alignment: .leading, spacing: 6) {
+                    HStack(spacing: 8) {
+                        Text("DEBUG • Terrarium API")
+                            .font(.system(size: 12, weight: .semibold))
+                        if vm.isLoading {
+                            ProgressView().scaleEffect(0.7)
+                            Text("Loading...")
+                                .font(.system(size: 12))
+                        } else {
+                            Text("Idle")
+                                .font(.system(size: 12))
+                        }
+                        Spacer()
+                        Button("Reload") {
+                            vm.fetchTerrarium(memberId: 1)
+                        }
+                        .font(.system(size: 12, weight: .semibold))
+                    }
+
+                    if let err = vm.errorMessage, !err.isEmpty {
+                        Text("Error: \(err)")
+                            .font(.system(size: 12))
+                            .foregroundColor(.red)
+                    }
+
+                    if let data = vm.terrariumData {
+                        Text("terrariumId: \(data.terrariumId)")
+                            .font(.system(size: 12))
+                        Text("flowerImgUrl: \(data.flowerImgUrl)")
+                            .font(.system(size: 12))
+                            .lineLimit(1)
+                        Text("terrariumWateringCount: \(data.terrariumWateringCount)")
+                            .font(.system(size: 12))
+                        Text("memberWateringCount: \(data.memberWateringCount)")
+                            .font(.system(size: 12))
+                    } else {
+                        Text("(no data)")
+                            .font(.system(size: 12))
+                            .foregroundColor(.secondary)
+                    }
+                }
+                .padding(8)
+                .background(Color.black.opacity(0.06))
+                .cornerRadius(8)
+                .padding([.horizontal, .top], 12)
+#endif
 
                 if viewModel.selectedTab == .terrarium {
                     GeometryReader { geometry in
@@ -87,27 +138,21 @@ struct TerrariumView: View {
                         )
                     }
                 } else {
-                    MyGardenContent(onPlantTap: { index in
-                        selectedPlantIndex = index
+                    MyGardenContent(onPlantTap: { id in
+                        selectedPlantIndex = id
                         isPlantPopupPresented = true
+                        popupVM.open(terrariumId: id, name: "식물 \(id)")
                     })
                 }
             }
             
             if let index = selectedPlantIndex, isPlantPopupPresented {
                 PlantPopupView(
-                    viewModel: PlantPopupModel(
-                        isPresented: true,
-                        plantName: "장미 \(index + 1)",
-                        feeling: "행복",
-                        birthDate: "2024.04.21",
-                        completeDate: "2024.05.21",
-                        usedDates: ["04.21", "04.24", "04.28"],
-                        stages: [("새싹", "04.21"), ("잎새", "05.05"), ("꽃나무", "05.15")]
-                    ),
+                    viewModel: popupVM,
                     onClose: {
                         isPlantPopupPresented = false
                         selectedPlantIndex = nil
+                        popupVM.close()
                     }
                 )
                 .zIndex(1)

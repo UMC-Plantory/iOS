@@ -8,18 +8,19 @@
 import SwiftUI
 
 struct PlantPopupView: View {
-    @ObservedObject var viewModel: PlantPopupModel
+    var viewModel: PlantPopupViewModel
     var onClose: () -> Void
 
     var body: some View {
-        if viewModel.isPresented {
+        @Bindable var vm = viewModel
+        if vm.isPresented {
             ZStack {
                 Color.black.opacity(0.4)
                     .edgesIgnoringSafeArea(.all)
 
                 VStack(spacing: 16) {
                     HStack {
-                        Text(viewModel.plantName)
+                        Text(vm.plantName)
                             .font(.pretendardSemiBold(20))
                             .padding(.leading, 149)
                         Spacer()
@@ -42,17 +43,17 @@ struct PlantPopupView: View {
                         VStack(alignment: .leading, spacing: 12) {
                             HStack(alignment: .center, spacing: 12) {
                                 SectionLabel(text: "최다 감정")
-                                Text(viewModel.feeling)
+                                Text(vm.feeling)
                                     .font(.pretendardRegular(16))
                             }
                             HStack(alignment: .center, spacing: 12) {
                                 SectionLabel(text: "생성일")
-                                Text(viewModel.birthDate)
+                                Text(vm.birthDate)
                                     .font(.pretendardRegular(16))
                             }
                             HStack(alignment: .center, spacing: 12) {
                                 SectionLabel(text: "완성일")
-                                Text(viewModel.completeDate)
+                                Text(vm.completeDate)
                                     .font(.pretendardRegular(16))
                             }
                         }
@@ -64,12 +65,12 @@ struct PlantPopupView: View {
                     VStack(alignment: .leading, spacing: 24) {
                         VStack(alignment: .leading, spacing: 10) {
                             SectionLabel(text: "사용된 일기")
-                            DiaryInfo(items: viewModel.usedDates)
+                            DiaryInfo(items: vm.usedDates)
                         }
                         
                         VStack(alignment: .leading, spacing: 10) {
                             SectionLabel(text: "단계 진입일")
-                            StageInfo(items: viewModel.stages.map { "\($0.0) \($0.1)" })
+                            StageInfo(items: vm.stages.map { "\($0.0) \($0.1)" })
                         }
                     }
                     .frame(width: 278)
@@ -166,16 +167,13 @@ struct PlantPopupView: View {
 }
 
 #Preview {
-    PlantPopupView(
-        viewModel: PlantPopupModel(
-            isPresented: true,
-            plantName: "장미",
-            feeling: "화남",
-            birthDate: "2024.04.21",
-            completeDate: "2024.05.21",
-            usedDates: ["04.21", "04.24", "04.28", "04.28"],
-            stages: [("새싹", "04.21"), ("잎새", "05.05"), ("꽃나무", "05.15")]
-        ),
-        onClose: {}
-    )
+    let vm = PlantPopupViewModel(container: DIContainer())
+    vm.isPresented = true
+    vm.plantName = "장미"
+    vm.feeling = "화남"
+    vm.birthDate = "2024.04.21"
+    vm.completeDate = "2024.05.21"
+    vm.usedDates = ["04.21", "04.24", "04.28", "04.28"]
+    vm.stages = [("새싹", "04.21"), ("잎새", "05.05"), ("꽃나무", "05.15")]
+    return PlantPopupView(viewModel: vm, onClose: {})
 }

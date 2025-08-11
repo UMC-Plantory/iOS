@@ -6,16 +6,15 @@
 //
 
 import Foundation
-import Combine
 
-class PlantPopupModel: ObservableObject {
-    @Published var isPresented: Bool
-    @Published var plantName: String
-    @Published var feeling: String
-    @Published var birthDate: String
-    @Published var completeDate: String
-    @Published var usedDates: [String]
-    @Published var stages: [(String, String)]
+struct PlantPopupModel {
+    var isPresented: Bool
+    var plantName: String
+    var feeling: String
+    var birthDate: String
+    var completeDate: String
+    var usedDates: [String]
+    var stages: [(String, String)]
 
     init(isPresented: Bool, plantName: String, feeling: String, birthDate: String, completeDate: String, usedDates: [String], stages: [(String, String)]) {
         self.isPresented = isPresented
