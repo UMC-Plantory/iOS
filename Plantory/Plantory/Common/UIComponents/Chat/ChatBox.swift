@@ -63,7 +63,7 @@ struct ChatBox: View {
     
     /// 채팅에서 시간을 나타내는 뷰
     private var createAtView: some View {
-        Text(extractHourAndMinute(from: chatModel.createAt) ?? "시간 없음")
+        Text(extractHourAndMinute(from: chatModel.createdAt) ?? "시간 없음")
             .font(.pretendardRegular(10))
             .foregroundStyle(.black01)
     }
@@ -134,12 +134,7 @@ struct ModelChatBubbleShape: Shape {
 
 /// datetime 문자열을 시간만 반환
 func extractHourAndMinute(from datetime: String) -> String? {
-    let parts = datetime.components(separatedBy: "T")
-    guard parts.count == 2 else { return nil }
-
-    let timeString = parts[1]  // "17:21:17.720818"
-    let timeComponents = timeString.components(separatedBy: ":")
-    guard timeComponents.count >= 2 else { return nil }
-
-    return "\(timeComponents[0]):\(timeComponents[1])"
+    guard let tIndex = datetime.firstIndex(of: "T") else { return nil }
+    let timePart = datetime[datetime.index(after: tIndex)...]
+    return String(timePart)
 }

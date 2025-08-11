@@ -48,6 +48,7 @@ class ChatViewModel {
     }
     
     // MARK: - 함수
+    
     public func sendMessage() {
         let text = textInput
         self.textInput = ""
@@ -55,7 +56,7 @@ class ChatViewModel {
         let newMessage = ChatMessage(
             role: .user,
             content: text,
-            createAt: Date().hourMinuteString
+            createdAt: Date().isoYearMonthDayHourMinuteString
         )
         messages.append(newMessage)
         
@@ -85,8 +86,8 @@ class ChatViewModel {
             }, receiveValue: { [weak self] response in
                 let newChat = ChatMessage(
                     role: .model,
-                    content: response,
-                    createAt: Date().hourMinuteString
+                    content: response.content,
+                    createdAt: response.createdAt
                 )
                 self?.messages.append(newChat)
                 self?.isLoading = false
@@ -127,7 +128,7 @@ class ChatViewModel {
     
     /// 이전 대화 기록 조회에서, 커서 페이징
     public func getBeforeChat() {
-        guard let lastCreateAt = lastMessage?.createAt, !isLoading, !isLast else { return }
+        guard let lastCreateAt = lastMessage?.createdAt, !isLoading, !isLast else { return }
         
         container.useCaseService.chatService.getBeforeChat(beforeData: lastCreateAt)
             .receive(on: DispatchQueue.main)
@@ -159,12 +160,14 @@ class ChatViewModel {
     }
 }
 
-// FIX-ME: 백엔드에 createAt 보내줄 수 있는지 이야기하기
+// MARK: - 보내는 메시지를 띄우기 위한 날짜 변환 함수
+
 extension Date {
-    var hourMinuteString: String {
+    var isoYearMonthDayHourMinuteString: String {
         let formatter = DateFormatter()
-        formatter.dateFormat = "yyyy-MM-dd'T'HH:mm:ss.SSSSSS"
+        formatter.dateFormat = "yyyy-MM-dd'T'HH:mm"
         formatter.locale = Locale(identifier: "ko_KR")
+        formatter.timeZone = TimeZone(identifier: "Asia/Seoul")
         return formatter.string(from: self)
     }
 }

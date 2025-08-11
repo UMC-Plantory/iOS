@@ -16,17 +16,17 @@ struct ChatMessage: Identifiable, Equatable {
     let id = UUID()
     var role: ChatRole
     var content: String
-    var createAt: String
+    var createdAt: String
     
-    init(role: ChatRole, content: String, createAt: String) {
+    init(role: ChatRole, content: String, createdAt: String) {
         self.role = role
         self.content = content
-        self.createAt = createAt
+        self.createdAt = createdAt
     }
     
     init(from response: ChatResponse) {
         self.role = response.isMember ? .user : .model
         self.content = response.content
-        self.createAt = response.createAt
+        self.createdAt = response.createdAt
     }
 }
