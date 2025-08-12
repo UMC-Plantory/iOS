@@ -24,13 +24,13 @@ struct PopUp: View {
             VStack(alignment: .leading) {
                 // 제목
                 Text(title)
-                    .font(.pretendardSemiBold(16))
+                    .font(.pretendardSemiBold(18))
 
                 Spacer().frame(height: 6)
                 
                 // 메시지
                 Text(message)
-                    .font(.pretendardMedium(14))
+                    .font(.pretendardRegular(14))
                     .foregroundColor(.gray09)
                     .multilineTextAlignment(.leading)
                     .fixedSize(horizontal: false, vertical: true)
