@@ -10,7 +10,7 @@ import CombineMoya
 import Moya
 import Combine
 
-/// 인증 서비스 프로토콜
+/// 이미지 서비스 프로토콜
 protocol ImageServiceProtocol {
     
     /// presigned URL 발급
@@ -20,7 +20,7 @@ protocol ImageServiceProtocol {
     func putImage(presignedURL: String, data: Data) -> AnyPublisher<Void, APIError>
 }
 
-/// Auth API를 사용하는 서비스
+/// Image API를 사용하는 서비스
 final class ImageService: ImageServiceProtocol {
     
     /// MoyaProvider를 통해 API 요청을 전송
