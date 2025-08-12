@@ -8,7 +8,7 @@
 import SwiftUI
 
 struct HomeView: View {
-    @StateObject private var diaryStore = DiaryStore()
+    @StateObject private var diaryStore = DiaryStoreViewModel()
     @State private var month: Date = Date()
     @State private var selectedDate: Date? = nil
     @State private var showingDetailSheet = false

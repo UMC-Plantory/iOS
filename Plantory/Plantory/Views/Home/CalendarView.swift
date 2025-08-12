@@ -12,7 +12,7 @@ struct CalendarView: View {
     @State private var clickedDate: Date? // (미사용 상태) 클릭한 날짜
     @Binding var month: Date              // 현재 보여지고 있는 달
     @Binding var selectedDate: Date?      // 유저가 선택한 날짜
-    let diaryStore: DiaryStore            // 일기 데이터
+    let diaryStore: DiaryStoreViewModel            // 일기 데이터
 
     var body: some View {
         let today = calendar.startOfDay(for: Date())

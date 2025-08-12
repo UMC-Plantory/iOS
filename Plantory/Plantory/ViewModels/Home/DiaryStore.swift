@@ -1,5 +1,5 @@
 //
-//  DiaryStore.swift
+//  DiaryStoreViewModel.swift
 //  Plantory
 //
 //  Created by 김지우 on 7/25/25.
@@ -7,7 +7,7 @@
 
 import Foundation
 
-class DiaryStore: ObservableObject {
+class DiaryStoreViewModel: ObservableObject {
     @Published var entries: [String: DiaryEntryData]
 
     init() {
