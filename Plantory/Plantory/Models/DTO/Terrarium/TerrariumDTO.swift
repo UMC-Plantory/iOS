@@ -7,6 +7,8 @@
 
 import Foundation
 
+// MARK: - Terrarium Response
+
 struct TerrariumResponse: Codable {
     let isSuccess: Bool
     let code: String
@@ -21,7 +23,7 @@ struct TerrariumResultDTO: Codable {
     let memberWateringCount: Int
 }
 
-// MARK: - Domain Model
+// MARK: - TerrariumResult Domain Model
 
 /// 화면에서 사용할 도메인 모델
 struct TerrariumResult: Codable, Equatable {
@@ -41,6 +43,8 @@ extension TerrariumResult {
     }
 }
 
+// MARK: - Terrarium Monthly Response
+
 struct TerrariumMonthlyResponse: Codable {
     let isSuccess: Bool
     let code: String
@@ -54,6 +58,8 @@ struct TerrariumMonthlyDTO: Codable {
     let bloomAt: String
     let flowerName: String
 }
+
+// MARK: - TerrariumMonthly Domain Model
 
 struct TerrariumMonthly: Codable, Equatable {
     let terrariumId: Int
@@ -89,6 +95,8 @@ struct TerrariumDetailDTO: Codable {
     let secondStepDate: String
     let thirdStepDate: String
 }
+
+// MARK: - TerrariumDetail Domain Model
 
 // Domain model
 struct TerrariumDetail: Codable, Equatable {

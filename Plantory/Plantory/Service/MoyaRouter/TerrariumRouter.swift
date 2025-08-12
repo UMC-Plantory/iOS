@@ -23,9 +23,9 @@ extension TerrariumRouter: APITargetType {
     var path: String {
         switch self {
         case .getTerrarium:
-            return "/terrarium"
+            return "/terrariums"
         case .water(let terrariumId, _):
-            return "/terrarium/\(terrariumId)/water"
+            return "/terrariums/\(terrariumId)/watering"
         case .getMonthlyTerrarium:
             return "/terrariums/monthly"
         case .getTerrariumDetail(let terrariumId):

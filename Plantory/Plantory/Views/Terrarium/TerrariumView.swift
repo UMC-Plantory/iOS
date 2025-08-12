@@ -27,55 +27,6 @@ struct TerrariumView: View {
             VStack(spacing: 0) {
                 CustomSegmentView(selectedSegment: $vm.selectedTab)
 
-#if DEBUG
-                // DEBUG: 서버 응답 확인용 패널
-                VStack(alignment: .leading, spacing: 6) {
-                    HStack(spacing: 8) {
-                        Text("DEBUG • Terrarium API")
-                            .font(.system(size: 12, weight: .semibold))
-                        if vm.isLoading {
-                            ProgressView().scaleEffect(0.7)
-                            Text("Loading...")
-                                .font(.system(size: 12))
-                        } else {
-                            Text("Idle")
-                                .font(.system(size: 12))
-                        }
-                        Spacer()
-                        Button("Reload") {
-                            vm.fetchTerrarium(memberId: 1)
-                        }
-                        .font(.system(size: 12, weight: .semibold))
-                    }
-
-                    if let err = vm.errorMessage, !err.isEmpty {
-                        Text("Error: \(err)")
-                            .font(.system(size: 12))
-                            .foregroundColor(.red)
-                    }
-
-                    if let data = vm.terrariumData {
-                        Text("terrariumId: \(data.terrariumId)")
-                            .font(.system(size: 12))
-                        Text("flowerImgUrl: \(data.flowerImgUrl)")
-                            .font(.system(size: 12))
-                            .lineLimit(1)
-                        Text("terrariumWateringCount: \(data.terrariumWateringCount)")
-                            .font(.system(size: 12))
-                        Text("memberWateringCount: \(data.memberWateringCount)")
-                            .font(.system(size: 12))
-                    } else {
-                        Text("(no data)")
-                            .font(.system(size: 12))
-                            .foregroundColor(.secondary)
-                    }
-                }
-                .padding(8)
-                .background(Color.black.opacity(0.06))
-                .cornerRadius(8)
-                .padding([.horizontal, .top], 12)
-#endif
-
                 if viewModel.selectedTab == .terrarium {
                     GeometryReader { geometry in
                         VStack {
@@ -110,6 +61,7 @@ struct TerrariumView: View {
                             }
 
                             Spacer()
+                            
                             //물주기 버튼
                             WateringButton(
                                 count: viewModel.terrariumData?.memberWateringCount ?? 0,
