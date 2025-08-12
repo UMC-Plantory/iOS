@@ -17,11 +17,6 @@
 	</array>
 	<key>KAKAO_KEY</key>
 	<string>$(KAKAO_KEY)</string>
-	<key>NSAppTransportSecurity</key>
-	<dict>
-		<key>NSAllowsArbitraryLoads</key>
-		<true/>
-	</dict>
 	<key>UIAppFonts</key>
 	<array>
 		<string>Pretendard-ExtraBold.otf</string>
