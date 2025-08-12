@@ -34,7 +34,7 @@ class LoginViewModel {
         
     let keychainManager = KeychainService.shared
     
-    // MARK: - Login
+    // MARK: - Kakao Login
     
     /// 카카오 로그인 처리 함수
     /// 카카오 SDK를 통해 로그인 후 토큰 및 사용자 정보를 키체인에 저장하고 앱 상태 전환
@@ -45,9 +45,6 @@ class LoginViewModel {
             
             // 서버에 로그인 요청
             try await sendKakaoLoginToServer(idToken: kakaoUser)
-            
-            /// 서비스 이용 동의 뷰로 이동
-            self.container.navigationRouter.push(.permit)
         } catch {
             if let kakaoError = error as? KakaoLoginError {
                 print("카카오 에러메시지:", kakaoError.localizedDescription)
@@ -74,9 +71,15 @@ class LoginViewModel {
                 )
                 /// 받은 토큰을 키체인에 저장
                 self?.keychainManager.saveToken(tokenInfo)
+                
+                Task {
+                    await self?.routeAfterLogin(status: response.memberStatus)
+                }
             })
             .store(in: &cancellables)
     }
+    
+    // MARK: - Apple Login
     
     /// 애플 로그인 처리 함수
     @MainActor
@@ -84,7 +87,8 @@ class LoginViewModel {
         do {
             let credential = try await container.useCaseService.appleManager.startSignInWithAppleFlow(presentationAnchor: presentationAnchor)
             try await handleLoginSuccess(credential: credential)
-            // 이거 따로 함수로 분리해서 응답 값에 따라 가는 뷰 달라지게 하기
+            
+            // FIX-ME: routeAfterLogin 적용하기
             container.navigationRouter.push(.permit)
         } catch {
             print("애플 로그인 실패: \(error.localizedDescription)")
@@ -122,5 +126,19 @@ class LoginViewModel {
         print("- authorizationCode: \(authorizationCode)")
         print("- userIdentifier: \(userIdentifier)")
         print("- email: \(email ?? "")")
+    }
+    
+    // MARK: - private func
+    
+    @MainActor
+    private func routeAfterLogin(status: MemberStatus) {
+        switch status {
+        case .pending:
+            container.navigationRouter.push(.permit)
+        case .agree:
+            container.navigationRouter.push(.profileInfo)
+        case .active:
+            container.navigationRouter.push(.baseTab)
+        }
     }
 }
