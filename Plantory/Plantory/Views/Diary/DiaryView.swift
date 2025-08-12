@@ -131,13 +131,14 @@ struct DiaryView: View {
             HStack {
                 // "이전" 버튼
                 if viewModel.currentStep != 0 {
-                    MainSmallButton(
+                    MainMiddleButton(
                         text: "이전",
                         isDisabled: false,
                         action: {
                             viewModel.goBack()
                         }
                     )
+                    .tint(.green04)
                 } else {
                     Spacer().frame(width: 60)
                 }
@@ -146,21 +147,22 @@ struct DiaryView: View {
                 
                 // "다음" or "작성완료"
                 if viewModel.currentStep < viewModel.steps.count - 1 {
-                    MainSmallButton(
+                    MainMiddleButton(
                         text: "다음",
                         isDisabled: false,
                         action: {
                             viewModel.goNext()
                         }
-                    )
+                    ).tint(.green04)
                 } else {
-                    MainSmallButton(
+                    MainMiddleButton(
                         text: "작성완료",
                         isDisabled: false,
                         action: {
                             viewModel.isCompleted = true
                         }
                     )
+                    .tint(.green04)
                 }
             }
                 .padding(.horizontal)
@@ -527,7 +529,6 @@ struct SleepStepView: View {
 }
 
 struct CompletedView: View {
-    @State private var isNavigatingToTerrarium = false
 
     var body: some View {
         NavigationStack {
@@ -572,11 +573,10 @@ struct CompletedView: View {
                         Spacer()
                         
                         //내식물보기
-                        MainSmallButton(
+                        MainMiddleButton(
                             text: "내 식물 보기",
                             isDisabled: false,
                             action: {
-                                isNavigatingToTerrarium = true
                             }
                         )
                         
