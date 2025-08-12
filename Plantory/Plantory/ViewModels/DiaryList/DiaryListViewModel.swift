@@ -40,7 +40,7 @@ class DiaryListViewModel: ObservableObject {
                     date: Calendar.current.date(from: DateComponents(year: 2025, month: 5, day: day)) ?? Date(),
                     title: "친구를 만나 좋았던 하루",
                     content: "오늘은 점심에 유엠이랑 밥을 먹었는데 너무...",
-                    emotion: [.happy, .sad, .angry].randomElement()!,
+                    emotion: [.HAPPY, .SAD, .ANGRY].randomElement()!,
                     isFavorite: Bool.random()
                 )
             }

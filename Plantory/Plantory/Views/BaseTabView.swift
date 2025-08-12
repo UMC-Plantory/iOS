@@ -72,7 +72,7 @@ struct BaseTabView: View {
             case .home:
                 HomeView()
             case .diary:
-                DiaryView()
+                DiaryListView(isFilterSheetPresented: $isFilterSheetPresented)
             case .terrarium:
                 TerrariumView()
             case .chat:
