@@ -21,7 +21,7 @@ extension AuthRouter: APITargetType {
     var path: String {
         switch self {
         case .kakaoLogin:
-            return "/members/auto/kko"
+            return "/members/auth/kko"
         case .sendRefreshToken:
             return "/auth/refresh"
         }
