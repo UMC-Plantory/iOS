@@ -13,10 +13,12 @@ class UseCaseService {
     let kakaoManager: KakakoLoginManager
     let authService: AuthService
     let chatService: ChatService
+    let diaryService: DiaryService
     
     init() {
         self.kakaoManager = .init()
         self.authService = .init()
         self.chatService = .init()
+        self.diaryService = .init()
     }
 }

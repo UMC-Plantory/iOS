@@ -19,7 +19,7 @@ struct NavigationRoutingView: View {
             LoginView(container: container)
                 .environmentObject(container)
                 .navigationDestination(for: NavigationDestination.self) { destination in
-                    Group {
+                    
                         switch destination {
                         case .login:
                             LoginView(container: container)
@@ -41,12 +41,16 @@ struct NavigationRoutingView: View {
                             EmotionStatsView()
                         case .profileManage:
                             ProfileManageView()
+                            
+                        //다이어리 페이지
+                        case .diaryDetail:
+                            DiaryCheckView()
                         }
                     }
                     .environmentObject(container)
                 }
         }
-    }
+    
 }
 
 #Preview {

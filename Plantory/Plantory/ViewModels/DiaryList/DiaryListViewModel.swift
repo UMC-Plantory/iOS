@@ -5,19 +5,47 @@
 //  Created by 박병선 on 7/15/25.
 //
 import Foundation
+import Combine
 
 @MainActor
 class DiaryListViewModel: ObservableObject {
-    @Published var entries: [DiaryEntry] = [] //현재까지 불러온 일기 목록을 저장
-    @Published var isLoading = false //현재 데이터를 불러오는 중인지 여부
+    @Published var entries: [DiaryEntry] = []
+    @Published var diaries: [DiarySummary] = []
+    @Published var isLoading: Bool = false //현재 데이터를 불러오는 중인지 여부
+    @Published private(set) var errorMessage: String?
+    @Published private(set) var hasNext = false
+    @Published var query: String = "" // 검색어(옵션)
+    
+    private var cursor: String? = nil
+    private let diaryService: DiaryServiceProtocol
+    
+  
     
     //나중에 API연결 할 때 무한스크롤뷰여도 페이징 안 해주면 데이터가 너무 무거워지는 거 예방
     private var currentPage = 0
     private let pageSize = 10
     
-    init() {
+    /// status 값 정의(서버 문자열을 안전하게 사용)
+    private enum DiaryStatus: String { case normal = "NORMAL", temp = "TEMP", scrap = "SCRAP", trash = "TRASH" }
+
+    // MARK: - 의존성 주입 및 비동기 처리
+    
+    /// DIContainer를 통해 의존성 주입
+    let container: DIContainer
+    /// Combine 구독 해제를 위한 Set
+    var cancellables = Set<AnyCancellable>()
+    
+    // MARK: - 초기화
+ 
+    init(
+        diaryService: DiaryServiceProtocol = DiaryService(),
+        container: DIContainer
+    ) {
+        self.diaryService = diaryService
+        self.container = container
         loadMore()
     }
+    
     
     @Published var editedTitle: String = "친구를 만나 좋았던 하루"
     @Published var editedContent: String = """
@@ -25,13 +53,13 @@ class DiaryListViewModel: ObservableObject {
     저녁에는 친구 집들이를 갔다. 선물로 유리 컵과 접시 세트를 사 갔는데 마침 집에 이런한 것들이 필요했다고 해서 너무 다행이었다. 
     친구들과 재밌는 시간을 보내고 집으로 돌아와서 이렇게 일기를 쓰고 있는 지금이 참 좋은 것 같다.
     """
-    private let diaryService = DiaryService()//API연결
     
+    //MARK: -함수
     //일기 리스트에서 페이지 계속 불러오는 함수
     func loadMore() {
         guard !isLoading else { return }
         isLoading = true
-
+        
         DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
             let newEntries = (1...self.pageSize).map { offset -> DiaryEntry in
                 let day = self.currentPage * self.pageSize + offset
@@ -40,7 +68,7 @@ class DiaryListViewModel: ObservableObject {
                     date: Calendar.current.date(from: DateComponents(year: 2025, month: 5, day: day)) ?? Date(),
                     title: "친구를 만나 좋았던 하루",
                     content: "오늘은 점심에 유엠이랑 밥을 먹었는데 너무...",
-                    emotion: [.happy, .sad, .angry].randomElement()!,
+                    emotion: [.HAPPY, .SAD, .ANGRY].randomElement()!,
                     isFavorite: Bool.random()
                 )
             }
@@ -50,42 +78,57 @@ class DiaryListViewModel: ObservableObject {
         }
     }
     
+    //MARK: -API
     
-   //스크랩 및 취소(특정 일기(id)에 대해 스크랩 상태가 true면 취소, false면 스크랩 요청을 보내고, 그 결과에 따라 로컬 상태도 바꾸는 함수)
-    func toggleScrap(for id: Int) {
-        if let index = entries.firstIndex(where: { $0.id == id }) {
-            if entries[index].isScrapped {//스크랩이 된 상태면
-                diaryService.unscrapDiary(id: id) { result in //스크랩 취소 API 호출(unScarpDiary)
-                    DispatchQueue.main.async {
-                        if case .success = result {
-                            self.entries[index].isScrapped = false  //  상태 업데이트
-                        }
-                    }
+    ///일기 스크랩 On/OFF(DiaryCheckView에서)
+    public func scrapOn(diaryId: Int) {
+        guard let i = diaries.firstIndex(where: { $0.diaryId == diaryId }) else { return }
+        let backup = diaries
+        var m = diaries[i]
+        m.status = DiaryStatus.scrap.rawValue   // 로컬 즉시 반영
+        diaries[i] = m
+
+        diaryService.scrapOn(id: diaryId)
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] completion in
+                if case .failure(let e) = completion {
+                    print("스크랩 실패: \(e)")
+                    self?.diaries = backup // 롤백
                 }
-            } else {//스크랩이 안 된 상태면
-                diaryService.scrapDiary(id: id) { result in//스크랩 API 호출(scrapDiary)
-                    DispatchQueue.main.async {
-                        if case .success = result {
-                            self.entries[index].isScrapped = true   //  상태 업데이트
-                        }
-                    }
+            } receiveValue: { _ in /* 성공 시 추가 작업 없음 */ }
+            .store(in: &cancellables)
+    }
+
+    public func scrapOff(diaryId: Int) {
+        guard let i = diaries.firstIndex(where: { $0.diaryId == diaryId }) else { return }
+        let backup = diaries
+        var m = diaries[i]
+        if m.status == DiaryStatus.scrap.rawValue {
+            m.status = DiaryStatus.normal.rawValue
+        }
+        diaries[i] = m
+
+        diaryService.scrapOff(id: diaryId)
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] completion in
+                if case .failure(let e) = completion {
+                    print("스크랩 취소 실패: \(e)")
+                    self?.diaries = backup // 롤백
                 }
-            }
+            } receiveValue: { _ in }
+            .store(in: &cancellables)
+    }
+   
+    public func toggleScrap(diaryId: Int) {//On/Off 토글
+        guard let i = diaries.firstIndex(where: { $0.diaryId == diaryId }) else { return }
+        
+        if diaries[i].status == "SCRAP" {
+            scrapOff(diaryId: diaryId)
+        } else {
+            scrapOn(diaryId: diaryId)
         }
     }
     
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
+    //일기 휴지통 이동
     
 }

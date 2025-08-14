@@ -19,4 +19,6 @@ enum NavigationDestination: Equatable, Hashable {
     case trash
     case emotionStats
     case profileManage
-}
+    
+    //다이어리 페이지(담당자: 박병선)
+    case diaryDetail(id: Int) // }

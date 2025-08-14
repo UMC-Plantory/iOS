@@ -97,7 +97,7 @@ struct DiaryHeaderView: View {
                 
                 
                 .navigationDestination(isPresented: $isNavigatingToSearch){
-                    DiarySearchView()
+                    DiarySearchView(vm: SearchViewModel(diaryService: DiaryService))
                 }
                 
                 //더보기 버튼

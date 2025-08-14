@@ -4,81 +4,87 @@
 //
 //  Created by 박병선 on 8/2/25.
 //
+
 import Foundation
 import Combine
 import Moya
+import CombineMoya
 
-//프로토콜 정의
-protocol DiaryServieProtocol {
-    //개별 일기 조회
-    
-    //일기 스크랩
-    
-    //일기 스크랩 취소
-    
-    //일기 수정
-    
-    //일기 휴지통 이동
-    
-    //일기 임시 보관
-    
-    //일기 검색
-    
-    //일기 목록 필터 조회
-    
-    //
-    
+protocol DiaryServiceProtocol {
+
+    // 개별 일기 조회 (GET /diaries/{id})
+    func fetchDiary(id: Int) -> AnyPublisher<DiarySummary, APIError>
+
+    // 일기 스크랩 / 스크랩 취소 (PATCH /diaries/{id}/scrap-status/{on|off})
+    func scrapOn(id: Int)  -> AnyPublisher<EmptyResponse, APIError>
+    func scrapOff(id: Int) -> AnyPublisher<EmptyResponse, APIError>
+
+    // 일기 수정 (PATCH /diaries/{id})
+    func editDiary(id: Int, data: DiaryEditRequest) -> AnyPublisher<DiaryDetail, APIError>
+
+    // 일기 휴지통 이동 (PATCH /diaries/waste-status)
+    func moveToTrash(ids: [Int]) -> AnyPublisher<EmptyResponse, APIError>
+
+    // 일기 임시 보관/복원 토글 (PATCH /diaries/temp-status)
+    func updateTempStatus(ids: [Int]) -> AnyPublisher<EmptyResponse, APIError>
+
+    // 일기 검색 (GET /diaries/search?...)
+    func searchDiary(_ req: DiarySearchRequest) -> AnyPublisher<DiarySearchResult, APIError>
+
+    // 일기 목록 필터 조회 (GET /diaries/filter?...)
+    func fetchFilteredDiaries(_ req: DiaryFilterRequest) -> AnyPublisher<DiaryFilterResult, APIError>
 }
 
 
-
-final class DiaryService {
+///DiaryRouter 사용하는 서비스
+final class DiaryService: DiaryServiceProtocol {
+    /// MoyaProvider를 통해 API 요청을 전송
+    let provider: MoyaProvider<DiaryRouter>
     
-    private let provider = MoyaProvider<DiaryRouter>()
-
+    // MARK: - Initializer
     
-    /// 일기 스크랩
-    func scrapDiary(id: Int, completion: @escaping (Result<Void, Error>) -> Void) {
-        provider.request(.scrapDiary(id: id)) { result in
-            switch result {
-            case .success(let response):
-                if (200...299).contains(response.statusCode) {
-                    print("스크랩 요청 성공, 상태코드 : \(response.statusCode)")
-                    completion(.success(()))
-                } else {
-                    let error = NSError(domain: "", code: response.statusCode, userInfo: [
-                        NSLocalizedDescriptionKey: "스크랩 실패"
-                    ])
-                    completion(.failure(error))
-                }
-            case .failure(let error):
-                completion(.failure(error))
-                print("요청실패: \(error.localizedDescription)")
-            }
-        }
-    }
-
-    /// 일기 스크랩 취소
-    func unscrapDiary(id: Int, completion: @escaping (Result<Void, Error>) -> Void) {
-        provider.request(.unScrapDiary(id: id)) { result in
-            switch result {
-            case .success(let response):
-                if (200...299).contains(response.statusCode) {
-                    completion(.success(()))
-                } else {
-                    let error = NSError(domain: "", code: response.statusCode, userInfo: [
-                        NSLocalizedDescriptionKey: "스크랩 취소 실패"
-                    ])
-                    completion(.failure(error))
-                }
-            case .failure(let error):
-                completion(.failure(error))
-            }
-        }
+    /// 기본 initializer - verbose 로그 플러그인을 포함한 provider 생성
+    init(provider: MoyaProvider<DiaryRouter> = APIManager.shared.createProvider(for: DiaryRouter.self)) {
+        self.provider = provider
     }
     
-    
-    
-    
+    // MARK: - 단일 일기 조회 (GET /diaries/{id})
+       func fetchDiary(id: Int) -> AnyPublisher<DiarySummary, APIError> {
+           provider.requestResult(.fetchDiary(id: id), type: DiarySummary.self)
+       }
+
+       // MARK: - 스크랩 (PATCH /diaries/{id}/scrap-status/on)
+       func scrapOn(id: Int) -> AnyPublisher<EmptyResponse, APIError> {
+           provider.requestResult(.scrapOn(id: id), type: EmptyResponse.self)
+       }
+
+       // MARK: - 스크랩 취소 (PATCH /diaries/{id}/scrap-status/off)
+       func scrapOff(id: Int) -> AnyPublisher<EmptyResponse, APIError> {
+           provider.requestResult(.scrapOff(id: id), type: EmptyResponse.self)
+       }
+
+       // MARK: - 일기 수정 (PATCH /diaries/{id})
+       func editDiary(id: Int, data: DiaryEditRequest) -> AnyPublisher<DiaryDetail, APIError> {
+           provider.requestResult(.editDiary(id: id, data: data), type: DiaryDetail.self)
+       }
+
+       // MARK: - 휴지통 이동 (PATCH /diaries/waste-status)
+       func moveToTrash(ids: [Int]) -> AnyPublisher<EmptyResponse, APIError> {
+           provider.requestResult(.moveToTrash(ids: ids), type: EmptyResponse.self)
+       }
+
+       // MARK: - 임시 보관/복원 토글 (PATCH /diaries/temp-status)
+       func updateTempStatus(ids: [Int]) -> AnyPublisher<EmptyResponse, APIError> {
+           provider.requestResult(.tempStatus(ids: ids), type: EmptyResponse.self)
+       }
+
+       // MARK: - 일기 검색 (GET /diaries/search?...)
+       func searchDiary(_ req: DiarySearchRequest) -> AnyPublisher<DiarySearchResult, APIError> {
+           provider.requestResult(.searchDiary(req), type: DiarySearchResult.self)
+       }
+
+       // MARK: - 일기 목록 필터 (GET /diaries/filter?...)
+       func fetchFilteredDiaries(_ req: DiaryFilterRequest) -> AnyPublisher<DiaryFilterResult, APIError> {
+           provider.requestResult(.fetchFilteredDiaries(filterData: req), type: DiaryFilterResult.self)
+       }
 }
-

@@ -8,7 +8,7 @@ import SwiftUI
 
 struct DiaryFilterView: View {
     @Environment(\.dismiss) private var dismiss
-    @StateObject private var viewModel = DiaryFilterViewModel()
+    @State  var viewModel : DiaryFilterViewModel
     @State private var selectedOrder: DiarySort = .latest
     @State private var selectedYear: Int = 2025
     @State private var selectedMonths: Set<Int>
@@ -21,6 +21,15 @@ struct DiaryFilterView: View {
     init(initialSelectedMonths: Set<Int>) {
             _selectedMonths = State(initialValue: initialSelectedMonths)
         }
+    
+    /// DIContainer을 주입받아 초기화
+    init(
+        container: DIContainer
+    ) {
+        self.viewModel = .init(container: container)
+    }
+    
+
     
     var body: some View {
         VStack(alignment: .leading, spacing: 24) {

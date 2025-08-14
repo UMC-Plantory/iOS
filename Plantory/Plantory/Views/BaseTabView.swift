@@ -72,7 +72,7 @@ struct BaseTabView: View {
             case .home:
                 HomeView()
             case .diary:
-                DiaryView()
+                DiaryListView()
             case .terrarium:
                 TerrariumView()
             case .chat:
