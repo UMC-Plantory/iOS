@@ -63,7 +63,14 @@ struct EmotionStatsView: View {
             }
             Spacer()
         }
-        .padding(.horizontal, 28) 
+        .padding(.horizontal, 28)
+        .onChange(of: page) { _, new in
+            if new == 0 {
+                viewModel.fetchWeeklyEmotionStats()
+            } else {
+                viewModel.fetchMonthlyEmotionStats()
+            }
+        }
     }
 }
 

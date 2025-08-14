@@ -22,7 +22,8 @@ protocol ProfileServiceProtocol {
     // 통계
     func fetchWeeklyStats() -> AnyPublisher<WeeklySleepResponse, APIError>
     func fetchMonthlyStats() -> AnyPublisher<MonthlySleepResponse, APIError>
-    func fetchWeeklyEmotionStats(today: String) -> AnyPublisher<WeeklyEmotionResponse, APIError>
+    func fetchWeeklyEmotionStats() -> AnyPublisher<EmotionStatsResponse, APIError>
+    func fetchMonthlyEmotionStats() -> AnyPublisher<EmotionStatsResponse, APIError>
 
     // 임시 보관함 / 휴지통
     func fetchTemp(sort: SortOrder) -> AnyPublisher<[Diary], APIError>
@@ -53,20 +54,28 @@ final class ProfileService: ProfileServiceProtocol {
     }
 
     // MARK: - 통계
+    // 수면 통계
     func fetchWeeklyStats() -> AnyPublisher<WeeklySleepResponse, APIError> {
         let today = DateFormatter.yyyyMMdd.string(from: Date())
         return provider.requestResult(
-            .weeklyStats(today: today),
-            type: WeeklySleepResponse.self
+            .weeklyStats(today: today), type: WeeklySleepResponse.self
         )
     }
 
     func fetchMonthlyStats() -> AnyPublisher<MonthlySleepResponse, APIError> {
-        provider.requestResult(.monthlyStats, type: MonthlySleepResponse.self)
+            let today = DateFormatter.yyyyMMdd.string(from: Date())
+            return provider.requestResult(.monthlyStats(today: today), type: MonthlySleepResponse.self)
     }
 
-    func fetchWeeklyEmotionStats(today: String) -> AnyPublisher<WeeklyEmotionResponse, APIError> {
-        provider.requestResult(.weeklyEmotionStats(today: today), type: WeeklyEmotionResponse.self)
+    // 감정통계
+    func fetchWeeklyEmotionStats() -> AnyPublisher<EmotionStatsResponse, APIError> {
+        let today = DateFormatter.yyyyMMdd.string(from: Date())
+        return provider.requestResult(.weeklyEmotionStats(today: today), type: EmotionStatsResponse.self)
+    }
+    
+    func fetchMonthlyEmotionStats() -> AnyPublisher<EmotionStatsResponse, APIError> {
+        let today = DateFormatter.yyyyMMdd.string(from: Date())
+        return provider.requestResult(.monthlyEmotionStats(today: today), type: EmotionStatsResponse.self)
     }
 
     // MARK: - 임시 보관함 / 휴지통

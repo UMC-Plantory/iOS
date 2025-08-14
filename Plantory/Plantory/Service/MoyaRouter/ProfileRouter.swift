@@ -4,13 +4,23 @@ import Foundation
 
 /// API 라우터 정의
 enum ProfileRouter: APITargetType {
+    // 수면 통계
     case weeklyStats(today: String)
-    case monthlyStats
+    case monthlyStats(today: String)
+    
+    // 감정 통계
     case weeklyEmotionStats(today: String)
+    case monthlyEmotionStats(today: String)
+    
+    // 임시보관함
     case temporary(sort: String)
+    
+    // 쓰레기통
     case waste(sort: String)
     case wastePatch(diaryIds: [Int])
     case deleteDiary(diaryIds: [Int])
+    
+    // 마이프로필
     case patchProfile(memberId: UUID, name: String, profileImgUrl: String, gender: String, birth: String)
     case fetchProfile(memberId: UUID)
 }
@@ -24,18 +34,26 @@ extension ProfileRouter {
     /// 각 케이스별 요청 경로
     var path: String {
         switch self {
+        // 수면 통계
         case .weeklyStats:
             return "/statistics/sleep/weekly"
         case .monthlyStats:
-            return "/sleep/monthly"
+            return "/statistics/sleep/monthly"
+            
+        // 감정 통계
         case .weeklyEmotionStats:
-            return "/emotion-stat/week"
+            return "/statistics/emotion/weekly"
+        case .monthlyEmotionStats:       
+            return "/statistics/emotion/monthly"
+
         case .temporary:
             return "/diary/temp"
+            
         case .waste, .wastePatch:
             return "/diary/waste"
         case .deleteDiary:
             return "/diary"
+            
         case .patchProfile, .fetchProfile:
             return "/member/profile"
         }
@@ -44,7 +62,7 @@ extension ProfileRouter {
     /// HTTP 메서드 설정
     var method: Moya.Method {
         switch self {
-        case .fetchProfile, .weeklyStats, .monthlyStats, .weeklyEmotionStats, .temporary, .waste:
+        case .fetchProfile, .weeklyStats, .monthlyStats, .weeklyEmotionStats, .monthlyEmotionStats, .temporary, .waste:
             return .get
         case .wastePatch, .patchProfile:
             return .patch
@@ -56,12 +74,8 @@ extension ProfileRouter {
     /// 요청 Task 설정 (파라미터 인코딩)
     var task: Task {
         switch self {
-        // GET: 본문 없이
-        case .monthlyStats:
-            return .requestPlain
-            
         // GET: today 쿼리 파라미터
-        case .weeklyStats(let today), .weeklyEmotionStats(let today):
+        case .weeklyStats(let today),.monthlyStats(let today), .weeklyEmotionStats(let today), .monthlyEmotionStats(let today)  :
             return .requestParameters(
                 parameters: ["today": today],
                 encoding: URLEncoding.default
@@ -297,6 +311,28 @@ extension ProfileRouter {
               }
             }
             """
+        case .monthlyEmotionStats:
+            json = """
+                {
+                  "isSuccess": true,
+                  "code": "COMMON200",
+                  "message": "성공입니다.",
+                  "result": {
+                    "startDate": "2025-07-16",
+                    "endDate": "2025-08-14",
+                    "todayWeekday": "THURSDAY",
+                    "mostFrequentEmotion": "HAPPY",
+                    "emotionFrequency": {
+                      "HAPPY": 11,
+                      "AMAZING": 4,
+                      "SAD": 7,
+                      "ANGRY": 2,
+                      "SOSO": 5,
+                      "DEFAULT": 0
+                    }
+                  }
+                }
+                """
         }
         return Data(json.utf8)
     }

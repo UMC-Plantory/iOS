@@ -1,3 +1,10 @@
+//
+//  WeeklySleepModel.swift
+//  Plantory
+//
+//  Created by 이효주 on 8/14/25.
+//
+
 import Foundation
 
 // MARK: - 공통 프로토콜
@@ -161,89 +168,4 @@ public struct WeeklySleepStatsModel: SleepStats {
             )
         }
     }
-}
-
-
-// MARK: - Monthly DTO & Model
-/// 서버 월간 수면 통계 응답 모델
-public struct MonthlySleepResponse: Codable {
-    public let startDate: Date
-    public let endDate: Date
-    public let averageSleepMinutes: Int
-    public let weeklySleepRecords: [WeeklyRecord]
-
-    public struct WeeklyRecord: Codable {
-        public let week: Int            // 순번 (1~4)
-        public let sleepStartTime: String // 취침 시각
-        public let wakeUpTime: String     // 기상 시각
-    }
-}
-
-/// 월간 통계 모델: DTO → UI 모델(WeeklySleep)로 변환
-public struct MonthlySleepStatsModel: SleepStats {
-    public let startDate: Date
-    public let endDate: Date
-    public let weekly: [WeeklyInterval] // 주별 요약 데이터
-    public let averageHours: Int?    // 평균 시
-    public let averageMinutes: Int?  // 평균 분
-
-    /// 내부 DateFormatter: "HH:mm:ss" 형식 파싱용
-    private static let formatter: DateFormatter = {
-        let df = DateFormatter()
-        df.dateFormat = "HH:mm:ss"
-        return df
-    }()
-
-
-    public init(
-            from response: MonthlySleepResponse,
-            calendar: Calendar = .current
-        ) {
-            self.startDate  = response.startDate
-            self.endDate    = response.endDate
-            
-            let totalMin = response.averageSleepMinutes
-            self.averageHours   = totalMin / 60
-            self.averageMinutes = totalMin % 60
-            
-            // 기준일: 통계 시작일 00:00
-            let baseDay = calendar.startOfDay(for: response.startDate)
-            
-            // 주별 레코드를 WeeklyInterval로 변환
-            self.weekly = response.weeklySleepRecords.map { rec in
-                let compStart = Self.formatter.date(from: rec.sleepStartTime)!
-                let compEnd   = Self.formatter.date(from: rec.wakeUpTime)!
-                
-                // 기상 시각: baseDay에 compEnd 시간 설정
-                let endDT = calendar.date(
-                    bySettingHour: calendar.component(.hour, from: compEnd),
-                    minute: calendar.component(.minute, from: compEnd),
-                    second: 0, of: baseDay
-                )!
-                
-                // 취침 시각: baseDay에 compStart 설정, 단 compStart > endDT면 전날로 조정
-                let tentative = calendar.date(
-                    bySettingHour: calendar.component(.hour, from: compStart),
-                    minute: calendar.component(.minute, from: compStart),
-                    second: 0, of: baseDay
-                )!
-                let startDT = tentative <= endDT
-                    ? tentative
-                    : calendar.date(byAdding: .day, value: -1, to: tentative)!
-                
-                return WeeklyInterval(
-                    week: "\(rec.week)",
-                    startTime: startDT,
-                    endTime: endDT
-                )
-            }
-        }
-}
-
-/// UI 표시용 주별 수면 요약 모델
-public struct WeeklyInterval: Identifiable {
-    public let id = UUID()
-    public let week: String       // "1", "2", ...
-    public let startTime: Date    // 실제 취침 시각 (날짜 포함)
-    public let endTime: Date      // 실제 기상 시각 (날짜 포함)
 }
