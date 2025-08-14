@@ -10,16 +10,18 @@ import CombineMoya
 import Moya
 import Combine
 
+// MARK: - Terrarium Service
+
 /// 테라리움 서비스 프로토콜
 protocol TerrariumServiceProtocol {
     /// 테라리움 상태 조회
-    func getTerrarium(memberId: Int) -> AnyPublisher<TerrariumResponse, APIError>
+    func getTerrarium() -> AnyPublisher<TerrariumResult, APIError>
     /// 물 주기
-    func water(terrariumId: Int, memberId: Int) -> AnyPublisher<TerrariumResponse, APIError>
+    func water(terrariumId: Int) -> AnyPublisher<WateringResult, APIError>
     /// 월별 테라리움 데이터 조회
-    func getMonthlyTerrarium(memberId: Int, month: String) -> AnyPublisher<TerrariumMonthlyResponse, APIError>
+    func getMonthlyTerrarium(month: String) -> AnyPublisher<TerrariumMonthly, APIError>
     /// 테라리움 상세 조회
-    func getTerrariumDetail(terrariumId: Int) -> AnyPublisher<TerrariumDetailResponse, APIError>
+    func getTerrariumDetail(terrariumId: Int) -> AnyPublisher<TerrariumDetail, APIError>
 }
 
 /// Terrarium API를 사용하는 서비스
@@ -37,22 +39,22 @@ final class TerrariumService: TerrariumServiceProtocol {
     // MARK: - API
 
     /// 테라리움 상태 조회
-    func getTerrarium(memberId: Int) -> AnyPublisher<TerrariumResponse, APIError> {
-        return provider.requestResult(.getTerrarium(memberId: memberId), type: TerrariumResponse.self)
+    func getTerrarium() -> AnyPublisher<TerrariumResult, APIError> {
+        return provider.requestResult(.getTerrarium, type: TerrariumResult.self)
     }
 
     /// 물 주기
-    func water(terrariumId: Int, memberId: Int) -> AnyPublisher<TerrariumResponse, APIError> {
-        return provider.requestResult(.water(terrariumId: terrariumId, memberId: memberId), type: TerrariumResponse.self)
+    func water(terrariumId: Int) -> AnyPublisher<WateringResult, APIError> {
+        return provider.requestResult(.water(terrariumId: terrariumId), type: WateringResult.self)
     }
 
     /// 월별 테라리움 데이터 조회
-    func getMonthlyTerrarium(memberId: Int, month: String) -> AnyPublisher<TerrariumMonthlyResponse, APIError> {
-        return provider.requestResult(.getMonthlyTerrarium(memberId: memberId, month: month), type: TerrariumMonthlyResponse.self)
+    func getMonthlyTerrarium(month: String) -> AnyPublisher<TerrariumMonthly, APIError> {
+        return provider.requestResult(.getMonthlyTerrarium(month: month), type: TerrariumMonthly.self)
     }
 
     /// 테라리움 상세 조회
-    func getTerrariumDetail(terrariumId: Int) -> AnyPublisher<TerrariumDetailResponse, APIError> {
-        return provider.requestResult(.getTerrariumDetail(terrariumId: terrariumId), type: TerrariumDetailResponse.self)
+    func getTerrariumDetail(terrariumId: Int) -> AnyPublisher<TerrariumDetail, APIError> {
+        return provider.requestResult(.getTerrariumDetail(terrariumId: terrariumId), type: TerrariumDetail.self)
     }
 }

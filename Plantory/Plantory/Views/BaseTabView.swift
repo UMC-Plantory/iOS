@@ -17,6 +17,8 @@ struct BaseTabView: View {
     @State private var isFilterSheetPresented: Bool = false
     @State private var hasShownTerrariumPopup = false
     @State private var isTerrariumPopupVisible = false
+    @State private var showFlowerCompleteView = false  // 상태 관리
+
     /// 의존성 주입을 위한 DI 컨테이너
     @EnvironmentObject var container: DIContainer
 
@@ -39,6 +41,11 @@ struct BaseTabView: View {
                 TerrariumPopup(isVisible: $isTerrariumPopupVisible)
                     .zIndex(10)
             }
+            
+            if showFlowerCompleteView == true {
+                FlowerCompleteView()
+                    .zIndex(11)
+            }
         }
         .overlay(alignment: .bottom) {
             VStack(spacing: 0) {
@@ -60,23 +67,25 @@ struct BaseTabView: View {
     /// 각 탭에 해당하는 뷰
     @ViewBuilder
     private func tabView(tab: TabItem) -> some View {
-        Group {
-            switch tab {
-            case .home:
-                HomeView()
-            case .diary:
-                DiaryListView(isFilterSheetPresented: $isFilterSheetPresented)
-            case .terrarium:
-                TerrariumView(onInfoTapped: {
+        switch tab {
+        case .home:
+            HomeView()
+        case .diary:
+            DiaryListView(isFilterSheetPresented: $isFilterSheetPresented)
+        case .terrarium:
+            TerrariumView(
+                viewModel: TerrariumViewModel(container: container),
+                onInfoTapped: {
+                    // 팝업을 표시하는 액션
                     isTerrariumPopupVisible = true
-                })
-            case .chat:
-                ChatView(container: container)
-            case .profile:
-                MyPageView()
-            }
+                },
+                showFlowerCompleteView: $showFlowerCompleteView
+            )
+        case .chat:
+            ChatView(container: container)
+        case .profile:
+            MyPageView()
         }
-        .environmentObject(container)
     }
 }
     

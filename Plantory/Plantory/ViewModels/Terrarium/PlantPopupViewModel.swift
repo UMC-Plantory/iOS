@@ -66,6 +66,7 @@ final class PlantPopupViewModel {
         guard let terrariumId else { return }
         isLoading = true
         errorMessage = nil
+        print("Fetching terrarium detail for terrariumId: \(terrariumId)")  // 이 로그를 추가해서 호출이 시작되는지 확인
 
         container.useCaseService.terrariumService
             .getTerrariumDetail(terrariumId: terrariumId)
@@ -74,19 +75,22 @@ final class PlantPopupViewModel {
                 if case .failure(let error) = completion {
                     self?.errorMessage = "상세 조회 실패: \(error.localizedDescription)"
                     self?.isLoading = false
+                    print("API 요청 실패: \(error.localizedDescription)") // 실패 시 로그
                 }
             }, receiveValue: { [weak self] response in
-                let dto = response.result
-                self?.feeling = dto.mostEmotion
-                self?.birthDate = Self.trim(dto.startAt)
-                self?.completeDate = Self.trim(dto.bloomAt)
-                self?.usedDates = dto.usedDiaries.map(Self.trim)
-                self?.stages = [
-                    ("1단계", Self.trim(dto.firstStepDate)),
-                    ("2단계", Self.trim(dto.secondStepDate)),
-                    ("3단계", Self.trim(dto.thirdStepDate))
-                ]
-                self?.isLoading = false
+                print("테라리움 상세 조회 응답: \(response)")  // 응답이 제대로 들어왔는지 확인
+                let dto = response
+                    self?.feeling = dto.mostEmotion
+                    self?.birthDate = Self.trim(dto.startAt)
+                    self?.completeDate = Self.trim(dto.bloomAt)
+                    self?.usedDates = dto.usedDiaries.map(Self.trim)
+                    self?.stages = [
+                        ("1단계", Self.trim(dto.firstStepDate)),
+                        ("2단계", Self.trim(dto.secondStepDate)),
+                        ("3단계", Self.trim(dto.thirdStepDate))
+                    ]
+                    self?.isLoading = false
+                    print("업데이트된 terrariumData: \(String(describing: self?.feeling))")  // 데이터 업데이트 확인용 로그
             })
             .store(in: &cancellables)
     }

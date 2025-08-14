@@ -8,7 +8,11 @@
 import SwiftUI
 import Foundation
 
+
 struct FlowerCompleteView: View {
+    @State var viewModel: TerrariumViewModel
+    @EnvironmentObject var container: DIContainer
+    
     var body: some View {
         NavigationStack{
             VStack {
@@ -49,7 +53,8 @@ struct FlowerCompleteView: View {
                     Button(action: {
                         print("취소")
                     }, label: {
-                        Image("Home")                            .foregroundStyle(.gray10)
+                        Image("Home")
+                            .foregroundStyle(.gray10)
                             .fixedSize()
                     })
             )

@@ -9,9 +9,9 @@ import Moya
 import Foundation
 
 enum TerrariumRouter {
-    case getTerrarium(memberId: Int)
-    case water(terrariumId: Int, memberId: Int)
-    case getMonthlyTerrarium(memberId: Int, month: String)
+    case getTerrarium
+    case water(terrariumId: Int)
+    case getMonthlyTerrarium(month: String)
     case getTerrariumDetail(terrariumId: Int)
 }
 
@@ -24,8 +24,8 @@ extension TerrariumRouter: APITargetType {
         switch self {
         case .getTerrarium:
             return "/terrariums"
-        case .water(let terrariumId, _):
-            return "/terrariums/\(terrariumId)/watering"
+        case .water(let terrariumId):
+            return "/terrariums/\(terrariumId)/waterings"
         case .getMonthlyTerrarium:
             return "/terrariums/monthly"
         case .getTerrariumDetail(let terrariumId):
@@ -48,15 +48,11 @@ extension TerrariumRouter: APITargetType {
         switch self {
         case .getTerrarium:
             return .requestPlain
-        case .water(_, let memberId):
-            return .requestParameters(
-                parameters: ["memberId": memberId],
-                encoding: JSONEncoding.default
-            )
-        case .getMonthlyTerrarium(let memberId, let month):
+        case .water(_):
+            return .requestPlain
+        case .getMonthlyTerrarium(let month):
             return .requestParameters(
                 parameters: [
-                    "memberId": memberId,
                     "date": month
                 ],
                 encoding: URLEncoding.queryString
@@ -75,20 +71,26 @@ extension TerrariumRouter: APITargetType {
         case .getTerrarium:
             return """
                 { "isSuccess": true, "code": "OK", "message": "ok",
-                  "result": { "terrariumId": 1, "flowerImgUrl": "https://...", "terrariumWateringCount": 3, "memberWateringCount": 1 }
+                  "result": { "terrariumId": 1, "terrariumWateringCount": 3, "memberWateringCount": 1 }
                 }
                 """.data(using: .utf8)!
         case .water:
             return """
                 { "isSuccess": true, "code": "OK", "message": "ok",
-                  "result": { "terrariumId": 1, "flowerImgUrl": "https://...", "terrariumWateringCount": 4, "memberWateringCount": 2 }
+                  "result": {
+                    "terrariumWateringCountAfterEvent": 4,
+                    "memberWateringCountAfterEvent": 2,
+                    "emotionList": { "HAPPY": 2 },
+                    "flowerName": "해바라기",
+                    "flowerEmotion": "HAPPY"
+                  }
                 }
                 """.data(using: .utf8)!
         case .getMonthlyTerrarium:
             return """
                 { "isSuccess": true, "code": "OK", "message": "ok",
                   "result": [
-                    { "terrariumId": 1, "nickname": "토리", "bloomAt": "2025-08-11T09:34:28.000Z", "flowerImgUrl": "https://...", "flowerName": "해바라기" }
+                    { "terrariumId": 1, "nickname": "토리", "bloomAt": "2025-08-11T09:34:28.000Z", "flowerName": "해바라기" }
                   ]
                 }
                 """.data(using: .utf8)!

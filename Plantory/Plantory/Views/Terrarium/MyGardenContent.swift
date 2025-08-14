@@ -8,44 +8,37 @@
 import SwiftUI
 
 struct MyGardenContent: View {
+    @State private var viewModel = TerrariumViewModel(container: DIContainer()) // @State로 수정
     @State private var selectedSegment: String = "나의 정원"
-    @State private var viewModel = TerrariumViewModel(container: DIContainer())
+    @State private var isPlantPopupPresented: Bool = false
+    @State private var popupVM = PlantPopupViewModel(container: DIContainer())
     var onPlantTap: (Int) -> Void
-    var memberId: Int = 1   // TODO: 실제 회원 ID로 교체
 
     var body: some View {
-        @Bindable var vm = viewModel
-
         VStack {
-            TopView(vm: vm, memberId: memberId)
+            TopView(viewModel: viewModel)
                 .padding(.bottom, 36)
 
-            // 에러 표시 (선택)
-            if let err = vm.errorMessage, !err.isEmpty {
-                Text(err)
-                    .foregroundColor(.red)
-                    .font(.footnote)
-                    .padding(.bottom, 8)
+            // 데이터를 제대로 받아왔을 때, PlantListView 표시
+            if !viewModel.monthlyTerrariums.isEmpty {
+                PlantListView(items: viewModel.monthlyTerrariums, onPlantTap: onPlantTap)
             }
-
-            PlantListView(items: vm.monthlyTerrariums, onPlantTap: onPlantTap)
 
             Spacer()
         }
         .onAppear {
-            vm.fetchMonthlyTerrarium(memberId: memberId)
+            viewModel.fetchMonthlyTerrarium()
         }
     }
 }
 
 struct TopView: View {
-    @Bindable var vm: TerrariumViewModel
-    var memberId: Int
+    @State var viewModel: TerrariumViewModel  // @State로 뷰모델 사용
 
     var body: some View {
         HStack {
             (
-                Text(vm.monthlyTerrariums.first?.nickname ?? "")
+                Text(viewModel.monthlyTerrariums.first?.nickname ?? "")
                     .font(.pretendardSemiBold(20)) +
                 Text(" 님의 식물").font(.pretendardRegular(20))
             )
@@ -54,17 +47,17 @@ struct TopView: View {
 
             HStack(spacing: 8) {
                 Button {
-                    vm.goToPreviousMonth(memberId: memberId)
+                    viewModel.goToPreviousMonth()
                 } label: {
                     Image(systemName: "chevron.left")
                         .foregroundColor(.black)
                 }
 
-                Text(Self.monthLabel(from: vm.selectedMonth))
+                Text(Self.monthLabel(from: viewModel.selectedMonth))
                     .font(.headline)
 
                 Button {
-                    vm.goToNextMonth(memberId: memberId)
+                    viewModel.goToNextMonth()
                 } label: {
                     Image(systemName: "chevron.right")
                         .foregroundColor(.black)
@@ -83,7 +76,6 @@ struct TopView: View {
     }
 }
 
-// 식물 리스트
 struct PlantListView: View {
     let columns = [
         GridItem(.flexible()),

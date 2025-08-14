@@ -8,32 +8,34 @@
 import SwiftUI
 
 struct TerrariumView: View {
-    @State private var viewModel = TerrariumViewModel(container: DIContainer())
+    @EnvironmentObject var container: DIContainer
+    @State var viewModel: TerrariumViewModel
     @State private var selectedPlantIndex: Int? = nil
     @State private var isPlantPopupPresented: Bool = false
     @State private var popupVM = PlantPopupViewModel(container: DIContainer())
-    var onInfoTapped: () -> Void = {}
+    @Binding var showFlowerCompleteView: Bool
+    var onInfoTapped: () -> Void
+    var memberId: Int = 1
 
-    private var isRunningInPreviews: Bool {
-        ProcessInfo.processInfo.environment["XCODE_RUNNING_FOR_PREVIEWS"] == "1"
+    init(viewModel: TerrariumViewModel, onInfoTapped: @escaping () -> Void, showFlowerCompleteView: Binding<Bool>) {
+        self.viewModel = viewModel
+        self.onInfoTapped = onInfoTapped
+        self._showFlowerCompleteView = showFlowerCompleteView  // 초기화 시 Binding 값 전달
     }
 
     var body: some View {
-        @Bindable var vm = viewModel
         ZStack {
             Color("yellow01")
                 .ignoresSafeArea()
 
             VStack(spacing: 0) {
-                CustomSegmentView(selectedSegment: $vm.selectedTab)
+                CustomSegmentView(selectedSegment: $viewModel.selectedTab)
 
                 if viewModel.selectedTab == .terrarium {
                     GeometryReader { geometry in
                         VStack {
                             HStack {
-                                SpeechBubble(
-                                    message: "<잎새>까지 \(7 - (viewModel.terrariumData?.memberWateringCount ?? 0))번 남았어요!"
-                                )
+                                SpeechBubble(message: Text(viewModel.wateringMessage)) // Text로 감싸서 전달
                             }
                             .frame(maxWidth: .infinity, alignment: .trailing)
                             .padding(.top, 39)
@@ -41,45 +43,34 @@ struct TerrariumView: View {
                             .padding(.bottom,10)
 
                             ProgressGaugeView(currentStage: viewModel.terrariumData?.terrariumWateringCount ?? 0)
-                            
-                            Spacer()
-
-                            // 서버에서 받은 flowerImgUrl 값이 존재할 경우 이미지를, 없으면 기본 Rose 이미지를 보여줌
-                            if let urlString = viewModel.terrariumData?.flowerImgUrl,
-                               let url = URL(string: urlString) {
-                                AsyncImage(url: url) { image in
-                                    image
-                                        .resizable()
-                                        .frame(width: 286, height: 286)
-                                } placeholder: {
-                                    ProgressView()
-                                }
-                            } else {
-                                Image("Rose")
-                                    .resizable()
-                                    .frame(width: 286, height: 286)
-                            }
 
                             Spacer()
-                            
-                            //물주기 버튼
+
+                            Image(viewModel.terrariumData?.terrariumWateringCount ?? 0 < 3 ? "sprout" : "leaf")
+                                .resizable()
+                                .frame(width: 286, height: 286)
+
+                            Spacer()
+
                             WateringButton(
                                 count: viewModel.terrariumData?.memberWateringCount ?? 0,
                                 action: {
-                                    viewModel.waterPlant(memberId: 1)
+                                    viewModel.waterPlant()
+                                    checkForFlowerComplete()  // 물주기 후 상태 확인
                                 }
                             )
+
                             Spacer()
-                            
-                            //도움말 버튼
+
                             HStack {
-                                Button(action: { onInfoTapped() }) {
+                                Button(action: {
+                                    onInfoTapped()
+                                }) {
                                     Image("information")
                                 }
                                 Spacer()
                             }
                             .padding(.bottom, 96).padding(.leading, 16)
-                            
                         }
                         .background(
                             Ellipse()
@@ -97,7 +88,7 @@ struct TerrariumView: View {
                     })
                 }
             }
-            
+
             if let index = selectedPlantIndex, isPlantPopupPresented {
                 PlantPopupView(
                     viewModel: popupVM,
@@ -111,9 +102,15 @@ struct TerrariumView: View {
             }
         }
         .onAppear {
-            if !isRunningInPreviews {
-                viewModel.fetchTerrarium(memberId: 1) // 로그인한 아이디
-            }
+            viewModel.fetchTerrarium() // 로그인한 아이디
+            checkForFlowerComplete()  // 처음 로드될 때 상태 확인
+        }
+    }
+
+    // terrariumWateringCount가 7이면 FlowerCompleteView 표시
+    func checkForFlowerComplete() {
+        if let wateringCount = viewModel.terrariumData?.terrariumWateringCount, wateringCount >= 7 {
+            showFlowerCompleteView = true  // 상태 변경
         }
     }
 }
@@ -121,11 +118,11 @@ struct TerrariumView: View {
 
 //말풍선
 struct SpeechBubble: View {
-    var message: String
+    var message: Text
 
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
-            Text(message)
+            message
                 .font(.pretendardRegular(16))
                 .foregroundColor(.black)
                 .padding(11)
@@ -187,8 +184,14 @@ struct WateringButton: View {
     }
 }
 
+struct TerrariumView_Preview: PreviewProvider {
+    @State static private var showFlowerCompleteView = false  // Define the @State here
 
-
-#Preview {
-    TerrariumView(onInfoTapped: {})
+    static var previews: some View {
+        TerrariumView(
+            viewModel: TerrariumViewModel(container: DIContainer()),
+            onInfoTapped: { print("Info tapped") },
+            showFlowerCompleteView: $showFlowerCompleteView  // Pass the binding
+        )
+    }
 }
