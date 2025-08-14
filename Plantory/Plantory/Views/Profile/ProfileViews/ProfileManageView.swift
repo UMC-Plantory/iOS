@@ -88,6 +88,7 @@ struct ProfileManageView: View {
             cancelTitle: "취소",
             onConfirm: {
                 vm.withdrawAccount()
+                container.navigationRouter.reset()
             },
             onCancel: {
                 isShowingSignOutPopup = false

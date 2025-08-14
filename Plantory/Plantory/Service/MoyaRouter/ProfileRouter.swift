@@ -31,6 +31,7 @@ enum ProfileRouter: APITargetType {
     
     // 전체 마이페이지
     case profileStats
+    case logout
 }
 
 extension ProfileRouter {
@@ -47,22 +48,18 @@ extension ProfileRouter {
         case .weeklyEmotionStats:     return "/statistics/emotion/weekly"
         case .monthlyEmotionStats:    return "/statistics/emotion/monthly"
         // 임시보관함
-        case .temporary:              return "/diaries/temp-status"
+        case .temporary, .restore:              return "/diaries/temp-status"
         // 휴지통으로 이동(임시→휴지통)
-        case .wastePatch:             return "/diaries/waste-status"
-        // 휴지통 목록
-        case .waste:                  return "/diaries/waste-status"
+        case .wastePatch, .waste:             return "/diaries/waste-status"
         // 영구삭제
         case .deleteDiary:            return "/diaries"
-        // 복원(휴지통→임시)
-        case .restore:                return "/diaries/temp-status"
             
         // 마이프로필
-        case .patchProfile, .myProfile: return "/member/myprofile"
+        case .patchProfile, .myProfile, .profileStats: return "/member/myprofile"
         case .withdrawAccount: return "/members"
             
         // 전체 마이페이지
-        case .profileStats: return "/members/profile"
+        case .logout: return "/members/auth"
         }
     }
 
@@ -77,7 +74,7 @@ extension ProfileRouter {
         case .wastePatch, .restore, .patchProfile, .withdrawAccount:
             return .patch
 
-        case .deleteDiary:
+        case .deleteDiary, .logout:
             return .delete
         }
     }
@@ -103,7 +100,7 @@ extension ProfileRouter {
             )
 
         // 마이프로필
-        case .myProfile, .withdrawAccount:
+        case .myProfile, .withdrawAccount, .logout:
             return .requestPlain
 
         // PATCH: 임시→휴지통 (JSON body)
@@ -223,6 +220,10 @@ extension ProfileRouter {
                     }
                     """
         case .withdrawAccount:
+            json = """
+                
+                """
+        case .logout:
             json = """
                 
                 """

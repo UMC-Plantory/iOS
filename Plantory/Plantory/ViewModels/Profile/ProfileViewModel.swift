@@ -122,7 +122,9 @@ final public class ProfileViewModel: ObservableObject {
                     self.errorMessage = err.localizedDescription
                 }
             } receiveValue: { [weak self] _ in
-                self?.isWithdrawn = true
+                guard let self = self else { return }
+                _ = KeychainService.shared.deleteToken()
+                self.isWithdrawn = true
             }
             .store(in: &cancellables)
     }

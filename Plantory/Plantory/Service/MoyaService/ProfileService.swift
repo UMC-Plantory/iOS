@@ -16,6 +16,12 @@ public enum SortOrder: String {
     case latest
 }
 
+private struct BasicAck: Codable {
+    let isSuccess: Bool
+    let code: String
+    let message: String
+}
+
 // MARK: - Profile 서비스 프로토콜
 protocol ProfileServiceProtocol {
 
@@ -42,10 +48,11 @@ protocol ProfileServiceProtocol {
             profileImgUrl: String,
             deleteProfileImg: Bool
         ) -> AnyPublisher<PatchProfileResponse, APIError>
-    func withdrawAccount() -> AnyPublisher<withdraw, APIError>
+    func withdrawAccount() -> AnyPublisher<Void, APIError>
     
     // 마이페이지
     func fetchProfileStats() -> AnyPublisher<ProfileStatsResponse, APIError>
+    func logout() -> AnyPublisher<Void, APIError>
 }
 
 // MARK: - Profile API를 사용하는 서비스
@@ -136,12 +143,20 @@ final class ProfileService: ProfileServiceProtocol {
             )
         }
     
-    func withdrawAccount() -> AnyPublisher<withdraw, APIError> {
-        provider.requestResult(.withdrawAccount, type: withdraw.self)
-    }
+    func withdrawAccount() -> AnyPublisher<Void, APIError> {
+            provider.requestResult(.withdrawAccount, type: BasicAck.self)
+                .map { _ in () }                // 본문은 쓰지 않음 → Void
+                .eraseToAnyPublisher()
+        }
     
     func fetchProfileStats() -> AnyPublisher<ProfileStatsResponse, APIError> {
         provider.requestResult(.profileStats, type: ProfileStatsResponse.self)
+    }
+    
+    func logout() -> AnyPublisher<Void, APIError> {
+            provider.requestResult(.logout, type: BasicAck.self)
+                .map { _ in () }                // 본문은 쓰지 않음 → Void
+                .eraseToAnyPublisher()
     }
 }
 

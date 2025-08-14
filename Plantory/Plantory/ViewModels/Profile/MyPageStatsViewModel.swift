@@ -5,10 +5,15 @@ final class MyPageStatsViewModel: ObservableObject {
     @Published var response: ProfileStatsResponse?
     @Published private(set) var stats: [Stat] = []
 
-    // 뷰에서 바로 쓸 표시용 프로퍼티 (가공/포맷 끝난 값)
+    // 뷰에서 바로 쓸 표시용 프로퍼티
     @Published private(set) var nicknameText: String = ""
     @Published private(set) var userCustomIdText: String = ""
     @Published private(set) var profileImageURL: URL? = nil
+
+    // 로그아웃 상태
+    @Published private(set) var isLoggingOut = false
+    @Published private(set) var didLogout = false
+    @Published private(set) var logoutErrorMessage: String?
 
     private let container: DIContainer
     private var cancellables = Set<AnyCancellable>()
@@ -31,6 +36,29 @@ final class MyPageStatsViewModel: ObservableObject {
             .store(in: &cancellables)
     }
 
+    /// 로그아웃 API
+    func logout() {
+        guard !isLoggingOut else { return }
+        isLoggingOut = true
+        logoutErrorMessage = nil
+        didLogout = false
+
+        container.useCaseService.profileService
+            .logout()
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] completion in
+                guard let self = self else { return }
+                self.isLoggingOut = false
+                if case let .failure(err) = completion {
+                    self.logoutErrorMessage = err.localizedDescription
+                }
+            } receiveValue: { [weak self] _ in   // ← 여기 `_` 추가!
+                self?.didLogout = true
+            }
+            .store(in: &cancellables)
+    }
+
+
     // avgSleepTime(분) → "6h 53m"
     private static func makeStats(from r: ProfileStatsResponse) -> [Stat] {
         let h = r.avgSleepTime / 60
@@ -45,7 +73,6 @@ final class MyPageStatsViewModel: ObservableObject {
         ]
     }
 
-    // 닉네임/커스텀ID/프로필이미지 URL 가공은 전부 여기서
     private func applyDisplayFields(from r: ProfileStatsResponse) {
         nicknameText = r.nickname
         userCustomIdText = r.userCustomId

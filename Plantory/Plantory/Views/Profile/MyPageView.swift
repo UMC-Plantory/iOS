@@ -1,31 +1,36 @@
 import SwiftUI
+import Combine
+import CombineMoya
 
 // MARK: 메인 뷰
 struct MyPageView: View {
     private let container: DIContainer
-
+    
     @State private var showSleepSheet = false
     @State private var showEmotionSheet = false
     @State private var showLogout = false
+    @State private var isLoggingOut = false
+    @State private var cancellables = Set<AnyCancellable>()
+    
     @State private var weeklyResponse: WeeklySleepResponse? = nil
-
+    
     @StateObject private var sleepViewModel: SleepStatsViewModel
     @StateObject private var statsVM: MyPageStatsViewModel
-
+    
     init(container: DIContainer) {
         self.container = container
         _sleepViewModel = StateObject(wrappedValue: SleepStatsViewModel(container: container))
         _statsVM = StateObject(wrappedValue: MyPageStatsViewModel(container: container))
     }
-
+    
     var body: some View {
         ScrollView {
             VStack {
                 HeaderView()
-
+                
                 Divider()
                 Spacer().frame(height: 45)
-
+                
                 // 프로필 관리 (VM에서 가공된 값만 바인딩)
                 ProfileSection(
                     nickname: statsVM.nicknameText,
@@ -34,11 +39,11 @@ struct MyPageView: View {
                 ) {
                     container.navigationRouter.push(.profileManage)
                 }
-
+                
                 Spacer().frame(height: 45)
                 Divider()
                 Spacer().frame(height: 24)
-
+                
                 // 통계 카드 (VM에서 생성한 stats)
                 StatsSection(
                     stats: statsVM.stats,
@@ -53,9 +58,9 @@ struct MyPageView: View {
                         return dict
                     }()
                 )
-
+                
                 Spacer().frame(height: 24)
-
+                
                 // 메뉴 (스크랩 / 임시보관함 / 휴지통)
                 MenuSection(
                     scrapAction:     { container.navigationRouter.push(.scrap) },
@@ -82,9 +87,15 @@ struct MyPageView: View {
                     message: "로그아웃 시, 로그인 화면으로 돌아갑니다.",
                     confirmTitle: "로그아웃",
                     cancelTitle: "취소",
-                    onConfirm: { showLogout = false },
+                    onConfirm: { statsVM.logout() },
                     onCancel: { showLogout = false }
                 )
+            }
+        }
+        .onChange(of: statsVM.didLogout, initial: false) { _, done in
+            if done {
+                showLogout = false
+                container.navigationRouter.reset()
             }
         }
         .navigationBarHidden(true)

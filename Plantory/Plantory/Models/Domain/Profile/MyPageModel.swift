@@ -101,3 +101,4 @@ public struct ProfileStatsResponse: Codable {
 }
 
 public struct withdraw: Codable {}
+public struct logoutResponse: Codable {}
