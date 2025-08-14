@@ -99,7 +99,6 @@ struct ProfileManageView: View {
                     if done {
                         isShowingSignOutPopup = false
                         // 후처리: 세션 정리 & 화면 전환
-                        container.navigationRouter.push(.login)
                         dismiss()  // 최소 동작: 현재 화면 닫기
                     }
                 }

@@ -87,7 +87,10 @@ struct MyPageView: View {
                     message: "로그아웃 시, 로그인 화면으로 돌아갑니다.",
                     confirmTitle: "로그아웃",
                     cancelTitle: "취소",
-                    onConfirm: { statsVM.logout() },
+                    onConfirm: {
+                        statsVM.logout()
+                        container.navigationRouter.reset()
+                    },
                     onCancel: { showLogout = false }
                 )
             }
@@ -95,7 +98,6 @@ struct MyPageView: View {
         .onChange(of: statsVM.didLogout, initial: false) { _, done in
             if done {
                 showLogout = false
-                container.navigationRouter.reset()
             }
         }
         .navigationBarHidden(true)
