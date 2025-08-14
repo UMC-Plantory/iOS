@@ -30,6 +30,7 @@ protocol ProfileServiceProtocol {
     func fetchWaste(sort: SortOrder) -> AnyPublisher<[Diary], APIError>
     func patchWaste(diaryIds: [Int]) -> AnyPublisher<WastePatchResponse, APIError>
     func deleteWaste(diaryIds: [Int]) -> AnyPublisher<WasteDeleteResponse, APIError>
+    func restoreWaste(diaryIds: [Int]) -> AnyPublisher<RestoreResponse, APIError>
 
     // 프로필
     func fetchMyProfile() -> AnyPublisher<FetchProfileResponse, APIError>
@@ -98,6 +99,11 @@ final class ProfileService: ProfileServiceProtocol {
     func deleteWaste(diaryIds: [Int]) -> AnyPublisher<WasteDeleteResponse, APIError> {
         provider.requestResult(.deleteDiary(diaryIds: diaryIds), type: WasteDeleteResponse.self)
     }
+    
+    func restoreWaste(diaryIds: [Int]) -> AnyPublisher<RestoreResponse, APIError> {
+        provider.requestResult(.restore(diaryIds: diaryIds), type: RestoreResponse.self)
+    }
+
 
     // MARK: - 상세 프로필
     func fetchMyProfile() -> AnyPublisher<FetchProfileResponse, APIError> {

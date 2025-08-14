@@ -150,6 +150,8 @@ struct TrashView: View {
 
     private func performRestore() {
         // 복원 API 호출
+        viewModel.restoreWaste(ids: Array(checkedItems))
+        checkedItems.removeAll()
         isEditing = false
         showRestorePopUp = false
     }

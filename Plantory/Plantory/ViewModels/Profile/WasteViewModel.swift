@@ -53,30 +53,61 @@ public class WasteViewModel: ObservableObject {
     }
     
     /// 선택된 일기를 영구 삭제하고, 성공 시 로컬 배열에서 제거
-    public func deleteForever(ids: [Int]) {
+    /// 선택된 일기를 영구 삭제합니다. (휴지통 → 완전 삭제)
+    // 삭제 (휴지통 → 완전 삭제)
+    public func deleteForever(ids: [Int], sort: SortOrder = .latest) {
         isLoading = true
         errorMessage = nil
 
         container.useCaseService.profileService
-            .deleteWaste(diaryIds: ids)               // PATCH /diary/waste 호출
+            .deleteWaste(diaryIds: ids)
+            .map { _ in () }
+            .flatMap { [weak self] _ -> AnyPublisher<[Diary], APIError> in
+                guard let self = self else { return Empty().eraseToAnyPublisher() }
+                return self.container.useCaseService.profileService.fetchWaste(sort: sort)
+            }
             .receive(on: DispatchQueue.main)
             .sink { [weak self] completion in
                 self?.isLoading = false
                 if case let .failure(error) = completion {
                     self?.errorMessage = error.localizedDescription
                 }
-            } receiveValue: { [weak self] response in
-                guard let self = self else { return }
-                if response.isSuccess {
-                    // 실제로 삭제된 것처럼 로컬 상태에서 제거
-                    self.diaries.removeAll { ids.contains($0.id) }
-                } else {
-                    self.errorMessage = response.message
-                }
+            } receiveValue: { [weak self] diaries in
+                self?.handleWaste(diaries)
             }
             .store(in: &cancellables)
     }
 
+
+
+    // 복원
+    /// 선택된 일기를 복원합니다. (휴지통 → 임시보관함)
+    // 복원 (휴지통 → 임시보관함)
+    public func restoreWaste(ids: [Int], sort: SortOrder = .latest) {
+        isLoading = true
+        errorMessage = nil
+
+        container.useCaseService.profileService
+            .restoreWaste(diaryIds: ids)
+            .map { _ in () }
+            .flatMap { [weak self] _ -> AnyPublisher<[Diary], APIError> in
+                guard let self = self else { return Empty().eraseToAnyPublisher() }
+                return self.container.useCaseService.profileService.fetchWaste(sort: sort)
+            }
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] completion in
+                self?.isLoading = false
+                if case let .failure(error) = completion {
+                    self?.errorMessage = error.localizedDescription
+                }
+            } receiveValue: { [weak self] diaries in
+                self?.handleWaste(diaries)
+            }
+            .store(in: &cancellables)
+    }
+
+
+    
     // MARK: - Handlers
     private func handleWaste(_ diaries: [Diary]) {
         self.diaries = diaries
