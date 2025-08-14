@@ -10,7 +10,7 @@ import Combine
 import Moya
 
 extension MoyaProvider {
-    func requestResult<T: Codable>(
+    func requestResult<T: Decodable>(
         _ target: Target,
         type: T.Type,
     ) -> AnyPublisher<T, APIError> {

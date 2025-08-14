@@ -68,7 +68,7 @@ struct BaseTabView: View {
         Group {
             switch tab {
             case .home:
-                HomeView()
+                HomeView(container:container)
             case .diary:
                 DiaryView()
             case .terrarium:

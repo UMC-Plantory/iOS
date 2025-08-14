@@ -19,7 +19,7 @@ extension HomeRouter: APITargetType {
 
     
     var baseURL: URL {
-        return URL(string: Config.baseUrl)!   // 굳이 문자열 인터폴레이션 불필요
+        return URL(string: Config.baseUrl)!
     }
 
     
@@ -28,7 +28,7 @@ extension HomeRouter: APITargetType {
         case .getHomeMonthly:
             return "/home"
         case .getHomeDiary:
-            return "/diaries/date"   // 스펙에 맞게 유지
+            return "/diaries/date"   
         }
     }
 
