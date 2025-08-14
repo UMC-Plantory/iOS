@@ -25,8 +25,12 @@ enum ProfileRouter: APITargetType {
     case restore(diaryIds: [Int])
     
     // 상세 마이프로필
-    case patchProfile(memberId: UUID, name: String, profileImgUrl: String, gender: String, birth: String)
+    case patchProfile(nickname: String, userCustomId: String, gender: String, birth: String, profileImgUrl: String,deleteProfileImg: Bool)
     case myProfile
+    case withdrawAccount
+    
+    // 전체 마이페이지
+    case profileStats
 }
 
 extension ProfileRouter {
@@ -52,20 +56,25 @@ extension ProfileRouter {
         case .deleteDiary:            return "/diaries"
         // 복원(휴지통→임시)
         case .restore:                return "/diaries/temp-status"
+            
         // 마이프로필
         case .patchProfile, .myProfile: return "/member/myprofile"
+        case .withdrawAccount: return "/members"
+            
+        // 전체 마이페이지
+        case .profileStats: return "/members/profile"
         }
     }
 
     var method: Moya.Method {
         switch self {
-        case .myProfile,
+        case .myProfile, .profileStats,
              .weeklyStats, .monthlyStats,
              .weeklyEmotionStats, .monthlyEmotionStats,
              .temporary, .waste:
             return .get
 
-        case .wastePatch, .restore, .patchProfile:
+        case .wastePatch, .restore, .patchProfile, .withdrawAccount:
             return .patch
 
         case .deleteDiary:
@@ -93,8 +102,8 @@ extension ProfileRouter {
                 encoding: URLEncoding.default
             )
 
-        // GET: 마이프로필
-        case .myProfile:
+        // 마이프로필
+        case .myProfile, .withdrawAccount:
             return .requestPlain
 
         // PATCH: 임시→휴지통 (JSON body)
@@ -119,17 +128,22 @@ extension ProfileRouter {
             )
 
         // PATCH: 프로필 수정 (JSON body)
-        case .patchProfile(let memberId, let name, let profileImgUrl, let gender, let birth):
+        case .patchProfile(let nickname, let userCustomId, let gender, let birth, let profileImgUrl, let deleteProfileImg):
             return .requestParameters(
                 parameters: [
-                    "memberId":      memberId.uuidString,
-                    "name":          name,
-                    "profileImgUrl": profileImgUrl,
+                    "nickname":      nickname,
+                    "userCustomId":  userCustomId,
                     "gender":        gender,
-                    "birth":         birth
+                    "birth":         birth,
+                    "profileImgUrl": profileImgUrl,
+                    "deleteProfileImg": deleteProfileImg
                 ],
                 encoding: JSONEncoding.default
             )
+            
+        // 전체 마이페이지
+        case .profileStats:
+            return .requestPlain
         }
     }
 
@@ -187,16 +201,31 @@ extension ProfileRouter {
             json = """
             { "isSuccess": true, "code": "COMMON200", "message": "일기 영구 삭제 성공" }
             """
-        case .patchProfile(let memberId, let name, let profileImgUrl, let gender, let birth):
-            json = """
-            { "code": 200, "message": "프로필 수정 성공",
-              "data": { "memberId":"\(memberId.uuidString)","name":"\(name)","profileImgUrl":"\(profileImgUrl)","gender":"\(gender)","birth":"\(birth)" } }
-            """
         case .myProfile:
             json = """
             { "code": 200, "message": "프로필 조회 성공",
               "data": { "memberId":"123E4567-E89B-12D3-A456-426614174000","name":"손가영","email":"user@email.com","gender":"female","birth":"2004-03-15","profileImgUrl":"https://...", "wateringCanCnt":5,"continuousRecordCnt":3,"totalRecordCnt":10,"avgSleepTime":"07:30","totalBloomCnt":2,"status":"ACTIVE" } }
             """
+        case .patchProfile(nickname: _, userCustomId: _, gender: _, birth: _, profileImgUrl: _, deleteProfileImg: _):
+            json = """
+                
+                """
+        case .profileStats:
+                    json = """
+                    {
+                      "userCustomId": "songe2",
+                      "nickname": "송이",
+                      "profileImgUrl": "https://...",
+                      "continuousRecordCnt": 35,
+                      "totalRecordCnt": 5,
+                      "avgSleepTime": 413,   // 분
+                      "totalBloomCnt": 4
+                    }
+                    """
+        case .withdrawAccount:
+            json = """
+                
+                """
         }
         return Data(json.utf8)
     }

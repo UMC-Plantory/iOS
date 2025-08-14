@@ -1,39 +1,30 @@
-//
-// ProfileManageView.swift
-// Annotated for maintainability
-//
-// 이 파일은 사용자 프로필 관리 화면을 구성하는 SwiftUI 뷰 모듈입니다.
-// 주요 구조와 상태 관리를 이해하기 쉽도록 주석을 추가했습니다.
-
 import SwiftUI
 import UIKit
 
 // MARK: - ProfileManageView
-/// 프로필 관리 화면의 최상위 뷰 구조를 정의합니다.
 struct ProfileManageView: View {
     private let container: DIContainer
-    // 환경으로부터 dismiss 액션을 가져와 모달 혹은 네비게이션 스택에서 뒤로가기 처리에 사용합니다.
     @Environment(\.dismiss) private var dismiss
-    
-    // 뷰모델 인스턴스를 생성하여 프로필 데이터와 상태를 관리합니다.
+
     @StateObject private var vm: ProfileViewModel
-    
-    init(container: DIContainer) {
-            self.container = container
-            _vm = StateObject(wrappedValue: ProfileViewModel(container: container))
-        }
-    
-    // 탈퇴 팝업 표시 여부를 제어하는 상태 변수입니다.
+
+    // 이미지/삭제 의도 상태는 상위에서 관리
+    @State private var selectedImage: UIImage? = nil
+    @State private var didDeleteProfileImage = false
+
     @State private var isShowingSignOutPopup = false
+
+    init(container: DIContainer) {
+        self.container = container
+        _vm = StateObject(wrappedValue: ProfileViewModel(container: container))
+    }
 
     var body: some View {
         ZStack {
-            // 스크롤 가능한 메인 콘텐츠
             ScrollView(.vertical, showsIndicators: false) {
                 profileContent
             }
 
-            // 탈퇴 팝업을 필요 시 최상위에 표시
             if isShowingSignOutPopup {
                 signOutPopup
             }
@@ -41,26 +32,47 @@ struct ProfileManageView: View {
     }
 
     // MARK: - Main Content
-    /// 프로필 관리 메인 콘텐츠 레이아웃 및 네비게이션 바 설정
     private var profileContent: some View {
         VStack(spacing: 24) {
             Spacer().frame(height: 15)
-            ProfileImageView()                      // 프로필 이미지 섹션
+            // 원격 URL + 선택 이미지 + 삭제 의도 모두 ProfileImageView로 전달
+            ProfileImageView(
+                remoteURL: URL(string: vm.profileImgUrl),
+                selectedImage: $selectedImage,
+                didDeleteProfileImage: $didDeleteProfileImage
+            )
+
             ProfileMemberInfoView(vm: vm) {
-                // 탈퇴 버튼 클릭 시 팝업 토글
                 isShowingSignOutPopup = true
             }
+
+            // 취소/저장 버튼
+            ActionButtons(
+                onCancel: {
+                    // 필요 시 로컬 변경 리셋
+                    selectedImage = nil
+                    didDeleteProfileImage = false
+                    dismiss()
+                },
+                onSave: {
+                    // 저장 시: 폼 필드들은 vm 바인딩으로 이미 연결됨
+                    // 프로필 이미지는 삭제 의도만 서버에 전달
+                    vm.patchProfile(deleteProfileImg: didDeleteProfileImage)
+                    didDeleteProfileImage = false
+                }
+            )
+            .padding(.horizontal, 16)
+            .padding(.bottom, 24)
         }
         .customNavigation(
             title: "프로필 관리",
-            leading: backButton                  // 커스텀 뒤로가기 버튼
+            leading: backButton
         )
         .padding(.horizontal, 16)
-        .navigationBarBackButtonHidden()       // 시스템 기본 뒤로가기 숨김
+        .navigationBarBackButtonHidden()
     }
 
     // MARK: - Back Button
-    /// 네비게이션 커스텀 뒤로가기 버튼
     private var backButton: some View {
         Button(action: dismiss.callAsFunction) {
             Image("leftChevron").fixedSize()
@@ -68,7 +80,6 @@ struct ProfileManageView: View {
     }
 
     // MARK: - Sign Out PopUp
-    /// 계정 탈퇴 확인 팝업 뷰
     private var signOutPopup: some View {
         PopUp(
             title: "계정을 탈퇴하시겠습니까?",
@@ -76,55 +87,64 @@ struct ProfileManageView: View {
             confirmTitle: "탈퇴하기",
             cancelTitle: "취소",
             onConfirm: {
-                // TODO: 실제 탈퇴 처리 로직 연결
-                print("회원 탈퇴 확인 버튼 클릭")
-                isShowingSignOutPopup = false
+                vm.withdrawAccount()
             },
             onCancel: {
-                // 팝업 닫기
                 isShowingSignOutPopup = false
             }
         )
-        .zIndex(1)                             // 팝업 레이어 우선순위 설정
+        .zIndex(1)
+        .onChange(of: vm.isWithdrawn, initial: false) { _, done in
+                    if done {
+                        isShowingSignOutPopup = false
+                        // 후처리: 세션 정리 & 화면 전환
+                        container.navigationRouter.push(.login)
+                        dismiss()  // 최소 동작: 현재 화면 닫기
+                    }
+                }
     }
 }
 
 // MARK: - ProfileImageView
-/// 프로필 이미지 표시 및 수정 기능을 제공하는 뷰
+/// 원격 URL / 로컬 선택 이미지 / 삭제 의도까지 한 곳에서 처리
 struct ProfileImageView: View {
-    // 카메라 메뉴 (수정/삭제) 표시 여부
+    let remoteURL: URL?
+    @Binding var selectedImage: UIImage?
+    @Binding var didDeleteProfileImage: Bool
+
     @State private var showCameraMenu = false
-    // 이미지 피커 시트 표시 여부
     @State private var showImagePicker = false
-    // 선택된 이미지 저장
-    @State private var selectedImage: UIImage? = nil
 
     var body: some View {
         HStack {
             Spacer()
             ZStack {
+                // 표시 우선순위: 선택 이미지 > 원격 이미지 > 기본 이미지
                 Group {
                     if let img = selectedImage {
-                        // 사용자가 선택한 이미지를 원본 비율 유지하며 표시
                         Image(uiImage: img)
                             .resizable()
                             .scaledToFill()
+                    } else if let url = remoteURL {
+                        AsyncImage(url: url) { phase in
+                            switch phase {
+                            case .success(let image):
+                                image.resizable().scaledToFill()
+                            default:
+                                Image("default_profile")
+                                    .resizable().scaledToFill()
+                            }
+                        }
                     } else {
-                        // 기본 프로필 이미지 표시
                         Image("default_profile")
                             .resizable()
                             .scaledToFill()
                     }
                 }
                 .frame(width: 100, height: 100)
-                .clipShape(Circle())          // 원형 마스크 적용
+                .clipShape(Circle())
 
-                Button(action: {
-                    // 애니메이션과 함께 카메라 메뉴 토글
-                    withAnimation(.easeInOut) {
-                        showCameraMenu.toggle()
-                    }
-                }) {
+                Button(action: { withAnimation(.easeInOut) { showCameraMenu.toggle() } }) {
                     Image("camera")
                         .resizable()
                         .frame(width: 48, height: 48)
@@ -133,13 +153,12 @@ struct ProfileImageView: View {
                 .zIndex(1)
             }
             .overlay(
-                // 카메라 메뉴: 프로필 수정/삭제 옵션
                 Group {
                     if showCameraMenu {
                         VStack(spacing: 0) {
                             Button(action: {
                                 showCameraMenu = false
-                                showImagePicker = true    // 이미지 피커 호출
+                                showImagePicker = true
                             }) {
                                 Text("프로필 수정")
                                     .font(.pretendardRegular(10))
@@ -147,7 +166,8 @@ struct ProfileImageView: View {
                                     .frame(maxWidth: .infinity)
                             }
                             Button(action: {
-                                selectedImage = nil        // 이미지 삭제
+                                selectedImage = nil
+                                didDeleteProfileImage = true
                                 showCameraMenu = false
                             }) {
                                 Text("프로필 삭제")
@@ -169,33 +189,34 @@ struct ProfileImageView: View {
             )
             Spacer()
         }
-        // 이미지 피커 시트 연결
         .sheet(isPresented: $showImagePicker) {
             ImagePicker(image: $selectedImage)
+        }
+        // 새 이미지를 고르면 삭제 의도는 자동 취소
+        .onChange(of: selectedImage != nil, initial: false) { _, hasImage in
+            if hasImage { didDeleteProfileImage = false }
         }
     }
 }
 
-// MARK: - ProfileMemberInfoView
-/// 사용자 정보 입력 및 표시 영역을 구성하는 뷰
+// MARK: - ProfileMemberInfoView (변경 없음)
 struct ProfileMemberInfoView: View {
-    @ObservedObject var vm: ProfileViewModel  // 프로필 데이터 관리 뷰모델
-    let onSignOut: () -> Void                  // 탈퇴 액션 콜백
+    @ObservedObject var vm: ProfileViewModel
+    let onSignOut: () -> Void
 
     var body: some View {
         VStack(alignment: .leading, spacing: 3) {
             Text("회원정보")
-                .font(.pretendardSemiBold(18))      // 제목 스타일
+                .font(.pretendardSemiBold(18))
 
             Spacer().frame(height: 9)
-            // 이름 입력 필드: 뷰모델 바인딩
+
             InputField(
                 title: "닉네임",
                 text: $vm.name,
                 placeholder: "이름을 입력하세요",
                 state: $vm.nameState
             )
-            // 아이디 입력 필드: 뷰모델 바인딩
             InputField(
                 title: "아이디",
                 text: $vm.id,
@@ -208,17 +229,15 @@ struct ProfileMemberInfoView: View {
                 .font(.pretendardSemiBold(18))
 
             Spacer().frame(height: 9)
-            // 성별 선택 드롭다운
             DropdownField(
                 title: "성별",
                 options: ["남성", "여성", "그 외"],
                 selection: $vm.gender,
                 state: $vm.genderState
             )
-            .zIndex(1)                             // 드롭다운 레이어 우선순위
+            .zIndex(1)
 
             Spacer().frame(height: 18)
-            // 생년월일 입력 필드
             InputField(
                 title: "생년월일",
                 text: $vm.birth,
@@ -226,7 +245,6 @@ struct ProfileMemberInfoView: View {
                 state: $vm.birthState
             )
 
-            // 이메일 읽기 전용 필드
             ReadOnlyInputField(
                 title: "이메일",
                 text: vm.email,
@@ -234,7 +252,6 @@ struct ProfileMemberInfoView: View {
             )
 
             Spacer().frame(height: 48)
-            // 탈퇴 버튼: onSignOut 호출
             Button(action: onSignOut) {
                 HStack {
                     Spacer()
@@ -245,23 +262,18 @@ struct ProfileMemberInfoView: View {
                     Spacer()
                 }
             }
-
             Spacer().frame(height: 54)
-            // 취소/저장 버튼
-            ActionButtons(onCancel: {}, onSave: {})
         }
     }
 }
 
-// MARK: - ActionButtons
-/// 취소 및 저장 버튼을 가로로 배치하는 뷰 컴포넌트
+// MARK: - ActionButtons (변경 없음)
 struct ActionButtons: View {
-    let onCancel: () -> Void   // 취소 콜백
-    let onSave: () -> Void     // 저장 콜백
+    let onCancel: () -> Void
+    let onSave: () -> Void
 
     var body: some View {
         HStack(spacing: 8) {
-            // 취소 버튼 스타일 및 동작
             Button(action: onCancel) {
                 Text("취소")
                     .font(.pretendardMedium(14))
@@ -273,8 +285,6 @@ struct ActionButtons: View {
                             .fill(Color.gray06)
                     )
             }
-
-            // 저장 버튼 스타일 및 동작
             Button(action: onSave) {
                 Text("저장")
                     .font(.pretendardMedium(14))
@@ -287,7 +297,7 @@ struct ActionButtons: View {
                     )
             }
         }
-        .padding(.vertical, 16)  // 버튼 그룹 상하 여백
+        .padding(.vertical, 16)
     }
 }
 

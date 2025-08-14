@@ -35,12 +35,17 @@ protocol ProfileServiceProtocol {
     // 프로필
     func fetchMyProfile() -> AnyPublisher<FetchProfileResponse, APIError>
     func patchProfile(
-        memberId: UUID,
-        name: String,
-        profileImgUrl: String,
-        gender: String,
-        birth: String
-    ) -> AnyPublisher<PatchProfileResponse, APIError>
+            nickname: String,
+            userCustomId: String,
+            gender: String,
+            birth: String,
+            profileImgUrl: String,
+            deleteProfileImg: Bool
+        ) -> AnyPublisher<PatchProfileResponse, APIError>
+    func withdrawAccount() -> AnyPublisher<withdraw, APIError>
+    
+    // 마이페이지
+    func fetchProfileStats() -> AnyPublisher<ProfileStatsResponse, APIError>
 }
 
 // MARK: - Profile API를 사용하는 서비스
@@ -111,22 +116,32 @@ final class ProfileService: ProfileServiceProtocol {
     }
 
     func patchProfile(
-        memberId: UUID,
-        name: String,
-        profileImgUrl: String,
-        gender: String,
-        birth: String
-    ) -> AnyPublisher<PatchProfileResponse, APIError> {
-        provider.requestResult(
-            .patchProfile(
-                memberId: memberId,
-                name: name,
-                profileImgUrl: profileImgUrl,
-                gender: gender,
-                birth: birth
-            ),
-            type: PatchProfileResponse.self
-        )
+            nickname: String,
+            userCustomId: String,
+            gender: String,
+            birth: String,
+            profileImgUrl: String,
+            deleteProfileImg: Bool
+        ) -> AnyPublisher<PatchProfileResponse, APIError> {
+            provider.requestResult(
+                .patchProfile(
+                    nickname: nickname,
+                    userCustomId: userCustomId,
+                    gender: gender,
+                    birth: birth,
+                    profileImgUrl: profileImgUrl,
+                    deleteProfileImg: deleteProfileImg
+                ),
+                type: PatchProfileResponse.self
+            )
+        }
+    
+    func withdrawAccount() -> AnyPublisher<withdraw, APIError> {
+        provider.requestResult(.withdrawAccount, type: withdraw.self)
+    }
+    
+    func fetchProfileStats() -> AnyPublisher<ProfileStatsResponse, APIError> {
+        provider.requestResult(.profileStats, type: ProfileStatsResponse.self)
     }
 }
 
