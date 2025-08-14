@@ -22,24 +22,15 @@ public struct ProfileData: Codable {
     public let birth: String
 }
 
-// MARK: - Fetch Profile (GET)
+// MARK: - MyProfile (GET /members/myprofile)
+// 상세 마이페이지!!!
+// result 안의 6개 필드만 디코딩한다.
 public struct FetchProfileResponse: Codable {
-    public let code: Int
-    public let message: String
-    public let data: FetchProfileData?
-}
-
-public struct FetchProfileData: Codable {
-    public let memberId: String
-    public let name: String
-    public let email: String
+    public let nickname: String
+    public let userCustomId: String
     public let gender: String
     public let birth: String
     public let profileImgUrl: String
-    public let wateringCanCnt: Int
-    public let continuousRecordCnt: Int
-    public let totalRecordCnt: Int
-    public let avgSleepTime: String
-    public let totalBloomCnt: Int
-    public let status: String
+    public let email: String
 }
+

@@ -1,23 +1,9 @@
-//
-//  TempViewModel.swift
-//  Plantory
-//
-//  Created by 이효주 on 7/14/25.
-//
-
 import Foundation
 import Moya
 import Combine
 import CombineMoya
 
 public class TempViewModel: ObservableObject {
-    // MARK: - Date Formatter
-    private static let dateFormatter: DateFormatter = {
-        let df = DateFormatter()
-        df.dateFormat = "yyyy.MM.dd"
-        return df
-    }()
-
     // MARK: - Published Properties
     @Published public private(set) var diaries: [Diary] = []
     @Published public private(set) var isLoading = false
@@ -25,20 +11,15 @@ public class TempViewModel: ObservableObject {
 
     // MARK: - Dependencies
     private var cancellables = Set<AnyCancellable>()
-    /// DIContainer를 통해 의존성 주입
     let container: DIContainer
     
     // MARK: - Init
-    init(
-        container: DIContainer
-    ) {
+    init(container: DIContainer) {
         self.container = container
         fetchTemp()
     }
 
     // MARK: - API Fetch
-    /// 임시 일기 목록을 서버에서 가져옵니다.
-    /// - Parameter sort: `.oldest` 또는 `.latest`
     public func fetchTemp(sort: SortOrder = .latest) {
         isLoading = true
         errorMessage = nil
@@ -57,30 +38,31 @@ public class TempViewModel: ObservableObject {
             .store(in: &cancellables)
     }
     
-    /// 선택된 일기를 휴지통으로 이동(PATCH)하고, 성공 시 로컬 배열에서 제거
-    public func moveToTrash(ids: [Int]) {
+    public func moveToTrash(ids: [Int], sort: SortOrder = .latest) {
         isLoading = true
         errorMessage = nil
 
         container.useCaseService.profileService
-            .patchWaste(diaryIds: ids)               // PATCH /diary/waste 호출
+            .patchWaste(diaryIds: ids)
+            .map { _ in () }
+            .flatMap { [weak self] _ -> AnyPublisher<[Diary], APIError> in
+                guard let self = self else { return Empty().eraseToAnyPublisher() }
+                return self.container.useCaseService.profileService.fetchTemp(sort: sort)
+            }
             .receive(on: DispatchQueue.main)
             .sink { [weak self] completion in
                 self?.isLoading = false
                 if case let .failure(error) = completion {
                     self?.errorMessage = error.localizedDescription
                 }
-            } receiveValue: { [weak self] response in
-                guard let self = self else { return }
-                if response.isSuccess {
-                    // 실제로 삭제된 것처럼 로컬 상태에서 제거
-                    self.diaries.removeAll { ids.contains($0.id) }
-                } else {
-                    self.errorMessage = response.message
-                }
+            } receiveValue: { [weak self] diaries in
+                self?.handleTemp(diaries) // 화면 갱신
             }
             .store(in: &cancellables)
     }
+
+
+
 
     // MARK: - Handlers
     private func handleTemp(_ diaries: [Diary]) {
@@ -94,13 +76,13 @@ public class TempViewModel: ObservableObject {
         public let dateText: String
     }
 
-    /// 뷰에서 사용할 CellViewModel 배열
     public var cellViewModels: [DiaryCellViewModel] {
-        diaries.map { diary in
+        diaries.map { d in
             DiaryCellViewModel(
-                id: diary.id,
-                title: diary.title,
-                dateText: Self.dateFormatter.string(from: diary.date)
+                id: d.id,
+                title: d.title,
+                // 서버에서 "YYYY-MM-DD"로 오므로 점 포맷으로만 교체
+                dateText: d.date.replacingOccurrences(of: "-", with: ".")
             )
         }
     }

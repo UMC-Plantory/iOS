@@ -32,7 +32,7 @@ protocol ProfileServiceProtocol {
     func deleteWaste(diaryIds: [Int]) -> AnyPublisher<WasteDeleteResponse, APIError>
 
     // 프로필
-    func fetchProfile(memberId: UUID) -> AnyPublisher<FetchProfileResponse, APIError>
+    func fetchMyProfile() -> AnyPublisher<FetchProfileResponse, APIError>
     func patchProfile(
         memberId: UUID,
         name: String,
@@ -96,13 +96,12 @@ final class ProfileService: ProfileServiceProtocol {
     }
 
     func deleteWaste(diaryIds: [Int]) -> AnyPublisher<WasteDeleteResponse, APIError> {
-        // NOTE: 기존 파일에 wastePatch로 요청하던 부분을 wasteDelete로 수정
         provider.requestResult(.deleteDiary(diaryIds: diaryIds), type: WasteDeleteResponse.self)
     }
 
-    // MARK: - 프로필
-    func fetchProfile(memberId: UUID) -> AnyPublisher<FetchProfileResponse, APIError> {
-        provider.requestResult(.fetchProfile(memberId: memberId), type: FetchProfileResponse.self)
+    // MARK: - 상세 프로필
+    func fetchMyProfile() -> AnyPublisher<FetchProfileResponse, APIError> {
+        provider.requestResult(.myProfile, type: FetchProfileResponse.self)
     }
 
     func patchProfile(

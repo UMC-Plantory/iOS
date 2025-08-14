@@ -8,7 +8,7 @@ import CombineMoya
 final public class ProfileViewModel: ObservableObject {
     // MARK: - Published Properties
     /// GET /member/profile 응답의 data 부분 타입
-    @Published public private(set) var updatedProfile: FetchProfileData?
+    @Published public private(set) var updatedProfile: FetchProfileResponse?
     @Published public private(set) var isLoading    = false
     @Published public private(set) var errorMessage = ""
 
@@ -36,11 +36,8 @@ final public class ProfileViewModel: ObservableObject {
     /// - memberId: 조회에 사용할 회원 UUID 문자열 (기본값: 샘플 "uuid123")
     /// - provider: 네트워크/테스트용 Moya Provider (기본값 stub 즉시 응답)
     init(
-        // 실제로는 memberId 받아오기
-        memberId: String = "123E4567-E89B-12D3-A456-426614174000",
         container: DIContainer
     ) {
-        self.id       = memberId
         self.container = container
         setupValidationBindings()
         fetchProfile()
@@ -49,45 +46,37 @@ final public class ProfileViewModel: ObservableObject {
     // MARK: - API Methods
     /// 프로필 조회
     public func fetchProfile() {
-        guard let uuid = UUID(uuidString: id) else {
-            errorMessage = "유효하지 않은 회원 ID입니다."
-            return
-        }
-        isLoading    = true
+        isLoading = true
         errorMessage = ""
 
         container.useCaseService.profileService
-            .fetchProfile(memberId: uuid)
+            .fetchMyProfile()
             .receive(on: DispatchQueue.main)
             .sink { [weak self] completion in
-                guard let self = self else { return }
-                self.isLoading = false
+                self?.isLoading = false
                 if case let .failure(err) = completion {
-                    self.errorMessage = err.localizedDescription
+                    self?.errorMessage = err.localizedDescription
                 }
-            } receiveValue: { [weak self] response in
+            } receiveValue: { [weak self] r in
                 guard let self = self else { return }
-                if response.code == 200, let data = response.data {
-                    // FetchProfileData로 바로 바인딩
-                    self.updatedProfile = data
-                    // 바인딩된 값으로 폼 초기화
-                    self.name          = data.name
-                    self.email         = data.email
-                    self.gender        = data.gender
-                    self.birth         = data.birth
-                    self.profileImgUrl = data.profileImgUrl
-                    
-                    self.nameState  = .normal
-                    self.idState    = .normal
-                    self.emailState = .normal
-                    self.birthState = .normal
-                    self.genderState = .normal
-                } else {
-                    self.errorMessage = response.message
-                }
+                self.updatedProfile = r
+
+                self.name          = r.nickname
+                self.id            = r.userCustomId
+                self.email         = r.email
+                self.gender        = r.gender
+                self.birth         = r.birth
+                self.profileImgUrl = r.profileImgUrl
+
+                self.nameState  = .normal
+                self.idState    = .normal
+                self.emailState = .normal
+                self.birthState = .normal
+                self.genderState = .normal
             }
             .store(in: &cancellables)
     }
+
 
     /// 프로필 수정
     public func patchProfile() {

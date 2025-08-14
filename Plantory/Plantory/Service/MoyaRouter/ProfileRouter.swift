@@ -14,15 +14,17 @@ enum ProfileRouter: APITargetType {
     
     // 임시보관함
     case temporary(sort: String)
-    
-    // 쓰레기통
-    case waste(sort: String)
+    //휴지통으로 이동 (임시보관함에 있는 기능)
     case wastePatch(diaryIds: [Int])
+    
+    // 쓰레기통 조회
+    case waste(sort: String)
+    // 영구삭제
     case deleteDiary(diaryIds: [Int])
     
-    // 마이프로필
+    // 상세 마이프로필
     case patchProfile(memberId: UUID, name: String, profileImgUrl: String, gender: String, birth: String)
-    case fetchProfile(memberId: UUID)
+    case myProfile
 }
 
 extension ProfileRouter {
@@ -47,25 +49,28 @@ extension ProfileRouter {
             return "/statistics/emotion/monthly"
 
         case .temporary:
-            return "/diary/temp"
+            return "/diaries/temp-status"
             
         case .waste, .wastePatch:
-            return "/diary/waste"
+            return "/diaries/waste-status"
         case .deleteDiary:
             return "/diary"
             
-        case .patchProfile, .fetchProfile:
-            return "/member/profile"
+        // 상세 마이페이지
+        case .patchProfile, .myProfile:
+            return "/member/myprofile"
         }
     }
 
     /// HTTP 메서드 설정
     var method: Moya.Method {
         switch self {
-        case .fetchProfile, .weeklyStats, .monthlyStats, .weeklyEmotionStats, .monthlyEmotionStats, .temporary, .waste:
+        case .myProfile, .weeklyStats, .monthlyStats, .weeklyEmotionStats, .monthlyEmotionStats, .temporary, .waste:
             return .get
+            
         case .wastePatch, .patchProfile:
             return .patch
+            
         case .deleteDiary:
             return .delete
         }
@@ -74,12 +79,17 @@ extension ProfileRouter {
     /// 요청 Task 설정 (파라미터 인코딩)
     var task: Task {
         switch self {
+            
+            
         // GET: today 쿼리 파라미터
-        case .weeklyStats(let today),.monthlyStats(let today), .weeklyEmotionStats(let today), .monthlyEmotionStats(let today)  :
+        case
+                .weeklyStats(let today),.monthlyStats(let today),
+                .weeklyEmotionStats(let today), .monthlyEmotionStats(let today)  :
+            
             return .requestParameters(
                 parameters: ["today": today],
                 encoding: URLEncoding.default
-            )
+        )
 
 
         // GET: sort 쿼리 파라미터
@@ -89,12 +99,9 @@ extension ProfileRouter {
                 encoding: URLEncoding.default
             )
 
-        // GET: member_id 쿼리 파라미터 (프로필 조회)
-        case .fetchProfile(let memberId):
-            return .requestParameters(
-                parameters: ["memberId": memberId.uuidString],
-                encoding: URLEncoding.default
-            )
+        // GET: 상세 마이페이지 조회
+        case .myProfile:
+            return .requestPlain
 
         // PATCH: diaryIds JSON body
         case .wastePatch(let diaryIds), .deleteDiary(let diaryIds):
@@ -290,7 +297,7 @@ extension ProfileRouter {
                     }
                     """
                 }
-            case .fetchProfile:
+            case .myProfile:
             json = """
             {
               "code": 200,

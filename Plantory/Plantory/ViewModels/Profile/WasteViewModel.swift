@@ -95,7 +95,7 @@ public class WasteViewModel: ObservableObject {
             DiaryCellViewModel(
                 id: diary.id,
                 title: diary.title,
-                dateText: Self.dateFormatter.string(from: diary.date)
+                dateText: diary.date.replacingOccurrences(of: "-", with: ".")
             )
         }
     }
