@@ -145,6 +145,7 @@ struct CellView: View {
                 Circle()
                     .fill(c)
                     .frame(width: 40, height: 40)
+                    .shadow(color: .black.opacity(0.15), radius: 2, x: 1, y: 1.5) 
             }
             if isToday {
                 Image(.currentday)

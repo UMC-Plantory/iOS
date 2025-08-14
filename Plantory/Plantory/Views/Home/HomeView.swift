@@ -71,13 +71,10 @@ struct HomeView: View {
                     .frame(width: 356, height: 345)
                 }
 
-                Color.clear.frame(height: 20)
+                Color.clear.frame(height: 10)
 
                 // 진행도/연속기록 (디자인 유지, 데이터만 교체)
-                MyProgressBar(
-                    wateringProgress: viewModel.wateringProgress,
-                    continuousRecordCnt: viewModel.continuousRecordCnt
-                )
+                MyProgressView(viewModel: viewModel)
             }
             .padding(.horizontal, 32)
             .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
