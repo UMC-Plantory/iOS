@@ -18,6 +18,7 @@ struct BaseTabView: View {
     @State private var hasShownTerrariumPopup = false
     @State private var isTerrariumPopupVisible = false
     @State private var showFlowerCompleteView = false  // 상태 관리
+    @State private var terrariumVM: TerrariumViewModel? = nil
 
     /// 의존성 주입을 위한 DI 컨테이너
     @EnvironmentObject var container: DIContainer
@@ -43,8 +44,10 @@ struct BaseTabView: View {
             }
             
             if showFlowerCompleteView == true {
-                FlowerCompleteView()
-                    .zIndex(11)
+                if let vm = terrariumVM {
+                    FlowerCompleteView(viewModel: vm)
+                        .zIndex(11)
+                }
             }
         }
         .overlay(alignment: .bottom) {
@@ -57,6 +60,9 @@ struct BaseTabView: View {
             .allowsHitTesting(false)
         }
         .onAppear {
+            if terrariumVM == nil {
+                terrariumVM = TerrariumViewModel(container: container)
+            }
             UITabBar.appearance().backgroundColor = .white01
             UITabBar.appearance().unselectedItemTintColor = .black01
         }
@@ -73,14 +79,26 @@ struct BaseTabView: View {
         case .diary:
             DiaryListView(isFilterSheetPresented: $isFilterSheetPresented)
         case .terrarium:
-            TerrariumView(
-                viewModel: TerrariumViewModel(container: container),
-                onInfoTapped: {
-                    // 팝업을 표시하는 액션
-                    isTerrariumPopupVisible = true
-                },
-                showFlowerCompleteView: $showFlowerCompleteView
-            )
+            Group {
+                if let vm = terrariumVM {
+                    TerrariumView(
+                        viewModel: vm,
+                        onInfoTapped: {
+                            // 팝업을 표시하는 액션
+                            isTerrariumPopupVisible = true
+                        },
+                        showFlowerCompleteView: $showFlowerCompleteView
+                    )
+                } else {
+                    // 최초 한 번만 DI로 초기화
+                    ProgressView()
+                        .task {
+                            if terrariumVM == nil {
+                                terrariumVM = TerrariumViewModel(container: container)
+                            }
+                        }
+                }
+            }
         case .chat:
             ChatView(container: container)
         case .profile:

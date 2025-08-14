@@ -35,7 +35,7 @@ struct PlantPopupView: View {
                     .padding(.top, 12)
 
                     HStack(alignment: .center, spacing: 8) {
-                        Image("Rose")
+                        Image(imageName(for: viewModel.plantName))
                             .resizable()
                             .frame(width: 120, height: 120)
 
@@ -175,6 +175,22 @@ struct PlantPopupView: View {
     }
 }
 
+
+private extension PlantPopupView {
+    /// Flower image name mapping (한글 이름 → 에셋 이름)
+    func imageName(for plantName: String) -> String {
+        switch plantName {
+        case "장미": return "Rose"
+        case "민들레": return "Dandelion"
+        case "해바라기": return "Sunflower"
+        case "개나리": return "Forsythia"
+        case "물망초": return "ForgetMeNot"
+        default: return "DefaultPlant"
+        }
+    }
+}
+
+
 private extension PlantPopupViewModel {
     static var preview: PlantPopupViewModel = {
         let vm = PlantPopupViewModel(container: DIContainer())
@@ -192,3 +208,4 @@ private extension PlantPopupViewModel {
 #Preview {
     PlantPopupView(viewModel: .preview, onClose: {})
 }
+

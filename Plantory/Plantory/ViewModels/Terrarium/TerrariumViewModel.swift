@@ -16,6 +16,7 @@ class TerrariumViewModel {
 
     // 화면에 띄울 테라리움 데이터 (도메인 모델)
     var terrariumData: TerrariumResult?
+    var lastWateringResult: WateringResult?
 
     /// 로딩 중임을 나타냄
     var isLoading: Bool = false
@@ -79,13 +80,13 @@ class TerrariumViewModel {
                     self?.isLoading = false
                     print("API 요청 실패: \(failure.localizedDescription)")  // 실패 로그
                 }
-            }, receiveValue: { [weak self] response in
-                // 응답 값 확인
-                print("API 응답: \(response)")  // 응답 받은 값 출력
+            }, receiveValue: { [weak self] result in
 
                 // 물주기 후 terrariumData 갱신
-                self?.terrariumData?.terrariumWateringCount = response.terrariumWateringCountAfterEvent
-                self?.terrariumData?.memberWateringCount = response.memberWateringCountAfterEvent
+                self?.terrariumData?.terrariumWateringCount = result.terrariumWateringCountAfterEvent
+                self?.terrariumData?.memberWateringCount = result.memberWateringCountAfterEvent
+                
+                self?.lastWateringResult = result
 
                 print("업데이트된 terrariumData: \(String(describing: self?.terrariumData))")  // 업데이트된 데이터 로그
 

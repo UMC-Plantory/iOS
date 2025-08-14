@@ -32,6 +32,7 @@ struct WateringResponse: Codable {
 }
 
 struct WateringResult: Codable {
+    let nickname: String
     let terrariumWateringCountAfterEvent: Int
     let memberWateringCountAfterEvent: Int
     let emotionList: [String: Int]?
