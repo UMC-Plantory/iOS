@@ -21,6 +21,7 @@ struct BaseTabView: View {
     @EnvironmentObject var container: DIContainer
 
     var body: some View {
+
         ZStack(alignment: .bottom) {
             TabView(selection: $selectedTab) {
 
@@ -34,6 +35,7 @@ struct BaseTabView: View {
                         }
                     )
                 }
+
             }
 
             if isTerrariumPopupVisible {
