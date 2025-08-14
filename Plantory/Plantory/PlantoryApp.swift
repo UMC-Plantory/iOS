@@ -13,7 +13,7 @@ import KakaoSDKAuth
 struct PlantoryApp: App {
     
     init() {
-        KakaoSDK.initSDK(appKey: "77e9dac04fcf399304279a570d95f904")
+        KakaoSDK.initSDK(appKey: Config.kakaoKey)
     }
     
     var body: some Scene {

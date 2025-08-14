@@ -15,7 +15,7 @@ enum AuthRouter {
 
 extension AuthRouter: APITargetType {
     var baseURL: URL {
-        return URL(string: "https://plantory-api.site/v1/plantory")!
+            return URL(string: "\(Config.baseUrl)")!
     }
     
     var path: String {
