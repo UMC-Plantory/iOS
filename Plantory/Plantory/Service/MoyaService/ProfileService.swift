@@ -54,7 +54,11 @@ final class ProfileService: ProfileServiceProtocol {
 
     // MARK: - 통계
     func fetchWeeklyStats() -> AnyPublisher<WeeklySleepResponse, APIError> {
-        provider.requestResult(.weeklyStats, type: WeeklySleepResponse.self)
+        let today = DateFormatter.yyyyMMdd.string(from: Date())
+        return provider.requestResult(
+            .weeklyStats(today: today),
+            type: WeeklySleepResponse.self
+        )
     }
 
     func fetchMonthlyStats() -> AnyPublisher<MonthlySleepResponse, APIError> {
@@ -110,4 +114,12 @@ final class ProfileService: ProfileServiceProtocol {
             type: PatchProfileResponse.self
         )
     }
+}
+
+extension DateFormatter {
+    static let yyyyMMdd: DateFormatter = {
+        let df = DateFormatter()
+        df.dateFormat = "yyyy-MM-dd"
+        return df
+    }()
 }

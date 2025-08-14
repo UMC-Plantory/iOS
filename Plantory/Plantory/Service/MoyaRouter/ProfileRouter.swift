@@ -4,7 +4,7 @@ import Foundation
 
 /// API 라우터 정의
 enum ProfileRouter: APITargetType {
-    case weeklyStats
+    case weeklyStats(today: String)
     case monthlyStats
     case weeklyEmotionStats(today: String)
     case temporary(sort: String)
@@ -18,7 +18,7 @@ enum ProfileRouter: APITargetType {
 extension ProfileRouter {
     /// 기본 URL 설정
     var baseURL: URL {
-        return URL(string: "https:/$()/plantory-api.site/v1/plantory")!
+        return URL(string: "https://plantory-api.site/v1/plantory")!
     }
 
     /// 각 케이스별 요청 경로
@@ -57,11 +57,11 @@ extension ProfileRouter {
     var task: Task {
         switch self {
         // GET: 본문 없이
-        case .weeklyStats, .monthlyStats:
+        case .monthlyStats:
             return .requestPlain
             
         // GET: today 쿼리 파라미터
-        case .weeklyEmotionStats(let today):
+        case .weeklyStats(let today), .weeklyEmotionStats(let today):
             return .requestParameters(
                 parameters: ["today": today],
                 encoding: URLEncoding.default
