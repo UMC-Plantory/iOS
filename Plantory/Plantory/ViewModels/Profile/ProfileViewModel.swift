@@ -28,7 +28,6 @@ final public class ProfileViewModel: ObservableObject {
     @Published public var genderState = FieldState.normal
 
     // MARK: - Dependencies
-    private let provider: MoyaProvider<ProfileRouter>
     private var cancellables = Set<AnyCancellable>()
     /// DIContainer를 통해 의존성 주입
     let container: DIContainer
@@ -39,10 +38,8 @@ final public class ProfileViewModel: ObservableObject {
     init(
         // 실제로는 memberId 받아오기
         memberId: String = "123E4567-E89B-12D3-A456-426614174000",
-        provider: MoyaProvider<ProfileRouter> = APIManager.shared.testProvider(for: ProfileRouter.self),
         container: DIContainer
     ) {
-        self.provider = provider
         self.id       = memberId
         self.container = container
         setupValidationBindings()

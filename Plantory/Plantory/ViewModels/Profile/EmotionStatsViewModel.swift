@@ -17,16 +17,13 @@ final class EmotionStatsViewModel: ObservableObject {
     @Published var topEmotionKey: String = ""
     @Published public private(set) var comment: String = ""
 
-    private let provider: MoyaProvider<ProfileRouter>
     private var cancellables = Set<AnyCancellable>()
     /// DIContainer를 통해 의존성 주입
     let container: DIContainer
 
     init(
-        provider: MoyaProvider<ProfileRouter> = APIManager.shared.testProvider(for: ProfileRouter.self),
         container: DIContainer
     ) {
-        self.provider = provider
         self.container = container
         fetchWeeklyEmotionStats()
     }

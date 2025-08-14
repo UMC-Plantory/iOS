@@ -18,7 +18,6 @@ public class WasteViewModel: ObservableObject {
     @Published public private(set) var errorMessage: String?
 
     // MARK: - Dependencies
-    private let provider: MoyaProvider<ProfileRouter>
     private var cancellables = Set<AnyCancellable>()
     /// DIContainer를 통해 의존성 주입
     let container: DIContainer
@@ -26,10 +25,8 @@ public class WasteViewModel: ObservableObject {
     // MARK: - Init
     /// 기본적으로 테스트용 stub provider 사용
     init(
-        provider: MoyaProvider<ProfileRouter> = APIManager.shared.testProvider(for: ProfileRouter.self),
         container: DIContainer
     ) {
-        self.provider = provider
         self.container = container
         fetchWaste()
     }

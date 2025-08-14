@@ -24,17 +24,14 @@ public class TempViewModel: ObservableObject {
     @Published public private(set) var errorMessage: String?
 
     // MARK: - Dependencies
-    private let provider: MoyaProvider<ProfileRouter>
     private var cancellables = Set<AnyCancellable>()
     /// DIContainer를 통해 의존성 주입
     let container: DIContainer
     
     // MARK: - Init
     init(
-        provider: MoyaProvider<ProfileRouter> = APIManager.shared.testProvider(for: ProfileRouter.self),
         container: DIContainer
     ) {
-        self.provider = provider
         self.container = container
         fetchTemp()
     }

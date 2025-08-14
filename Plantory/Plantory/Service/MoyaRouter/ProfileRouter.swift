@@ -18,14 +18,14 @@ enum ProfileRouter: APITargetType {
 extension ProfileRouter {
     /// 기본 URL 설정
     var baseURL: URL {
-        URL(string: "https://example.com")!
+        return URL(string: "https:/$()/plantory-api.site/v1/plantory")!
     }
 
     /// 각 케이스별 요청 경로
     var path: String {
         switch self {
         case .weeklyStats:
-            return "/sleep/weekly"
+            return "/statistics/sleep/weekly"
         case .monthlyStats:
             return "/sleep/monthly"
         case .weeklyEmotionStats:

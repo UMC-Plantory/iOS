@@ -94,10 +94,10 @@ public struct WeeklySleepStatsModel: SleepStats {
     public let averageHours: Int?   // 평균 수면 시
     public let averageMinutes: Int? // 평균 수면 분
 
-    /// 내부 DateFormatter: "HH:mm" 형식 파싱용
+    /// 내부 DateFormatter: "HH:mm:ss" 형식 파싱용
     private static let formatter: DateFormatter = {
         let df = DateFormatter()
-        df.dateFormat = "HH:mm"
+        df.dateFormat = "HH:mm:ss"
         return df
     }()
     /// 요일 매핑용 (Calendar.weekday 기준)
@@ -123,18 +123,19 @@ public struct WeeklySleepStatsModel: SleepStats {
             let compEnd   = Self.formatter.date(from: rec.wakeUpTime)!
             let dayStart  = calendar.startOfDay(for: rec.date)
 
-            // 기상 시각: rec.date 기준에 시간 설정
+            // 기상 시각
             let endDT = calendar.date(
                 bySettingHour: calendar.component(.hour, from: compEnd),
                 minute: calendar.component(.minute, from: compEnd),
-                second: 0,
+                second: 0,                      // 초는 버리고 0으로 통일
                 of: dayStart
             )!
-            // 취침 시각 계산: endDT보다 늦으면 전날로 조정
+
+            // 취침 시각
             let tentative = calendar.date(
                 bySettingHour: calendar.component(.hour, from: compStart),
                 minute: calendar.component(.minute, from: compStart),
-                second: 0,
+                second: 0,                      // 초는 버리고 0으로 통일
                 of: dayStart
             )!
             let startDT = tentative <= endDT
@@ -179,12 +180,13 @@ public struct MonthlySleepStatsModel: SleepStats {
     public let averageHours: Int?    // 평균 시
     public let averageMinutes: Int?  // 평균 분
 
-    /// HH:mm 파싱용
+    /// 내부 DateFormatter: "HH:mm:ss" 형식 파싱용
     private static let formatter: DateFormatter = {
         let df = DateFormatter()
-        df.dateFormat = "HH:mm"
+        df.dateFormat = "HH:mm:ss"
         return df
     }()
+
 
     public init(
             from response: MonthlySleepResponse,

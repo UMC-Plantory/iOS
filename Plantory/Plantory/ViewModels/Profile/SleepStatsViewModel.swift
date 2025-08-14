@@ -23,8 +23,6 @@ public class SleepStatsViewModel: ObservableObject {
     @Published public private(set) var progress: Double = 0
     
     // MARK: - Dependencies (의존성 주입)
-    /// 네트워크 요청을 수행할 Moya 프로바이더
-    private let provider: MoyaProvider<ProfileRouter>
     /// 날짜 계산에 사용할 캘린더 (테스트 용도 DI)
     private let calendar: Calendar
     /// 오늘 날짜 (테스트 용도 DI)
@@ -55,12 +53,10 @@ public class SleepStatsViewModel: ObservableObject {
        - today: 기준이 될 오늘 날짜 (기본값: Date())
      */
     init(
-        provider: MoyaProvider<ProfileRouter> = APIManager.shared.testProvider(for: ProfileRouter.self),
         calendar: Calendar = .current,
         today: Date = Date(),
         container: DIContainer
     ) {
-        self.provider = provider
         self.calendar = calendar
         self.today = today
         self.container = container
