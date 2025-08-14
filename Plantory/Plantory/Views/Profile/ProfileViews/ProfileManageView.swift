@@ -11,11 +11,17 @@ import UIKit
 // MARK: - ProfileManageView
 /// 프로필 관리 화면의 최상위 뷰 구조를 정의합니다.
 struct ProfileManageView: View {
+    private let container: DIContainer
     // 환경으로부터 dismiss 액션을 가져와 모달 혹은 네비게이션 스택에서 뒤로가기 처리에 사용합니다.
     @Environment(\.dismiss) private var dismiss
     
     // 뷰모델 인스턴스를 생성하여 프로필 데이터와 상태를 관리합니다.
-    @StateObject private var vm = ProfileViewModel()
+    @StateObject private var vm: ProfileViewModel
+    
+    init(container: DIContainer) {
+            self.container = container
+            _vm = StateObject(wrappedValue: ProfileViewModel(container: container))
+        }
     
     // 탈퇴 팝업 표시 여부를 제어하는 상태 변수입니다.
     @State private var isShowingSignOutPopup = false
@@ -322,5 +328,5 @@ struct ReadOnlyInputField: View {
 }
 
 #Preview {
-    NavigationStack { ProfileManageView() }
+    NavigationStack { ProfileManageView(container: .init()) }
 }

@@ -19,16 +19,22 @@ final class EmotionStatsViewModel: ObservableObject {
 
     private let provider: MoyaProvider<ProfileRouter>
     private var cancellables = Set<AnyCancellable>()
+    /// DIContainer를 통해 의존성 주입
+    let container: DIContainer
 
-    init(provider: MoyaProvider<ProfileRouter> = APIManager.shared.testProvider(for: ProfileRouter.self)) {
+    init(
+        provider: MoyaProvider<ProfileRouter> = APIManager.shared.testProvider(for: ProfileRouter.self),
+        container: DIContainer
+    ) {
         self.provider = provider
+        self.container = container
         fetchWeeklyEmotionStats()
     }
 
     /// 주간 감정 통계 조회
     func fetchWeeklyEmotionStats() {
         let today = Self.isoDateFormatter.string(from: Date())
-        provider
+        container.useCaseService.profileService
             .fetchWeeklyEmotionStats(today: today)
             .receive(on: DispatchQueue.main)
             .sink { [weak self] completion in

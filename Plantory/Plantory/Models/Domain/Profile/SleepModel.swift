@@ -48,13 +48,13 @@ public extension SleepStats {
 
 // MARK: - Weekly DTO
 /// 서버 주간 수면 통계 응답 모델
-public struct WeeklySleepResponse: Decodable {
+public struct WeeklySleepResponse: Codable {
     public let startDate: Date        // 통계 기간 시작일
     public let endDate: Date          // 통계 기간 종료일
     public let averageSleepMinutes: Int // 평균 수면 시간(분)
     public let dailySleepRecords: [DailySleepRecord] // 일별 수면 레코드
 
-    public struct DailySleepRecord: Decodable {
+    public struct DailySleepRecord: Codable {
         public let day: Int             // 주 내 순번 (1~7)
         public let date: Date           // 해당 날짜 (기상일)
         public let sleepStartTime: String // 취침 시각 문자열 ("HH:mm")
@@ -158,13 +158,13 @@ public struct WeeklySleepStatsModel: SleepStats {
 
 // MARK: - Monthly DTO & Model
 /// 서버 월간 수면 통계 응답 모델
-public struct MonthlySleepResponse: Decodable {
+public struct MonthlySleepResponse: Codable {
     public let startDate: Date
     public let endDate: Date
     public let averageSleepMinutes: Int
     public let weeklySleepRecords: [WeeklyRecord]
 
-    public struct WeeklyRecord: Decodable {
+    public struct WeeklyRecord: Codable {
         public let week: Int            // 순번 (1~4)
         public let sleepStartTime: String // 취침 시각
         public let wakeUpTime: String     // 기상 시각

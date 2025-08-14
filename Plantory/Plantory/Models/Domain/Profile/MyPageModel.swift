@@ -8,13 +8,13 @@
 import Foundation
 
 // MARK: - PatchProfile API 용 모델
-public struct PatchProfileResponse: Decodable {
+public struct PatchProfileResponse: Codable {
     public let code: Int
     public let message: String
     public let data: ProfileData?
 }
 
-public struct ProfileData: Decodable {
+public struct ProfileData: Codable {
     public let memberId: String
     public let name: String
     public let profileImgUrl: String
@@ -23,13 +23,13 @@ public struct ProfileData: Decodable {
 }
 
 // MARK: - Fetch Profile (GET)
-public struct FetchProfileResponse: Decodable {
+public struct FetchProfileResponse: Codable {
     public let code: Int
     public let message: String
     public let data: FetchProfileData?
 }
 
-public struct FetchProfileData: Decodable {
+public struct FetchProfileData: Codable {
     public let memberId: String
     public let name: String
     public let email: String

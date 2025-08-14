@@ -2,8 +2,15 @@ import SwiftUI
 
 struct TempStorageView: View {
     @Environment(\.dismiss) private var dismiss
-
-    @StateObject private var viewModel = TempViewModel()
+    private let container: DIContainer
+    
+    @StateObject private var viewModel: TempViewModel
+    
+    init(container: DIContainer) {
+            self.container = container
+            _viewModel = StateObject(wrappedValue: TempViewModel(container: container))
+        }
+    
     @State private var isNewSorting = true
     @State private var isEditing = false
     @State private var checkedItems = Set<Int>()
@@ -280,7 +287,5 @@ struct TempFootView: View {
 
 
 #Preview {
-    NavigationStack {
-        TempStorageView()
-    }
+    NavigationStack { TempStorageView(container: .init()) }
 }

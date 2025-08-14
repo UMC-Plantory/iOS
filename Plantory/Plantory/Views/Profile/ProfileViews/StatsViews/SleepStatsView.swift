@@ -5,9 +5,9 @@ struct SleepStatsView: View {
     @StateObject private var viewModel: SleepStatsViewModel
     @State private var page: Int = 0    // 0 = Week, 1 = Month
 
-    init(viewModel: SleepStatsViewModel = .init()) {
-        _viewModel = StateObject(wrappedValue: viewModel)
-    }
+    init(container: DIContainer) {
+            _viewModel = StateObject(wrappedValue: SleepStatsViewModel(container: container))
+        }
 
     var body: some View {
         VStack(alignment: .leading, spacing: 24) {
@@ -267,8 +267,7 @@ struct MonthChartView: View {
 // MARK: - Preview
 struct SleepStatsView_Previews: PreviewProvider {
     static var previews: some View {
-        let viewModel = SleepStatsViewModel()
-        return SleepStatsView(viewModel: viewModel)
+        let container = DIContainer() // 기본 이니셜라이저가 있다면
+        SleepStatsView(container: container)
     }
 }
-

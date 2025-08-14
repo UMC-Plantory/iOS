@@ -26,12 +26,16 @@ public class TempViewModel: ObservableObject {
     // MARK: - Dependencies
     private let provider: MoyaProvider<ProfileRouter>
     private var cancellables = Set<AnyCancellable>()
-
+    /// DIContainer를 통해 의존성 주입
+    let container: DIContainer
+    
     // MARK: - Init
     init(
-        provider: MoyaProvider<ProfileRouter> = APIManager.shared.testProvider(for: ProfileRouter.self)
+        provider: MoyaProvider<ProfileRouter> = APIManager.shared.testProvider(for: ProfileRouter.self),
+        container: DIContainer
     ) {
         self.provider = provider
+        self.container = container
         fetchTemp()
     }
 
@@ -42,7 +46,7 @@ public class TempViewModel: ObservableObject {
         isLoading = true
         errorMessage = nil
 
-        provider
+        container.useCaseService.profileService
             .fetchTemp(sort: sort)
             .receive(on: DispatchQueue.main)
             .sink { [weak self] completion in
@@ -61,7 +65,7 @@ public class TempViewModel: ObservableObject {
         isLoading = true
         errorMessage = nil
 
-        provider
+        container.useCaseService.profileService
             .patchWaste(diaryIds: ids)               // PATCH /diary/waste 호출
             .receive(on: DispatchQueue.main)
             .sink { [weak self] completion in

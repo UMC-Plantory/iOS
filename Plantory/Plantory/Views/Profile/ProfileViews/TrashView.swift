@@ -1,8 +1,14 @@
 import SwiftUI
 
 struct TrashView: View {
+    private let container: DIContainer
     @Environment(\.dismiss) private var dismiss
-    @StateObject private var viewModel = WasteViewModel()
+    @StateObject private var viewModel: WasteViewModel
+    
+    init(container: DIContainer) {
+            self.container = container
+            _viewModel = StateObject(wrappedValue: WasteViewModel(container: container))
+        }
 
     @State private var isNewSorting = true
     @State private var isEditing = false
@@ -187,7 +193,5 @@ struct TrashFootView: View {
 }
 
 #Preview {
-    NavigationStack {
-        TrashView()
-    }
+    NavigationStack { TrashView(container: .init()) }
 }

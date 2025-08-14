@@ -20,13 +20,17 @@ public class WasteViewModel: ObservableObject {
     // MARK: - Dependencies
     private let provider: MoyaProvider<ProfileRouter>
     private var cancellables = Set<AnyCancellable>()
+    /// DIContainer를 통해 의존성 주입
+    let container: DIContainer
 
     // MARK: - Init
     /// 기본적으로 테스트용 stub provider 사용
     init(
-        provider: MoyaProvider<ProfileRouter> = APIManager.shared.testProvider(for: ProfileRouter.self)
+        provider: MoyaProvider<ProfileRouter> = APIManager.shared.testProvider(for: ProfileRouter.self),
+        container: DIContainer
     ) {
         self.provider = provider
+        self.container = container
         fetchWaste()
     }
 
@@ -37,7 +41,7 @@ public class WasteViewModel: ObservableObject {
         isLoading = true
         errorMessage = nil
 
-        provider
+        container.useCaseService.profileService
             .fetchWaste(sort: sort)
             .receive(on: DispatchQueue.main)
             .sink { [weak self] completion in
@@ -56,7 +60,7 @@ public class WasteViewModel: ObservableObject {
         isLoading = true
         errorMessage = nil
 
-        provider
+        container.useCaseService.profileService
             .deleteWaste(diaryIds: ids)               // PATCH /diary/waste 호출
             .receive(on: DispatchQueue.main)
             .sink { [weak self] completion in

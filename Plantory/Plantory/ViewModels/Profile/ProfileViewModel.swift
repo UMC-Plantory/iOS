@@ -30,6 +30,8 @@ final public class ProfileViewModel: ObservableObject {
     // MARK: - Dependencies
     private let provider: MoyaProvider<ProfileRouter>
     private var cancellables = Set<AnyCancellable>()
+    /// DIContainer를 통해 의존성 주입
+    let container: DIContainer
 
     // MARK: - Initialization
     /// - memberId: 조회에 사용할 회원 UUID 문자열 (기본값: 샘플 "uuid123")
@@ -37,10 +39,12 @@ final public class ProfileViewModel: ObservableObject {
     init(
         // 실제로는 memberId 받아오기
         memberId: String = "123E4567-E89B-12D3-A456-426614174000",
-        provider: MoyaProvider<ProfileRouter> = APIManager.shared.testProvider(for: ProfileRouter.self)
+        provider: MoyaProvider<ProfileRouter> = APIManager.shared.testProvider(for: ProfileRouter.self),
+        container: DIContainer
     ) {
         self.provider = provider
         self.id       = memberId
+        self.container = container
         setupValidationBindings()
         fetchProfile()
     }
@@ -55,7 +59,7 @@ final public class ProfileViewModel: ObservableObject {
         isLoading    = true
         errorMessage = ""
 
-        provider
+        container.useCaseService.profileService
             .fetchProfile(memberId: uuid)
             .receive(on: DispatchQueue.main)
             .sink { [weak self] completion in
@@ -97,7 +101,7 @@ final public class ProfileViewModel: ObservableObject {
         isLoading    = true
         errorMessage = ""
         
-        provider
+        container.useCaseService.profileService
             .patchProfile(
                 memberId:      uuid,
                 name:           name,

@@ -7,7 +7,7 @@
 
 import Foundation
 
-public struct WeeklyEmotionResponse: Decodable {
+public struct WeeklyEmotionResponse: Codable {
     /// 통계 기간 시작일 (YYYY-MM-DD)
     public let startDate: Date
     /// 통계 기간 종료일 (YYYY-MM-DD)

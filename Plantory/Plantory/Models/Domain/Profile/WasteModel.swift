@@ -1,21 +1,15 @@
 import Foundation
 
 // Server Response for 휴지통 목록
-struct WasteResponse: Decodable {
-    /// 성공 여부
+struct WasteResponse: Codable {
     let isSuccess: Bool
-    /// HTTP 상태 코드
     let code: Int
-    /// 응답 메시지
     let message: String
-    /// 일기 리스트
     let diaries: [Diary]
 
-    // 최상위 키 매핑
     private enum CodingKeys: String, CodingKey {
         case isSuccess, code, message, result
     }
-    // result 내부 키 매핑
     private enum ResultKeys: String, CodingKey {
         case diaries
     }
@@ -32,11 +26,22 @@ struct WasteResponse: Decodable {
         )
         diaries = try resultContainer.decode([Diary].self, forKey: .diaries)
     }
+
+    func encode(to encoder: Encoder) throws {
+        var container = encoder.container(keyedBy: CodingKeys.self)
+        try container.encode(isSuccess, forKey: .isSuccess)
+        try container.encode(code, forKey: .code)
+        try container.encode(message, forKey: .message)
+
+        var resultContainer = container.nestedContainer(keyedBy: ResultKeys.self, forKey: .result)
+        try resultContainer.encode(diaries, forKey: .diaries)
+    }
 }
 
 
+
 /// 휴지통 일기 삭제 응답 모델
-public struct WastePatchResponse: Decodable {
+public struct WastePatchResponse: Codable {
     /// 요청 성공 여부
     public let isSuccess: Bool
     /// HTTP 상태 코드
@@ -46,7 +51,7 @@ public struct WastePatchResponse: Decodable {
 }
 
 /// 휴지통 일기 삭제 응답 모델
-public struct WasteDeleteResponse: Decodable {
+public struct WasteDeleteResponse: Codable {
     /// 요청 성공 여부
     public let isSuccess: Bool
     /// HTTP 상태 코드

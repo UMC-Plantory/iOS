@@ -9,13 +9,21 @@ struct MyPageView: View {
         Stat(value: "4개", label: "피어난 꽃의 수")
     ]
     
-    @EnvironmentObject var container: DIContainer
+    private let container: DIContainer
 
     @State private var showSleepSheet = false
     @State private var showEmotionSheet = false
     @State private var showLogout = false
     @State private var weeklyResponse: WeeklySleepResponse? = nil
-    private let SleepViewModel = SleepStatsViewModel()
+    
+    @StateObject private var sleepViewModel: SleepStatsViewModel
+    
+    init(container: DIContainer) {
+            self.container = container
+            _sleepViewModel = StateObject(
+                wrappedValue: SleepStatsViewModel(container: container)
+            )
+        }
     
     var body: some View {
             ScrollView {
@@ -60,10 +68,10 @@ struct MyPageView: View {
                 .padding(.vertical, 24)
             }
             .sheet(isPresented: $showSleepSheet) {
-                SleepStatsView(viewModel: SleepViewModel)
+                SleepStatsView(container: container)
             }
             .sheet(isPresented: $showEmotionSheet) {
-                 EmotionStatsView(viewModel: EmotionStatsViewModel())
+                EmotionStatsView(container: container)
             }
             .overlay {
                 if showLogout {
@@ -223,8 +231,6 @@ private struct MenuRow: View {
 }
 
 // MARK: - Preview
-struct MyPageView_Previews: PreviewProvider {
-    static var previews: some View {
-        MyPageView()
-    }
+#Preview {
+    MyPageView(container: .init())
 }
