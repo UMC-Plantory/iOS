@@ -8,13 +8,20 @@
 import SwiftUI
 
 struct BaseTabView: View {
-    enum TabItem: String, CaseIterable {
-        case home, diary, terrarium, chat, profile
-    }
 
+    // MARK: - Property
+    
     @State private var selectedTab: TabItem = .home
+    @State private var isFilterSheetPresented: Bool = false
+
+    @State private var hasShownTerrariumPopup = false
+    @State private var isTerrariumPopupVisible = false
+    
+    /// 의존성 주입을 위한 DI 컨테이너
+    @EnvironmentObject var container: DIContainer
 
     var body: some View {
+
         TabView(selection: $selectedTab) {
             Tab(
                 "",
@@ -46,14 +53,26 @@ struct BaseTabView: View {
                 value: TabItem.chat
             ) {
                 ChatView()
+
+        ZStack(alignment: .bottom) {
+            TabView(selection: $selectedTab) {
+
+                ForEach(TabItem.allCases, id: \.rawValue) { tab in
+                    Tab(
+                        "",
+                        image: selectedTab == tab ? "\(tab.rawValue)_fill" : "\(tab.rawValue)",
+                        value: tab,
+                        content: {
+                            tabView(tab: tab)
+                        }
+                    )
+                }
+
             }
-            
-            Tab(
-                "",
-                image: selectedTab == .profile ? "Profile_fill" : "Profile",
-                value: TabItem.profile
-            ) {
-                ProfileView()
+
+            if isTerrariumPopupVisible {
+                TerrariumPopup(isVisible: $isTerrariumPopupVisible)
+                    .zIndex(10)
             }
         }
         .overlay(alignment: .bottom) {
@@ -61,7 +80,6 @@ struct BaseTabView: View {
                 Divider()
                     .background(Color.gray.opacity(0.4))
                     .frame(height: 1)
-                
                 Spacer().frame(height: 49)
             }
             .allowsHitTesting(false)
@@ -72,6 +90,32 @@ struct BaseTabView: View {
         }
         .ignoresSafeArea(.keyboard)
         .navigationBarBackButtonHidden(true)
+        .onChange(of: selectedTab) { oldValue, newValue in
+            if newValue == .terrarium && !hasShownTerrariumPopup {
+                isTerrariumPopupVisible = true
+                hasShownTerrariumPopup = true
+            }
+        }
+    }
+    
+    /// 각 탭에 해당하는 뷰
+    @ViewBuilder
+    private func tabView(tab: TabItem) -> some View {
+        Group {
+            switch tab {
+            case .home:
+                HomeView()
+            case .diary:
+                DiaryListView(isFilterSheetPresented: $isFilterSheetPresented)
+            case .terrarium:
+                TerrariumView()
+            case .chat:
+                ChatView(container: container)
+            case .profile:
+                MyPageView()
+            }
+        }
+        .environmentObject(container)
     }
 }
 
