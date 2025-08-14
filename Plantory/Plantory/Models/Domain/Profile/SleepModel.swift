@@ -49,16 +49,16 @@ public extension SleepStats {
 // MARK: - Weekly DTO
 /// 서버 주간 수면 통계 응답 모델
 public struct WeeklySleepResponse: Codable {
-    public let startDate: Date        // 통계 기간 시작일
-    public let endDate: Date          // 통계 기간 종료일
+    public let startDate: String        // 통계 기간 시작일
+    public let endDate: String          // 통계 기간 종료일
     public let averageSleepMinutes: Int // 평균 수면 시간(분)
     public let dailySleepRecords: [DailySleepRecord] // 일별 수면 레코드
 
     public struct DailySleepRecord: Codable {
         public let day: Int             // 주 내 순번 (1~7)
-        public let date: Date           // 해당 날짜 (기상일)
+        public let date: String           // 해당 날짜 (기상일)
         public let sleepStartTime: String // 취침 시각 문자열 ("HH:mm")
-        public let wakeUpTime: String     // 기상 시각 문자열 ("HH:mm")
+        public let sleepEndTime: String     // 기상 시각 문자열 ("HH:mm")
     }
 }
 
@@ -88,67 +88,73 @@ public struct DailySleep: Identifiable {
 // MARK: - Weekly View Model (WeeklySleepStatsModel)
 /// WeeklySleepResponse를 기반으로 DailySleep 배열 및 평균 시/분 분리
 public struct WeeklySleepStatsModel: SleepStats {
-    public let startDate: Date      // 통계 시작일
-    public let endDate: Date        // 통계 종료일
-    public let daily: [DailySleep]  // 변환된 일별 수면 데이터
-    public let averageHours: Int?   // 평균 수면 시
-    public let averageMinutes: Int? // 평균 수면 분
+    public let startDate: Date
+    public let endDate: Date
+    public let daily: [DailySleep]
+    public let averageHours: Int?
+    public let averageMinutes: Int?
 
-    /// 내부 DateFormatter: "HH:mm:ss" 형식 파싱용
-    private static let formatter: DateFormatter = {
+    // "yyyy-MM-dd" → Date
+    private static let ymd: DateFormatter = {
+        let df = DateFormatter()
+        df.calendar = Calendar(identifier: .gregorian)
+        df.dateFormat = "yyyy-MM-dd"
+        return df
+    }()
+
+    // "HH:mm:ss" → Date(시간 성분만)
+    private static let hms: DateFormatter = {
         let df = DateFormatter()
         df.dateFormat = "HH:mm:ss"
         return df
     }()
-    /// 요일 매핑용 (Calendar.weekday 기준)
+
     private static let weekdaysKR = ["일","월","화","수","목","금","토"]
 
-    /**
-     초기화:
-     - 응답 DTO로부터 날짜 계산 및 평균 시간 분리 로직 수행
-     */
     public init(from response: WeeklySleepResponse, calendar: Calendar = .current) {
-        self.startDate = response.startDate
-        self.endDate   = response.endDate
+        // 기간 파싱
+        let s = Self.ymd.date(from: response.startDate)!
+        let e = Self.ymd.date(from: response.endDate)!
+        self.startDate = s
+        self.endDate   = e
 
-        // 평균 시간을 시/분으로 분리
+        // 평균 분 → 시/분
         let totalMin = response.averageSleepMinutes
         self.averageHours   = totalMin / 60
         self.averageMinutes = totalMin % 60
 
-        // 일별 레코드를 DailySleep으로 변환
-        self.daily = response.dailySleepRecords.map { rec in
-            // HH:mm 문자열을 Date 타입으로 변환
-            let compStart = Self.formatter.date(from: rec.sleepStartTime)!
-            let compEnd   = Self.formatter.date(from: rec.wakeUpTime)!
-            let dayStart  = calendar.startOfDay(for: rec.date)
+        // 일별 변환
+        self.daily = response.dailySleepRecords.compactMap { rec in
+            guard let onlyDate = Self.ymd.date(from: rec.date),
+                  let compStart = Self.hms.date(from: rec.sleepStartTime),
+                  let compEnd   = Self.hms.date(from: rec.sleepEndTime) else { return nil }
 
-            // 기상 시각
+            let dayStart = calendar.startOfDay(for: onlyDate)
+
+            // 기상 시각(초=0으로 버림)
             let endDT = calendar.date(
                 bySettingHour: calendar.component(.hour, from: compEnd),
                 minute: calendar.component(.minute, from: compEnd),
-                second: 0,                      // 초는 버리고 0으로 통일
+                second: 0,
                 of: dayStart
             )!
 
-            // 취침 시각
+            // 취침 시각(초=0으로 버림) + 날짜 교차 처리
             let tentative = calendar.date(
                 bySettingHour: calendar.component(.hour, from: compStart),
                 minute: calendar.component(.minute, from: compStart),
-                second: 0,                      // 초는 버리고 0으로 통일
+                second: 0,
                 of: dayStart
             )!
-            let startDT = tentative <= endDT
-                ? tentative
-                : calendar.date(byAdding: .day, value: -1, to: tentative)!
+            let startDT = tentative <= endDT ? tentative
+                                             : calendar.date(byAdding: .day, value: -1, to: tentative)!
 
-            // 요일 한글 매핑
-            let idx = calendar.component(.weekday, from: rec.date) - 1
+            let idx = calendar.component(.weekday, from: onlyDate) - 1
             let kw = Self.weekdaysKR[idx]
 
             return DailySleep(
                 day: rec.day,
-                date: rec.date,
+                date: onlyDate,
                 weekday: kw,
                 startTime: startDT,
                 endTime: endDT
@@ -156,6 +162,7 @@ public struct WeeklySleepStatsModel: SleepStats {
         }
     }
 }
+
 
 // MARK: - Monthly DTO & Model
 /// 서버 월간 수면 통계 응답 모델
