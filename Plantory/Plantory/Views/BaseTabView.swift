@@ -29,7 +29,7 @@ struct BaseTabView: View {
                 image: selectedTab == .diary ? "Diary_fill" : "Diary",
                 value: TabItem.diary
             ) {
-                //DiaryView()
+                AddDiaryView(viewModel: StepIndicatorViewModel())
             }
             
             Tab(
