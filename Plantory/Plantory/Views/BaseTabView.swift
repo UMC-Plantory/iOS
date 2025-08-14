@@ -22,38 +22,6 @@ struct BaseTabView: View {
 
     var body: some View {
 
-        TabView(selection: $selectedTab) {
-            Tab(
-                "",
-                image: selectedTab == .home ? "Home_fill" : "Home",
-                value: TabItem.home
-            ) {
-                HomeView()
-            }
-            
-            Tab(
-                "",
-                image: selectedTab == .diary ? "Diary_fill" : "Diary",
-                value: TabItem.diary
-            ) {
-                AddDiaryView(viewModel: StepIndicatorViewModel())
-            }
-            
-            Tab(
-                "",
-                image: selectedTab == .terrarium ? "Terrarium_fill" : "Terrarium",
-                value: TabItem.terrarium
-            ) {
-                TerrariumView()
-            }
-            
-            Tab(
-                "",
-                image: selectedTab == .chat ? "Chat_fill" : "Chat",
-                value: TabItem.chat
-            ) {
-                ChatView()
-
         ZStack(alignment: .bottom) {
             TabView(selection: $selectedTab) {
 
