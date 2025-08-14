@@ -61,7 +61,7 @@ struct HomeView: View {
                     CalendarView(
                         month: $viewModel.month,
                         selectedDate: $viewModel.selectedDate,
-                        diaryEmotionsByDate: viewModel.diaryEmotionsByDate
+                        diaryEmotionsByDate: viewModel.diaryEmotionsByDate,colorForDate: viewModel.colorForDate
                     )
                     .onChange(of: viewModel.selectedDate) { _, newValue in
                         guard let date = newValue else { return }

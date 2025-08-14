@@ -13,6 +13,8 @@ struct CalendarView: View {
     
     /// ViewModel에서 내려주는 "yyyy-MM-dd" -> "HAPPY"/"SAD"/... 매핑
     let diaryEmotionsByDate: [String: String]
+    let colorForDate: (Date) -> Color?
+
 
     var body: some View {
         let today = calendar.startOfDay(for: Date())
@@ -28,15 +30,14 @@ struct CalendarView: View {
                     let day = Calendar.current.component(.day, from: date)
                     let isToday = calendar.isDate(date, inSameDayAs: Date())
                     
-                    let key = Self.key(from: date)
-                    let emotionCode = diaryEmotionsByDate[key] // e.g. "HAPPY"
-                    let hasEntry = (emotionCode != nil) && !isFuture
+                    let emotionColor = isFuture ? nil : colorForDate(date)
+                    let hasEntry = (emotionColor != nil) && !isFuture
                     
                     CellView(
                         day: day,
                         isToday: isToday,
                         isSelected: selectedDate.map { calendar.isDate($0, inSameDayAs: date) } ?? false,
-                        emotionColor: emotionCode.flatMap { Self.emotionColor(for: $0) },
+                        emotionColor: emotionColor,
                         isFuture: isFuture,
                         hasEntry: hasEntry
                     )
@@ -89,11 +90,11 @@ struct CalendarView: View {
     /// 백엔드 emotion 코드 -> Color 매핑
     static func emotionColor(for code: String) -> Color {
         switch code.uppercased() {
-        case "HAPPY":   return Color.green04
-        case "SAD":     return Color.blue   // 디자인 시스템에 맞게 바꿔도 됨
-        case "ANGRY":   return Color.red
-        case "SOSO":    return Color.gray05
-        case "AMAZING": return Color.yellow
+        case "HAPPY":   return Color.happy
+        case "SAD":     return Color.sad  
+        case "ANGRY":   return Color.mad
+        case "SOSO":    return Color.soso
+        case "AMAZING": return Color.surprised
         default:        return Color.clear
         }
     }

@@ -9,6 +9,7 @@
 import Foundation
 import Combine
 import Moya
+import SwiftUI
 
 @Observable
 class HomeViewModel {
@@ -26,6 +27,14 @@ class HomeViewModel {
     var continuousRecordCnt: Int = 0
     /// "yyyy-MM-dd" -> "HAPPY"/"SAD" ...
     var diaryEmotionsByDate: [String: String] = [:]
+    
+     var emotionPalette: [String: Color] = [
+            "HAPPY":   .happy,
+            "SAD":     .sad,
+            "ANGRY":   .mad,
+            "SOSO":    .soso,
+            "AMAZING": .surprised
+        ]
 
     var diarySummary: HomeDiaryResult?    // 선택 날짜의 요약
     var noDiaryForSelectedDate: Bool = false
@@ -40,8 +49,21 @@ class HomeViewModel {
         self.container = container
     }
 
-    // MARK: - Public API (View에서 호출)
+    
 
+    ///감정 코드 색으로 변경하는 함수
+    func color(for emotionCode: String) -> Color? {
+            emotionPalette[emotionCode.uppercased()]
+    }
+
+    ///날짜별 색상
+    func colorForDate(_ date: Date) -> Color? {
+        let key = Self.formatYMD(date)
+        guard let code = diaryEmotionsByDate[key] else { return nil }
+        return color(for: code)
+    }
+    
+    // MARK: - API
     /// 화면 진입/달 변경 시 호출
     func loadMonthly() {
         isLoadingMonthly = true

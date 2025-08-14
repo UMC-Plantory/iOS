@@ -27,22 +27,6 @@ struct MonthYearPickerView: View {
 
     var body: some View {
         VStack(spacing: 20) {
-            // 연도 선택: 선택 즉시 반영
-            Picker("연도", selection: $selectedYear) {
-                ForEach(availableYears, id: \.self) {
-                    Text("\($0)년")
-                }
-            }
-            .pickerStyle(.menu)
-            .font(.pretendardRegular(20))
-            .foregroundColor(.black01)
-            .onChange(of: selectedYear) { _ in
-                applySelection()
-                onApply()
-            }
-
-            // 월 선택: 선택 즉시 반영
-
             //커스텀 연도 선택 버튼
             Button {
                 isYearSheetPresented.toggle()

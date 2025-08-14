@@ -16,7 +16,7 @@ enum EmotionColors : CaseIterable {
         case .happy:   return Color(.happy)
         case .mad:   return Color(.mad)
         case .sad:   return Color(.sad)
-        case .normal:   return Color(.normal)
+        case .normal:   return Color(.soso)
         case .surprised:   return Color(.surprised)
         }
     }
