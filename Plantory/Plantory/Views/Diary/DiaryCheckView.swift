@@ -197,7 +197,7 @@ struct DiaryCheckView: View{
                 date: Date(),
                 title: "프리뷰용 제목",
                 content: "이건 프리뷰용 내용입니다.",
-                emotion: .happy,
+                emotion: .HAPPY,
                 isFavorite: false
             )
 
