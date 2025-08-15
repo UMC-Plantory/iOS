@@ -11,9 +11,8 @@ struct BaseTabView: View {
 
     // MARK: - Property
     
-    enum TabItem: String, CaseIterable { case home, diary, terrarium, chat, profile }
-    
     @State private var selectedTab: TabItem = .home
+    
     @State private var isFilterSheetPresented: Bool = false
     @State private var isTerrariumPopupVisible: Bool = false
     @State private var showFlowerComplete:Bool = false
@@ -45,6 +44,7 @@ struct BaseTabView: View {
                 }
             }
             .allowsHitTesting(!showPlantPopup)
+            
             if isTerrariumPopupVisible {
                 TerrariumPopup(isVisible: $isTerrariumPopupVisible)
                     .zIndex(10)
