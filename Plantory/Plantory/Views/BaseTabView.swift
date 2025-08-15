@@ -102,43 +102,31 @@ struct BaseTabView: View {
     /// 각 탭에 해당하는 뷰
     @ViewBuilder
     private func tabView(tab: TabItem) -> some View {
-
-
-        switch tab {
-        case .home:
-            HomeView()
-        case .diary:
-            DiaryListView(isFilterSheetPresented: $isFilterSheetPresented)
-        case .terrarium:
-
-            TerrariumView()
-        case .chat:
-            ChatView(container: container)
-        case .profile:
-            MyPageView()
+        Group {
+            switch tab {
+            case .home:
+                HomeView(container: container)
+            case .diary:
+                DiaryListView(isFilterSheetPresented: $isFilterSheetPresented, container: container)
+            case .terrarium:
+                TerrariumView(
+                    viewModel: terrariumVM,
+                    onInfoTapped: { isTerrariumPopupVisible = true },
+                    onFlowerComplete: { showFlowerComplete = true },
+                    onPlantTap: { id in
+                        selectedTerrariumId = id
+                        plantPopupVM.open(terrariumId: id)
+                        showPlantPopup = true
+                    }
+                )
+            case .chat:
+                ChatView(container: container)
+            case .profile:
+                MyPageView(container: container)
+            }
         }
-     }
         .environmentObject(container)
-  
-            TerrariumView(
-                viewModel: terrariumVM,
-                onInfoTapped: { isTerrariumPopupVisible = true },
-                onFlowerComplete: { showFlowerComplete = true },
-                onPlantTap: { id in
-                    selectedTerrariumId = id
-                    plantPopupVM.open(terrariumId: id)
-                    showPlantPopup = true
-                }
-            )
-        case .chat:
-            ChatView(container: container)
-        case .profile:
-            MyPageView(container: container)
-
-        }
-
     }
-
 }
     
     

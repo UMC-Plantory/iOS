@@ -19,7 +19,9 @@ struct NavigationRoutingView: View {
             LoginView(container: container)
                 .environmentObject(container)
                 .navigationDestination(for: NavigationDestination.self) { destination in
+                    Group {
                         switch destination {
+                        // 로그인, 회원가입 뷰
                         case .login:
                             LoginView(container: container)
                         case .permit:
@@ -28,6 +30,8 @@ struct NavigationRoutingView: View {
                             PolicyView(num: num)
                         case .profileInfo:
                             ProfileInfoView(container: container)
+                        
+                        // Tab 뷰
                         case .baseTab:
                             BaseTabView(terrariumVM: TerrariumViewModel(container: container))
                             
@@ -41,19 +45,17 @@ struct NavigationRoutingView: View {
                         case .emotionStats:
                             EmotionStatsView(container: container)
                         case .profileManage:
-
-                             ProfileManageView(container: container)
+                            ProfileManageView(container: container)
                             
+                        // 다이어리 뷰
                         case .diaryDetail:
                             DiarySearchView(container: container)
-                            
-        
-
                         }
                     }
                     .environmentObject(container)
                 }
         }
+    }
     
 }
 

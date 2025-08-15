@@ -8,12 +8,14 @@
 import SwiftUI
 
 struct HomeView: View {
+    @EnvironmentObject var container: DIContainer
+    
     // MARK: - Property
-    @State private var viewModel: HomeViewModel
+    @State var viewModel: HomeViewModel
     
     // MARK: - Init
     init(container: DIContainer) {
-        self._viewModel = State(initialValue: .init(container: container))
+        self.viewModel = .init(container: container)
     }
     
     // MARK: - UI 상태
