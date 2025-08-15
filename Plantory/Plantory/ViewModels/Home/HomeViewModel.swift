@@ -28,7 +28,15 @@ class HomeViewModel {
     /// "yyyy-MM-dd" -> "HAPPY"/"SAD" ...
     var diaryEmotionsByDate: [String: String] = [:]
     
-     var emotionPalette: [String: Color] = [
+    // MARK: - 년/월 선택 모달용
+    var displayYear: Int {
+        Calendar.current.component(.year, from: month)
+    }
+    var displayMonth: Int {
+        Calendar.current.component(.month, from: month)
+    }
+    
+    var emotionPalette: [String: Color] = [
             "HAPPY":   .happy,
             "SAD":     .sad,
             "ANGRY":   .mad,
@@ -36,7 +44,7 @@ class HomeViewModel {
             "AMAZING": .surprised
         ]
 
-    var diarySummary: HomeDiaryResult?    // 선택 날짜의 요약
+    var diarySummary: HomeDiaryResult?
     var noDiaryForSelectedDate: Bool = false
 
     var isLoadingMonthly: Bool = false
@@ -183,5 +191,25 @@ class HomeViewModel {
         f.locale = Locale(identifier: "ko_KR")
         f.dateFormat = "yyyy-MM-dd"
         return f.string(from: date)
+    }
+    
+    func setMonth(year: Int, month m: Int) {
+        // 월 범위 안전화 (1...12)
+        let safeMonth = max(1, min(m, 12))
+
+        var comps = DateComponents()
+        comps.year = year
+        comps.month = safeMonth
+        comps.day = 1
+
+        if let newMonth = Calendar.current.date(from: comps) {
+            self.month = newMonth
+            // 날짜 관련 상태 초기화
+            self.selectedDate = nil
+            self.diarySummary = nil
+            self.noDiaryForSelectedDate = false
+            // 월간 데이터 재조회
+            loadMonthly()
+        }
     }
 }

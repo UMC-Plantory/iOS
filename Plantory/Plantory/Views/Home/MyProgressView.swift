@@ -1,3 +1,11 @@
+//
+//  MyProgressView.swift
+//  Plantory
+//
+//  Created by 김지우 on 8/6/25.
+//
+
+
 import SwiftUI
 
 struct MyProgressView: View {
