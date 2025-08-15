@@ -4,7 +4,6 @@
 //
 //  Created by 박정환 on 7/16/25.
 //
-
 import SwiftUI
 
 struct PlantPopupView: View {
@@ -16,7 +15,6 @@ struct PlantPopupView: View {
             ZStack {
                 Color.black.opacity(0.4)
                     .edgesIgnoringSafeArea(.all)
-
                 VStack(spacing: 16) {
                     HStack {
                         Text(viewModel.flowerNameText)
@@ -57,8 +55,7 @@ struct PlantPopupView: View {
                             }
                         }
                     }
-                    .padding(.top, 38)
-                    .padding(.bottom, 10)
+                    .padding(.top, 38) .padding(.bottom, 10)
 
                     VStack(alignment: .leading, spacing: 24) {
                         VStack(alignment: .leading, spacing: 10) {
@@ -75,7 +72,6 @@ struct PlantPopupView: View {
                                 }
                             )
                         }
-                        
                         VStack(alignment: .leading, spacing: 10) {
                             SectionLabel(text: "단계 진입일")
                             StageInfo(items: viewModel.stageTexts.map { "\($0.0) \($0.1)" })
@@ -83,7 +79,6 @@ struct PlantPopupView: View {
                     }
                     .frame(width: 278)
                     .clipped()
-
                     Spacer()
                 }
                 .frame(width: 334, height: 444)
@@ -108,7 +103,6 @@ struct PlantPopupView: View {
     //섹션 라벨
     struct SectionLabel: View {
         var text: String
-
         var body: some View {
             Text(text)
                 .font(.pretendardSemiBold(14))
@@ -131,7 +125,7 @@ struct PlantPopupView: View {
         var body: some View {
             ScrollView(.horizontal, showsIndicators: false) {
                 HStack(spacing: 8) {
-                    ForEach(Array(items.enumerated()), id: \.element) { index, item in
+                    ForEach(Array(items.enumerated()), id: \.0) { (index, item) in
                         if let id = idProvider(index) {
                             NavigationLink {
                                 DiaryCheckView(diaryID: id)
@@ -151,8 +145,6 @@ struct PlantPopupView: View {
                             HStack(spacing: 8) {
                                 Text(item)
                                     .foregroundColor(Color("green08"))
-                                Image(systemName: "chevron.right")
-                                    .foregroundColor(Color("green06"))
                             }
                             .font(.pretendardRegular(14))
                             .frame(width: 66, height: 29)
@@ -165,11 +157,9 @@ struct PlantPopupView: View {
             }
         }
     }
-
     //단계 진입일
     struct StageInfo: View {
         var items: [String]
-
         var body: some View {
             HStack(spacing: 8) {
                 ForEach(items, id: \.self) { item in
@@ -177,7 +167,6 @@ struct PlantPopupView: View {
                 }
             }
         }
-        
         struct StageChip: View {
             let item: String
             private var parts: [Substring] { item.split(separator: " ") }
@@ -199,7 +188,6 @@ struct PlantPopupView: View {
         }
     }
 }
-
 
 private extension PlantPopupView {
     /// Flower image name mapping (한글 이름 → 에셋 이름)
