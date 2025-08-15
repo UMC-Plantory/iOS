@@ -8,57 +8,89 @@
 import SwiftUI
 
 struct MyGardenContent: View {
+    @State private var viewModel = TerrariumViewModel(container: DIContainer())
     @State private var selectedSegment: String = "나의 정원"
+    @State private var isPlantPopupPresented: Bool = false
+    @State private var popupVM = PlantPopupViewModel(container: DIContainer())
     var onPlantTap: (Int) -> Void
 
     var body: some View {
         VStack {
-            TopView(userName: "유엠씨")
-                .padding(.bottom,36)
-            
-            PlantListView(onPlantTap: onPlantTap)
-            
+            TopView(viewModel: viewModel)
+                .padding(.bottom, 36)
+
+            // 데이터를 제대로 받아왔을 때, PlantListView 표시
+            if !viewModel.monthlyTerrariums.isEmpty {
+                PlantListView(items: viewModel.monthlyTerrariums, onPlantTap: onPlantTap)
+            }
+
             Spacer()
+        }
+        .onAppear {
+            viewModel.fetchMonthlyTerrarium()
         }
     }
 }
 
 struct TopView: View {
-    var userName: String
+    @State private var viewModel: TerrariumViewModel
+    @State private var fixedNickname: String? = nil
+
+    init(viewModel: TerrariumViewModel) {
+        _viewModel = State(initialValue: viewModel)
+    }
+
     var body: some View {
         HStack {
             (
-                Text(userName).font(.pretendardSemiBold(20)) +
+                Text((fixedNickname ?? viewModel.monthlyTerrariums.first?.nickname) ?? "")
+                    .font(.pretendardSemiBold(20)) +
                 Text(" 님의 식물").font(.pretendardRegular(20))
             )
 
             Spacer()
 
             HStack(spacing: 8) {
-                Button(action: {
-                    // 이전 달
-                }) {
+                Button {
+                    viewModel.goToPreviousMonth()
+                } label: {
                     Image(systemName: "chevron.left")
                         .foregroundColor(.black)
                 }
 
-                Text("6월")
+                Text(Self.monthLabel(from: viewModel.selectedMonth))
                     .font(.headline)
 
-                Button(action: {
-                    // 다음 달
-                }) {
+                Button {
+                    viewModel.goToNextMonth()
+                } label: {
                     Image(systemName: "chevron.right")
                         .foregroundColor(.black)
                 }
             }
         }
         .padding(.horizontal, 24)
-        .padding(.top,55)
+        .padding(.top, 55)
+        .onAppear {
+            if fixedNickname == nil {
+                fixedNickname = viewModel.monthlyTerrariums.first?.nickname
+            }
+        }
+        .onChange(of: viewModel.monthlyTerrariums.count) { _, _ in
+            if fixedNickname == nil {
+                fixedNickname = viewModel.monthlyTerrariums.first?.nickname
+            }
+        }
+    }
+
+    private static func monthLabel(from date: Date) -> String {
+        let f = DateFormatter()
+        f.locale = Locale(identifier: "ko_KR")
+        f.dateFormat = "M월"
+        return f.string(from: date)
     }
 }
 
-//식물 리스트
 struct PlantListView: View {
     let columns = [
         GridItem(.flexible()),
@@ -66,22 +98,23 @@ struct PlantListView: View {
         GridItem(.flexible())
     ]
 
+    let items: [TerrariumMonthly]
     var onPlantTap: (Int) -> Void
 
     var body: some View {
         ZStack {
             LazyVGrid(columns: columns, spacing: 16) {
-                ForEach(0..<6) { index in
-                    Button(action: {
-                        onPlantTap(index)
-                    }) {
+                ForEach(items, id: \.terrariumId) { item in
+                    Button {
+                        onPlantTap(item.terrariumId)
+                    } label: {
                         VStack(spacing: 8) {
-                            Image("Rose")
+                            Image(imageName(for: item.flowerName))
                                 .resizable()
                                 .frame(width: 70, height: 70)
 
                             HStack(spacing: 4) {
-                                Text("가나다")
+                                Text(item.flowerName)
                                     .font(.pretendardSemiBold(14))
                                     .foregroundColor(.black)
 
@@ -104,9 +137,18 @@ struct PlantListView: View {
             .padding(.horizontal, 24)
         }
     }
+    
+    private func imageName(for koreanName: String) -> String {
+        switch koreanName {
+        case "장미": return "Rose"
+        case "민들레": return "Dandelion"
+        case "해바라기": return "Sunflower"
+        case "개나리": return "Forsythia"
+        case "물망초": return "ForgetMeNot"
+        default: return "Rose" // 기본 이미지
+        }
+    }
 }
-
-
 
 #Preview {
     MyGardenContent(onPlantTap: { _ in })

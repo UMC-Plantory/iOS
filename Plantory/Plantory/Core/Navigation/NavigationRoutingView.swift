@@ -30,7 +30,7 @@ struct NavigationRoutingView: View {
                         case .profileInfo:
                             ProfileInfoView(container: container)
                         case .baseTab:
-                            BaseTabView()
+                            BaseTabView(terrariumVM: TerrariumViewModel(container: container))
                             
                         // 마이페이지
                         case .scrap:

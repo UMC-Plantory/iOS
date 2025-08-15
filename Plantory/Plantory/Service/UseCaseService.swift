@@ -15,6 +15,7 @@ class UseCaseService {
     let imageService: ImageService
     let authService: AuthService
     let chatService: ChatService
+    let terrariumService: TerrariumService
     let profileService: ProfileService
     
     init() {
@@ -23,6 +24,7 @@ class UseCaseService {
         self.imageService = .init()
         self.authService = .init()
         self.chatService = .init()
+        self.terrariumService = .init()
         self.profileService = .init()
     }
 }
