@@ -10,23 +10,23 @@ import SwiftUI
 struct TerrariumView: View {
     @EnvironmentObject var container: DIContainer
     @State var viewModel: TerrariumViewModel
-    @State private var selectedPlantIndex: Int? = nil
-    @State private var isPlantPopupPresented: Bool = false
-    @State private var popupVM = PlantPopupViewModel(container: DIContainer())
     @State private var showFlowerCompleteView = false
     var onInfoTapped: () -> Void
     var onFlowerComplete: () -> Void = {}
+    var onPlantTap: (Int) -> Void = { _ in }
     var memberId: Int = 1
 
     init(
         viewModel: TerrariumViewModel,
         onInfoTapped: @escaping () -> Void,
         onFlowerComplete: @escaping () -> Void = {},
+        onPlantTap: @escaping (Int) -> Void = { _ in },
         initialTab: TerrariumTab = .terrarium
     ) {
         self.viewModel = viewModel
         self.onInfoTapped = onInfoTapped
         self.onFlowerComplete = onFlowerComplete
+        self.onPlantTap = onPlantTap
         self.viewModel.selectedTab = initialTab
     }
 
@@ -88,23 +88,9 @@ struct TerrariumView: View {
                     }
                 } else {
                     MyGardenContent(onPlantTap: { id in
-                        selectedPlantIndex = id
-                        isPlantPopupPresented = true
-                        popupVM.open(terrariumId: id)
+                        onPlantTap(id)
                     })
                 }
-            }
-
-            if let index = selectedPlantIndex, isPlantPopupPresented {
-                PlantPopupView(
-                    viewModel: popupVM,
-                    onClose: {
-                        isPlantPopupPresented = false
-                        selectedPlantIndex = nil
-                        popupVM.close()
-                    }
-                )
-                .zIndex(1)
             }
         }
         .onChange(of: viewModel.terrariumData?.terrariumWateringCount) { _, newValue in
@@ -195,6 +181,7 @@ struct TerrariumView_Preview: PreviewProvider {
             viewModel: TerrariumViewModel(container: DIContainer()),
             onInfoTapped: { print("Info tapped") },
             onFlowerComplete: { print("Flower complete!") },
+            onPlantTap: { print("tap \($0)") },
             initialTab: .terrarium )
     }
 }

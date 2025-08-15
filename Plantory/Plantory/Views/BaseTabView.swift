@@ -17,17 +17,20 @@ struct BaseTabView: View {
     @State private var isFilterSheetPresented: Bool = false
     @State private var isTerrariumPopupVisible: Bool = false
     @State private var showFlowerComplete:Bool = false
+    @State private var showPlantPopup = false
+    @State private var selectedTerrariumId: Int? = nil
     @State private var terrariumVM: TerrariumViewModel
+    @State private var plantPopupVM: PlantPopupViewModel
 
     /// 의존성 주입을 위한 DI 컨테이너
     @EnvironmentObject var container: DIContainer
 
     init(terrariumVM: TerrariumViewModel) {
         _terrariumVM = State(initialValue: terrariumVM)
+        _plantPopupVM = State(initialValue: PlantPopupViewModel(container: terrariumVM.container))
     }
 
     var body: some View {
-
         ZStack(alignment: .bottom) {
             TabView(selection: $selectedTab) {
                 ForEach(TabItem.allCases, id: \.rawValue) { tab in
@@ -40,8 +43,8 @@ struct BaseTabView: View {
                         }
                     )
                 }
-
             }
+            .allowsHitTesting(!showPlantPopup)
             if isTerrariumPopupVisible {
                 TerrariumPopup(isVisible: $isTerrariumPopupVisible)
                     .zIndex(10)
@@ -59,7 +62,7 @@ struct BaseTabView: View {
                 },
                 onGoHome: {
                     selectedTab = .home
-                    showFlowerComplete = false 
+                    showFlowerComplete = false
                 }
             )
             .environmentObject(container)
@@ -68,14 +71,26 @@ struct BaseTabView: View {
                 terrariumVM.fetchTerrarium()
             }
         }
-        .overlay(alignment: .bottom) {
-            VStack(spacing: 0) {
-                Divider()
-                    .background(Color.gray.opacity(0.4))
-                    .frame(height: 1)
-                Spacer().frame(height: 49)
+        .overlay(alignment: .center) {
+            if showPlantPopup {
+                ZStack {
+                    // Dimmed background to block taps behind the popup
+                    Color.black.opacity(0.3)
+                        .ignoresSafeArea()
+
+                    PlantPopupView(
+                        viewModel: plantPopupVM,
+                        onClose: {
+                            showPlantPopup = false
+                            selectedTerrariumId = nil
+                            plantPopupVM.close()
+                        }
+                    )
+                    .environmentObject(container)
+                    .transition(.opacity.combined(with: .scale))
+                }
+                .zIndex(11)
             }
-            .allowsHitTesting(false)
         }
         .onAppear {
             UITabBar.appearance().backgroundColor = .white01
@@ -97,7 +112,12 @@ struct BaseTabView: View {
             TerrariumView(
                 viewModel: terrariumVM,
                 onInfoTapped: { isTerrariumPopupVisible = true },
-                onFlowerComplete: { showFlowerComplete = true }
+                onFlowerComplete: { showFlowerComplete = true },
+                onPlantTap: { id in
+                    selectedTerrariumId = id
+                    plantPopupVM.open(terrariumId: id)
+                    showPlantPopup = true
+                }
             )
         case .chat:
             ChatView(container: container)

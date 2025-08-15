@@ -120,9 +120,9 @@ struct PlantPopupView: View {
             ScrollView(.horizontal, showsIndicators: false) {
                 HStack(spacing: 8) {
                     ForEach(items, id: \.self) { item in
-                        Button(action: {
-                            // action
-                        }) {
+                        NavigationLink {
+                            //DiaryCheckView(diary: items, isDeleteSheetPresented: <#Binding<Bool>#>)
+                        } label: {
                             HStack(spacing: 8) {
                                 Text(item)
                                     .foregroundColor(Color("green08"))
@@ -188,6 +188,5 @@ private extension PlantPopupView {
         }
     }
 }
-
 
 
