@@ -34,21 +34,7 @@ final class DiaryCheckViewModel: ObservableObject {
     """
     
     
-    //MARK: -함수
-    //일기 불러오는 함수
-    func load() {
-        guard !isLoading else { return }
-        isLoading = true
-        diaryService.fetchDiary(id: diaryId)
-            .receive(on: DispatchQueue.main)
-            .sink { [weak self] completion in
-                self?.isLoading = false
-                if case let .failure(e) = completion { print("상세 로딩 실패:", e) }
-            } receiveValue: { [weak self] summary in
-                self?.summary = summary
-            }
-            .store(in: &cancellables)
-    }
+   
     
     //MARK: -API
     

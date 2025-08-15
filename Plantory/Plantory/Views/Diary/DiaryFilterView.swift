@@ -9,7 +9,7 @@ import SwiftUI
 //필터시트가 올라온 화면(View) 입니다.
 struct DiaryFilterView: View {
     @Environment(\.dismiss) private var dismiss
-    @StateObject  var viewModel : DiaryFilterViewModel
+    @StateObject  var viewModel : DiaryListViewModel
     @State private var selectedSort: DiarySort = .latest
     @State private var selectedYear: Int = 2025
     @State private var selectedMonths: Set<Int>
@@ -24,7 +24,7 @@ struct DiaryFilterView: View {
            initialSelectedMonths: Set<Int> = []       // 초기 선택 월
        ) {
            _selectedMonths = State(initialValue: initialSelectedMonths)
-           _viewModel      = StateObject(wrappedValue: DiaryFilterViewModel(container: container))
+           _viewModel      = StateObject(wrappedValue: DiaryListViewModel(container: container))
        }
     
     

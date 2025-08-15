@@ -14,13 +14,14 @@ struct DiaryListView: View {
     @EnvironmentObject var container: DIContainer
 
     init(
-        isFilterSheetPresented: Binding<Bool>,
-        container: DIContainer
-    ) {
-        _isFilterSheetPresented = isFilterSheetPresented
-        // @StateObject는 init에서만 세팅
-        _viewModel = StateObject(wrappedValue: DiaryListViewModel(container: container))
-    }
+           isFilterSheetPresented: Binding<Bool>,
+           container: DIContainer
+       ) {
+           _isFilterSheetPresented = isFilterSheetPresented
+           _viewModel = StateObject(
+               wrappedValue: DiaryListViewModel(container: container)
+           )
+       }
 
     var body: some View {
         ZStack {
@@ -37,10 +38,14 @@ struct DiaryListView: View {
 
                 DiaryMonthSectionView(isFilterSheetPresented: $isFilterSheetPresented)
 
-                DiaryListContent(
-                    entries: viewModel.entries,
-                    isLoading: viewModel.isLoading,
-                    onAppearLast: { viewModel.loadMoreMock() }
+                DiaryListContent (
+                    entries: viewModel.diaries,
+                        isLoading: viewModel.isLoading,
+                        onAppearLast: { viewModel.fetchMore( ) },
+                        onTap: { entry in
+                            viewModel.fetchDiary(diaryId: entry.id)
+                            container.navigationRouter.path.append(NavigationDestination.diaryDetail(diaryId: entry.id))
+                        }
                 )
                 .padding(.horizontal)
             }
@@ -57,22 +62,23 @@ struct DiaryListView: View {
 
 // 스크롤 리스트만 분리
 private struct DiaryListContent: View {
-    let entries: [DiaryEntry]
+    let diaries: [DiarySummary]
     let isLoading: Bool
     let onAppearLast: () -> Void
+    let onTap: (DiarySummary) -> Void
 
     var body: some View {
         ScrollView {
             LazyVStack(spacing: 16) {
-                ForEach(entries) { entry in
+                ForEach(diaries) { diary in
                     Button {
-                        print("Tapped: \(entry.title)")
+                        onTap(diary)
                     } label: {
-                        DiaryRow(entry: entry)
+                        DiaryRow(entry: diary)
                     }
                     .buttonStyle(.plain)
                     .onAppear {
-                        if entry.id == entries.last?.id { // Identifiable 가정
+                        if diary.id == diaries.last?.id { // Identifiable 가정
                             onAppearLast()
                         }
                     }

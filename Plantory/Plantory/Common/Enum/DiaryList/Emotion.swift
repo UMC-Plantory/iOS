@@ -27,3 +27,16 @@ enum Emotion: String,CaseIterable,Codable {
     }
 }
 
+extension Emotion {
+    init(apiString: String) {
+        switch apiString.uppercased() {
+        case "HAPPY": self = .HAPPY
+        case "SAD":   self = .SAD
+        case "ANGRY": self = .ANGRY
+        // 서버에 ALL은 없겠지만 혹시 오면 기본값 처리
+        case "ALL":   self = .HAPPY
+        default:      self = .HAPPY
+        }
+    }
+}
+
