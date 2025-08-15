@@ -17,17 +17,24 @@ class ChatViewModel {
     /// 화면에 띄울 메시지 목록
     var messages: [ChatMessage] = []
     
-    /// 페이지네이션을 위해, 마지막 메시지 저장
-    var lastMessage: ChatMessage? = nil
+    /// 페이지네이션을 위해, 마지막 메시지의 createdAt 저장
+    var lastCreateAt: String? = nil
     
-    /// 로딩 중임을 나타냄
-    var isLoading: Bool = false
+    /// postChat 함수가 로딩 중임을 나타냄
+    var isPostingChat: Bool = false
+    
+    /// getLatestChat 함수가 로딩 중임을 나타냄
+    var isFetchingChats: Bool = false
     
     /// 메시지 페이지네이션에서 마지막인지를 나타냄
     var isLast: Bool = false
     
     // 스크롤 트리거
     var shouldScrollToBottom = false
+    
+    // MARK: - Toast
+    
+    var toast: CustomToast? = nil
     
     // MARK: - 의존성 주입 및 비동기 처리
     
@@ -68,8 +75,8 @@ class ChatViewModel {
     
     /// 채팅 요청
     public func postChat(text: String) {
-        guard !isLoading else { return }
-        isLoading = true
+        guard !isPostingChat, !isFetchingChats else { return }
+        isPostingChat = true
 
         let request = ChatRequest(content: text)
 
@@ -77,11 +84,15 @@ class ChatViewModel {
             .receive(on: DispatchQueue.main)
             .sink(receiveCompletion: { [weak self] completion in
                 // 오류 발생 시 처리
-                if case .failure(let failure) = completion {
-                    print("채팅 요청 오류: \(failure)")
-                    self?.isLoading = false
-                    // FIX-ME: 에러 토스트 추가하기
+                if case .failure(let error) = completion {
+                    self?.toast = CustomToast(
+                        title: "채팅 요청 오류",
+                        message: "\(error.errorDescription ?? "알 수 없는 에러")"
+                    )
+                    print("채팅 요청 오류: \(error.errorDescription ?? "알 수 없는 에러")")
+                    
                     self?.messages.removeLast()
+                    self?.isPostingChat = false
                 }
             }, receiveValue: { [weak self] response in
                 let newChat = ChatMessage(
@@ -90,57 +101,31 @@ class ChatViewModel {
                     createdAt: response.createdAt
                 )
                 self?.messages.append(newChat)
-                self?.isLoading = false
+                self?.isPostingChat = false
                 self?.shouldScrollToBottom = true
-            })
-            .store(in: &cancellables)
-    }
-    
-    /// 최초 진입 시, 이전 대화 기록 조회
-    public func getLatestChat() {
-        guard !isLoading else { return }
-        
-        container.useCaseService.chatService.getLatestChat()
-            .receive(on: DispatchQueue.main)
-            .sink(receiveCompletion: { completion in
-                // 오류 발생 시 처리
-                if case .failure(let failure) = completion {
-                    print("채팅 불러오기 오류: \(failure)")
-                }
-            }, receiveValue: { [weak self] response in
-                let convertedResponse = response
-                    .map { ChatMessage(from: $0) }
-                
-                self?.messages = convertedResponse
-                    .reversed()
-                    .map { $0 }
-                
-                self?.shouldScrollToBottom = true
-                self?.isLast = false
-                
-                /// 페이지네이션을 위해 마지막 메시지를 저장
-                if let last = convertedResponse.last {
-                    self?.lastMessage = last
-                }
             })
             .store(in: &cancellables)
     }
     
     /// 이전 대화 기록 조회에서, 커서 페이징
-    public func getBeforeChat() {
-        guard let lastCreateAt = lastMessage?.createdAt, !isLoading, !isLast else { return }
+    public func getChatsList() {
+        guard !isPostingChat, !isFetchingChats, !isLast else { return }
         
-        container.useCaseService.chatService.getBeforeChat(beforeData: lastCreateAt)
+        container.useCaseService.chatService.getChatsList(cursor: lastCreateAt)
             .receive(on: DispatchQueue.main)
-            .sink(receiveCompletion: { completion in
+            .sink(receiveCompletion: { [weak self] completion in
                 // 오류 발생 시 처리
-                if case .failure(let failure) = completion {
-                    print("채팅 불러오기 오류: \(failure)")
+                if case .failure(let error) = completion {
+                    self?.toast = CustomToast(
+                        title: "채팅 요청 오류",
+                        message: "\(error.errorDescription ?? "알 수 없는 에러")"
+                    )
+                    print("채팅 불러오기 오류: \(error.errorDescription ?? "알 수 없는 에러")")
+                    self?.isFetchingChats = false
                 }
             }, receiveValue: { [weak self] response in
                 if response.isEmpty {
                     self?.isLast = true
-                    return
                 } else {
                     let convertedResponse = response
                         .map { ChatMessage(from: $0) }
@@ -152,9 +137,10 @@ class ChatViewModel {
                     
                     /// 페이지네이션을 위해 마지막 메시지를 저장
                     if let last = convertedResponse.last {
-                        self?.lastMessage = last
+                        self?.lastCreateAt = last.createdAt
                     }
                 }
+                self?.isFetchingChats = false
             })
             .store(in: &cancellables)
     }
