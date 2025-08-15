@@ -19,7 +19,6 @@ struct NavigationRoutingView: View {
             LoginView(container: container)
                 .environmentObject(container)
                 .navigationDestination(for: NavigationDestination.self) { destination in
-                    Group {
                         switch destination {
                         case .login:
                             LoginView(container: container)
@@ -42,13 +41,20 @@ struct NavigationRoutingView: View {
                         case .emotionStats:
                             EmotionStatsView(container: container)
                         case .profileManage:
-                            ProfileManageView(container: container)
+
+                             ProfileManageView(container: container)
+                            
+                        case .diaryDetail:
+                            DiarySearchView(container: container)
+                            
+        
+
                         }
                     }
                     .environmentObject(container)
                 }
         }
-    }
+    
 }
 
 #Preview {
