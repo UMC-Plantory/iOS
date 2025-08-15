@@ -8,7 +8,7 @@
 import SwiftUI
 
 struct PlantPopupView: View {
-    @ObservedObject var viewModel: PlantPopupModel
+    @State var viewModel: PlantPopupViewModel
     var onClose: () -> Void
 
     var body: some View {
@@ -19,7 +19,7 @@ struct PlantPopupView: View {
 
                 VStack(spacing: 16) {
                     HStack {
-                        Text(viewModel.plantName)
+                        Text(viewModel.flowerNameText)
                             .font(.pretendardSemiBold(20))
                             .padding(.leading, 149)
                         Spacer()
@@ -35,24 +35,24 @@ struct PlantPopupView: View {
                     .padding(.top, 12)
 
                     HStack(alignment: .center, spacing: 8) {
-                        Image("Rose")
+                        Image(imageName(for: viewModel.flowerNameText))
                             .resizable()
                             .frame(width: 120, height: 120)
 
                         VStack(alignment: .leading, spacing: 12) {
                             HStack(alignment: .center, spacing: 12) {
                                 SectionLabel(text: "최다 감정")
-                                Text(viewModel.feeling)
+                                Text(viewModel.feelingText)
                                     .font(.pretendardRegular(16))
                             }
                             HStack(alignment: .center, spacing: 12) {
                                 SectionLabel(text: "생성일")
-                                Text(viewModel.birthDate)
+                                Text(viewModel.birthDateText)
                                     .font(.pretendardRegular(16))
                             }
                             HStack(alignment: .center, spacing: 12) {
                                 SectionLabel(text: "완성일")
-                                Text(viewModel.completeDate)
+                                Text(viewModel.completeDateText)
                                     .font(.pretendardRegular(16))
                             }
                         }
@@ -60,16 +60,15 @@ struct PlantPopupView: View {
                     .padding(.top, 38)
                     .padding(.bottom, 10)
 
-
                     VStack(alignment: .leading, spacing: 24) {
                         VStack(alignment: .leading, spacing: 10) {
                             SectionLabel(text: "사용된 일기")
-                            DiaryInfo(items: viewModel.usedDates)
+                            DiaryInfo(items: viewModel.usedDateTexts)
                         }
                         
                         VStack(alignment: .leading, spacing: 10) {
                             SectionLabel(text: "단계 진입일")
-                            StageInfo(items: viewModel.stages.map { "\($0.0) \($0.1)" })
+                            StageInfo(items: viewModel.stageTexts.map { "\($0.0) \($0.1)" })
                         }
                     }
                     .frame(width: 278)
@@ -121,9 +120,9 @@ struct PlantPopupView: View {
             ScrollView(.horizontal, showsIndicators: false) {
                 HStack(spacing: 8) {
                     ForEach(items, id: \.self) { item in
-                        Button(action: {
-                            // action
-                        }) {
+                        NavigationLink {
+                            //DiaryCheckView(diary: items, isDeleteSheetPresented: <#Binding<Bool>#>)
+                        } label: {
                             HStack(spacing: 8) {
                                 Text(item)
                                     .foregroundColor(Color("green08"))
@@ -148,34 +147,46 @@ struct PlantPopupView: View {
         var body: some View {
             HStack(spacing: 8) {
                 ForEach(items, id: \.self) { item in
-                    let parts = item.split(separator: " ")
-                    HStack(spacing: 4) {
-                        Text(String(parts[0]))
-                            .foregroundColor(Color("green08"))
-                        Text(String(parts[1]))
-                            .foregroundColor(Color("green06"))
-                    }
-                    .font(.pretendardRegular(14))
-                    .frame(height: 29)
-                    .padding(.horizontal, 8)
-                    .overlay(RoundedRectangle(cornerRadius: 30).stroke(Color("green06"), lineWidth: 1))
+                    StageInfo.StageChip(item: item)
                 }
+            }
+        }
+        
+        struct StageChip: View {
+            let item: String
+            private var parts: [Substring] { item.split(separator: " ") }
+            private var stage: String { parts.first.map(String.init) ?? "" }
+            private var date: String { parts.dropFirst().first.map(String.init) ?? "" }
+
+            var body: some View {
+                HStack(spacing: 4) {
+                    Text(stage)
+                        .foregroundColor(Color("green08"))
+                    Text(date)
+                        .foregroundColor(Color("green06"))
+                }
+                .font(.pretendardRegular(14))
+                .frame(height: 29)
+                .padding(.horizontal, 8)
+                .overlay(RoundedRectangle(cornerRadius: 30).stroke(Color("green06"), lineWidth: 1))
             }
         }
     }
 }
 
-#Preview {
-    PlantPopupView(
-        viewModel: PlantPopupModel(
-            isPresented: true,
-            plantName: "장미",
-            feeling: "화남",
-            birthDate: "2024.04.21",
-            completeDate: "2024.05.21",
-            usedDates: ["04.21", "04.24", "04.28", "04.28"],
-            stages: [("새싹", "04.21"), ("잎새", "05.05"), ("꽃나무", "05.15")]
-        ),
-        onClose: {}
-    )
+
+private extension PlantPopupView {
+    /// Flower image name mapping (한글 이름 → 에셋 이름)
+    func imageName(for flowerName: String) -> String {
+        switch flowerName {
+        case "장미": return "Rose"
+        case "민들레": return "Dandelion"
+        case "해바라기": return "Sunflower"
+        case "개나리": return "Forsythia"
+        case "물망초": return "ForgetMeNot"
+        default: return "DefaultPlant"
+        }
+    }
 }
+
+

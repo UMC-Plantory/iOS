@@ -8,9 +8,27 @@
 import SwiftUI
 
 struct TerrariumView: View {
-    @StateObject private var viewModel = TerrariumViewModel()
-    @State private var selectedPlantIndex: Int? = nil
-    @State private var isPlantPopupPresented: Bool = false
+    @EnvironmentObject var container: DIContainer
+    @State var viewModel: TerrariumViewModel
+    @State private var showFlowerCompleteView = false
+    var onInfoTapped: () -> Void
+    var onFlowerComplete: () -> Void = {}
+    var onPlantTap: (Int) -> Void = { _ in }
+    var memberId: Int = 1
+
+    init(
+        viewModel: TerrariumViewModel,
+        onInfoTapped: @escaping () -> Void,
+        onFlowerComplete: @escaping () -> Void = {},
+        onPlantTap: @escaping (Int) -> Void = { _ in },
+        initialTab: TerrariumTab = .terrarium
+    ) {
+        self.viewModel = viewModel
+        self.onInfoTapped = onInfoTapped
+        self.onFlowerComplete = onFlowerComplete
+        self.onPlantTap = onPlantTap
+        self.viewModel.selectedTab = initialTab
+    }
 
     var body: some View {
         ZStack {
@@ -24,9 +42,7 @@ struct TerrariumView: View {
                     GeometryReader { geometry in
                         VStack {
                             HStack {
-                                SpeechBubble(
-                                    message: "<잎새>까지 \(7 - (viewModel.terrariumData?.memberWateringCount ?? 0))번 남았어요!"
-                                )
+                                SpeechBubble(message: Text(viewModel.wateringMessage)) // Text로 감싸서 전달
                             }
                             .frame(maxWidth: .infinity, alignment: .trailing)
                             .padding(.top, 39)
@@ -34,34 +50,33 @@ struct TerrariumView: View {
                             .padding(.bottom,10)
 
                             ProgressGaugeView(currentStage: viewModel.terrariumData?.terrariumWateringCount ?? 0)
-                            
-                            Spacer()
-
-                            // 서버에서 받은 flowerImgUrl 값이 존재할 경우 이미지를, 없으면 기본 Rose 이미지를 보여줌
-                            if let urlString = viewModel.terrariumData?.flowerImgUrl,
-                               let url = URL(string: urlString) {
-                                AsyncImage(url: url) { image in
-                                    image
-                                        .resizable()
-                                        .frame(width: 286, height: 286)
-                                } placeholder: {
-                                    ProgressView()
-                                }
-                            } else {
-                                Image("Rose")
-                                    .resizable()
-                                    .frame(width: 286, height: 286)
-                            }
 
                             Spacer()
-                            //물주기 버튼
+
+                            Image(viewModel.terrariumData?.terrariumWateringCount ?? 0 < 3 ? "sprout" : "leaf")
+                                .resizable()
+                                .frame(width: 286, height: 286)
+
+                            Spacer()
+
                             WateringButton(
                                 count: viewModel.terrariumData?.memberWateringCount ?? 0,
                                 action: {
-                                    viewModel.waterPlant(memberId: 1)
+                                    viewModel.waterPlant()
                                 }
                             )
-                            .padding(.bottom,151)
+
+                            Spacer()
+
+                            HStack {
+                                Button(action: {
+                                    onInfoTapped()
+                                }) {
+                                    Image("information")
+                                }
+                                Spacer()
+                            }
+                            .padding(.bottom, 96).padding(.leading, 16)
                         }
                         .background(
                             Ellipse()
@@ -72,46 +87,33 @@ struct TerrariumView: View {
                         )
                     }
                 } else {
-                    MyGardenContent(onPlantTap: { index in
-                        selectedPlantIndex = index
-                        isPlantPopupPresented = true
+                    MyGardenContent(onPlantTap: { id in
+                        onPlantTap(id)
                     })
                 }
             }
-            
-            if let index = selectedPlantIndex, isPlantPopupPresented {
-                PlantPopupView(
-                    viewModel: PlantPopupModel(
-                        isPresented: true,
-                        plantName: "장미 \(index + 1)",
-                        feeling: "행복",
-                        birthDate: "2024.04.21",
-                        completeDate: "2024.05.21",
-                        usedDates: ["04.21", "04.24", "04.28"],
-                        stages: [("새싹", "04.21"), ("잎새", "05.05"), ("꽃나무", "05.15")]
-                    ),
-                    onClose: {
-                        isPlantPopupPresented = false
-                        selectedPlantIndex = nil
-                    }
-                )
-                .zIndex(1)
+        }
+        .onChange(of: viewModel.terrariumData?.terrariumWateringCount) { _, newValue in
+            if let c = newValue, c >= 7 {
+                onFlowerComplete() // 부모에게 “띄워!” 신호
             }
         }
         .onAppear {
-            viewModel.fetchTerrarium(memberId: 1) //로그인한 아이디
+            viewModel.fetchTerrarium()
+            if let c = viewModel.terrariumData?.terrariumWateringCount, c >= 7 {
+                onFlowerComplete() // 진입 시 이미 7 이상이면 즉시 요청
+            }
         }
     }
 }
 
-
 //말풍선
 struct SpeechBubble: View {
-    var message: String
+    var message: Text
 
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
-            Text(message)
+            message
                 .font(.pretendardRegular(16))
                 .foregroundColor(.black)
                 .padding(11)
@@ -173,8 +175,13 @@ struct WateringButton: View {
     }
 }
 
-
-
-#Preview {
-    TerrariumView()
+struct TerrariumView_Preview: PreviewProvider {
+    static var previews: some View {
+        TerrariumView(
+            viewModel: TerrariumViewModel(container: DIContainer()),
+            onInfoTapped: { print("Info tapped") },
+            onFlowerComplete: { print("Flower complete!") },
+            onPlantTap: { print("tap \($0)") },
+            initialTab: .terrarium )
+    }
 }

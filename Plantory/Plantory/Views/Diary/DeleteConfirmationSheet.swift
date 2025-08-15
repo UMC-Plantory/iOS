@@ -6,7 +6,7 @@
 //
 import SwiftUI
 
-//삭제 확인 시트
+// DiaryCheckView에서 삭제 버튼을 눌렀을 시 올라오는 보여지는 화면입니다. 
 struct DeleteConfirmationSheet: View {
     
     @Binding var isPresented: Bool
@@ -46,8 +46,6 @@ struct DeleteConfirmationSheet: View {
                     Text("삭제하기")
                         .foregroundColor(Color("white01"))
                         .font(.pretendardRegular(14))
-                    //.frame(width: 65, height:29)
-                    //.padding()
                         .background(
                             RoundedRectangle(cornerRadius: 8)
                                 .fill(Color("green06"))

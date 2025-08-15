@@ -15,5 +15,5 @@ struct DiaryEntry: Identifiable, Equatable {
     let emotion: Emotion
     let isFavorite: Bool
     var isScrapped: Bool = false
-}
+} 
 

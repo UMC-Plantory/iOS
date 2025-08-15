@@ -10,93 +10,96 @@ import Alamofire
 
 enum DiarySort: String, Codable { case oldest, latest }
 
-//개별 일기 조회 요청 데이터
-struct DiaryFetchRequest: Codable {
-    
-}
-
-//일기 수정 요청 데이터
-struct DiaryEditRequest: Codable {
-    
-}
-
-//
-//일기를 서버에 보낼 때 사용하는 요청 데이터 모델
-struct DiaryRequest: Codable {
-    let diaryId: Int
-    let diaryDate: String
-    let emotion: String
-    let title: String // 다이어리 제목
-    let content: String // 다이어리 내용
-    let diaryImgUrl: String // 서버에서 받은 이미지 주소
-    let status: String //스크랩 상태인지 아닌지
-    let isImgDeleted: Bool
-}
-
-// API 목록과 요청 정보를 정의하는 타입
-// Moya TargetType 구현에서 사용
 enum DiaryRouter : APITargetType {
-    case write(DiaryRequest)
-    case fetchDiary(id: Int) //특정 일기 하나 조회
-    case editDiary(id: Int, data: DiaryRequest)//일기 수정
-    case deleteDiary(id: Int)//일기삭제
-    case searchDiary(keyword: String)//키워드로 일기 검색
-    case scrapDiary(id: Int) //스크랩
-    case unScrapDiary(id: Int) //스크랩 취소
+    case fetchFilteredDiaries(filterData: DiaryFilterRequest)
+    case fetchDiary(id: Int) //단일 일기 데이터 조회
+    case editDiary(id: Int, data: DiaryEditRequest)//일기 수정
+    case moveToTrash(ids: [Int])//일기 휴지통 이동
+    case deletePermanently(ids: [Int])//일기 영구 삭제
+    case searchDiary(DiarySearchRequest)//일기 검색(호출O)
+    case scrapOn(id: Int) //스크랩
+    case scrapOff(id: Int) //스크랩 취소
+    case tempStatus(ids: [Int]) //일기 임시보관/복원(토글)
 }
 
 extension DiaryRouter {
     var baseURL: URL {
-        return URL(string: "https://api.plantory.app")!
+        return URL(string: "\(Config.baseUrl)")!
     }
 
-    var path: String {//endpoint
+    var path: String {
         switch self {
-        case .write:
-            return "/diary"
+        case .fetchFilteredDiaries:
+            return "/diaries/filter"
         case .fetchDiary(let id):
-            return "/diary/\(id)"
+            return "/diaries/\(id)"
         case .editDiary(let id, _):
-            return "/diary/\(id)"
-        case .deleteDiary(let id):
-            return "/diary/\(id)"
+            return "/diaries/\(id)"
+        case .moveToTrash: //일기 휴지통 이동
+            return "/diaries/waste-status"
+        case .deletePermanently
+            :return "/diaries"
         case .searchDiary:
-            return "/diary/search"
-        case .scrapDiary(let id):
-            return "/diary/\(id)/scrap/on"
-        case .unScrapDiary(let id):
-                return "/diary/\(id)/unscrap/off"
+            return "/diaries/search"
+        case .scrapOn(let id):
+            return "/diaries/\(id)/scrap-status/on"
+        case .scrapOff(let id):
+            return "/diaries/\(id)/scrap-status/off"
+        case .tempStatus:
+            return "/diaries/temp-status"
         }
     }
 
     var method: Moya.Method {
         switch self {
-        case .write:
-            return .post
-        case .fetchDiary:
+        case .fetchFilteredDiaries:
+            return .get
+        case .fetchDiary:// 단일 일기 조회(request 없음)
             return .get
         case .editDiary:
             return .patch
-        case .deleteDiary:
+        case .moveToTrash: //일기 휴지통 이동
+            return .patch
+        case .deletePermanently://영구 삭제
             return .delete
         case .searchDiary:
             return .get
-        case .scrapDiary:
+        case .scrapOn:
             return .patch
-        case .unScrapDiary:
+        case .scrapOff:
+            return .patch
+        case .tempStatus:
             return .patch
         }
     }
 
     var task: Task {
         switch self {
-        case .write(let request), .editDiary(_, let request):
-            return .requestJSONEncodable(request)
-        case .fetchDiary, .deleteDiary, .scrapDiary, .unScrapDiary://body없는 요청(GET,DELETE)
+        case .fetchFilteredDiaries(let filterData):
+            return .requestParameters(parameters: filterData.toParameters(),
+                encoding: URLEncoding.queryString
+            )
+        case .fetchDiary:
             return .requestPlain
-        case .searchDiary(let keyword):
-            return .requestParameters(parameters: ["keyword": keyword], encoding: URLEncoding.queryString)
+        case .editDiary(_, let body)
+            :return .requestJSONEncodable(body)
+        case .searchDiary(let req):
+            return .requestParameters(parameters: req.toParameters(), encoding: URLEncoding.queryString)
+        case .moveToTrash(let ids):
+            let body: [String: Any] = ["diaryIds": ids]
+            return .requestParameters(parameters: body, encoding: JSONEncoding.default)
+        case .deletePermanently(let ids):
+                    let body = DeleteRequest(diaryIds: ids)
+                    return .requestJSONEncodable(body)   // DELETE with body
+        case .tempStatus(let ids):
+                   return .requestJSONEncodable(TempStatusRequest(diaryIds: ids))
+        case .scrapOn, .scrapOff:
+            return .requestPlain
         }
+    }
+    
+    var headers: [String: String]? {
+        ["Content-Type": "application/json"]
     }
 }
 

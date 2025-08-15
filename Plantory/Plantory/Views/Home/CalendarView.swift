@@ -1,4 +1,3 @@
-//
 //  CalendarView.swift
 //  Plantory
 //
@@ -7,22 +6,22 @@
 
 import SwiftUI
 
-//캘린더뷰+셀뷰
+// 캘린더뷰 + 셀뷰
 struct CalendarView: View {
-    @State private var clickedDate: Date? // (미사용 상태) 클릭한 날짜
     @Binding var month: Date              // 현재 보여지고 있는 달
     @Binding var selectedDate: Date?      // 유저가 선택한 날짜
-    let diaryStore: DiaryStore            // 일기 데이터
+    
+    /// ViewModel에서 내려주는 "yyyy-MM-dd" -> "HAPPY"/"SAD"/... 매핑
+    let diaryEmotionsByDate: [String: String]
+    let colorForDate: (Date) -> Color?
+
 
     var body: some View {
         let today = calendar.startOfDay(for: Date())
         let daysInMonth = numberOfDays(in: month)
         let firstDay = getDate(for: 0)
         
-
         VStack {
-            
-
             LazyVGrid(columns: Array(repeating: GridItem(), count: 7), spacing: 10) {
                 ForEach(0..<daysInMonth, id: \.self) { idx in
                     let date = calendar.date(byAdding: .day, value: idx, to: firstDay)!
@@ -30,19 +29,17 @@ struct CalendarView: View {
                     let isFuture = selDay > today
                     let day = Calendar.current.component(.day, from: date)
                     let isToday = calendar.isDate(date, inSameDayAs: Date())
-                    let key = HomeView.key(from: date)
-                    let entry = diaryStore.entries[key]
-                    let hasEntry = (entry != nil) && !isFuture
-
-                    //CellView를 VGrid로 설정
+                    
+                    let emotionColor = isFuture ? nil : colorForDate(date)
+                    let hasEntry = (emotionColor != nil) && !isFuture
+                    
                     CellView(
                         day: day,
                         isToday: isToday,
                         isSelected: selectedDate.map { calendar.isDate($0, inSameDayAs: date) } ?? false,
-                        emotionColor: entry?.emotion.EmotionColor,
+                        emotionColor: emotionColor,
                         isFuture: isFuture,
-                        hasEntry:
-                            hasEntry
+                        hasEntry: hasEntry
                     )
                     .onTapGesture { selectedDate = date }
                     .padding(.horizontal, (idx % 7 == 0 || idx % 7 == 6) ? 0 : 2)
@@ -50,7 +47,7 @@ struct CalendarView: View {
             }
             .padding(10)
             .gesture(
-                //손으로 스와이프 했을 때 이전/이후 달로 넘어가는 제스쳐 추가
+                // 스와이프로 이전/이후 달 이동
                 DragGesture()
                     .onEnded { value in
                         if value.translation.width < -50 {
@@ -73,6 +70,7 @@ struct CalendarView: View {
         }
     }
 
+    // MARK: - 내부 유틸
     private var calendar: Calendar { .current }
     private func getDate(for i: Int) -> Date {
         let comps = calendar.dateComponents([.year, .month], from: month)
@@ -81,11 +79,28 @@ struct CalendarView: View {
     private func numberOfDays(in d: Date) -> Int {
         calendar.range(of: .day, in: .month, for: d)?.count ?? 0
     }
+    
+    static func key(from date: Date) -> String {
+        let f = DateFormatter()
+        f.locale = Locale(identifier: "ko_KR")
+        f.dateFormat = "yyyy-MM-dd"
+        return f.string(from: date)
+    }
+    
+    /// 백엔드 emotion 코드 -> Color 매핑
+    static func emotionColor(for code: String) -> Color {
+        switch code.uppercased() {
+        case "HAPPY":   return Color.happy
+        case "SAD":     return Color.sad  
+        case "ANGRY":   return Color.mad
+        case "SOSO":    return Color.soso
+        case "AMAZING": return Color.surprised
+        default:        return Color.clear
+        }
+    }
 }
 
-
-
-// MARK: - 유틸 함수들
+// MARK: - 헤더/요일
 extension CalendarView {
     static func makeYearMonthView(month: Date, changeMonth: @escaping (Int) -> Void) -> some View {
         HStack(spacing: 20) {
@@ -109,14 +124,18 @@ extension CalendarView {
         f.dateFormat = "YYYY년 MM월"
         return f
     }()
-    //요일은 변하지 않아서 String으로 설정
+    
     static let weekdaySymbols: [String] = ["월","화","수","목","금","토","일"]
 }
 
 
 
 
+
 //CellView 분리
+
+// MARK: - Day Cell
+
 struct CellView: View {
     let day: Int
     let isToday: Bool
@@ -128,38 +147,32 @@ struct CellView: View {
     private let cellSize: CGFloat = 48
 
     var body: some View {
-        
         ZStack {
-            //감정 색상 원
             if let c = emotionColor {
                 Circle()
                     .fill(c)
                     .frame(width: 40, height: 40)
+                    .shadow(color: .black.opacity(0.15), radius: 2, x: 1, y: 1.5) 
             }
-            //오늘 날짜 표시 녹색 테두리
             if isToday {
                 Image(.currentday)
                     .resizable()
                     .frame(width: 48, height: 48)
             }
-            //날짜 선택 시 검은 원
             if isSelected {
                 Circle()
                     .fill(Color.black)
                     .frame(width: 28, height: 28)
             }
-            //날짜 텍스트
             Text("\(day)")
                 .font(.pretendardBold(18))
-                            .foregroundColor(
-                                isSelected
-                                    ? .white
-                                    : isFuture
-                                        ? .gray06
-                                        : (hasEntry
-                                           ? Color(.green05)
-                                            : .gray10)
-                            )
+                .foregroundColor(
+                    isSelected
+                        ? .white
+                        : isFuture
+                            ? .gray06
+                            : (hasEntry ? .green05 : .gray10)
+                )
         }
         .frame(width: cellSize, height: cellSize)
     }

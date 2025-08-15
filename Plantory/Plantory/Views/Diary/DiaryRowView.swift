@@ -7,6 +7,7 @@
 
 import SwiftUI
 
+//DiaryList의 하위뷰로 각각의 일기를 보여주는 View입니다. 
 struct DiaryRow: View {
     let entry: DiaryEntry
 
