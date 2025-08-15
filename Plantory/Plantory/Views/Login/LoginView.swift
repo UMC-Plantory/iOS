@@ -17,7 +17,7 @@ struct LoginView: View {
     
     // MARK: - Init
 
-    /// DIContainer와 앱 흐름 ViewModel(AppFlowViewModel)을 주입받아 초기화
+    /// DIContainer를 주입받아 초기화
     init(
         container: DIContainer
     ) {
@@ -29,10 +29,6 @@ struct LoginView: View {
     var body: some View {
         VStack {
             logoView
-                //FIX-ME: 개발용
-                .onTapGesture {
-                    container.navigationRouter.push(.baseTab)
-                }
             
             Spacer()
                 .frame(maxHeight: 94)
@@ -56,6 +52,8 @@ struct LoginView: View {
         )
         .ignoresSafeArea()
         .navigationBarBackButtonHidden()
+        .toastView(toast: $viewModel.toast)
+        .loadingIndicator(viewModel.isLoading)
     }
     
     // MARK: - Top Contents

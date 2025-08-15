@@ -68,7 +68,7 @@ struct MyPageView: View {
                     trashAction:     { container.navigationRouter.push(.trash) },
                     logoutAction: {
                         // 로그아웃 판넬
-                        showLogout = true
+                        withAnimation(.spring()) { showLogout = true }
                     }
                 )
             }
@@ -82,6 +82,11 @@ struct MyPageView: View {
         }
         .overlay {
             if showLogout {
+                BlurBackground()
+                    .onTapGesture {
+                        withAnimation(.spring()) { showLogout = false }
+                    }
+                
                 PopUp(
                     title: "로그아웃 하시겠습니까?",
                     message: "로그아웃 시, 로그인 화면으로 돌아갑니다.",
@@ -91,7 +96,7 @@ struct MyPageView: View {
                         statsVM.logout()
                         container.navigationRouter.reset()
                     },
-                    onCancel: { showLogout = false }
+                    onCancel: { withAnimation(.spring()) { showLogout = false } }
                 )
             }
         }
@@ -101,6 +106,7 @@ struct MyPageView: View {
             }
         }
         .navigationBarHidden(true)
+        .loadingIndicator(statsVM.isLoading)
         .task {
             statsVM.fetch()
         }
