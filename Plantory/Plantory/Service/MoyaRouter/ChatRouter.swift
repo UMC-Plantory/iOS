@@ -22,11 +22,11 @@ extension ChatRouter: APITargetType {
     var path: String {
         switch self {
         case .postChat:
-            return "/chat"
+            return "/chats"
         case .getLatestChat:
-            return "/chat/latest"
+            return "/chats/latest"
         case .getBeforeChat:
-            return "/chat/before"
+            return "/chats/before"
         }
     }
     
