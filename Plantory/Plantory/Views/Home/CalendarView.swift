@@ -113,16 +113,7 @@ extension CalendarView {
     static let weekdaySymbols: [String] = ["월","화","수","목","금","토","일"]
 }
 
-extension Date {
-    static let calendarDayDateFormatter: DateFormatter = {
-        let f = DateFormatter()
-        f.dateFormat = "MMMM yyyy dd"
-        return f
-    }()
-    var formattedCalendarDayDate: String {
-        Self.calendarDayDateFormatter.string(from: self)
-    }
-}
+
 
 
 //CellView 분리

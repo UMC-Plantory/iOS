@@ -10,13 +10,13 @@ import Combine
 import Moya
 
 /// 일기 생성 서비스 프로토콜
-protocol AddDiaryServicing {
+protocol AddDiaryServicieProtocol {
     /// 새 일기 등록 (NORMAL/TEMP 공통)
     func createDiary(_ request: AddDiaryRequest) -> AnyPublisher<AddDiaryResponse, APIError>
 }
 
 /// 일기 생성 서비스
-final class AddDiaryService: AddDiaryServicing {
+final class AddDiaryService: AddDiaryServicieProtocol {
 
     private let provider: MoyaProvider<AddDiaryRouter>
 
