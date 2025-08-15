@@ -19,7 +19,7 @@ struct PermitView: View {
 
     /// DIContainer와 앱 흐름 ViewModel(AppFlowViewModel)을 주입받아 초기화
     init(
-        container: DIContainer,
+        container: DIContainer
     ) {
         self.viewModel = .init(container: container)
     }

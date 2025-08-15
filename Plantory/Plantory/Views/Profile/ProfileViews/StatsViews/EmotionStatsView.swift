@@ -12,9 +12,9 @@ struct EmotionStatsView: View {
     @StateObject private var viewModel: EmotionStatsViewModel
     @State private var page: Int = 0    // 0 = Week, 1 = Month
 
-    init(viewModel: EmotionStatsViewModel = .init()) {
-        _viewModel = StateObject(wrappedValue: viewModel)
-    }
+    init(container: DIContainer) {
+            _viewModel = StateObject(wrappedValue: EmotionStatsViewModel(container: container))
+        }
 
     var body: some View {
         VStack(alignment: .leading, spacing: 24) {
@@ -63,7 +63,14 @@ struct EmotionStatsView: View {
             }
             Spacer()
         }
-        .padding(.horizontal, 28) 
+        .padding(.horizontal, 28)
+        .onChange(of: page) { _, new in
+            if new == 0 {
+                viewModel.fetchWeeklyEmotionStats()
+            } else {
+                viewModel.fetchMonthlyEmotionStats()
+            }
+        }
     }
 }
 
@@ -133,5 +140,5 @@ struct EmotionPercentageChartView: View {
 }
 
 #Preview {
-    EmotionStatsView()
+    EmotionStatsView(container: .init())
 }

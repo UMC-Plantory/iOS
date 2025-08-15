@@ -13,11 +13,11 @@ enum ChatRouter {
     case getChatsList(cursor: String?) // 채팅 기록 조회
 }
 
-extension ChatRouter: APITargetType {
-    var baseURL: URL {
-        return URL(string: "\(Config.baseUrl)")!
-    }
-    
+    extension ChatRouter: APITargetType {
+        var baseURL: URL {
+            return URL(string: "\(Config.baseUrl)")!
+        }
+        
     var path: String {
         switch self {
         case .postChat:
