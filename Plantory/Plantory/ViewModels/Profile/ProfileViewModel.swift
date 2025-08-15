@@ -8,9 +8,10 @@ import CombineMoya
 final public class ProfileViewModel: ObservableObject {
     // MARK: - Published Properties
     /// GET /member/profile 응답의 data 부분 타입
-    @Published public private(set) var updatedProfile: FetchProfileData?
+    @Published public private(set) var updatedProfile: FetchProfileResponse?
     @Published public private(set) var isLoading    = false
     @Published public private(set) var errorMessage = ""
+    @Published public var isWithdrawn = false
 
     // MARK: - Form Inputs
     @Published public var id            = ""
@@ -28,82 +29,68 @@ final public class ProfileViewModel: ObservableObject {
     @Published public var genderState = FieldState.normal
 
     // MARK: - Dependencies
-    private let provider: MoyaProvider<ProfileRouter>
     private var cancellables = Set<AnyCancellable>()
+    /// DIContainer를 통해 의존성 주입
+    let container: DIContainer
 
     // MARK: - Initialization
     /// - memberId: 조회에 사용할 회원 UUID 문자열 (기본값: 샘플 "uuid123")
     /// - provider: 네트워크/테스트용 Moya Provider (기본값 stub 즉시 응답)
     init(
-        // 실제로는 memberId 받아오기
-        memberId: String = "123E4567-E89B-12D3-A456-426614174000",
-        provider: MoyaProvider<ProfileRouter> = APIManager.shared.testProvider(for: ProfileRouter.self)
+        container: DIContainer
     ) {
-        self.provider = provider
-        self.id       = memberId
+        self.container = container
         setupValidationBindings()
         fetchProfile()
     }
 
     // MARK: - API Methods
-    /// 프로필 조회
+    /// 상세 프로필 조회
     public func fetchProfile() {
-        guard let uuid = UUID(uuidString: id) else {
-            errorMessage = "유효하지 않은 회원 ID입니다."
-            return
-        }
-        isLoading    = true
+        isLoading = true
         errorMessage = ""
 
-        provider
-            .fetchProfile(memberId: uuid)
+        container.useCaseService.profileService
+            .fetchMyProfile()
             .receive(on: DispatchQueue.main)
             .sink { [weak self] completion in
-                guard let self = self else { return }
-                self.isLoading = false
+                self?.isLoading = false
                 if case let .failure(err) = completion {
-                    self.errorMessage = err.localizedDescription
+                    self?.errorMessage = err.localizedDescription
                 }
-            } receiveValue: { [weak self] response in
+            } receiveValue: { [weak self] r in
                 guard let self = self else { return }
-                if response.code == 200, let data = response.data {
-                    // FetchProfileData로 바로 바인딩
-                    self.updatedProfile = data
-                    // 바인딩된 값으로 폼 초기화
-                    self.name          = data.name
-                    self.email         = data.email
-                    self.gender        = data.gender
-                    self.birth         = data.birth
-                    self.profileImgUrl = data.profileImgUrl
-                    
-                    self.nameState  = .normal
-                    self.idState    = .normal
-                    self.emailState = .normal
-                    self.birthState = .normal
-                    self.genderState = .normal
-                } else {
-                    self.errorMessage = response.message
-                }
+                self.updatedProfile = r
+
+                self.name          = r.nickname
+                self.id            = r.userCustomId
+                self.email         = r.email
+                self.gender        = self.uiGender(from: r.gender)
+                self.birth         = r.birth
+                self.profileImgUrl = r.profileImgUrl
+
+                self.nameState  = .normal
+                self.idState    = .normal
+                self.emailState = .normal
+                self.birthState = .normal
+                self.genderState = .normal
             }
             .store(in: &cancellables)
     }
 
-    /// 프로필 수정
-    public func patchProfile() {
-        guard let uuid = UUID(uuidString: id) else {
-            errorMessage = "유효하지 않은 회원 ID입니다."
-            return
-        }
-        isLoading    = true
+    /// 프로필 수정 (PATCH /members/myprofile)
+    public func patchProfile(deleteProfileImg: Bool = false) {
+        isLoading = true
         errorMessage = ""
-        
-        provider
+
+        container.useCaseService.profileService
             .patchProfile(
-                memberId:      uuid,
-                name:           name,
-                profileImgUrl:  profileImgUrl,
-                gender:         gender,
-                birth:          birth
+                nickname:       name,          // nickname
+                userCustomId:   id,            // userCustomId (문자열)
+                gender:         serverGender(from: gender),        // "MALE"/"FEMALE"
+                birth:          birth,         // "YYYY-MM-DD"
+                profileImgUrl:  profileImgUrl, // 프로필 이미지 URL
+                deleteProfileImg: deleteProfileImg
             )
             .receive(on: DispatchQueue.main)
             .sink { [weak self] completion in
@@ -112,17 +99,36 @@ final public class ProfileViewModel: ObservableObject {
                 if case let .failure(err) = completion {
                     self.errorMessage = err.localizedDescription
                 }
-            } receiveValue: { [weak self] response in
+            } receiveValue: { [weak self] _ in
                 guard let self = self else { return }
-                if response.code == 200 {
-                    // → 수정이 성공하면, GET /member/profile을 다시 호출
-                    self.fetchProfile()
-                } else {
-                    self.errorMessage = response.message
-                }
+                // 성공 시 최신 상태 동기화를 위해 GET 다시 호출
+                self.fetchProfile()
             }
             .store(in: &cancellables)
     }
+    
+    // 회원 탈퇴 (PATCH /members)
+    public func withdrawAccount() {
+        isLoading = true
+        errorMessage = ""
+
+        container.useCaseService.profileService
+            .withdrawAccount()
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] completion in
+                guard let self = self else { return }
+                self.isLoading = false
+                if case let .failure(err) = completion {
+                    self.errorMessage = err.localizedDescription
+                }
+            } receiveValue: { [weak self] _ in
+                guard let self = self else { return }
+                _ = KeychainService.shared.deleteToken()
+                self.isWithdrawn = true
+            }
+            .store(in: &cancellables)
+    }
+
 
     // MARK: - Validation Setup
     private func setupValidationBindings() {
@@ -154,4 +160,22 @@ final public class ProfileViewModel: ObservableObject {
             ? .success(message: "유효한 생년월일입니다.")
             : .error(message: "YYYY-MM-DD 형식이어야 합니다.")
     }
+    
+    // MARK: - Gender mapping
+    private func serverGender(from ui: String) -> String {
+        switch ui {
+        case "남성": return "MALE"
+        case "여성": return "FEMALE"
+        default:     return "OTHER"   // "그 외" 등
+        }
+    }
+
+    private func uiGender(from server: String) -> String {
+        switch server.uppercased() {
+        case "MALE", "M":   return "남성"
+        case "FEMALE", "F": return "여성"
+        default:            return "그 외"
+        }
+    }
 }
+

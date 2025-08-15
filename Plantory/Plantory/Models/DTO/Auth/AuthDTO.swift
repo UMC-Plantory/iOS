@@ -40,7 +40,33 @@ struct RefreshResponse: Codable {
 }
 
 /// 약관 동의 요청 구조체
-struct TermRequest: Codable {
+struct AgreementsRequest: Codable {
     let agreeTermIdList: [Int]
     let disagreeTermIdList: [Int]
+}
+
+/// 약관 동의 응답 구조체
+struct AgreementsResponse: Codable {
+    let memberId: Int
+    let message: String
+    let status: MemberStatus
+}
+
+/// 회원가입 완료 요청 구조체
+struct SignupRequest: Codable {
+    let memberId: Int
+    let nickname: String
+    let userCustomId: String
+    let gender: String
+    let birth: String
+    let profileImgUrl: String
+}
+
+/// 회원가입 완료 응답 구조체
+struct SignupResponse: Codable {
+    let memberId: Int
+    let nickname: String
+    let userCustomId: String
+    let profileImgUrl: String
+    let status: MemberStatus
 }

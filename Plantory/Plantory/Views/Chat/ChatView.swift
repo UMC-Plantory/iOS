@@ -19,7 +19,7 @@ struct ChatView: View {
 
     /// DIContainer을 주입받아 초기화
     init(
-        container: DIContainer,
+        container: DIContainer
     ) {
         self.viewModel = .init(container: container)
     }
@@ -30,54 +30,51 @@ struct ChatView: View {
         VStack(alignment: .leading) {
             
             // MARK: - Chat Message List
-            ScrollViewReader(content: { proxy in
-                ScrollView {
-                    LazyVStack(spacing: 16) {
-                        ForEach(viewModel.messages, id: \.id) { chat in
-                            //MARK: - Chat Message View
-                            chatMessageView(chat)
-                        }
+            RefreshableView(
+                reverse: true,
+                isLastPage: viewModel.isLast
+            ) {
+                LazyVStack(spacing: 16) {
+                    ForEach(viewModel.messages, id: \.id) { chat in
+                        //MARK: - Chat Message View
+                        chatMessageView(chat)
+                    }
+                    
+                    if viewModel.isLoading {
+                        ChatLoadingBox()
                     }
                 }
-                .scrollIndicators(.hidden)
-                .task {
-                    viewModel.getLatestChat()
-                }
-                .onChange(of: viewModel.shouldScrollToBottom) {
-                    scrollToLastMessage(proxy: proxy)
-                }
-            })
+            } onRefresh: {
+                viewModel.getBeforeChat()
+            }
+            .task {
+                viewModel.getLatestChat()
+            }
+//            .onChange(of: viewModel.shouldScrollToBottom) {
+//                scrollToLastMessage(proxy: proxy)
+//            }
             
             // MARK: - Input Field
-            Group {
-                if viewModel.isLoading {
-                    //MARK: - Loading indicator
-                    ProgressView()
-                        .tint(.white)
-                        .frame(width: 30)
-                } else {
-                    HStack {
-                        TextField("플랜토리에게 하고 싶은 말을 입력해보세요.", text: $viewModel.textInput)
-                            .font(.pretendardRegular(12))
-                            .foregroundStyle(.black)
-                            .focused($isFocused)
-                            .disabled(viewModel.isLoading)
-                            .submitLabel(.send)
-                            .onSubmit({
-                                viewModel.sendMessage()
-                                isFocused = true
-                            })
-                        
-                        //MARK: - Send Button
-                        SendButton(
-                            isDisabled: viewModel.textInput.isEmpty,
-                            action: {
-                                viewModel.sendMessage()
-                                isFocused = true
-                            }
-                        )
+            HStack {
+                TextField("플랜토리에게 하고 싶은 말을 입력해보세요.", text: $viewModel.textInput)
+                    .font(.pretendardRegular(12))
+                    .foregroundStyle(.black)
+                    .focused($isFocused)
+                    .submitLabel(.send)
+                    .onSubmit({
+                        guard !viewModel.isLoading else { return }
+                        viewModel.sendMessage()
+                        isFocused = true
+                    })
+                
+                //MARK: - Send Button
+                SendButton(
+                    isDisabled: viewModel.textInput.isEmpty,
+                    action: {
+                        viewModel.sendMessage()
+                        isFocused = true
                     }
-                }
+                )
             }
             .padding(.horizontal, 16)
             .padding(.vertical, 11.5)
@@ -105,7 +102,9 @@ struct ChatView: View {
     // MARK: - Chat Message View
     @ViewBuilder private func chatMessageView(_ message: ChatMessage) -> some View {
         // MARK: - Chat Message Box
-        ChatBox(chatModel: message)
+        ChatBox(
+            chatModel: message
+        )
     }
     
     // MARK: 스크롤 제일 아래 메세지로 향하게

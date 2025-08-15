@@ -12,7 +12,7 @@ import Moya
 extension MoyaProvider {
     func requestResult<T: Decodable>(
         _ target: Target,
-        type: T.Type,
+        type: T.Type
     ) -> AnyPublisher<T, APIError> {
         return self.requestPublisher(target)
             .map(APIResponse<T>.self)

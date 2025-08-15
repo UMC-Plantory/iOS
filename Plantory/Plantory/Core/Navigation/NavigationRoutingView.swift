@@ -24,23 +24,25 @@ struct NavigationRoutingView: View {
                         case .login:
                             LoginView(container: container)
                         case .permit:
-                            PermitView()
+                            PermitView(container: container)
                         case .policy(let num):
                             PolicyView(num: num)
+                        case .profileInfo:
+                            ProfileInfoView(container: container)
                         case .baseTab:
-                            BaseTabView()
+                            BaseTabView(terrariumVM: TerrariumViewModel(container: container))
                             
                         // 마이페이지
                         case .scrap:
                             ScrapView()
                         case .tempStorage:
-                            TempStorageView()
+                            TempStorageView(container: container)
                         case .trash:
-                            TrashView()
+                            TrashView(container: container)
                         case .emotionStats:
-                            EmotionStatsView()
+                            EmotionStatsView(container: container)
                         case .profileManage:
-                            ProfileManageView()
+                            ProfileManageView(container: container)
                         }
                     }
                     .environmentObject(container)
