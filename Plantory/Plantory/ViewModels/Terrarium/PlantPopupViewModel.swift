@@ -8,6 +8,7 @@
 import Foundation
 import Combine
 
+
 @Observable
 final class PlantPopupViewModel {
     // MARK: - UI State
@@ -64,7 +65,7 @@ final class PlantPopupViewModel {
         return Self.formatYMD(d)
     }
     var usedDateTexts: [String] {
-        (detail?.usedDiaries ?? []).map(Self.formatMD)
+        (detail?.usedDiaries ?? []).map { Self.formatMD($0.diaryDate) }
     }
     var stageTexts: [(String, String)] {
         guard let d = detail else { return [] }
@@ -148,7 +149,7 @@ final class PlantPopupViewModel {
             startAt: parseDate(raw.startAt),
             bloomAt: parseDate(raw.bloomAt),
             mostEmotion: raw.mostEmotion,
-            usedDiaries: raw.usedDiaries.map(parseDate),
+            usedDiaries: raw.usedDiaries.map { UsedDiary(diaryDate: parseDate($0.diaryDate), diaryId: $0.diaryId) },
             firstStepDate: parseDate(raw.firstStepDate),
             secondStepDate: parseDate(raw.secondStepDate),
             thirdStepDate: parseDate(raw.thirdStepDate)
