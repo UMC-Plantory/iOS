@@ -2,6 +2,7 @@ import Foundation
 import Moya
 import Combine
 import CombineMoya
+import UIKit
 
 /// 프로필 조회 및 수정 기능을 담당하는 뷰모델
 /// 뷰모델 초기화 시 기본 샘플 ID로 즉시 조회 수행
@@ -105,6 +106,43 @@ final public class ProfileViewModel: ObservableObject {
                 self.fetchProfile()
             }
             .store(in: &cancellables)
+    }
+
+    /// 이미지 선택/삭제 상태를 반영하여 업로드 및 패치를 한번에 처리
+    public func saveProfileChanges(selectedImage: UIImage?, didDeleteProfileImage: Bool) {
+        // 삭제 의도가 있으면 그대로 패치 호출 (URL은 현재 값 유지)
+        if didDeleteProfileImage {
+            self.patchProfile(deleteProfileImg: true)
+            return
+        }
+
+        // 새 이미지가 선택된 경우: presigned URL 발급 → PUT 업로드 → accessUrl로 패치
+        if let image = selectedImage, let data = image.jpegData(compressionQuality: 0.8) {
+            let request = PresignedRequest(type: .profile, fileName: "profile.jpg")
+            container.useCaseService.imageService
+                .generatePresignedURL(request: request)
+                .flatMap { [weak self] response -> AnyPublisher<String, APIError> in
+                    guard let self = self else { return Fail(error: .unknown).eraseToAnyPublisher() }
+                    return self.container.useCaseService.imageService
+                        .putImage(presignedURL: response.presignedUrl, data: data)
+                        .map { response.accessUrl }
+                        .eraseToAnyPublisher()
+                }
+                .receive(on: DispatchQueue.main)
+                .sink { [weak self] completion in
+                    if case let .failure(err) = completion {
+                        self?.errorMessage = err.localizedDescription
+                    }
+                } receiveValue: { [weak self] accessUrl in
+                    guard let self = self else { return }
+                    self.profileImgUrl = accessUrl
+                    self.patchProfile(deleteProfileImg: false)
+                }
+                .store(in: &cancellables)
+        } else {
+            // 이미지 변경 없음: 현재 URL로 그대로 패치
+            self.patchProfile(deleteProfileImg: false)
+        }
     }
     
     // 회원 탈퇴 (PATCH /members)

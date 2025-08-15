@@ -56,8 +56,7 @@ struct ProfileManageView: View {
                 },
                 onSave: {
                     // 저장 시: 폼 필드들은 vm 바인딩으로 이미 연결됨
-                    // 프로필 이미지는 삭제 의도만 서버에 전달
-                    vm.patchProfile(deleteProfileImg: didDeleteProfileImage)
+                    vm.saveProfileChanges(selectedImage: selectedImage, didDeleteProfileImage: didDeleteProfileImage)
                     didDeleteProfileImage = false
                 }
             )
