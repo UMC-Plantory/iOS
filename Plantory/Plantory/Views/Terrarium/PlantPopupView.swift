@@ -19,7 +19,7 @@ struct PlantPopupView: View {
 
                 VStack(spacing: 16) {
                     HStack {
-                        Text(viewModel.plantName)
+                        Text(viewModel.flowerNameText)
                             .font(.pretendardSemiBold(20))
                             .padding(.leading, 149)
                         Spacer()
@@ -35,24 +35,24 @@ struct PlantPopupView: View {
                     .padding(.top, 12)
 
                     HStack(alignment: .center, spacing: 8) {
-                        Image(imageName(for: viewModel.plantName))
+                        Image(imageName(for: viewModel.flowerNameText))
                             .resizable()
                             .frame(width: 120, height: 120)
 
                         VStack(alignment: .leading, spacing: 12) {
                             HStack(alignment: .center, spacing: 12) {
                                 SectionLabel(text: "최다 감정")
-                                Text(viewModel.feeling)
+                                Text(viewModel.feelingText)
                                     .font(.pretendardRegular(16))
                             }
                             HStack(alignment: .center, spacing: 12) {
                                 SectionLabel(text: "생성일")
-                                Text(viewModel.birthDate)
+                                Text(viewModel.birthDateText)
                                     .font(.pretendardRegular(16))
                             }
                             HStack(alignment: .center, spacing: 12) {
                                 SectionLabel(text: "완성일")
-                                Text(viewModel.completeDate)
+                                Text(viewModel.completeDateText)
                                     .font(.pretendardRegular(16))
                             }
                         }
@@ -60,16 +60,15 @@ struct PlantPopupView: View {
                     .padding(.top, 38)
                     .padding(.bottom, 10)
 
-
                     VStack(alignment: .leading, spacing: 24) {
                         VStack(alignment: .leading, spacing: 10) {
                             SectionLabel(text: "사용된 일기")
-                            DiaryInfo(items: viewModel.usedDates)
+                            DiaryInfo(items: viewModel.usedDateTexts)
                         }
                         
                         VStack(alignment: .leading, spacing: 10) {
                             SectionLabel(text: "단계 진입일")
-                            StageInfo(items: viewModel.stages.map { "\($0.0) \($0.1)" })
+                            StageInfo(items: viewModel.stageTexts.map { "\($0.0) \($0.1)" })
                         }
                     }
                     .frame(width: 278)
@@ -178,8 +177,8 @@ struct PlantPopupView: View {
 
 private extension PlantPopupView {
     /// Flower image name mapping (한글 이름 → 에셋 이름)
-    func imageName(for plantName: String) -> String {
-        switch plantName {
+    func imageName(for flowerName: String) -> String {
+        switch flowerName {
         case "장미": return "Rose"
         case "민들레": return "Dandelion"
         case "해바라기": return "Sunflower"
@@ -191,21 +190,4 @@ private extension PlantPopupView {
 }
 
 
-private extension PlantPopupViewModel {
-    static var preview: PlantPopupViewModel = {
-        let vm = PlantPopupViewModel(container: DIContainer())
-        vm.isPresented = true
-        vm.plantName = "장미"
-        vm.feeling = "화남"
-        vm.birthDate = "2024.04.21"
-        vm.completeDate = "2024.05.21"
-        vm.usedDates = ["04.21", "04.24", "04.28", "04.28"]
-        vm.stages = [("새싹", "04.21"), ("잎새", "05.05"), ("꽃나무", "05.15")]
-        return vm
-    }()
-}
-
-#Preview {
-    PlantPopupView(viewModel: .preview, onClose: {})
-}
 

@@ -13,14 +13,21 @@ struct TerrariumView: View {
     @State private var selectedPlantIndex: Int? = nil
     @State private var isPlantPopupPresented: Bool = false
     @State private var popupVM = PlantPopupViewModel(container: DIContainer())
-    @Binding var showFlowerCompleteView: Bool
+    @State private var showFlowerCompleteView = false
     var onInfoTapped: () -> Void
+    var onFlowerComplete: () -> Void = {}
     var memberId: Int = 1
 
-    init(viewModel: TerrariumViewModel, onInfoTapped: @escaping () -> Void, showFlowerCompleteView: Binding<Bool>) {
+    init(
+        viewModel: TerrariumViewModel,
+        onInfoTapped: @escaping () -> Void,
+        onFlowerComplete: @escaping () -> Void = {},
+        initialTab: TerrariumTab = .terrarium
+    ) {
         self.viewModel = viewModel
         self.onInfoTapped = onInfoTapped
-        self._showFlowerCompleteView = showFlowerCompleteView  // 초기화 시 Binding 값 전달
+        self.onFlowerComplete = onFlowerComplete
+        self.viewModel.selectedTab = initialTab
     }
 
     var body: some View {
@@ -56,7 +63,6 @@ struct TerrariumView: View {
                                 count: viewModel.terrariumData?.memberWateringCount ?? 0,
                                 action: {
                                     viewModel.waterPlant()
-                                    checkForFlowerComplete()  // 물주기 후 상태 확인
                                 }
                             )
 
@@ -84,7 +90,7 @@ struct TerrariumView: View {
                     MyGardenContent(onPlantTap: { id in
                         selectedPlantIndex = id
                         isPlantPopupPresented = true
-                        popupVM.open(terrariumId: id, name: "식물 \(id)")
+                        popupVM.open(terrariumId: id)
                     })
                 }
             }
@@ -101,20 +107,19 @@ struct TerrariumView: View {
                 .zIndex(1)
             }
         }
-        .onAppear {
-            viewModel.fetchTerrarium() // 로그인한 아이디
-            checkForFlowerComplete()  // 처음 로드될 때 상태 확인
+        .onChange(of: viewModel.terrariumData?.terrariumWateringCount) { _, newValue in
+            if let c = newValue, c >= 7 {
+                onFlowerComplete() // 부모에게 “띄워!” 신호
+            }
         }
-    }
-
-    // terrariumWateringCount가 7이면 FlowerCompleteView 표시
-    func checkForFlowerComplete() {
-        if let wateringCount = viewModel.terrariumData?.terrariumWateringCount, wateringCount >= 7 {
-            showFlowerCompleteView = true  // 상태 변경
+        .onAppear {
+            viewModel.fetchTerrarium()
+            if let c = viewModel.terrariumData?.terrariumWateringCount, c >= 7 {
+                onFlowerComplete() // 진입 시 이미 7 이상이면 즉시 요청
+            }
         }
     }
 }
-
 
 //말풍선
 struct SpeechBubble: View {
@@ -185,13 +190,11 @@ struct WateringButton: View {
 }
 
 struct TerrariumView_Preview: PreviewProvider {
-    @State static private var showFlowerCompleteView = false  // Define the @State here
-
     static var previews: some View {
         TerrariumView(
             viewModel: TerrariumViewModel(container: DIContainer()),
             onInfoTapped: { print("Info tapped") },
-            showFlowerCompleteView: $showFlowerCompleteView  // Pass the binding
-        )
+            onFlowerComplete: { print("Flower complete!") },
+            initialTab: .terrarium )
     }
 }

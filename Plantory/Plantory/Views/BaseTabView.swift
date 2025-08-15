@@ -15,13 +15,16 @@ struct BaseTabView: View {
     
     @State private var selectedTab: TabItem = .home
     @State private var isFilterSheetPresented: Bool = false
-    @State private var hasShownTerrariumPopup = false
-    @State private var isTerrariumPopupVisible = false
-    @State private var showFlowerCompleteView = false  // 상태 관리
-    @State private var terrariumVM: TerrariumViewModel? = nil
+    @State private var isTerrariumPopupVisible: Bool = false
+    @State private var showFlowerComplete:Bool = false
+    @State private var terrariumVM: TerrariumViewModel
 
     /// 의존성 주입을 위한 DI 컨테이너
     @EnvironmentObject var container: DIContainer
+
+    init(terrariumVM: TerrariumViewModel) {
+        _terrariumVM = State(initialValue: terrariumVM)
+    }
 
     var body: some View {
         ZStack(alignment: .bottom) {
@@ -37,17 +40,30 @@ struct BaseTabView: View {
                     )
                 }
             }
-            
             if isTerrariumPopupVisible {
                 TerrariumPopup(isVisible: $isTerrariumPopupVisible)
                     .zIndex(10)
             }
-            
-            if showFlowerCompleteView == true {
-                if let vm = terrariumVM {
-                    FlowerCompleteView(viewModel: vm)
-                        .zIndex(11)
+        }
+        .fullScreenCover(isPresented: $showFlowerComplete, onDismiss: {
+            terrariumVM.fetchTerrarium()
+        }) {
+            FlowerCompleteView(
+                viewModel: terrariumVM,
+                onGoToGarden: {
+                    selectedTab = .terrarium
+                    terrariumVM.selectedTab = .myGarden
+                    showFlowerComplete = false
+                },
+                onGoHome: {
+                    selectedTab = .home
+                    showFlowerComplete = false 
                 }
+            )
+            .environmentObject(container)
+            .onAppear {
+                // FlowerCompleteView가 나타날 때 갱신
+                terrariumVM.fetchTerrarium()
             }
         }
         .overlay(alignment: .bottom) {
@@ -60,9 +76,6 @@ struct BaseTabView: View {
             .allowsHitTesting(false)
         }
         .onAppear {
-            if terrariumVM == nil {
-                terrariumVM = TerrariumViewModel(container: container)
-            }
             UITabBar.appearance().backgroundColor = .white01
             UITabBar.appearance().unselectedItemTintColor = .black01
         }
@@ -79,26 +92,11 @@ struct BaseTabView: View {
         case .diary:
             DiaryListView(isFilterSheetPresented: $isFilterSheetPresented)
         case .terrarium:
-            Group {
-                if let vm = terrariumVM {
-                    TerrariumView(
-                        viewModel: vm,
-                        onInfoTapped: {
-                            // 팝업을 표시하는 액션
-                            isTerrariumPopupVisible = true
-                        },
-                        showFlowerCompleteView: $showFlowerCompleteView
-                    )
-                } else {
-                    // 최초 한 번만 DI로 초기화
-                    ProgressView()
-                        .task {
-                            if terrariumVM == nil {
-                                terrariumVM = TerrariumViewModel(container: container)
-                            }
-                        }
-                }
-            }
+            TerrariumView(
+                viewModel: terrariumVM,
+                onInfoTapped: { isTerrariumPopupVisible = true },
+                onFlowerComplete: { showFlowerComplete = true }
+            )
         case .chat:
             ChatView(container: container)
         case .profile:
@@ -108,9 +106,12 @@ struct BaseTabView: View {
 }
     
     
+// MARK: - Preview
 #Preview {
-    BaseTabView()
-        .environmentObject(makePreviewContainer())
+    let previewContainer = makePreviewContainer()
+    let previewTerrariumVM = TerrariumViewModel(container: previewContainer)
+    return BaseTabView(terrariumVM: previewTerrariumVM)
+        .environmentObject(previewContainer)
 }
 
 #if DEBUG

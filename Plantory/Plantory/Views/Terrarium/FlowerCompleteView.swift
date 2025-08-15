@@ -11,6 +11,8 @@ import Foundation
 struct FlowerCompleteView: View {
     @EnvironmentObject var container: DIContainer
     @State var viewModel: TerrariumViewModel
+    var onGoToGarden: (() -> Void)? = nil
+    var onGoHome: (() -> Void)? = nil
 
     var body: some View {
         NavigationStack {
@@ -29,11 +31,11 @@ struct FlowerCompleteView: View {
 
                 Spacer()
 
-                MainSmallButton(
+                MainBigButton(
                     text: "나의 정원 가기",
                     isDisabled: false,
                     action: {
-                        print("나의 정원 가기")
+                        onGoToGarden?()
                     }
                 )
                 .frame(maxWidth: .infinity, alignment: .trailing)
@@ -50,9 +52,9 @@ struct FlowerCompleteView: View {
             .customNavigation(
                 trailing:
                     Button(action: {
-                        print("취소")
+                        onGoHome?()
                     }, label: {
-                        Image("Home")
+                        Image("home")
                             .foregroundStyle(.gray10)
                             .fixedSize()
                     })

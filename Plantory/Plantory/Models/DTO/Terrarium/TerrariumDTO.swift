@@ -32,7 +32,7 @@ struct WateringResponse: Codable {
 }
 
 struct WateringResult: Codable {
-    let nickname: String
+    let nickname: String?
     let terrariumWateringCountAfterEvent: Int
     let memberWateringCountAfterEvent: Int
     let emotionList: [String: Int]?
@@ -47,13 +47,20 @@ struct TerrariumMonthlyResponse: Codable {
     let isSuccess: Bool
     let code: String
     let message: String
-    let result: [TerrariumMonthly]
+    let result: TerrariumMonthly
+}
+
+struct TerrariumMonthlyRaw: Codable {
+    let terrariumId: Int
+    let nickname: String
+    let bloomAt: String      // "yyyy-MM-dd"
+    let flowerName: String
 }
 
 struct TerrariumMonthly: Codable {
     let terrariumId: Int
     let nickname: String
-    let bloomAt: String
+    let bloomAt: Date
     let flowerName: String
 }
 
@@ -67,7 +74,8 @@ struct TerrariumDetailResponse: Codable {
     let result: TerrariumDetail
 }
 
-struct TerrariumDetail: Codable {
+struct TerrariumDetailRaw: Codable {
+    let flowerName: String
     let startAt: String
     let bloomAt: String
     let mostEmotion: String
@@ -75,4 +83,15 @@ struct TerrariumDetail: Codable {
     let firstStepDate: String
     let secondStepDate: String
     let thirdStepDate: String
+}
+
+struct TerrariumDetail: Codable {
+    let flowerName: String
+    let startAt: Date
+    let bloomAt: Date
+    let mostEmotion: String
+    let usedDiaries: [Date]
+    let firstStepDate: Date
+    let secondStepDate: Date
+    let thirdStepDate: Date
 }

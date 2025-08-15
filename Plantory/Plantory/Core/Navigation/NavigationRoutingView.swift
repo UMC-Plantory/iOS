@@ -28,7 +28,7 @@ struct NavigationRoutingView: View {
                         case .policy(let num):
                             PolicyView(num: num)
                         case .baseTab:
-                            BaseTabView()
+                            BaseTabView(terrariumVM: TerrariumViewModel(container: container))
                             
                         // 마이페이지
                         case .scrap:

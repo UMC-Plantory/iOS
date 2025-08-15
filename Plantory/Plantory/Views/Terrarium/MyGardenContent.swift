@@ -8,7 +8,7 @@
 import SwiftUI
 
 struct MyGardenContent: View {
-    @State private var viewModel = TerrariumViewModel(container: DIContainer()) // @State로 수정
+    @State private var viewModel = TerrariumViewModel(container: DIContainer())
     @State private var selectedSegment: String = "나의 정원"
     @State private var isPlantPopupPresented: Bool = false
     @State private var popupVM = PlantPopupViewModel(container: DIContainer())
@@ -33,12 +33,17 @@ struct MyGardenContent: View {
 }
 
 struct TopView: View {
-    @State var viewModel: TerrariumViewModel  // @State로 뷰모델 사용
+    @State private var viewModel: TerrariumViewModel
+    @State private var fixedNickname: String? = nil
+
+    init(viewModel: TerrariumViewModel) {
+        _viewModel = State(initialValue: viewModel)
+    }
 
     var body: some View {
         HStack {
             (
-                Text(viewModel.monthlyTerrariums.first?.nickname ?? "")
+                Text((fixedNickname ?? viewModel.monthlyTerrariums.first?.nickname) ?? "")
                     .font(.pretendardSemiBold(20)) +
                 Text(" 님의 식물").font(.pretendardRegular(20))
             )
@@ -66,6 +71,16 @@ struct TopView: View {
         }
         .padding(.horizontal, 24)
         .padding(.top, 55)
+        .onAppear {
+            if fixedNickname == nil {
+                fixedNickname = viewModel.monthlyTerrariums.first?.nickname
+            }
+        }
+        .onChange(of: viewModel.monthlyTerrariums.count) { _, _ in
+            if fixedNickname == nil {
+                fixedNickname = viewModel.monthlyTerrariums.first?.nickname
+            }
+        }
     }
 
     private static func monthLabel(from date: Date) -> String {
@@ -83,7 +98,7 @@ struct PlantListView: View {
         GridItem(.flexible())
     ]
 
-    var items: [TerrariumMonthly] = []
+    let items: [TerrariumMonthly]
     var onPlantTap: (Int) -> Void
 
     var body: some View {
@@ -94,7 +109,7 @@ struct PlantListView: View {
                         onPlantTap(item.terrariumId)
                     } label: {
                         VStack(spacing: 8) {
-                            Image("Rose")
+                            Image(imageName(for: item.flowerName))
                                 .resizable()
                                 .frame(width: 70, height: 70)
 
@@ -120,6 +135,17 @@ struct PlantListView: View {
                 }
             }
             .padding(.horizontal, 24)
+        }
+    }
+    
+    private func imageName(for koreanName: String) -> String {
+        switch koreanName {
+        case "장미": return "Rose"
+        case "민들레": return "Dandelion"
+        case "해바라기": return "Sunflower"
+        case "개나리": return "Forsythia"
+        case "물망초": return "ForgetMeNot"
+        default: return "Rose" // 기본 이미지
         }
     }
 }

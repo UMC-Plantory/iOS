@@ -30,6 +30,21 @@ class TerrariumViewModel {
     /// Combine 구독 해제를 위한 Set
     var cancellables = Set<AnyCancellable>()
 
+    // MARK: - Debug Helper
+    private func log(_ message: String) {
+        print("[TerrariumVM] \(message)")
+    }
+    
+    /// yyyy-MM 포맷 검증용 (실패 시 로그만 남김)
+    private func validateYearMonth(_ month: String) {
+        let f = DateFormatter()
+        f.locale = Locale(identifier: "ko_KR")
+        f.dateFormat = "yyyy-MM"
+        if f.date(from: month) == nil {
+            print("[TerrariumVM][WARN] 잘못된 월 포맷 전달됨 => \(month). 기대 포맷: yyyy-MM")
+        }
+    }
+
     // MARK: - 초기화
     init(container: DIContainer) {
         self.container = container
@@ -107,6 +122,32 @@ class TerrariumViewModel {
         }
     }
 
+    // MARK: - 월별 응답 파싱용 로컬 DTO & 날짜 매핑
+    /// API에서 내려오는 원본(문자열 날짜 포함)을 임시로 받기 위한 로컬 DTO
+    private func parseBloomDate(_ value: String) -> Date? {
+        let formatter = DateFormatter()
+        formatter.locale = Locale(identifier: "ko_KR")
+        formatter.timeZone = TimeZone(secondsFromGMT: 0)
+        formatter.dateFormat = "yyyy-MM-dd"
+        return formatter.date(from: value)
+    }
+
+    private func mapMonthly(_ raws: [TerrariumMonthlyRaw]) -> [TerrariumMonthly] {
+        raws.compactMap { raw in
+            guard let date = parseBloomDate(raw.bloomAt) else {
+                print("[TerrariumVM] 날짜 파싱 실패: \(raw.bloomAt)")
+                return nil
+            }
+            return TerrariumMonthly(
+                terrariumId: raw.terrariumId,
+                nickname: raw.nickname,
+                bloomAt: date,
+                flowerName: raw.flowerName
+            )
+        }
+        .sorted { $0.bloomAt < $1.bloomAt }
+    }
+
     // MARK: - 월별 테라리움 상태 & API
 
     /// 월별 테라리움 리스트 (도메인 모델)
@@ -120,44 +161,69 @@ class TerrariumViewModel {
         isLoading = true
         errorMessage = nil
 
+        log("fetchMonthlyTerrarium(month:) 호출 — month=\(month)")
+        validateYearMonth(month)
+
         container.useCaseService.terrariumService
             .getMonthlyTerrarium(month: month)
             .receive(on: DispatchQueue.main)
             .sink(receiveCompletion: { [weak self] completion in
-                if case .failure(let failure) = completion {
+                switch completion {
+                case .finished:
+                    self?.log("fetchMonthlyTerrarium — 완료(.finished)")
+                case .failure(let failure):
                     self?.errorMessage = "월별 조회 실패: \(failure.localizedDescription)"
                     self?.isLoading = false
+                    self?.log("fetchMonthlyTerrarium — 실패: \(failure.localizedDescription)")
                 }
-            }, receiveValue: { [weak self] response in
-                // response.result가 단일 객체일 때 이를 배열로 감싸기
-                let result = response
-                self?.monthlyTerrariums = [result]
-                self?.isLoading = false
+            }, receiveValue: { [weak self] raws in
+                guard let self = self else { return }
+                // Service가 [TerrariumMonthlyRaw]를 반환하므로 그대로 매핑
+                let items = self.mapMonthly(raws)
+                self.log("fetchMonthlyTerrarium — 응답 수신 개수: \(items.count)")
+                if let first = items.first, let last = items.last {
+                    self.log("fetchMonthlyTerrarium — 기간: \(first.bloomAt) ~ \(last.bloomAt)")
+                }
+                self.monthlyTerrariums = items
+                self.isLoading = false
+                self.log("fetchMonthlyTerrarium — monthlyTerrariums 업데이트 count=\(self.monthlyTerrariums.count)")
             })
             .store(in: &cancellables)
     }
 
     /// 월별 데이터 조회 (선택된 Date를 사용하여 YYYY-MM로 포맷)
     public func fetchMonthlyTerrarium() {
-        let monthString = Self.formatYearMonth(selectedMonth)  // Date -> String으로 변환
-        fetchMonthlyTerrarium(month: monthString)  // 변환된 month를 전달
+        log("fetchMonthlyTerrarium() 호출 — selectedMonth=\(selectedMonth)")
+        let monthString = Self.formatYearMonth(selectedMonth)
+        log("fetchMonthlyTerrarium() — 포맷된 monthString=\(monthString)")
+        fetchMonthlyTerrarium(month: monthString)
     }
 
     /// 이전 달로 이동 후 조회
     public func goToPreviousMonth() {
+        log("goToPreviousMonth 호출 — 현재 selectedMonth=\(selectedMonth)")
         if let newDate = Calendar.current.date(byAdding: .month, value: -1, to: selectedMonth) {
             selectedMonth = newDate
-            let monthString = Self.formatYearMonth(selectedMonth) // Date -> String으로 변환
-            fetchMonthlyTerrarium(month: monthString)  // 변환된 month를 전달
+            log("goToPreviousMonth — 변경된 selectedMonth=\(selectedMonth)")
+            let monthString = Self.formatYearMonth(selectedMonth)
+            log("goToPreviousMonth — 요청 monthString=\(monthString)")
+            fetchMonthlyTerrarium(month: monthString)
+        } else {
+            log("goToPreviousMonth — 날짜 계산 실패")
         }
     }
 
     /// 다음 달로 이동 후 조회
     public func goToNextMonth() {
+        log("goToNextMonth 호출 — 현재 selectedMonth=\(selectedMonth)")
         if let newDate = Calendar.current.date(byAdding: .month, value: 1, to: selectedMonth) {
             selectedMonth = newDate
-            let monthString = Self.formatYearMonth(selectedMonth) // Date -> String으로 변환
-            fetchMonthlyTerrarium(month: monthString)  // 변환된 month를 전달
+            log("goToNextMonth — 변경된 selectedMonth=\(selectedMonth)")
+            let monthString = Self.formatYearMonth(selectedMonth)
+            log("goToNextMonth — 요청 monthString=\(monthString)")
+            fetchMonthlyTerrarium(month: monthString)
+        } else {
+            log("goToNextMonth — 날짜 계산 실패")
         }
     }
 
