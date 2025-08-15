@@ -124,10 +124,10 @@ class ChatViewModel {
                     self?.isFetchingChats = false
                 }
             }, receiveValue: { [weak self] response in
-                if response.isEmpty {
+                if response.chatsDetatilList.isEmpty {
                     self?.isLast = true
                 } else {
-                    let convertedResponse = response
+                    let convertedResponse = response.chatsDetatilList
                         .map { ChatMessage(from: $0) }
                     
                     let reversedResponse = convertedResponse

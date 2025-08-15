@@ -16,7 +16,7 @@ protocol ChatServiceProtocol {
     func postChat(chatData: ChatRequest) -> AnyPublisher<ChatResponse, APIError>
     
     /// 채팅 기록 조회
-    func getChatsList(cursor: String?) -> AnyPublisher<[ChatResponse], APIError>
+    func getChatsList(cursor: String?) -> AnyPublisher<ChatResult, APIError>
 }
 
 /// Chat API를 사용하는 서비스
@@ -46,7 +46,7 @@ final class ChatService: ChatServiceProtocol {
     /// 채팅 요청
     /// - Parameter cursor: 커서값 (마지막으로 조회한 chat의 createdAt)
     /// - Returns: 채팅 응답을 Combine Publisher 형태로 반환
-    func getChatsList(cursor: String?) -> AnyPublisher<[ChatResponse], APIError> {
-        return provider.requestResult(.getChatsList(cursor: cursor), type: [ChatResponse].self)
+    func getChatsList(cursor: String?) -> AnyPublisher<ChatResult, APIError> {
+        return provider.requestResult(.getChatsList(cursor: cursor), type: ChatResult.self)
     }
 }

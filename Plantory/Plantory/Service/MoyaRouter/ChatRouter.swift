@@ -20,10 +20,8 @@ enum ChatRouter {
         
     var path: String {
         switch self {
-        case .postChat:
+        case .postChat, .getChatsList:
             return "/chats"
-        case .getChatsList:
-            return "/chats/list"
         }
     }
     
