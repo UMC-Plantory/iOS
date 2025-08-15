@@ -43,7 +43,7 @@ struct ProfileManageView: View {
             )
 
             ProfileMemberInfoView(vm: vm) {
-                isShowingSignOutPopup = true
+                withAnimation(.spring()) { isShowingSignOutPopup = true }
             }
 
             // 취소/저장 버튼
@@ -56,8 +56,7 @@ struct ProfileManageView: View {
                 },
                 onSave: {
                     // 저장 시: 폼 필드들은 vm 바인딩으로 이미 연결됨
-                    // 프로필 이미지는 삭제 의도만 서버에 전달
-                    vm.patchProfile(deleteProfileImg: didDeleteProfileImage)
+                    vm.saveProfileChanges(selectedImage: selectedImage, didDeleteProfileImage: didDeleteProfileImage)
                     didDeleteProfileImage = false
                 }
             )
@@ -70,6 +69,7 @@ struct ProfileManageView: View {
         )
         .padding(.horizontal, 16)
         .navigationBarBackButtonHidden()
+        .loadingIndicator(vm.isLoading)
     }
 
     // MARK: - Back Button
@@ -91,7 +91,7 @@ struct ProfileManageView: View {
                 container.navigationRouter.reset()
             },
             onCancel: {
-                isShowingSignOutPopup = false
+                withAnimation(.spring()) { isShowingSignOutPopup = false }
             }
         )
         .zIndex(1)

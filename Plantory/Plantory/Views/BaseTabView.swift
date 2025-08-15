@@ -105,7 +105,8 @@ struct BaseTabView: View {
         Group {
             switch tab {
             case .home:
-                HomeView(container: container)
+
+                HomeView(container:container)
             case .diary:
                 DiaryListView(isFilterSheetPresented: $isFilterSheetPresented, container: container)
             case .terrarium:
@@ -130,13 +131,20 @@ struct BaseTabView: View {
 }
     
     
+/*
 // MARK: - Preview
 #Preview {
+
+    BaseTabView(terrariumVM: )
+        .environmentObject(DIContainer())
+
     let previewContainer = makePreviewContainer()
     let previewTerrariumVM = TerrariumViewModel(container: previewContainer)
-    return BaseTabView(terrariumVM: previewTerrariumVM)
+    BaseTabView(terrariumVM: previewTerrariumVM)
         .environmentObject(previewContainer)
+
 }
+ */
 
 #if DEBUG
 private func makePreviewContainer() -> DIContainer {

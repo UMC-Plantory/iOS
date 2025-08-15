@@ -15,11 +15,8 @@ protocol ChatServiceProtocol {
     /// 채팅 요청
     func postChat(chatData: ChatRequest) -> AnyPublisher<ChatResponse, APIError>
     
-    /// 최초 진입 시, 이전 대화 기록 조회
-    func getLatestChat() -> AnyPublisher<[ChatResponse], APIError>
-    
-    /// 이전 대화 기록 조회에서, 커서 페이징
-    func getBeforeChat(beforeData: String) -> AnyPublisher<[ChatResponse], APIError>
+    /// 채팅 기록 조회
+    func getChatsList(cursor: String?) -> AnyPublisher<[ChatResponse], APIError>
 }
 
 /// Chat API를 사용하는 서비스
@@ -44,20 +41,12 @@ final class ChatService: ChatServiceProtocol {
         return provider.requestResult(.postChat(chatData: chatData), type: ChatResponse.self)
     }
 
-    // MARK: - 최초 진입 시, 이전 대화 기록 조회
+    // MARK: - 채팅 기록 조회
     
     /// 채팅 요청
-    /// - Parameter request: 채팅 요청 모델
+    /// - Parameter cursor: 커서값 (마지막으로 조회한 chat의 createdAt)
     /// - Returns: 채팅 응답을 Combine Publisher 형태로 반환
-    func getLatestChat() -> AnyPublisher<[ChatResponse], APIError> {
-        return provider.requestResult(.getLatestChat, type: [ChatResponse].self)
-    }
-
-    // MARK: - 이전 대화 기록 조회에서, 커서 페이징
-    /// 채팅 요청
-    /// - Parameter request: 마지막 메세제의 시간을 요청
-    /// - Returns: 채팅 응답을 Combine Publisher 형태로 반환
-    func getBeforeChat(beforeData: String) -> AnyPublisher<[ChatResponse], APIError> {
-        return provider.requestResult(.getBeforeChat(beforeData: beforeData), type: [ChatResponse].self)
+    func getChatsList(cursor: String?) -> AnyPublisher<[ChatResponse], APIError> {
+        return provider.requestResult(.getChatsList(cursor: cursor), type: [ChatResponse].self)
     }
 }

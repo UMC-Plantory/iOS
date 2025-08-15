@@ -16,6 +16,10 @@ final class EmotionStatsViewModel: ObservableObject {
     /// 최다 감정 키 ("joy", "sadness" 등)
     @Published var topEmotionKey: String = ""
     @Published public private(set) var comment: String = ""
+    
+    // MARK: - 로딩
+    
+    @Published var isLoading = false
 
     private var cancellables = Set<AnyCancellable>()
     /// DIContainer를 통해 의존성 주입
@@ -30,29 +34,37 @@ final class EmotionStatsViewModel: ObservableObject {
 
     /// 주간 감정 통계 조회
     func fetchWeeklyEmotionStats() {
+        self.isLoading = true
+        
         container.useCaseService.profileService
             .fetchWeeklyEmotionStats()
             .receive(on: DispatchQueue.main)
             .sink { [weak self] completion in
                 if case let .failure(error) = completion {
                     self?.errorMessage = error.localizedDescription
+                    self?.isLoading = false
                 }
             } receiveValue: { [weak self] resp in
                 self?.handleEmotion(resp, scope: .weekly)
+                self?.isLoading = false
             }
             .store(in: &cancellables)
     }
     
     func fetchMonthlyEmotionStats() {
+            self.isLoading = true
+        
             container.useCaseService.profileService
                 .fetchMonthlyEmotionStats()
                 .receive(on: DispatchQueue.main)
                 .sink { [weak self] completion in
                     if case let .failure(error) = completion {
                         self?.errorMessage = error.localizedDescription
+                        self?.isLoading = false
                     }
                 } receiveValue: { [weak self] resp in
                     self?.handleEmotion(resp, scope: .monthly)
+                    self?.isLoading = false
                 }
                 .store(in: &cancellables)
         }

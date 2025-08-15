@@ -71,6 +71,7 @@ struct EmotionStatsView: View {
                 viewModel.fetchMonthlyEmotionStats()
             }
         }
+        .loadingIndicator(viewModel.isLoading)
     }
 }
 

@@ -7,6 +7,7 @@
 
 import SwiftUI
 
+
 /// 앱 내에서 특정 화면으로의 이동을 처리하는 라우팅 뷰입니다.
 struct NavigationRoutingView: View {
     
@@ -21,7 +22,7 @@ struct NavigationRoutingView: View {
                 .navigationDestination(for: NavigationDestination.self) { destination in
                     Group {
                         switch destination {
-                        // 로그인, 회원가입 뷰
+                            // 로그인, 회원가입 뷰
                         case .login:
                             LoginView(container: container)
                         case .permit:
@@ -30,12 +31,15 @@ struct NavigationRoutingView: View {
                             PolicyView(num: num)
                         case .profileInfo:
                             ProfileInfoView(container: container)
-                        
-                        // Tab 뷰
+                            
+                        case .addDiary:
+                            AddDiaryView(container: container)
+                            
+                            // Tab 뷰
                         case .baseTab:
                             BaseTabView(terrariumVM: TerrariumViewModel(container: container))
                             
-                        // 마이페이지
+                            // 마이페이지
                         case .scrap:
                             ScrapView()
                         case .tempStorage:
@@ -47,7 +51,7 @@ struct NavigationRoutingView: View {
                         case .profileManage:
                             ProfileManageView(container: container)
                             
-                        // 다이어리 뷰
+                            // 다이어리 뷰
                         case .diaryDetail:
                             DiarySearchView(container: container)
                         }
@@ -56,8 +60,8 @@ struct NavigationRoutingView: View {
                 }
         }
     }
-    
 }
+
 
 #Preview {
     NavigationRoutingView()

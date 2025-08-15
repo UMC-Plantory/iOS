@@ -104,6 +104,7 @@ struct TerrariumView: View {
                 onFlowerComplete() // 진입 시 이미 7 이상이면 즉시 요청
             }
         }
+        .loadingIndicator(viewModel.isLoading)
     }
 }
 

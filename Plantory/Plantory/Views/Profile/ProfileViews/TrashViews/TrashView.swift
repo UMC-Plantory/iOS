@@ -17,32 +17,46 @@ struct TrashView: View {
     @State private var showRestorePopUp = false
 
     var body: some View {
-        ZStack {
-            VStack(spacing: 5) {
-                AlignmentView(isNew: $isNewSorting, selectedCount: checkedItems.count)
+        VStack(spacing: 5) {
+            AlignmentView(isNew: $isNewSorting, selectedCount: checkedItems.count)
 
-                content
+            content
 
-                TrashFootView(
-                    isEditing: $isEditing,
-                    isEmpty: checkedItems.isEmpty,
-                    onRestore: { showRestorePopUp = true },
-                    onDelete: { showDeletePopUp = true }
-                )
-            }
-            .padding(.horizontal)
-            .onChange(of: isNewSorting) { _, newValue in
-                viewModel.fetchWaste(sort: newValue ? .latest : .oldest)
-            }
-            .customNavigation(
-                title: "휴지통",
-                leading: navigationLeading,
-                trailing: navigationTrailing
+            TrashFootView(
+                isEditing: $isEditing,
+                isEmpty: checkedItems.isEmpty,
+                onRestore: { withAnimation(.spring()) { showRestorePopUp = true } },
+                onDelete: { withAnimation(.spring()) { showDeletePopUp = true } }
             )
-            .navigationBarBackButtonHidden(true)
-
-            if showDeletePopUp { deleteConfirmationPopUp }
-            if showRestorePopUp { restoreConfirmationPopUp }
+        }
+        .padding(.horizontal)
+        .onChange(of: isNewSorting) { _, newValue in
+            viewModel.fetchWaste(sort: newValue ? .latest : .oldest)
+        }
+        .customNavigation(
+            title: "휴지통",
+            leading: navigationLeading,
+            trailing: navigationTrailing
+        )
+        .navigationBarBackButtonHidden(true)
+        .overlay {
+            if showDeletePopUp {
+                BlurBackground()
+                    .onTapGesture {
+                        withAnimation(.spring()) { showDeletePopUp = false }
+                    }
+                
+                deleteConfirmationPopUp
+            }
+            
+            if showRestorePopUp {
+                BlurBackground()
+                    .onTapGesture {
+                        withAnimation(.spring()) { showRestorePopUp = false }
+                    }
+                
+                restoreConfirmationPopUp
+            }
         }
     }
 
@@ -117,8 +131,9 @@ struct TrashView: View {
             confirmTitle: "삭제하기",
             cancelTitle: "취소",
             onConfirm: performDeletion,
-            onCancel: { showDeletePopUp = false }
+            onCancel: { withAnimation(.spring()) { showDeletePopUp = false } }
         )
+        .transition(.scale.combined(with: .opacity))
     }
 
     private var restoreConfirmationPopUp: some View {
@@ -128,8 +143,9 @@ struct TrashView: View {
             confirmTitle: "복원하기",
             cancelTitle: "취소",
             onConfirm: performRestore,
-            onCancel: { showRestorePopUp = false }
+            onCancel: { withAnimation(.spring()) { showRestorePopUp = false } }
         )
+        .transition(.scale.combined(with: .opacity))
     }
 
     private func toggleAllSelection() {
@@ -141,19 +157,19 @@ struct TrashView: View {
     }
 
     private func performDeletion() {
+        withAnimation(.spring()) { showDeletePopUp = false }
         viewModel.deleteForever(ids: Array(checkedItems))
         // 실제로 삭제할 때는 fetch()로 수정된 리스트 불러오기 !!
         checkedItems.removeAll()
         isEditing = false
-        showDeletePopUp = false
     }
 
     private func performRestore() {
+        withAnimation(.spring()) { showRestorePopUp = false }
         // 복원 API 호출
         viewModel.restoreWaste(ids: Array(checkedItems))
         checkedItems.removeAll()
         isEditing = false
-        showRestorePopUp = false
     }
 }
 
