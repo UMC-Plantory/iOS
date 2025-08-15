@@ -63,7 +63,17 @@ struct PlantPopupView: View {
                     VStack(alignment: .leading, spacing: 24) {
                         VStack(alignment: .leading, spacing: 10) {
                             SectionLabel(text: "사용된 일기")
-                            DiaryInfo(items: viewModel.usedDateTexts)
+                            DiaryInfo(
+                                items: viewModel.usedDateTexts,
+                                idProvider: { idx in
+                                    // 인덱스 기반으로 diaryID를 안전하게 매핑
+                                    if viewModel.usedDiaries.indices.contains(idx) {
+                                        return viewModel.usedDiaries[idx].diaryId
+                                    } else {
+                                        return nil
+                                    }
+                                }
+                            )
                         }
                         
                         VStack(alignment: .leading, spacing: 10) {
@@ -115,14 +125,29 @@ struct PlantPopupView: View {
     //사용된 일기
     struct DiaryInfo: View {
         var items: [String]
+        /// 각 아이템(인덱스)에 대응되는 diaryID를 제공 (필요 시 외부에서 주입)
+        var idProvider: (Int) -> Int? = { _ in nil }
 
         var body: some View {
             ScrollView(.horizontal, showsIndicators: false) {
                 HStack(spacing: 8) {
-                    ForEach(items, id: \.self) { item in
-                        NavigationLink {
-                            //DiaryCheckView(diary: items, isDeleteSheetPresented: <#Binding<Bool>#>)
-                        } label: {
+                    ForEach(Array(items.enumerated()), id: \.element) { index, item in
+                        if let id = idProvider(index) {
+                            NavigationLink {
+                                DiaryCheckView(diaryID: id)
+                            } label: {
+                                HStack(spacing: 8) {
+                                    Text(item)
+                                        .foregroundColor(Color("green08"))
+                                    Image(systemName: "chevron.right")
+                                        .foregroundColor(Color("green06"))
+                                }
+                                .font(.pretendardRegular(14))
+                                .frame(width: 66, height: 29)
+                                .overlay(RoundedRectangle(cornerRadius: 30).stroke(Color("green06"), lineWidth: 1))
+                            }
+                        } else {
+                            // diaryID를 구할 수 없으면 비활성 버튼으로 표시
                             HStack(spacing: 8) {
                                 Text(item)
                                     .foregroundColor(Color("green08"))
@@ -132,6 +157,7 @@ struct PlantPopupView: View {
                             .font(.pretendardRegular(14))
                             .frame(width: 66, height: 29)
                             .overlay(RoundedRectangle(cornerRadius: 30).stroke(Color("green06"), lineWidth: 1))
+                            .opacity(0.6)
                         }
                     }
                 }
@@ -188,5 +214,3 @@ private extension PlantPopupView {
         }
     }
 }
-
-
