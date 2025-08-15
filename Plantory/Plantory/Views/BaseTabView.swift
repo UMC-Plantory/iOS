@@ -103,6 +103,21 @@ struct BaseTabView: View {
     /// 각 탭에 해당하는 뷰
     @ViewBuilder
     private func tabView(tab: TabItem) -> some View {
+
+        Group {
+            switch tab {
+            case .home:
+                HomeView(container:container)
+            case .diary:
+                DiaryListView(isFilterSheetPresented: $isFilterSheetPresented)
+            case .terrarium:
+                TerrariumView()
+            case .chat:
+                ChatView(container: container)
+            case .profile:
+                MyPageView()
+            }
+
         switch tab {
         case .home:
             HomeView()
@@ -123,6 +138,7 @@ struct BaseTabView: View {
             ChatView(container: container)
         case .profile:
             MyPageView(container: container)
+
         }
     }
 }
