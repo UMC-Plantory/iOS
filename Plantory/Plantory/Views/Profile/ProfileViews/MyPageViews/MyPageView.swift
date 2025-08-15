@@ -101,6 +101,9 @@ struct MyPageView: View {
             }
         }
         .navigationBarHidden(true)
+        .task {
+            statsVM.fetch()
+        }
     }
 }
 

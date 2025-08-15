@@ -104,6 +104,7 @@ final public class ProfileViewModel: ObservableObject {
                 guard let self = self else { return }
                 // 성공 시 최신 상태 동기화를 위해 GET 다시 호출
                 self.fetchProfile()
+                self.container.navigationRouter.pop()
             }
             .store(in: &cancellables)
     }

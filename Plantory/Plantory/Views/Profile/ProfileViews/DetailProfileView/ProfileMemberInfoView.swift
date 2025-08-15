@@ -49,7 +49,7 @@ struct ProfileMemberInfoView: View {
             InputField(
                 title: "생년월일",
                 text: $vm.birth,
-                placeholder: "YYYY.MM.DD",
+                placeholder: "YYYY-MM-DD",
                 state: $vm.birthState
             )
 

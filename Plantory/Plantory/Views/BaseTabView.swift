@@ -111,34 +111,21 @@ struct BaseTabView: View {
             case .diary:
                 DiaryListView(isFilterSheetPresented: $isFilterSheetPresented)
             case .terrarium:
-                TerrariumView()
+                TerrariumView(
+                    viewModel: terrariumVM,
+                    onInfoTapped: { isTerrariumPopupVisible = true },
+                    onFlowerComplete: { showFlowerComplete = true },
+                    onPlantTap: { id in
+                        selectedTerrariumId = id
+                        plantPopupVM.open(terrariumId: id)
+                        showPlantPopup = true
+                    }
+                )
             case .chat:
                 ChatView(container: container)
             case .profile:
-                MyPageView()
+                MyPageView(container: container)
             }
-
-        switch tab {
-        case .home:
-            HomeView()
-        case .diary:
-            DiaryListView(isFilterSheetPresented: $isFilterSheetPresented)
-        case .terrarium:
-            TerrariumView(
-                viewModel: terrariumVM,
-                onInfoTapped: { isTerrariumPopupVisible = true },
-                onFlowerComplete: { showFlowerComplete = true },
-                onPlantTap: { id in
-                    selectedTerrariumId = id
-                    plantPopupVM.open(terrariumId: id)
-                    showPlantPopup = true
-                }
-            )
-        case .chat:
-            ChatView(container: container)
-        case .profile:
-            MyPageView(container: container)
-
         }
     }
 }
