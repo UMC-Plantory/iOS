@@ -68,6 +68,7 @@ struct AddDiaryView: View {
             // 최초 진입 시 오늘 날짜를 diaryDate에 세팅
             vm.diaryDate = DiaryFormatters.day.string(from: selectedDate)
         }
+        .navigationBarBackButtonHidden(true) 
         .sheet(isPresented: $showFullCalendar) {
             DatePickerCalendarView(selectedDate: $selectedDate) {
                 vm.diaryDate = DiaryFormatters.day.string(from: selectedDate)
@@ -186,7 +187,7 @@ struct AddDiaryView: View {
                         action: {
                             vm.submit()                 // 서버 저장 호출(이미 구현되어 있다면)
                             withAnimation(.easeInOut) {
-                            vm.isCompleted = true   // ✅ CompletedView로 전환
+                            vm.isCompleted = true   //  CompletedView로 전환
                                                 }
                                             }                    )
                     .tint(.green04)
