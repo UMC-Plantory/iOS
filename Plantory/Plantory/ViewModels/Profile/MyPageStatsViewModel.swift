@@ -14,6 +14,10 @@ final class MyPageStatsViewModel: ObservableObject {
     @Published private(set) var isLoggingOut = false
     @Published private(set) var didLogout = false
     @Published private(set) var logoutErrorMessage: String?
+    
+    // MARK: - 로딩
+    
+    @Published var isLoading = false
 
     private let container: DIContainer
     private var cancellables = Set<AnyCancellable>()
@@ -24,14 +28,20 @@ final class MyPageStatsViewModel: ObservableObject {
     }
 
     func fetch() {
+        self.isLoading = true
+        
         container.useCaseService.profileService
             .fetchProfileStats()
             .receive(on: DispatchQueue.main)
-            .sink { _ in } receiveValue: { [weak self] r in
+            .sink { [weak self] completion in
+                guard let self = self else { return }
+                self.isLoading = false
+            } receiveValue: { [weak self] r in
                 guard let self else { return }
                 self.response = r
                 self.applyDisplayFields(from: r)
                 self.stats = Self.makeStats(from: r)
+                self.isLoading = false
             }
             .store(in: &cancellables)
     }
@@ -39,6 +49,7 @@ final class MyPageStatsViewModel: ObservableObject {
     /// 로그아웃 API
     func logout() {
         guard !isLoggingOut else { return }
+        self.isLoading = true
         isLoggingOut = true
         logoutErrorMessage = nil
         didLogout = false
@@ -51,9 +62,11 @@ final class MyPageStatsViewModel: ObservableObject {
                 self.isLoggingOut = false
                 if case let .failure(err) = completion {
                     self.logoutErrorMessage = err.localizedDescription
+                    self.isLoading = false
                 }
             } receiveValue: { [weak self] _ in   // ← 여기 `_` 추가!
                 self?.didLogout = true
+                self?.isLoading = false
             }
             .store(in: &cancellables)
     }

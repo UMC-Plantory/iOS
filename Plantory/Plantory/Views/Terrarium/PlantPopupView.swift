@@ -92,6 +92,7 @@ struct PlantPopupView: View {
                 .background(Color.white)
                 .cornerRadius(5)
             }
+            .loadingIndicator(viewModel.isLoading)
         }
     }
     

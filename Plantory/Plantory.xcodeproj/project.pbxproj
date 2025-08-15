@@ -116,7 +116,7 @@
 		C05ECEE52E15232F0023AC5C /* Project object */ = {
 			isa = PBXProject;
 			attributes = {
-				BuildIndependentTargetsInParallel = 1;
+				BuildIndependentTargetsInParallel = YES;
 				LastSwiftUpdateCheck = 1640;
 				LastUpgradeCheck = 1640;
 				TargetAttributes = {
@@ -298,8 +298,6 @@
 		};
 		C05ECEF92E1523300023AC5C /* Debug */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReferenceAnchor = C05ECEEF2E15232F0023AC5C /* Plantory */;
-			baseConfigurationReferenceRelativePath = Core/Utils/Secret.xcconfig;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
@@ -336,8 +334,6 @@
 		};
 		C05ECEFA2E1523300023AC5C /* Release */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReferenceAnchor = C05ECEEF2E15232F0023AC5C /* Plantory */;
-			baseConfigurationReferenceRelativePath = Core/Utils/Secret.xcconfig;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;

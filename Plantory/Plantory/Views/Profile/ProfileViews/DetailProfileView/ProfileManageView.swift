@@ -43,7 +43,7 @@ struct ProfileManageView: View {
             )
 
             ProfileMemberInfoView(vm: vm) {
-                isShowingSignOutPopup = true
+                withAnimation(.spring()) { isShowingSignOutPopup = true }
             }
 
             // 취소/저장 버튼
@@ -70,6 +70,7 @@ struct ProfileManageView: View {
         )
         .padding(.horizontal, 16)
         .navigationBarBackButtonHidden()
+        .loadingIndicator(vm.isLoading)
     }
 
     // MARK: - Back Button
@@ -91,7 +92,7 @@ struct ProfileManageView: View {
                 container.navigationRouter.reset()
             },
             onCancel: {
-                isShowingSignOutPopup = false
+                withAnimation(.spring()) { isShowingSignOutPopup = false }
             }
         )
         .zIndex(1)
