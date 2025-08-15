@@ -39,8 +39,12 @@ public class TempViewModel: ObservableObject {
     }
     
     public func moveToTrash(ids: [Int], sort: SortOrder = .latest) {
-        isLoading = true
         errorMessage = nil
+
+        // 낙관적 업데이트: 선택 항목을 즉시 목록에서 제거하고, 실패 시 롤백
+        let previousDiaries = diaries
+        let removedIdSet = Set(ids)
+        diaries.removeAll { removedIdSet.contains($0.id) }
 
         container.useCaseService.profileService
             .patchWaste(diaryIds: ids)
@@ -51,12 +55,14 @@ public class TempViewModel: ObservableObject {
             }
             .receive(on: DispatchQueue.main)
             .sink { [weak self] completion in
-                self?.isLoading = false
+                guard let self = self else { return }
                 if case let .failure(error) = completion {
-                    self?.errorMessage = error.localizedDescription
+                    self.errorMessage = error.localizedDescription
+                    // 롤백
+                    self.diaries = previousDiaries
                 }
             } receiveValue: { [weak self] diaries in
-                self?.handleTemp(diaries) // 화면 갱신
+                self?.handleTemp(diaries) // 화면 갱신 (최신 서버 상태로 동기화)
             }
             .store(in: &cancellables)
     }
