@@ -14,6 +14,14 @@ import AuthenticationServices
 @Observable
 class LoginViewModel {
     
+    // MARK: - Toast
+    
+    var toast: CustomToast? = nil
+    
+    // MARK: - 로딩
+    
+    var isLoading = false
+    
     // MARK: - 의존성 주입 및 비동기 처리
     
     /// DIContainer를 통해 의존성 주입
@@ -55,14 +63,19 @@ class LoginViewModel {
     }
     
     /// 카카오 로그인 API 호출
-    private func sendKakaoLoginToServer(
-        idToken: KakaoUser
-    ) async throws {
+    private func sendKakaoLoginToServer(idToken: KakaoUser) async throws {
+        self.isLoading = true
+
         container.useCaseService.authService.kakaoLogin(idToken: idToken)
             .receive(on: DispatchQueue.main)
-            .sink(receiveCompletion: { completion in
+            .sink(receiveCompletion: { [weak self] completion in
                 if case .failure(let error) = completion {
+                    self?.toast = CustomToast(
+                        title: "로그인 오류",
+                        message: "\(error.errorDescription ?? "알 수 없는 에러")"
+                    )
                     print("로그인 오류: \(error.errorDescription ?? "알 수 없는 에러")")
+                    self?.isLoading = false
                 }
             }, receiveValue: { [weak self] response in
                 let tokenInfo = TokenInfo(
@@ -75,6 +88,8 @@ class LoginViewModel {
                 Task {
                     await self?.routeAfterLogin(status: response.memberStatus)
                 }
+
+                self?.isLoading = false
             })
             .store(in: &cancellables)
     }

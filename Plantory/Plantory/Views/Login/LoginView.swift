@@ -56,6 +56,8 @@ struct LoginView: View {
         )
         .ignoresSafeArea()
         .navigationBarBackButtonHidden()
+        .toastView(toast: $viewModel.toast)
+        .loadingIndicator(viewModel.isLoading)
     }
     
     // MARK: - Top Contents
