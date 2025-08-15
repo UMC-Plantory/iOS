@@ -11,10 +11,11 @@ struct DiaryListView: View {
     @StateObject private var viewModel: DiaryListViewModel
     @Binding var isFilterSheetPresented: Bool
     @State private var isNavigatingToSearch = false
+    @EnvironmentObject var container: DIContainer
 
     init(
         isFilterSheetPresented: Binding<Bool>,
-        container: DIContainer = DIContainer()
+        container: DIContainer
     ) {
         _isFilterSheetPresented = isFilterSheetPresented
         // @StateObject는 init에서만 세팅
@@ -49,7 +50,7 @@ struct DiaryListView: View {
         }
         .navigationDestination(isPresented: $isNavigatingToSearch) {
             // 검색 화면으로 이동
-            DiarySearchView(container: DIContainer())
+            DiarySearchView(container: container)
         }
     }
 }
@@ -148,23 +149,5 @@ struct DiaryMonthSectionView: View {
         }
         .padding(.horizontal)
         .background(Color("brown01"))
-    }
-}
-
-
-
-struct DiaryListView_Previews: PreviewProvider {
-    struct PreviewContainer: View {
-        @State var isPresented = false
-        
-        var body: some View {
-            NavigationStack {
-                DiaryListView(isFilterSheetPresented: $isPresented)
-            }
-        }
-    }
-    
-    static var previews: some View {
-        PreviewContainer()
     }
 }
