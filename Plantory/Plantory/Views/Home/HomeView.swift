@@ -8,29 +8,16 @@
 import SwiftUI
 
 struct HomeView: View {
-
-
-    @StateObject private var diaryStore = DiaryStore()
-    @State private var month: Date = Date()
-    @State private var selectedDate: Date? = nil
-
-    @EnvironmentObject var container: DIContainer
-    
     // MARK: - Property
-    @State var viewModel: HomeViewModel
-    
+    @State private var viewModel: HomeViewModel
     // MARK: - Init
     init(container: DIContainer) {
-        self.viewModel = .init(container: container)
+        self._viewModel = State(initialValue: .init(container: container))
     }
-    
     // MARK: - UI 상태
-
     @State private var showingDetailSheet = false
     @State private var showMonthPicker = false
     @State private var showErrorAlert = false
-
-    @EnvironmentObject var container: DIContainer
 
     private let calendar = Calendar.current
     private let dateFormatter: DateFormatter = {
@@ -45,9 +32,16 @@ struct HomeView: View {
 
             VStack {
                 Spacer().frame(height: 73)
-                HomeHeaderView
+                HomeHeaderView()
                 Spacer().frame(height: 32)
-                CalendarHeaderView
+                Plantory.CalendarHeaderView(
+                        month: viewModel.month,
+                        onMoveMonth: { value in viewModel.moveMonth(by: value) },
+                        onTapCalendar: { showMonthPicker = true },
+                        onTapPlus: {
+                            // TODO: 네비게이션 연결
+                        }
+                    )
                 Spacer().frame(height: 4)
 
                 ZStack {
@@ -203,46 +197,6 @@ struct HomeView: View {
                 .presentationDetents([.height(264)])
                 .presentationDragIndicator(.hidden)
             }
-        }
-    }
-
-    private var HomeHeaderView: some View {
-        HStack {
-            Text("오늘 하루는 어땠나요?")
-                .font(.pretendardRegular(24))
-                .foregroundColor(.black01)
-            Spacer()
-        }
-    }
-
-    private var CalendarHeaderView: some View {
-        VStack {
-            HStack {
-                CalendarView.makeYearMonthView(
-                    month: viewModel.month,
-                    changeMonth: { value in viewModel.moveMonth(by: value) }
-                )
-                Spacer()
-                // 달력 아이콘 → 피커 열기
-                Button { showMonthPicker = true } label: {
-                    Image(systemName: "calendar")
-                        .font(.title)
-                        .foregroundColor(.black)
-                }
-
-
-                Button(action: {
-                    container.navigationRouter.push(.addDiary)
-                }) {
-
-                Button(action: { /* Navigation 연결 */ }) {
-
-                    Image(systemName: "plus")
-                        .font(.title)
-                        .foregroundColor(.black)
-                }
-            }
-            Spacer().frame(height: 18)
         }
     }
 }
