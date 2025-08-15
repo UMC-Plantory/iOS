@@ -51,9 +51,10 @@ struct MyPageView: View {
                     MenuSection(
                         scrapAction:     { container.navigationRouter.push(.scrap) },
                         tempAction:      { container.navigationRouter.push(.tempStorage) },
-                        trashAction:     { container.navigationRouter.push(.trash) }, logoutAction: {
+                        trashAction:     { container.navigationRouter.push(.trash) },
+                        logoutAction: {
                             // 로그아웃 판넬
-                            showLogout = true
+                            withAnimation(.spring()) { showLogout = true }
                         }
                     )
                 }
@@ -67,6 +68,11 @@ struct MyPageView: View {
             }
             .overlay {
                 if showLogout {
+                    BlurBackground()
+                        .onTapGesture {
+                            withAnimation(.spring()) { showLogout = false }
+                        }
+                    
                     PopUp(
                         title: "로그아웃 하시겠습니까?",
                         message: "로그아웃 시, 로그인 화면으로 돌아갑니다.",
@@ -74,12 +80,13 @@ struct MyPageView: View {
                         cancelTitle: "취소",
                         onConfirm: {
                             // 삭제 로직
-                            showLogout = false
+                            withAnimation(.spring()) { showLogout = false }
                         },
                         onCancel: {
-                            showLogout = false
+                            withAnimation(.spring()) { showLogout = false }
                         }
                     )
+                    .transition(.scale.combined(with: .opacity))
                 }
             }
             .navigationBarHidden(true)

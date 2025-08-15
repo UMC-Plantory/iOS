@@ -19,12 +19,22 @@ struct TempStorageView: View {
                 TempFootView(
                     isEditing: $isEditing,
                     isEmpty: checkedItems.isEmpty,
-                    onDelete: { showPopUp = true }
+                    onDelete: { withAnimation(.spring()) { showPopUp = true } }
                 )
             }
             .padding(.horizontal)
             .onChange(of: isNewSorting) { _, newValue in
                 viewModel.fetchTemp(sort: newValue ? .latest : .oldest)
+            }
+            .overlay {
+                if showPopUp {
+                    BlurBackground()
+                        .onTapGesture {
+                            withAnimation(.spring()) { showPopUp = false }
+                        }
+                    
+                    deleteConfirmationPopUp
+                }
             }
             .customNavigation(
                 title: "임시보관함",
@@ -32,10 +42,6 @@ struct TempStorageView: View {
                 trailing: navigationTrailing
             )
             .navigationBarBackButtonHidden(true)
-
-            if showPopUp {
-                deleteConfirmationPopUp
-            }
         }
     }
 
@@ -116,8 +122,9 @@ struct TempStorageView: View {
             confirmTitle: "삭제하기",
             cancelTitle: "취소",
             onConfirm: performDeletion,
-            onCancel: { showPopUp = false }
+            onCancel: { withAnimation(.spring()) { showPopUp = false } }
         )
+        .transition(.scale.combined(with: .opacity))
     }
 
     // MARK: - 액션
@@ -130,10 +137,10 @@ struct TempStorageView: View {
     }
 
     private func performDeletion() {
+        withAnimation(.spring()) { showPopUp = false }
         viewModel.moveToTrash(ids: Array(checkedItems))
         checkedItems.removeAll()
         isEditing = false
-        showPopUp = false
     }
 }
 

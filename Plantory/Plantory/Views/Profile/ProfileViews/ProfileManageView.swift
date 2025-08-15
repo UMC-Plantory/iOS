@@ -21,14 +21,18 @@ struct ProfileManageView: View {
     @State private var isShowingSignOutPopup = false
 
     var body: some View {
-        ZStack {
-            // 스크롤 가능한 메인 콘텐츠
-            ScrollView(.vertical, showsIndicators: false) {
-                profileContent
-            }
-
+        // 스크롤 가능한 메인 콘텐츠
+        ScrollView(.vertical, showsIndicators: false) {
+            profileContent
+        }
+        .overlay {
             // 탈퇴 팝업을 필요 시 최상위에 표시
             if isShowingSignOutPopup {
+                BlurBackground()
+                    .onTapGesture {
+                        withAnimation(.spring()) { isShowingSignOutPopup = false }
+                    }
+                
                 signOutPopup
             }
         }
@@ -42,7 +46,7 @@ struct ProfileManageView: View {
             ProfileImageView()                      // 프로필 이미지 섹션
             ProfileMemberInfoView(vm: vm) {
                 // 탈퇴 버튼 클릭 시 팝업 토글
-                isShowingSignOutPopup = true
+                withAnimation(.spring()) { isShowingSignOutPopup = true }
             }
         }
         .customNavigation(
@@ -72,14 +76,14 @@ struct ProfileManageView: View {
             onConfirm: {
                 // TODO: 실제 탈퇴 처리 로직 연결
                 print("회원 탈퇴 확인 버튼 클릭")
-                isShowingSignOutPopup = false
+                withAnimation(.spring()) { isShowingSignOutPopup = false }
             },
             onCancel: {
                 // 팝업 닫기
-                isShowingSignOutPopup = false
+                withAnimation(.spring()) { isShowingSignOutPopup = false }
             }
         )
-        .zIndex(1)                             // 팝업 레이어 우선순위 설정
+        .transition(.scale.combined(with: .opacity))
     }
 }
 

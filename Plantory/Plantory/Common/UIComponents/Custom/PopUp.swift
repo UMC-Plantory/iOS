@@ -15,17 +15,18 @@ struct PopUp: View {
     let cancelTitle: String
     let onConfirm: () -> Void
     let onCancel: () -> Void
+    
+    // MARK: Animation properties
+    @State private var appearScale: CGFloat = 0.8
+    @State private var opacity: Double = 0
 
     var body: some View {
         ZStack {
-            Color.black.opacity(0.4)
-                .ignoresSafeArea()
-
             VStack(alignment: .leading) {
                 // 제목
                 Text(title)
                     .font(.pretendardSemiBold(18))
-
+                
                 Spacer().frame(height: 6)
                 
                 // 메시지
@@ -34,18 +35,18 @@ struct PopUp: View {
                     .foregroundColor(.gray09)
                     .multilineTextAlignment(.leading)
                     .fixedSize(horizontal: false, vertical: true)
-
+                
                 Spacer().frame(height: 27)
                 
                 HStack(spacing: 10) {
                     Spacer()
                     
                     // 취소 버튼
-                    MainSmallButton(
+                    StrokeSmallButton(
                         text: cancelTitle,
                         action: onCancel
                     )
-
+                    
                     // 확인 버튼
                     MainSmallButton(
                         text: confirmTitle,
@@ -59,7 +60,32 @@ struct PopUp: View {
                     .fill(Color.white)
             )
             .padding(.horizontal, 25)
+            .scaleEffect(appearScale)
+            .opacity(opacity)
+            .onAppear {
+                withAnimation(.spring(response: 0.4, dampingFraction: 0.75)) {
+                    appearScale = 1.0
+                    opacity = 1.0
+                }
+            }
         }
+    }
+}
+
+struct BlurBackground: View {
+    
+    // State to animate the blur opacity
+    @State private var blurAmount: CGFloat = 0
+    
+    var body: some View {
+        Color.black.opacity(0.4)
+            .ignoresSafeArea()
+            .opacity(blurAmount)
+            .onAppear {
+                withAnimation(.easeInOut(duration: 0.1)) {
+                    blurAmount = 1
+                }
+            }
     }
 }
 
