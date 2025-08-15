@@ -9,7 +9,7 @@ import SwiftUI
 
 //DiaryList의 하위뷰로 각각의 일기를 보여주는 View입니다. 
 struct DiaryRow: View {
-    let entry: DiaryEntry
+    let entry: DiarySummary
 
     var body: some View {
         ZStack(alignment: .leading) {
@@ -25,7 +25,7 @@ struct DiaryRow: View {
                 .overlay(
                     VStack(alignment: .leading, spacing: 0) {
                         // 즐겨찾기 아이콘
-                        Image(entry.isFavorite ? "star_green" : "star_gray")
+                        Image(entry.status == "SCRAP" ? "star_green" : "star_gray")
                             .resizable()
                             .frame(width: 20, height: 20)
                             .padding(.top, -4)
@@ -45,7 +45,7 @@ struct DiaryRow: View {
                         //.lineLimit(1)
 
                         // 감정 텍스트
-                        Text(entry.emotion.rawValue)
+                        Text(Emotion(apiString: entry.emotion).rawValue)
                             .font(.pretendardRegular(12))
                             .foregroundColor(Color("green04"))
                             .padding(.top, 24)
@@ -71,7 +71,7 @@ struct DiaryRow: View {
                         .shadow(color: Color.black.opacity(0.1), radius: 2, x: 2, y: 2)
 
                         // 날짜 텍스트 (오른쪽 정렬)
-                        Text(dateFormatter.string(from: entry.date))
+                        Text(entry.diaryDate)
                             .font(.pretendardRegular(14))
                             .foregroundColor(Color("white01"))
                             .padding(.trailing, 3) // 텍스트 오른쪽 여백
@@ -80,7 +80,7 @@ struct DiaryRow: View {
                 .padding(.top, -4)
               
                 RoundedCorner(radius: 5, corners: [.topRight, .bottomRight])
-                    .fill(entry.emotion.color)
+                    .fill(Emotion(apiString: entry.emotion).color)
                     .frame(width: 24, height: 23)
                     .offset(x: -15)
                 
@@ -91,10 +91,21 @@ struct DiaryRow: View {
             .padding(.trailing, 30)
         }
     }
+    
+    private func formatToMonthDay(_ dateString: String) -> String {
+        let inputFormatter = DateFormatter()
+        inputFormatter.dateFormat = "yyyy-MM-dd"
+        inputFormatter.locale = Locale(identifier: "en_US_POSIX") // 안정성 위해 설정
 
-    private var dateFormatter: DateFormatter {
-        let f = DateFormatter()
-        f.dateFormat = "MM.dd"
-        return f
+        let outputFormatter = DateFormatter()
+        outputFormatter.dateFormat = "MM.dd"
+
+        if let date = inputFormatter.date(from: dateString) {
+            return outputFormatter.string(from: date)
+        } else {
+            return dateString // 변환 실패 시 원본 반환
+        }
     }
+
+    
 }

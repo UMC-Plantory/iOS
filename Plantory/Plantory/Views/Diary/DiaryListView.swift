@@ -38,10 +38,10 @@ struct DiaryListView: View {
 
                 DiaryMonthSectionView(isFilterSheetPresented: $isFilterSheetPresented)
 
-                DiaryListContent(
-                    entries: viewModel.entries,
+                DiaryListContent (
+                    entries: viewModel.diaries,
                         isLoading: viewModel.isLoading,
-                        onAppearLast: { viewModel.loadMoreMock() },
+                        onAppearLast: { viewModel.fetchMore( ) },
                         onTap: { entry in
                             viewModel.fetchDiary(diaryId: entry.id)
                             container.navigationRouter.path.append(NavigationDestination.diaryDetail(diaryId: entry.id))
@@ -62,23 +62,23 @@ struct DiaryListView: View {
 
 // 스크롤 리스트만 분리
 private struct DiaryListContent: View {
-    let entries: [DiaryEntry]
+    let diaries: [DiarySummary]
     let isLoading: Bool
     let onAppearLast: () -> Void
-    let onTap: (DiaryEntry) -> Void
+    let onTap: (DiarySummary) -> Void
 
     var body: some View {
         ScrollView {
             LazyVStack(spacing: 16) {
-                ForEach(entries) { entry in
+                ForEach(diaries) { diary in
                     Button {
-                        onTap(entry)
+                        onTap(diary)
                     } label: {
-                        DiaryRow(entry: entry)
+                        DiaryRow(entry: diary)
                     }
                     .buttonStyle(.plain)
                     .onAppear {
-                        if entry.id == entries.last?.id { // Identifiable 가정
+                        if diary.id == diaries.last?.id { // Identifiable 가정
                             onAppearLast()
                         }
                     }

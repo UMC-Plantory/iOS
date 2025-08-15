@@ -49,7 +49,7 @@ struct NavigationRoutingView: View {
                             
                         // 다이어리 뷰
                         case .diaryDetail:
-                            DiarySearchView(container: container)
+                            DiaryCheckView(container: container)
                         }
                     }
                     .environmentObject(container)

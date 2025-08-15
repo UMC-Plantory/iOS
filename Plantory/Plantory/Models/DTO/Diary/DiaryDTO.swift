@@ -29,7 +29,7 @@ struct DiaryDetail: Codable {
 // MARK: - 일기 리스트 조회 + 필터 적용 요청/응답
 /// 일기 리스트 조회 + 필터 적용 Request
 struct DiaryFilterRequest: Codable {
-    var sort: DiarySort = .latest
+    var sort: String?
     var from: String?   // "YYYY-MM"
     var to: String?     // "YYYY-MM"
     var emotion: Emotion = .all
