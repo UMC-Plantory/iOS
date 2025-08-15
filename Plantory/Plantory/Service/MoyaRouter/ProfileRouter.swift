@@ -65,17 +65,14 @@ extension ProfileRouter {
 
     var method: Moya.Method {
         switch self {
-        case .myProfile, .profileStats,
-             .weeklyStats, .monthlyStats,
-             .weeklyEmotionStats, .monthlyEmotionStats,
-             .temporary, .waste:
-            return .get
-
         case .wastePatch, .restore, .patchProfile, .withdrawAccount:
             return .patch
 
         case .deleteDiary, .logout:
             return .delete
+            
+        default:
+            return .get
         }
     }
 
