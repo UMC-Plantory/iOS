@@ -29,9 +29,8 @@
                                 PolicyView(num: num)
                             case .profileInfo:
                                 ProfileInfoView(container: container)
-                            case .addDiary():       AddDiaryView(container: container)
-                            case .home:
-                                HomeView(container:container)
+                            case .addDiary:
+                             AddDiaryView(container: container)
 
                             
                             case .baseTab:
@@ -48,9 +47,6 @@
                                 EmotionStatsView()
                             case .profileManage:
                                 ProfileManageView()
-                            
-                            
-                            
                             }
                         }
                         .environmentObject(container)

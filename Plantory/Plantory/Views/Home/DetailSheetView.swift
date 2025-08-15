@@ -10,23 +10,23 @@ import SwiftUI
 struct DetailSheetView: View {
     let date: Date
     let entry: DiaryEntryData?
-    
+
     @EnvironmentObject var container: DIContainer
-    
+
     private let dateFormatter: DateFormatter = {
         let df = DateFormatter()
         df.dateFormat = "yyyy년 M월 d일"
         return df
     }()
-    
+
     var body: some View {
         VStack(spacing: 16) {
-            
             Spacer().frame(height: 8)
-            
+
             DateTextHeader
-            
+
             ZStack {
+                // 미래 날짜 경고
                 if date > Calendar.current.startOfDay(for: Date()) {
                     VStack {
                         Spacer()
@@ -36,9 +36,11 @@ struct DetailSheetView: View {
                             .multilineTextAlignment(.center)
                         Spacer()
                     }
+
+                // 작성된 일기 있는 경우
                 } else if let entry = entry {
                     Button {
-                        // 상세 이동
+                        // 상세 이동 (필요 시 라우팅 추가)
                     } label: {
                         HStack {
                             // 제목
@@ -46,16 +48,16 @@ struct DetailSheetView: View {
                                 .font(.pretendardRegular(14))
                                 .foregroundColor(.black)
                                 .lineLimit(1)
-                            
+
                             Spacer().frame(width: 4)
-                            
+
                             // 감정 텍스트
                             Text(entry.emotiontext)
                                 .font(.pretendardRegular(12))
                                 .foregroundColor(.gray08)
-                            
+
                             Spacer()
-                            
+
                             Image(systemName: "chevron.right")
                                 .foregroundColor(.black)
                         }
@@ -63,11 +65,16 @@ struct DetailSheetView: View {
                         .background(
                             RoundedRectangle(cornerRadius: 8)
                                 .fill(entry.emotion.EmotionColor)
-                                .stroke(Color.black.opacity(0.2), lineWidth: 0.5)
-                                .frame(width:340,height:56)
+                                .frame(width: 340, height: 56)
+                                .overlay(
+                                    RoundedRectangle(cornerRadius: 8)
+                                        .stroke(Color.black.opacity(0.2), lineWidth: 0.5)
+                                )
                         )
                     }
                     .padding(.bottom, 24)
+
+                // 작성된 일기 없는 경우
                 } else {
                     VStack {
                         Spacer()
@@ -84,7 +91,7 @@ struct DetailSheetView: View {
         .padding(.horizontal, 24)
         .frame(height: 264)
     }
-    
+
     private var DateTextHeader: some View {
         HStack {
             Text("\(date, formatter: dateFormatter)")
@@ -93,6 +100,7 @@ struct DetailSheetView: View {
             Spacer()
             if date <= Calendar.current.startOfDay(for: Date()) {
                 Button {
+                    // 연관값 필요: .addDiary(date:)
                     container.navigationRouter.push(.addDiary)
                 } label: {
                     Image(systemName: "plus")

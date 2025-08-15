@@ -9,19 +9,19 @@ import SwiftUI
 
 struct CompletedView: View {
     var body: some View {
-        NavigationStack {
+        @EnvironmentObject var container: DIContainer
+
             ZStack {
                 Color.diarybackground.ignoresSafeArea()
 
-                
-                
                 VStack(spacing: 20) {
                     HStack{
                         
                         Spacer()
                         
                         Button(
-                            action:{print("홈버튼")}
+                            action:{
+                        }
                         ){
                             Image(.home)
                                 .foregroundColor(.diaryfont)
@@ -55,7 +55,7 @@ struct CompletedView: View {
                             text: "내 식물 보기",
                             isDisabled: false,
                             action: {
-                            }
+                                    }
                         )
                         
                         Spacer()
@@ -66,7 +66,7 @@ struct CompletedView: View {
                 }
             }
         }
-    }
+    
 
     private var completedImage: some View {
         ZStack {

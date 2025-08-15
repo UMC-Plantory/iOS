@@ -39,10 +39,10 @@ struct AddDiaryView: View {
     @State private var selectedDate: Date = Date()
     @State private var showFullCalendar: Bool = false
 
-    init(container: DIContainer, date: Date) {
-        self._stepVM = Bindable(wrappedValue: StepIndicatorViewModel())
-        self._vm     = Bindable(wrappedValue: AddDiaryViewModel(container: container))
-        self._selectedDate = State(initialValue: date)
+    init(container: DIContainer, date: Date = Date()) {
+            self._stepVM = Bindable(wrappedValue: StepIndicatorViewModel())
+            self._vm     = Bindable(wrappedValue: AddDiaryViewModel(container: container))
+            self._selectedDate = State(initialValue: date)
         }
     
     var body: some View {
@@ -86,7 +86,8 @@ struct AddDiaryView: View {
                     Image(.home)
                         .foregroundColor(.diaryfont)
                 }
-                Spacer().frame(width: 16)
+                
+                Spacer().frame(width: 80)
 
                 Button {
                     showFullCalendar = true
@@ -182,8 +183,12 @@ struct AddDiaryView: View {
                     MainMiddleButton(
                         text: "작성완료",
                         isDisabled: vm.isLoading,
-                        action: { vm.submit() }
-                    )
+                        action: {
+                            vm.submit()                 // 서버 저장 호출(이미 구현되어 있다면)
+                            withAnimation(.easeInOut) {
+                            vm.isCompleted = true   // ✅ CompletedView로 전환
+                                                }
+                                            }                    )
                     .tint(.green04)
                 }
             }

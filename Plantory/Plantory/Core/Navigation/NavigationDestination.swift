@@ -12,7 +12,6 @@ enum NavigationDestination: Equatable, Hashable {
     case permit
     case policy(num: Int)
     case profileInfo
-    case home
     case baseTab
     case addDiary
 
