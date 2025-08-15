@@ -107,7 +107,7 @@ struct HomeView: View {
                     initialYear: viewModel.displayYear,
                     initialMonth: viewModel.displayMonth
                 ) { y, m in
-                    viewModel.setMonth(year: y, month: m)   // ✅ 적용 버튼에서만 커밋
+                    viewModel.setMonth(year: y, month: m)
                     showMonthPicker = false
                 }
                 .transition(.scale.combined(with: .opacity))
@@ -218,7 +218,7 @@ struct HomeView: View {
                         .font(.title)
                         .foregroundColor(.black)
                 }
-                Button(action: { /* 새로운 일기 추가 이동 */ }) {
+                Button(action: { /* Navigation 연결 */ }) {
                     Image(systemName: "plus")
                         .font(.title)
                         .foregroundColor(.black)

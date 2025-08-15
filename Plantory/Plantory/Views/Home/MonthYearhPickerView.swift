@@ -33,7 +33,7 @@ private struct YearDropdown: View {
                         } label: {
                             HStack {
                                 Text("\(y)년")
-                                    .font(.pretendardRegular(18))
+                                    .font(.pretendardRegular(14))
                                     .foregroundColor(.white)
                                 Spacer()
                             }
@@ -43,7 +43,7 @@ private struct YearDropdown: View {
                         }
                         .id(y)
 
-                        Divider().background(Color.white.opacity(0.12))
+                        Divider().background(Color.white.opacity(0.5))
                     }
                 }
             }
@@ -56,7 +56,7 @@ private struct YearDropdown: View {
         }
         .frame(width: dropdownWidth)
         .background(
-            LinearGradient(colors: [.black.opacity(0.95), .black.opacity(0.85)],
+            LinearGradient(colors: [.gray09.opacity(0.95), .gray09.opacity(0.85)],
                            startPoint: .top, endPoint: .bottom)
         )
         .clipShape(RoundedRectangle(cornerRadius: 8))
@@ -66,7 +66,7 @@ private struct YearDropdown: View {
 
 // MARK: - 메인 뷰
 struct MonthYearPickerView: View {
-    // HomeView에서 사용하는 시그니처와 정확히 일치
+    // HomeView에서 사용
     let initialYear: Int
     let initialMonth: Int
     let onApply: (Int, Int) -> Void
@@ -110,10 +110,10 @@ struct MonthYearPickerView: View {
                     .zIndex(1)
             }
 
-            // 모달 카드 (항상 고정)
+            // 모달 카드 (항상 고정되게끔)
             VStack(spacing: 18) {
                 HStack {
-                    // 연도 버튼(검정 텍스트 유지)
+                    // 연도 버튼(검정 텍스트)
                     Button {
                         withAnimation(.easeInOut(duration: 0.18)) { isYearMenuOpen.toggle() }
                     } label: {
@@ -133,7 +133,7 @@ struct MonthYearPickerView: View {
                                 .stroke(Color.gray05, lineWidth: 1)
                         )
                     }
-                    // 전역 좌표로 버튼 프레임 측정 → 드롭다운 절대 배치
+                    // 전역 좌표로 버튼 프레임 측정 → 드롭다운 배치
                     .background(
                         GeometryReader { geo in
                             Color.clear.preference(key: YearButtonFrameKey.self,
@@ -143,7 +143,7 @@ struct MonthYearPickerView: View {
 
                     Spacer()
 
-                    // 적용 버튼: 눌러야만 외부에 커밋
+                    // 적용 버튼: 눌러야만 외부에 적용
                     Button {
                         onApply(draftYear, draftMonth)
                     } label: {
