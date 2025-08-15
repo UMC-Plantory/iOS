@@ -11,20 +11,20 @@ struct EmotionGaugeView: View {
 
     // 감정 키 → 이미지 자산 이름 매핑
     private static let imageNameMap: [String: String] = [
-        "joy":      "happy",
-        "surprise": "surprise",
-        "sadness":  "sad",
-        "anger":    "angry",
-        "soso":     "soso"
+        "HAPPY":      "happy",
+        "AMAZING": "surprise",
+        "SAD":  "sad",
+        "ANGRY":    "angry",
+        "SOSO":     "soso"
     ]
     
     // 감정 키 → 게이지 그라데이션 색상 매핑
     private static let gradientColorMap: [String: [Color]] = [
-        "joy":      [Color.yellow.opacity(0.01), Color.yellow.opacity(0.2), Color.yellow.opacity(0.3)],
-        "surprise": [Color.green.opacity(0.01), Color.green.opacity(0.1), Color.green.opacity(0.2)],
-        "sadness":  [Color.blue.opacity(0.01), Color.blue.opacity(0.1), Color.blue.opacity(0.2)],
-        "anger":    [Color.pink.opacity(0.01), Color.pink.opacity(0.1), Color.pink.opacity(0.2)],
-        "soso":     [Color.gray.opacity(0.01), Color.gray.opacity(0.1), Color.gray.opacity(0.2)]
+        "HAPPY":      [Color.yellow.opacity(0.01), Color.yellow.opacity(0.2), Color.yellow.opacity(0.3)],
+        "AMAZING": [Color.green.opacity(0.01), Color.green.opacity(0.1), Color.green.opacity(0.2)],
+        "SAD":  [Color.blue.opacity(0.01), Color.blue.opacity(0.1), Color.blue.opacity(0.2)],
+        "ANGRY":    [Color.pink.opacity(0.01), Color.pink.opacity(0.1), Color.pink.opacity(0.2)],
+        "SOSO":     [Color.gray.opacity(0.01), Color.gray.opacity(0.1), Color.gray.opacity(0.2)]
     ]
 
     var body: some View {
@@ -91,9 +91,9 @@ struct EmotionGaugeView: View {
 
 #Preview {
     VStack(spacing: 20) {
-        EmotionGaugeView(progress: 0.6, emotionKey: "sadness")
+        EmotionGaugeView(progress: 0.6, emotionKey: "SAD")
             .frame(width: 120, height: 120)
-        EmotionGaugeView(progress: 0.3, emotionKey: "joy")
+        EmotionGaugeView(progress: 0.3, emotionKey: "HAPPY")
             .frame(width: 120, height: 120)
     }
 }
