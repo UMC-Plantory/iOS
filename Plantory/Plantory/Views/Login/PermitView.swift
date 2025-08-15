@@ -72,6 +72,8 @@ struct PermitView: View {
                         .fixedSize()
                 })
         )
+        .toastView(toast: $viewModel.toast)
+        .loadingIndicator(viewModel.isLoading)
     }
     
     private var topTextView: some View {

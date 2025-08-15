@@ -12,6 +12,14 @@ import Combine
 @Observable
 class PermitViewModel {
     
+    // MARK: - Toast
+    
+    var toast: CustomToast? = nil
+    
+    // MARK: - 로딩
+    
+    var isLoading = false
+    
     // MARK: - 의존성 주입 및 비동기 처리
     
     /// DIContainer를 통해 의존성 주입
@@ -83,6 +91,8 @@ class PermitViewModel {
     
     /// 서비스 이용 동의 API 호출
     private func postAgreements() async throws {
+        self.isLoading = true
+        
         let request = AgreementsRequest(
             agreeTermIdList: agreeTermIdList,
             disagreeTermIdList: disagreeTermIdList
@@ -90,13 +100,20 @@ class PermitViewModel {
         
         container.useCaseService.authService.postAgreements(request: request)
             .receive(on: DispatchQueue.main)
-            .sink(receiveCompletion: { completion in
+            .sink(receiveCompletion: { [weak self] completion in
                 if case .failure(let error) = completion {
-                    print("서비스 이용 동의 오류: \(error.errorDescription ?? "알 수 없는 에러")")
+                    self?.toast = CustomToast(
+                        title: "로그인 오류",
+                        message: "\(error.errorDescription ?? "알 수 없는 에러")"
+                    )
+                    print("로그인 오류: \(error.errorDescription ?? "알 수 없는 에러")")
+                    self?.isLoading = false
                 }
             }, receiveValue: { [weak self] response in
                 // post 성공 시, 개인정보 입력 뷰로 이동
                 self?.container.navigationRouter.push(.profileInfo)
+                
+                self?.isLoading = false
             })
             .store(in: &cancellables)
     }

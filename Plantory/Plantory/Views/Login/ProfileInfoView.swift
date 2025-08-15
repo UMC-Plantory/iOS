@@ -28,15 +28,23 @@ struct ProfileInfoView: View {
     // MARK: - Body
     
     var body: some View {
-        ZStack {
-            // 메인 콘텐츠
-            profileInfoView
-
-            // 로그인 화면으로 돌아가는 팝업
-            if isShowingGoToLoginPopup {
-                GoToLoginPopup
+        // 메인 콘텐츠
+        profileInfoView
+            .overlay {
+                // 로그인 화면으로 돌아가는 팝업
+                if isShowingGoToLoginPopup {
+                    BlurBackground()
+                        .onTapGesture {
+                            withAnimation(.spring()) {
+                                isShowingGoToLoginPopup = false
+                            }
+                        }
+                    
+                    GoToLoginPopup
+                }
             }
-        }
+            .toastView(toast: $viewModel.toast)
+            .loadingIndicator(viewModel.isLoading)
     }
     
     private var profileInfoView: some View {
@@ -49,7 +57,6 @@ struct ProfileInfoView: View {
                     subText: "플랜토리의 다양한 서비스를 이용해보세요.",
                     buttonTitle: "홈으로 이동하기",
                     buttonAction: {
-                        container.navigationRouter.pop()
                         container.navigationRouter.push(.baseTab)
                     }
                 )
@@ -98,7 +105,7 @@ struct ProfileInfoView: View {
             HStack {
                 Button(action: {
                     // 로그인으로 돌아가기 팝업 띄우기
-                    isShowingGoToLoginPopup = true
+                    withAnimation(.spring()) { isShowingGoToLoginPopup = true }
                 }, label: {
                     Image("leftChevron")
                         .fixedSize()
@@ -159,13 +166,13 @@ struct ProfileInfoView: View {
             confirmTitle: "돌아가기",
             cancelTitle: "취소",
             onConfirm: {
-                // 로그인화면으로 이동한 후 팝업 닫기
-                container.navigationRouter.push(.login)
-                isShowingGoToLoginPopup = false
+                // 로그인 화면으로 이동한 후 팝업 닫기
+                container.navigationRouter.reset()
+                withAnimation(.spring()) { isShowingGoToLoginPopup = false }
             },
             onCancel: {
                 // 팝업 닫기
-                isShowingGoToLoginPopup = false
+                withAnimation(.spring()) { isShowingGoToLoginPopup = false }
             }
         )
         .zIndex(10)

@@ -11,6 +11,14 @@ import Moya
 
 class ProfileInfoViewModel: ObservableObject {
     
+    // MARK: - Toast
+    
+    @Published var toast: CustomToast? = nil
+    
+    // MARK: - 로딩
+    
+    @Published var isLoading = false
+    
     // MARK: - 의존성 주입 및 비동기 처리
 
     /// DIContainer를 통해 의존성 주입
@@ -99,13 +107,15 @@ class ProfileInfoViewModel: ObservableObject {
         let regex = #"^\d{4}-\d{2}-\d{2}$"#
         return input.range(of: regex, options: .regularExpression) != nil
             ? .success(message: "해당 생년월일로 설정이 가능합니다.")
-            : .error(message: "생년월일 입력 양식은 0000.00.00을 따라야 합니다.")
+            : .error(message: "생년월일 입력 양식은 0000-00-00을 따라야 합니다.")
     }
     
     // MARK: - API
     
     /// Presigned URL을 받아오는 API 호출
     func generatePresignedURL() async throws {
+        self.isLoading = true
+        
         let request = PresignedRequest(
             type: .profile,
             fileName: "profile.jpg"
@@ -113,9 +123,14 @@ class ProfileInfoViewModel: ObservableObject {
         
         container.useCaseService.imageService.generatePresignedURL(request: request)
             .receive(on: DispatchQueue.main)
-            .sink(receiveCompletion: { completion in
+            .sink(receiveCompletion: { [weak self] completion in
                 if case .failure(let error) = completion {
+                    self?.toast = CustomToast(
+                        title: "이미지 업로드 에러",
+                        message: "\(error.errorDescription ?? "알 수 없는 에러")"
+                    )
                     print("로그인 오류: \(error.errorDescription ?? "알 수 없는 에러")")
+                    self?.isLoading = false
                 }
             }, receiveValue: { [weak self] response in
                 // url을 성공적으로 받아오면 사진 업로드 API 요청
@@ -132,9 +147,14 @@ class ProfileInfoViewModel: ObservableObject {
         if let data = selectedImage.jpegData(compressionQuality: 0.8) {
             container.useCaseService.imageService.putImage(presignedURL: urls.presignedUrl, data: data)
                 .receive(on: DispatchQueue.main)
-                .sink(receiveCompletion: { completion in
+                .sink(receiveCompletion: { [weak self] completion in
                     if case .failure(let error) = completion {
+                        self?.toast = CustomToast(
+                            title: "이미지 업로드 에러",
+                            message: "\(error.errorDescription ?? "알 수 없는 에러")"
+                        )
                         print("로그인 오류: \(error.errorDescription ?? "알 수 없는 에러")")
+                        self?.isLoading = false
                     }
                 }, receiveValue: { [weak self] response in
                     // 이미지를 성공적으로 업로드한다면, 회원가입 완료 API 호출
@@ -148,8 +168,6 @@ class ProfileInfoViewModel: ObservableObject {
     
     private func patchSignup(profileImgUrl: String) async throws {
         let request = SignupRequest(
-            // FIX-ME: memberId 없애달라고 서버에 요청
-            memberId: 2,
             nickname: name,
             userCustomId: id,
             gender: gender == "남성" ? "MALE" : gender == "여성" ? "FEMALE" : "NONE",
@@ -159,14 +177,20 @@ class ProfileInfoViewModel: ObservableObject {
         
         container.useCaseService.authService.patchSignup(request: request)
             .receive(on: DispatchQueue.main)
-            .sink(receiveCompletion: { completion in
+            .sink(receiveCompletion: { [weak self] completion in
                 if case .failure(let error) = completion {
+                    self?.toast = CustomToast(
+                        title: "로그인 오류",
+                        message: "\(error.errorDescription ?? "알 수 없는 에러")"
+                    )
                     print("로그인 오류: \(error.errorDescription ?? "알 수 없는 에러")")
+                    self?.isLoading = false
                 }
             }, receiveValue: { [weak self] response in
                 withAnimation {
                     self?.isCompleted = true
                 }
+                self?.isLoading = false
             })
             .store(in: &cancellables)
     }
