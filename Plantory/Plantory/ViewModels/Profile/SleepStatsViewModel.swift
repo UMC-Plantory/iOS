@@ -23,14 +23,15 @@ public class SleepStatsViewModel: ObservableObject {
     @Published public private(set) var progress: Double = 0
     
     // MARK: - Dependencies (의존성 주입)
-    /// 네트워크 요청을 수행할 Moya 프로바이더
-    private let provider: MoyaProvider<ProfileRouter>
     /// 날짜 계산에 사용할 캘린더 (테스트 용도 DI)
     private let calendar: Calendar
     /// 오늘 날짜 (테스트 용도 DI)
     private let today: Date
     /// Combine 구독을 관리하는 세트
     private var cancellables = Set<AnyCancellable>()
+    /// DIContainer를 통해 의존성 주입
+    let container: DIContainer
+
 
     // MARK: - Formatters & Mappings
     /// 기간 텍스트 생성을 위한 DateFormatter ("2025년 6월 8일" 포맷)
@@ -52,13 +53,13 @@ public class SleepStatsViewModel: ObservableObject {
        - today: 기준이 될 오늘 날짜 (기본값: Date())
      */
     init(
-        provider: MoyaProvider<ProfileRouter> = APIManager.shared.testProvider(for: ProfileRouter.self),
         calendar: Calendar = .current,
-        today: Date = Date()
+        today: Date = Date(),
+        container: DIContainer
     ) {
-        self.provider = provider
         self.calendar = calendar
         self.today = today
+        self.container = container
         // 초기 로드 시 주간 통계 가져오기
         fetchWeekly()
     }
@@ -66,7 +67,7 @@ public class SleepStatsViewModel: ObservableObject {
     // MARK: - API Fetch (데이터 요청)
     /// 주간 통계 데이터 요청 및 처리 흐름
     public func fetchWeekly() {
-        provider.fetchWeeklyStats()
+        container.useCaseService.profileService.fetchWeeklyStats()
             .receive(on: DispatchQueue.main) // 메인 스레드에서 결과 처리
             .sink(
                 receiveCompletion: { completion in
@@ -85,7 +86,7 @@ public class SleepStatsViewModel: ObservableObject {
 
     /// 월간 통계 데이터 요청 및 처리 흐름
     public func fetchMonthly() {
-        provider.fetchMonthlyStats()
+        container.useCaseService.profileService.fetchMonthlyStats()
             .receive(on: DispatchQueue.main)
             .sink(
                 receiveCompletion: { completion in

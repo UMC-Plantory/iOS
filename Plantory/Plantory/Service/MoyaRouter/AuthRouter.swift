@@ -11,24 +11,39 @@ import Moya
 enum AuthRouter {
     case kakaoLogin(idToken: KakaoUser) // 카카오 로그인
     case sendRefreshToken(refreshToken: String) // 리프레시 토큰 갱신
+    
+    case postAgreements(request: AgreementsRequest) // 약관 동의
+    case patchSignup(request: SignupRequest) // 회원 가입 완료
 }
 
 extension AuthRouter: APITargetType {
     var baseURL: URL {
-        return URL(string: "\(Config.baseUrl)")!
+        switch self {
+        default:
+            return URL(string: "\(Config.baseUrl)")!
+        }
     }
     
     var path: String {
         switch self {
         case .kakaoLogin:
-            return "/member/kko/login"
+            return "/members/auth/kko"
         case .sendRefreshToken:
-            return "/token/refresh"
+            return "/auth/refresh"
+        case .postAgreements:
+            return "members/agreements"
+        case .patchSignup:
+            return "members/signup"
         }
     }
     
     var method: Moya.Method {
-        return .post
+        switch self {
+        case .patchSignup:
+            return .patch
+        default:
+            return .post
+        }
     }
     
     var task: Task {
@@ -37,6 +52,10 @@ extension AuthRouter: APITargetType {
             return .requestJSONEncodable(idToken)
         case .sendRefreshToken(let refrshToken):
             return .requestJSONEncodable(refrshToken)
+        case .postAgreements(let request):
+            return .requestJSONEncodable(request)
+        case .patchSignup(let request):
+            return .requestJSONEncodable(request)
         }
     }
     

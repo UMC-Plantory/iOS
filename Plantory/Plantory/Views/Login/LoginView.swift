@@ -9,6 +9,8 @@ import SwiftUI
 
 struct LoginView: View {
     
+    @EnvironmentObject var container: DIContainer
+    
     // MARK: - Property
     
     @State var viewModel: LoginViewModel
@@ -27,6 +29,10 @@ struct LoginView: View {
     var body: some View {
         VStack {
             logoView
+                //FIX-ME: 개발용
+                .onTapGesture {
+                    container.navigationRouter.push(.baseTab)
+                }
             
             Spacer()
                 .frame(maxHeight: 94)
@@ -49,6 +55,7 @@ struct LoginView: View {
             )
         )
         .ignoresSafeArea()
+        .navigationBarBackButtonHidden()
     }
     
     // MARK: - Top Contents
@@ -92,7 +99,11 @@ struct LoginView: View {
             
             Button(action: {
                 Task {
-                    await viewModel.appleLogin()
+                    if let window = UIApplication.shared.connectedScenes
+                        .compactMap({ $0 as? UIWindowScene })
+                        .first?.windows.first {
+                        await viewModel.appleLogin(presentationAnchor: window)
+                    }
                 }
             }, label: {
                 Image("appleLogin")

@@ -13,7 +13,7 @@ import Combine
 protocol ChatServiceProtocol {
     
     /// 채팅 요청
-    func postChat(chatData: ChatRequest) -> AnyPublisher<String, APIError>
+    func postChat(chatData: ChatRequest) -> AnyPublisher<ChatResponse, APIError>
     
     /// 최초 진입 시, 이전 대화 기록 조회
     func getLatestChat() -> AnyPublisher<[ChatResponse], APIError>
@@ -40,8 +40,8 @@ final class ChatService: ChatServiceProtocol {
     /// 채팅 요청
     /// - Parameter request: 채팅 요청 모델
     /// - Returns: 채팅 응답을 Combine Publisher 형태로 반환
-    func postChat(chatData: ChatRequest) -> AnyPublisher<String, APIError> {
-        return provider.requestResult(.postChat(chatData: chatData), type: String.self)
+    func postChat(chatData: ChatRequest) -> AnyPublisher<ChatResponse, APIError> {
+        return provider.requestResult(.postChat(chatData: chatData), type: ChatResponse.self)
     }
 
     // MARK: - 최초 진입 시, 이전 대화 기록 조회

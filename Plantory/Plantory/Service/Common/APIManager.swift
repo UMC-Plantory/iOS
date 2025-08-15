@@ -40,3 +40,14 @@ class APIManager: @unchecked Sendable {
         )
     }
 }
+
+extension APIManager {
+    /// 토큰 없이 쓰는 Provider (presigned 업로드에서 사용)
+    public func createNoAuthProvider<T: TargetType>(for targetType: T.Type) -> MoyaProvider<T> {
+        let noInterceptSession = Session()
+        return MoyaProvider<T>(
+            session: noInterceptSession,
+            plugins: [loggerPlugin]
+        )
+    }
+}

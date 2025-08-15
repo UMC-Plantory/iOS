@@ -234,6 +234,7 @@ struct DiaryCheckView: View {
         // 미리보기용 DIContainer
         let previewContainer = DIContainer()
         
+
         // mock
         let mockDiary = DiaryEntry(
             id: 1,
@@ -260,5 +261,21 @@ struct DiaryCheckView: View {
             container: previewContainer
         )
         .environmentObject(previewContainer)
+
+        private let mockDiary = DiaryEntry(
+                id: 1,
+                date: Date(),
+                title: "프리뷰용 제목",
+                content: "이건 프리뷰용 내용입니다.",
+                emotion: .HAPPY,
+                isFavorite: false
+            )
+
+        var body: some View {
+            DiaryCheckView(
+                diary: mockDiary,
+                isDeleteSheetPresented: $isDeleteSheetPresented)
+        }
+
     }
 }

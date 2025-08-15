@@ -73,6 +73,7 @@ struct CustomSegmentView: View {
                     }
                     .frame(width: 134)
                 }
+                .padding(.top, 16)
             }
         }
     }
