@@ -137,7 +137,7 @@ struct TempStorageView: View {
     }
 
     private func performDeletion() {
-        viewModel.moveToTrash(ids: Array(checkedItems))
+        viewModel.moveToTrash(ids: Array(checkedItems), sort: isNewSorting ? .latest : .oldest)
         checkedItems.removeAll()
         isEditing = false
         showPopUp = false
