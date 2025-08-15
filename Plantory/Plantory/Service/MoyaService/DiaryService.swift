@@ -13,7 +13,7 @@ import CombineMoya
 protocol DiaryServiceProtocol {
 
     // 개별 일기 조회 (GET /diaries/{id})
-    func fetchDiary(id: Int) -> AnyPublisher<DiarySummary, APIError>
+    func fetchDiary(id: Int) -> AnyPublisher<DiaryFetchResponse, APIError>
 
     // 일기 스크랩 / 스크랩 취소 (PATCH /diaries/{id}/scrap-status/{on|off})
     func scrapOn(id: Int)  -> AnyPublisher<EmptyResponse, APIError>
@@ -52,8 +52,8 @@ final class DiaryService: DiaryServiceProtocol {
     }
     
     // MARK: - 단일 일기 조회 (GET /diaries/{id})
-       func fetchDiary(id: Int) -> AnyPublisher<DiarySummary, APIError> {
-           provider.requestResult(.fetchDiary(id: id), type: DiarySummary.self)
+    func fetchDiary(id: Int) -> AnyPublisher<DiaryFetchResponse, APIError> {
+           provider.requestResult(.fetchDiary(id: id), type: DiaryFetchResponse.self)
        }
 
        // MARK: - 스크랩 (PATCH /diaries/{id}/scrap-status/on)

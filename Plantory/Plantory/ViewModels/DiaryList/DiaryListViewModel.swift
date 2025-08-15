@@ -19,6 +19,10 @@ class DiaryListViewModel: ObservableObject {
     private var cursor: String? = nil
     private let diaryService: DiaryServiceProtocol
     
+    @Published var isLoadingDetail = false
+    @Published var selectedSummary: DiarySummary?      // 상세 화면 바인딩용
+    @Published var detailErrorMessage: String?
+    
   
     
     //나중에 API연결 할 때 무한스크롤뷰여도 페이징 안 해주면 데이터가 너무 무거워지는 거 예방
@@ -68,5 +72,37 @@ class DiaryListViewModel: ObservableObject {
             self.currentPage += 1
             self.isLoading = false
         }
+    }
+    
+    // 상세 조회 (DiaryCheckView로 넘어가기 전/후에 호출)
+    public func fetchDiary(diaryId: Int) {
+        guard !isLoadingDetail else { return }
+        isLoadingDetail = true
+        detailErrorMessage = nil
+        
+        diaryService.fetchDiary(id: diaryId)
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] completion in
+                guard let self = self else { return }
+                self.isLoadingDetail = false
+                if case .failure(let err) = completion {
+                    self.detailErrorMessage = "일기 조회 실패: \(err)"
+                    print(" fetchDiaryDetail error:", err)
+                }
+            } receiveValue: { [weak self] res in
+                guard let self = self else { return }
+                
+                // DiaryFetchResponse -> DiarySummary 로 매핑
+                let mapped = DiarySummary(
+                    diaryId:    res.diaryId,
+                    diaryDate:  res.diaryDate,
+                    title:      res.title,
+                    status:     res.status,
+                    emotion:    res.emotion,
+                    content:    res.content
+                )
+                self.selectedSummary = mapped
+            }
+            .store(in: &cancellables)
     }
 }

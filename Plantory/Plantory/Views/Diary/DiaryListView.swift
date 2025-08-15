@@ -14,13 +14,14 @@ struct DiaryListView: View {
     @EnvironmentObject var container: DIContainer
 
     init(
-        isFilterSheetPresented: Binding<Bool>,
-        container: DIContainer
-    ) {
-        _isFilterSheetPresented = isFilterSheetPresented
-        // @StateObject는 init에서만 세팅
-        _viewModel = StateObject(wrappedValue: DiaryListViewModel(container: container))
-    }
+           isFilterSheetPresented: Binding<Bool>,
+           container: DIContainer
+       ) {
+           _isFilterSheetPresented = isFilterSheetPresented
+           _viewModel = StateObject(
+               wrappedValue: DiaryListViewModel(container: container)
+           )
+       }
 
     var body: some View {
         ZStack {
@@ -39,8 +40,12 @@ struct DiaryListView: View {
 
                 DiaryListContent(
                     entries: viewModel.entries,
-                    isLoading: viewModel.isLoading,
-                    onAppearLast: { viewModel.loadMoreMock() }
+                        isLoading: viewModel.isLoading,
+                        onAppearLast: { viewModel.loadMoreMock() },
+                        onTap: { entry in
+                            viewModel.fetchDiary(diaryId: entry.id)
+                            container.navigationRouter.path.append(NavigationDestination.diaryDetail(diaryId: entry.id))
+                        }
                 )
                 .padding(.horizontal)
             }
@@ -60,13 +65,14 @@ private struct DiaryListContent: View {
     let entries: [DiaryEntry]
     let isLoading: Bool
     let onAppearLast: () -> Void
+    let onTap: (DiaryEntry) -> Void
 
     var body: some View {
         ScrollView {
             LazyVStack(spacing: 16) {
                 ForEach(entries) { entry in
                     Button {
-                        print("Tapped: \(entry.title)")
+                        onTap(entry)
                     } label: {
                         DiaryRow(entry: entry)
                     }
