@@ -10,7 +10,7 @@ import SwiftUI
 struct CompletedView: View {
     var body: some View {
         @EnvironmentObject var container: DIContainer
-        @Binding var selectedTab: TabItem
+        
 
             ZStack {
                 Color.diarybackground.ignoresSafeArea()
@@ -58,7 +58,7 @@ struct CompletedView: View {
                             text: "내 식물 보기",
                             isDisabled: false,
                             action: {
-                                selectedTab = .terrarium   // <- 탭 전환
+                                  // 탭 전환
                                     }
                         )
                         
