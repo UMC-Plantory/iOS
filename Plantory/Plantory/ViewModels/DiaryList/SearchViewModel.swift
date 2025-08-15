@@ -18,10 +18,13 @@ final class SearchViewModel: ObservableObject {
     private var cancellables = Set<AnyCancellable>()
     private let diaryService: DiaryServiceProtocol
 
+    //MARK: -initializer
     init(diaryService: DiaryServiceProtocol) {
         self.diaryService = diaryService
     }
 
+    //MARK: -함수
+    //일기 검색
     func searchDiary(keyword: String) {
         guard !keyword.isEmpty else {
                 results = []

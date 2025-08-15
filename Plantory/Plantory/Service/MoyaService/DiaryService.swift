@@ -24,7 +24,10 @@ protocol DiaryServiceProtocol {
 
     // 일기 휴지통 이동 (PATCH /diaries/waste-status)
     func moveToTrash(ids: [Int]) -> AnyPublisher<EmptyResponse, APIError>
-
+    
+    //일기 영구 삭제
+    func deletePermanently(ids: [Int]) -> AnyPublisher<EmptyResponse, APIError>
+    
     // 일기 임시 보관/복원 토글 (PATCH /diaries/temp-status)
     func updateTempStatus(ids: [Int]) -> AnyPublisher<EmptyResponse, APIError>
 
@@ -72,6 +75,11 @@ final class DiaryService: DiaryServiceProtocol {
        func moveToTrash(ids: [Int]) -> AnyPublisher<EmptyResponse, APIError> {
            provider.requestResult(.moveToTrash(ids: ids), type: EmptyResponse.self)
        }
+    
+        //MARK: -일기 영구삭제
+      func deletePermanently(ids: [Int]) -> AnyPublisher<EmptyResponse, APIError> {
+            provider.requestResult(.deletePermanently(ids: ids), type: EmptyResponse.self)
+        }
 
        // MARK: - 임시 보관/복원 토글 (PATCH /diaries/temp-status)
        func updateTempStatus(ids: [Int]) -> AnyPublisher<EmptyResponse, APIError> {

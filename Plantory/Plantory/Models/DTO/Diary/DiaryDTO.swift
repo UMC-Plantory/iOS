@@ -82,7 +82,7 @@ struct DiarySearchResult: Codable {
 //MARK: -단일 일기 조회 요청/응답(request 불필요)
 ///단일 일기 조회 Response
 struct DiaryFetchResponse: Codable {
-    let dairyId: Int
+    let diaryId: Int
     let diaryDate: String
     let emotion: String
     let title: String
@@ -101,8 +101,7 @@ struct DiaryEditRequest: Codable {
        let sleepEndTime: String?
        let diaryImgUrl: String?      // 새 이미지 URL(없으면 nil)
        let status: String            // NORMAL or TEMP
-       let isImgDeleted: Bool        // 기존 이미지 삭제면 true
-   
+       let isImgDeleted: Bool        
 }
 
 ///일기 수정 response
@@ -116,8 +115,8 @@ struct DiaryEditResponse: Codable {
     let status: String
 }
 
-// MARK: -일기 영구 삭제 API
-struct DeletePermanentlyRequest: Codable{
+// MARK: -일기 영구 삭제, 휴지통이동
+struct DeleteRequest: Codable{
     let diaryIds: [Int]
 }
 

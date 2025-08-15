@@ -43,20 +43,12 @@ class DiaryListViewModel: ObservableObject {
     ) {
         self.diaryService = diaryService
         self.container = container
-        loadMore()
+        loadMoreMock()
     }
-    
-    
-    @Published var editedTitle: String = "친구를 만나 좋았던 하루"
-    @Published var editedContent: String = """
-    오늘은 점심에 유엠이랑 밥을 먹었는데 너무 맛있었다. 
-    저녁에는 친구 집들이를 갔다. 선물로 유리 컵과 접시 세트를 사 갔는데 마침 집에 이런한 것들이 필요했다고 해서 너무 다행이었다. 
-    친구들과 재밌는 시간을 보내고 집으로 돌아와서 이렇게 일기를 쓰고 있는 지금이 참 좋은 것 같다.
-    """
-    
+ 
     //MARK: -함수
     //일기 리스트에서 페이지 계속 불러오는 함수
-    func loadMore() {
+    func loadMoreMock() {
         guard !isLoading else { return }
         isLoading = true
         
@@ -77,58 +69,4 @@ class DiaryListViewModel: ObservableObject {
             self.isLoading = false
         }
     }
-    
-    //MARK: -API
-    
-    ///일기 스크랩 On/OFF(DiaryCheckView에서)
-    public func scrapOn(diaryId: Int) {
-        guard let i = diaries.firstIndex(where: { $0.diaryId == diaryId }) else { return }
-        let backup = diaries
-        var m = diaries[i]
-        m.status = DiaryStatus.scrap.rawValue   // 로컬 즉시 반영
-        diaries[i] = m
-
-        diaryService.scrapOn(id: diaryId)
-            .receive(on: DispatchQueue.main)
-            .sink { [weak self] completion in
-                if case .failure(let e) = completion {
-                    print("스크랩 실패: \(e)")
-                    self?.diaries = backup // 롤백
-                }
-            } receiveValue: { _ in /* 성공 시 추가 작업 없음 */ }
-            .store(in: &cancellables)
-    }
-
-    public func scrapOff(diaryId: Int) {
-        guard let i = diaries.firstIndex(where: { $0.diaryId == diaryId }) else { return }
-        let backup = diaries
-        var m = diaries[i]
-        if m.status == DiaryStatus.scrap.rawValue {
-            m.status = DiaryStatus.normal.rawValue
-        }
-        diaries[i] = m
-
-        diaryService.scrapOff(id: diaryId)
-            .receive(on: DispatchQueue.main)
-            .sink { [weak self] completion in
-                if case .failure(let e) = completion {
-                    print("스크랩 취소 실패: \(e)")
-                    self?.diaries = backup // 롤백
-                }
-            } receiveValue: { _ in }
-            .store(in: &cancellables)
-    }
-   
-    public func toggleScrap(diaryId: Int) {//On/Off 토글
-        guard let i = diaries.firstIndex(where: { $0.diaryId == diaryId }) else { return }
-        
-        if diaries[i].status == "SCRAP" {
-            scrapOff(diaryId: diaryId)
-        } else {
-            scrapOn(diaryId: diaryId)
-        }
-    }
-    
-    //일기 휴지통 이동
-    
 }

@@ -6,10 +6,11 @@
 //
 import SwiftUI
 
+//필터시트가 올라온 화면(View) 입니다.
 struct DiaryFilterView: View {
     @Environment(\.dismiss) private var dismiss
-    @State  var viewModel : DiaryFilterViewModel
-    @State private var selectedOrder: DiarySort = .latest
+    @StateObject  var viewModel : DiaryFilterViewModel
+    @State private var selectedSort: DiarySort = .latest
     @State private var selectedYear: Int = 2025
     @State private var selectedMonths: Set<Int>
     @State private var selectedEmotions: Set<Emotion> = [.all]
@@ -17,19 +18,15 @@ struct DiaryFilterView: View {
     private let currentDate = Date()
     private let calendar = Calendar.current
     
-    //유저가 초기값 설정할 수 있도록 근데 지금은 프리뷰에 파라미터를 넘겨주도록
-    init(initialSelectedMonths: Set<Int>) {
-            _selectedMonths = State(initialValue: initialSelectedMonths)
-        }
+    init(/// DIContainer을 주입받아 초기화
+        ///유저가 초기값 설정할 수 있도록 근데 지금은 프리뷰에 파라미터를 넘겨주도록
+           container: DIContainer = .init(),          // 프리뷰/테스트용 기본값
+           initialSelectedMonths: Set<Int> = []       // 초기 선택 월
+       ) {
+           _selectedMonths = State(initialValue: initialSelectedMonths)
+           _viewModel      = StateObject(wrappedValue: DiaryFilterViewModel(container: container))
+       }
     
-    /// DIContainer을 주입받아 초기화
-    init(
-        container: DIContainer
-    ) {
-        self.viewModel = .init(container: container)
-    }
-    
-
     
     var body: some View {
         VStack(alignment: .leading, spacing: 24) {
@@ -54,11 +51,11 @@ struct DiaryFilterView: View {
                 
                 HStack(spacing: 32) {
                     //커스텀 버튼
-                    OrderButton(title: "최신순", isSelected: selectedOrder == .latest) {
-                        selectedOrder = .latest
+                    OrderButton(title: "최신순", isSelected: selectedSort == .latest) {
+                        selectedSort = .latest
                     }
-                    OrderButton(title: "오래된 순", isSelected: selectedOrder == .oldest) {
-                        selectedOrder = .oldest
+                    OrderButton(title: "오래된 순", isSelected: selectedSort == .oldest) {
+                        selectedSort = .oldest
                     }
                 }
             }
@@ -189,6 +186,16 @@ struct DiaryFilterView: View {
                     Spacer()
                     Button(action: {
                         // 필터 적용
+                        let dto = DiaryFilterRequest(
+                            sort: selectedSort,  // DiarySort 타입
+                                from: String(format: "%04d-%02d", selectedYear, selectedMonths.min() ?? 1),
+                                to: String(format: "%04d-%02d", selectedYear, selectedMonths.max() ?? 12),
+                            emotion: selectedEmotions.first ?? .all, // Emotion 타입
+                                cursor: nil,
+                                size: 20
+                           )
+
+                           viewModel.fetchFilteredDiaries(dto) 
                         dismiss()
                     }) {
                         Text("적용하기")

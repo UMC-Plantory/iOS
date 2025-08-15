@@ -6,10 +6,17 @@
 //
 import SwiftUI
 
+//일기 리스트들을 보여주는 화면입니다. 
 struct DiaryListView: View {
-    @StateObject private var viewModel = DiaryListViewModel()
+    @StateObject private var viewModel = DiaryListViewModel(container: DIContainer())
     @Binding var isFilterSheetPresented: Bool //필터시트 올라오는 것
     @State private var isNavigatingToSearch = false
+    
+    init(isFilterSheetPresented: Binding<Bool>, container: DIContainer = DIContainer()) {
+        _isFilterSheetPresented = isFilterSheetPresented
+        _viewModel = StateObject(wrappedValue: DiaryListViewModel(container: container))
+    }
+
     
     var body: some View {
         ZStack {
@@ -54,9 +61,8 @@ struct DiaryListView: View {
         .sheet(isPresented: $isFilterSheetPresented){
             DiaryFilterView(initialSelectedMonths: [4, 5])
         }
-        
         .navigationDestination(isPresented: $isNavigatingToSearch){
-            DiarySearchView()
+            DiarySearchView(container: DIContainer())
         }
     }
 }
@@ -65,11 +71,12 @@ struct DiaryListView: View {
 
 
 struct DiaryHeaderView: View {
+    @EnvironmentObject var container: DIContainer
     //콜백 함수 파라미터
     var onSearchTap: () -> Void = {}
     var onMoreTap: () -> Void = {}
     
-    @State private var isNavigatingToSearch = false
+    //@State private var isNavigatingToSearch = false(부모 뷰에서만)
     
     var body: some View {
         HStack {
@@ -80,30 +87,18 @@ struct DiaryHeaderView: View {
                 .padding(.leading, 17)
                 .fixedSize()
             
-            
             Spacer()
-            
             
             HStack(spacing: 20) {
                 //검색버튼
-                Button(action: {
-                    // 검색 동작
-                    isNavigatingToSearch = true
-                }) {
+                Button(action: onSearchTap) {
                     Image("search")
                         .resizable()
                         .frame(width: 20, height:20)
                 }
-                
-                
-                .navigationDestination(isPresented: $isNavigatingToSearch){
-                    DiarySearchView(vm: SearchViewModel(diaryService: DiaryService))
-                }
-                
+
                 //더보기 버튼
-                Button(action: {
-                    // 더보기 동작
-                }) {
+                Button(action: onMoreTap) {
                     Image("verticalDot")
                         .resizable()
                         .frame(width: 3, height:20)
@@ -152,6 +147,7 @@ struct DiaryMonthSectionView: View {
         .background(Color("brown01"))
     }
 }
+
 
 
 

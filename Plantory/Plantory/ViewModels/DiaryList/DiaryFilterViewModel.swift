@@ -57,13 +57,11 @@ class DiaryFilterViewModel: ObservableObject {
         }
         return compareDate > currentDate
     }
-    
 
     // MARK: - API
     /// 일기 목록 필터 조회 (첫 페이지)
         public func fetchFilteredDiaries(_ request: DiaryFilterRequest) {
             isLoading = true
-
             diaryService.fetchFilteredDiaries(request)
                 .receive(on: DispatchQueue.main)
                 .sink(receiveCompletion: { [weak self] completion in
@@ -91,7 +89,7 @@ class DiaryFilterViewModel: ObservableObject {
                from: base.from,
                to: base.to,
                emotion: base.emotion,
-               cursor: cursor,          // ← 마지막 커서로 다음 페이지 요청
+               cursor: cursor,         
                size: base.size
            )
 
@@ -110,6 +108,4 @@ class DiaryFilterViewModel: ObservableObject {
                })
                .store(in: &cancellables)
        }
-
-    
 }

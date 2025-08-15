@@ -16,7 +16,7 @@ enum DiaryRouter : APITargetType {
     case editDiary(id: Int, data: DiaryEditRequest)//일기 수정
     case moveToTrash(ids: [Int])//일기 휴지통 이동
     case deletePermanently(ids: [Int])//일기 영구 삭제
-    case searchDiary(DiarySearchRequest)//일기 검색
+    case searchDiary(DiarySearchRequest)//일기 검색(호출O)
     case scrapOn(id: Int) //스크랩
     case scrapOff(id: Int) //스크랩 취소
     case tempStatus(ids: [Int]) //일기 임시보관/복원(토글)
@@ -89,7 +89,7 @@ extension DiaryRouter {
             let body: [String: Any] = ["diaryIds": ids]
             return .requestParameters(parameters: body, encoding: JSONEncoding.default)
         case .deletePermanently(let ids):
-                    let body = DeletePermanentlyRequest(diaryIds: ids)
+                    let body = DeleteRequest(diaryIds: ids)
                     return .requestJSONEncodable(body)   // DELETE with body
         case .tempStatus(let ids):
                    return .requestJSONEncodable(TempStatusRequest(diaryIds: ids))

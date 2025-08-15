@@ -10,7 +10,6 @@ import SwiftUI
 struct BaseTabView: View {
 
     // MARK: - Property
-    
     @State private var selectedTab: TabItem = .home
     @State private var isFilterSheetPresented: Bool = false
 
@@ -67,12 +66,12 @@ struct BaseTabView: View {
     /// 각 탭에 해당하는 뷰
     @ViewBuilder
     private func tabView(tab: TabItem) -> some View {
-        Group {
+        //Group {
             switch tab {
             case .home:
                 HomeView()
             case .diary:
-                DiaryListView()
+                DiaryListView(isFilterSheetPresented: $isFilterSheetPresented)
             case .terrarium:
                 TerrariumView()
             case .chat:
@@ -81,8 +80,8 @@ struct BaseTabView: View {
                 MyPageView()
             }
         }
-        .environmentObject(container)
-    }
+       // .environmentObject(container)
+    //}
 }
 
 #Preview {
