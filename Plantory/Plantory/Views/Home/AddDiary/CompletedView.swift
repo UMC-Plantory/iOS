@@ -22,7 +22,7 @@ struct CompletedView: View {
                         
                         Button(
                             action:{
-                                container.navigationRouter.pop()
+                                container.navigationRouter.reset()
                                 container.navigationRouter.push(.baseTab)
                         }
                         ){
