@@ -105,7 +105,7 @@ struct MyPageView: View {
 }
 
 // MARK: — 헤더
-private struct HeaderView: View {
+struct HeaderView: View {
     var body: some View {
         HStack {
             Text("마이페이지")
@@ -116,63 +116,10 @@ private struct HeaderView: View {
     }
 }
 
-// MARK: — 프로필 섹션 (뷰는 그리기만: 값은 전부 VM에서 완성)
-private struct ProfileSection: View {
-    let nickname: String
-    let userCustomId: String
-    let profileImageURL: URL?
-    let action: () -> Void
 
-    var body: some View {
-        HStack(spacing: 18) {
-            // 원형 프로필 이미지
-            if let url = profileImageURL {
-                AsyncImage(url: url) { phase in
-                    switch phase {
-                    case .success(let image):
-                        image
-                            .resizable()
-                            .scaledToFill()
-                            .frame(width: 64, height: 64)
-                            .clipShape(Circle())
-                    default:
-                        Circle()
-                            .fill(Color.gray.opacity(0.2))
-                            .frame(width: 64, height: 64)
-                    }
-                }
-            } else {
-                Circle()
-                    .fill(Color.gray.opacity(0.2))
-                    .frame(width: 64, height: 64)
-            }
-
-            VStack(alignment: .leading, spacing: 4) {
-                Text(nickname.isEmpty ? " " : nickname)
-                    .font(.pretendardMedium(20))
-                Text(userCustomId.isEmpty ? " " : userCustomId)
-                    .font(.pretendardRegular(16))
-                    .foregroundColor(.gray09)
-            }
-
-            Spacer()
-            Button(action: action) {
-                Text("프로필 관리")
-                    .font(.pretendardMedium(16))
-                    .foregroundColor(.white)
-                    .padding(.vertical, 8)
-                    .padding(.horizontal, 12)
-                    .background(Color.green04)
-                    .cornerRadius(5)
-            }
-            .buttonStyle(PlainButtonStyle())
-        }
-        .padding(.horizontal, 28)
-    }
-}
 
 // MARK: — 통계 섹션
-private struct StatsSection: View {
+struct StatsSection: View {
     let stats: [Stat]
     let actions: [UUID: () -> Void]
     private let columns = [
@@ -196,31 +143,8 @@ private struct StatsSection: View {
     }
 }
 
-// MARK: — 통계 카드
-private struct StatCard: View {
-    let stat: Stat
-    let action: () -> Void
-
-    var body: some View {
-        Button(action: action) {
-            VStack(spacing: 4) {
-                Text(stat.value)
-                    .font(.pretendardMedium(20))
-                Text(stat.label)
-                    .font(.pretendardRegular(16))
-            }
-            .frame(maxWidth: .infinity)
-            .padding()
-            .background(Color.green02)
-            .cornerRadius(10)
-            .shadow(color: .black.opacity(0.2), radius: 0, x: 2, y: 2)
-        }
-        .buttonStyle(PlainButtonStyle())
-    }
-}
-
 // MARK: — 메뉴 섹션
-private struct MenuSection: View {
+struct MenuSection: View {
     let scrapAction: () -> Void
     let tempAction:  () -> Void
     let trashAction: () -> Void
@@ -238,7 +162,7 @@ private struct MenuSection: View {
     }
 }
 
-private struct MenuRow: View {
+struct MenuRow: View {
     let icon: String
     let title: String
     let action: () -> Void
