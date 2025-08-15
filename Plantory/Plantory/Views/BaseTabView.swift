@@ -72,7 +72,7 @@ struct BaseTabView: View {
         Group {
             switch tab {
             case .home:
-                HomeView(container:_container)
+                HomeView(container:container)
             case .diary:
                 DiaryListView(isFilterSheetPresented: $isFilterSheetPresented)
             case .terrarium:

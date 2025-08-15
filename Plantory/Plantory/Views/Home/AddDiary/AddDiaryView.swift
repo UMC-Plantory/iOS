@@ -68,7 +68,7 @@ struct AddDiaryView: View {
             // 최초 진입 시 오늘 날짜를 diaryDate에 세팅
             vm.diaryDate = DiaryFormatters.day.string(from: selectedDate)
         }
-        .navigationBarBackButtonHidden(true) 
+        .navigationBarBackButtonHidden(true)
         .sheet(isPresented: $showFullCalendar) {
             DatePickerCalendarView(selectedDate: $selectedDate) {
                 vm.diaryDate = DiaryFormatters.day.string(from: selectedDate)
@@ -83,7 +83,10 @@ struct AddDiaryView: View {
         VStack {
             HStack {
                 Spacer().frame(width: 10)
-                Button(action: { print("홈버튼") }) {
+                Button(action: {
+                      container.navigationRouter.pop()
+                      container.navigationRouter.push(.baseTab)
+                }) {
                     Image(.home)
                         .foregroundColor(.diaryfont)
                 }
