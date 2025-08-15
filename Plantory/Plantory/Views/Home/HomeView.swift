@@ -1,18 +1,25 @@
-//
 //  HomeView.swift
 //  Plantory
 //
-//  Created by 주민영 on 7/2/25.
+//  Created by 김지우 on 7/2/25.
 //
 
 import SwiftUI
 
 struct HomeView: View {
-    @StateObject private var diaryStore = DiaryStore()
-    @State private var month: Date = Date()
-    @State private var selectedDate: Date? = nil
+    // MARK: - Property
+    @State private var viewModel: HomeViewModel
+    @EnvironmentObject var container: DIContainer
+
+    // MARK: - Init
+    init(container: DIContainer) {
+        self._viewModel = State(initialValue: .init(container: container))
+    }
+
+    // MARK: - UI 상태
     @State private var showingDetailSheet = false
     @State private var showMonthPicker = false
+    @State private var showErrorAlert = false
 
     private let calendar = Calendar.current
     private let dateFormatter: DateFormatter = {
@@ -27,11 +34,19 @@ struct HomeView: View {
 
             VStack {
                 Spacer().frame(height: 73)
-                HomeHeaderView
+                HomeHeaderView()
                 Spacer().frame(height: 32)
-                CalendarHeaderView
+
+                Plantory.CalendarHeaderView(
+                    month: viewModel.month,
+                    onMoveMonth: { value in viewModel.moveMonth(by: value) },
+                    onTapCalendar: { showMonthPicker = true },
+                    onTapPlus: { container.navigationRouter.push(.addDiary) } // ← 함수 호출만, 라벨 X
+                )
+
                 Spacer().frame(height: 4)
 
+                // 캘린더 카드
                 ZStack {
                     RoundedRectangle(cornerRadius: 10)
                         .fill(Color.white01)
@@ -44,7 +59,7 @@ struct HomeView: View {
                                         Text(CalendarView.weekdaySymbols[i])
                                             .font(.pretendardRegular(14))
                                             .foregroundColor(.gray11)
-                                            .frame(maxWidth: 307)
+                                            .frame(maxWidth: .infinity)
                                     }
                                 }
                                 Spacer()
@@ -53,114 +68,76 @@ struct HomeView: View {
                         .padding(.vertical, 6)
 
                     CalendarView(
-                        month: $month,
-                        selectedDate: $selectedDate,
-                        diaryStore: diaryStore
+                        month: $viewModel.month,
+                        selectedDate: $viewModel.selectedDate,
+                        diaryEmotionsByDate: viewModel.diaryEmotionsByDate
+                        // ⬆️ colorForDate 인자는 현재 CalendarView 시그니처에 없습니다. 제거!
                     )
-                    .onChange(of: selectedDate) { _ in
-                        if selectedDate != nil {
-                            showingDetailSheet = true
-                        }
+                    .onChange(of: viewModel.selectedDate) { _, newValue in
+                        guard let date = newValue else { return }
+                        viewModel.selectDate(date)
+                        showingDetailSheet = true
                     }
                     .frame(width: 356, height: 345)
                 }
 
-                Color.clear.frame(height: 20)
+                Color.clear.frame(height: 10)
 
-              MyProgressView()
-                
+                // 진행도/연속기록
+                MyProgressView(viewModel: viewModel)
             }
             .padding(.horizontal, 32)
             .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
-
-            if showMonthPicker {
-                Color.black.opacity(0.3)
-                    .ignoresSafeArea()
-                    .onTapGesture {
-                        showMonthPicker = false
-                    }
-
-                VStack {
-                    MonthYearPickerView(selectedDate: $month) {
-                        showMonthPicker = false
-                    }
-                }
-                .zIndex(1)
-            }
-        }
-        .sheet(isPresented: $showingDetailSheet, onDismiss: {
-            selectedDate = nil
-        }) {
-            if let date = selectedDate {
-                let key = Self.key(from: date)
-                let entry = diaryStore.entries[key]
-
-                let isFuture = date > Calendar.current.startOfDay(for: Date())
-
-                ZStack {
-                    (isFuture ? Color.gray04 : Color.white01)
-                        .ignoresSafeArea()
-
-                    DetailSheetView(date: date, entry: entry)
-                }
-                .presentationDetents([.height(264)])
-                .presentationDragIndicator(.hidden)
-            }
-        }
-
-    }
-
-    private var HomeHeaderView: some View {
-        HStack {
-            Text("오늘 하루는 어땠나요?")
-                .font(.pretendardRegular(24))
-                .foregroundColor(.black01)
-            Spacer()
-        }
-    }
-
-    private var CalendarHeaderView: some View {
-        VStack {
-            HStack {
-                CalendarView.makeYearMonthView(
-                    month: month,
-                    changeMonth: { value in
-                        if let newMonth = Calendar.current.date(byAdding: .month, value: value, to: month) {
-                            self.month = newMonth
-                            self.selectedDate = nil
-                        }
-                    }
+            .onAppear { viewModel.loadMonthly() }
+            .onChange(of: viewModel.month) { _, _ in viewModel.loadMonthly() }
+            .alert(isPresented: $showErrorAlert) {
+                Alert(
+                    title: Text(viewModel.requiresLogin ? "로그인이 필요합니다" : "오류"),
+                    message: Text(viewModel.errorMessage ?? "알 수 없는 오류가 발생했습니다."),
+                    dismissButton: .default(Text("확인"))
                 )
-                Spacer()
-                Button {
-                    showMonthPicker = true
-                } label: {
-                    Image(systemName: "calendar")
-                        .font(.title)
-                        .foregroundColor(.black)
-                }
-
-                Button(action: {
-                    print("새로운 일기 추가")
-                }) {
-                    Image(systemName: "plus")
-                        .font(.title)
-                        .foregroundColor(.black)
-                }
             }
-            Spacer().frame(height: 18)
-        }
-    }
+            .onChange(of: viewModel.errorMessage) { _, newValue in
+                showErrorAlert = (newValue != nil) || viewModel.requiresLogin
+            }
 
-    static func key(from date: Date) -> String {
-        let fmt = DateFormatter()
-        fmt.dateFormat = "yyyy-MM-dd"
-        return fmt.string(from: date)
+            // Month/Year Picker Overlay
+            if showMonthPicker {
+                Color.black.opacity(0.35)
+                    .ignoresSafeArea()
+                    .onTapGesture { showMonthPicker = false }
+                    .transition(.opacity)
+                    .zIndex(1)
+
+                MonthYearPickerView(
+                    initialYear: viewModel.displayYear,
+                    initialMonth: viewModel.displayMonth
+                ) { y, m in
+                    viewModel.setMonth(year: y, month: m)
+                    showMonthPicker = false
+                }
+                .transition(.scale.combined(with: .opacity))
+                .zIndex(2)
+            }
+        }
+        .animation(.snappy, value: showMonthPicker)
+
+        // 상세/작성 시트 —— DetailSheetView로 위임 (중복 제거)
+        .sheet(isPresented: $showingDetailSheet, onDismiss: {
+            viewModel.selectedDate = nil
+        }) {
+            if let date = viewModel.selectedDate {
+                DetailSheetView(
+                    viewModel: viewModel,
+                    date: date,
+                    onTapAdd: { container.navigationRouter.push(.addDiary) } 
+                )
+                .environmentObject(container) // 안전하게 주입
+            }
+        }
     }
 }
-
 
 #Preview {
-    HomeView()
+    HomeView(container: .init())
 }
-

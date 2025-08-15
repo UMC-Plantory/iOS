@@ -2,14 +2,6 @@
 //  StepIndicatorViewModel.swift
 //  Plantory
 //
-//  Created by 김지우 on 7/24/25.
-//
-
-
-//
-//  StepIndicatorViewModel.swift
-//  Plantory
-//
 //  Created by 김지우 on 7/15/25.
 //
 

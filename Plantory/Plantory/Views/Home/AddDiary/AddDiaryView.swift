@@ -1,5 +1,5 @@
 //
-//  StepIndicatorView.swift
+//  AddDiaryView.swift
 //  Plantory
 //
 //  Created by 김지우 on 7/15/25.
@@ -8,7 +8,6 @@
 import SwiftUI
 
 
-//DateFormatter: 현재 날짜를 원하는 형식으로 반환시킴
 struct MyDateFormatter {
     static let shared: DateFormatter = {
         let today = DateFormatter()
@@ -16,19 +15,39 @@ struct MyDateFormatter {
         return today
     }()
 }
+// 공통 포맷터
+private enum DiaryFormatters {
+    static let day: DateFormatter = {
+        let f = DateFormatter()
+        f.dateFormat = "yyyy-MM-dd"
+        f.timeZone = TimeZone(identifier: "Asia/Seoul")
+        f.locale = Locale(identifier: "ko_KR")
+        return f
+    }()
+}
 
 
 struct AddDiaryView: View {
-    
-    //Property
-    @Bindable var viewModel: StepIndicatorViewModel
-    //맨 처음 화면 날짜 선택을 위한 날짜
-    @State private var selectedDate: Date = Date()
-        @State private var showFullCalendar: Bool = false
+    // 단계 네비게이션
+    @Bindable var stepVM: StepIndicatorViewModel
+    // API/데이터
+    @Bindable var vm: AddDiaryViewModel
 
+    @EnvironmentObject var container: DIContainer
+
+    // 날짜 선택
+    @State private var selectedDate: Date = Date()
+    @State private var showFullCalendar: Bool = false
+
+    init(container: DIContainer, date: Date = Date()) {
+            self._stepVM = Bindable(wrappedValue: StepIndicatorViewModel())
+            self._vm     = Bindable(wrappedValue: AddDiaryViewModel(container: container))
+            self._selectedDate = State(initialValue: date)
+        }
+    
     var body: some View {
         ZStack(alignment: .top) {
-            if viewModel.isCompleted {
+            if vm.isCompleted {
                 CompletedView()
             } else {
                 Color.diarybackground.ignoresSafeArea()
@@ -45,47 +64,62 @@ struct AddDiaryView: View {
                     .padding()
             }
         }
+        .onAppear {
+            // 최초 진입 시 오늘 날짜를 diaryDate에 세팅
+            vm.diaryDate = DiaryFormatters.day.string(from: selectedDate)
+        }
+        .navigationBarBackButtonHidden(true)
+        .sheet(isPresented: $showFullCalendar) {
+            DatePickerCalendarView(selectedDate: $selectedDate) {
+                vm.diaryDate = DiaryFormatters.day.string(from: selectedDate)
+                showFullCalendar = false
+            }
+            .presentationDetents([.medium])
+        }
     }
-    
-    //홈버튼 + 현재 날짜
-    private var headerView: some View{
-        VStack{
-            HStack{
-                Spacer()
-                    .frame(width:10)
-                Button(
-                    action:{print("홈버튼")}
-                ){
+
+    // 홈버튼 + 현재 날짜/날짜선택
+    private var headerView: some View {
+        VStack {
+            HStack {
+                Spacer().frame(width: 10)
+                Button(action: {
+                      container.navigationRouter.pop()
+                      container.navigationRouter.push(.baseTab)
+                }) {
                     Image(.home)
                         .foregroundColor(.diaryfont)
                 }
                 
-                Spacer()
-                    .frame(width:100)
-                
-                Text(MyDateFormatter.shared.string(from: Date()))
-                    .font(.pretendardSemiBold(20))
+                Spacer().frame(width: 80)
+
+                Button {
+                    showFullCalendar = true
+                } label: {
+                    HStack(spacing: 6) {
+                        Image(systemName: "calendar")
+                        Text(vm.diaryDate.isEmpty
+                             ? MyDateFormatter.shared.string(from: Date())
+                             : vm.diaryDate)
+                    }
+                    .font(.pretendardSemiBold(18))
                     .foregroundStyle(.diaryfont)
-                    .multilineTextAlignment(.center)
-                    .frame(maxWidth: .infinity, alignment: .center)
-                
-                
+                }
+
                 Spacer()
-                    .frame(width:135)
-                }//HStack_end
-        
-            Spacer()
-                .frame(height:56)
-            
+            }
+
+            Spacer().frame(height: 40)
+
             HStack(spacing: 0) {
-                ForEach(viewModel.steps.indices, id: \.self) { index in
+                ForEach(stepVM.steps.indices, id: \.self) { index in
                     VStack(spacing: 4) {
                         RoundedRectangle(cornerRadius: 70)
-                            .fill(index <= viewModel.currentStep ? Color.green04 : Color.gray08.opacity(0.3))
+                            .fill(index <= stepVM.currentStep ? Color.green04 : Color.gray08.opacity(0.3))
                             .frame(height: 8)
-                        
-                        if index == viewModel.currentStep {
-                            Text(viewModel.steps[index].title)
+
+                        if index == stepVM.currentStep {
+                            Text(stepVM.steps[index].title)
                                 .font(.pretendardRegular(14))
                                 .foregroundColor(.diaryfont)
                                 .padding(.top, 4)
@@ -94,83 +128,77 @@ struct AddDiaryView: View {
                         }
                     }
                     .frame(maxWidth: .infinity)
-                    
-                    if index < viewModel.steps.count - 1 {
+
+                    if index < stepVM.steps.count - 1 {
                         Spacer(minLength: 8)
                     }
                 }
-            }//HStack_end
-        }//VStack_end
+            }
+        }
     }
-    
 
-    
-    //단계별 뷰
+    // 단계별 뷰
     @ViewBuilder
     private var stepContentView: some View {
-        switch viewModel.currentStep {
+        switch stepVM.currentStep {
         case 0:
-            EmotionStepView(viewModel:viewModel)
+            EmotionStepView(vm: vm) { stepVM.goNext() }
         case 1:
-            DiaryStepView()
+            DiaryStepView(vm: vm)
         case 2:
-            PhotoStepView()
+            PhotoStepView(vm: vm)
         case 3:
-            SleepStepView()
+            SleepStepView(vm: vm, selectedDate: selectedDate)
         default:
             EmptyView()
         }
     }
-    
+
+    // 이전/다음/작성완료
     private var navigationButtons: some View {
-        // 감정 단계면 버튼 모두 숨김
-        if viewModel.currentStep == 0 {
+        if stepVM.currentStep == 0 {
             return AnyView(EmptyView())
         }
-        
+
         return AnyView(
             HStack {
-                // "이전" 버튼
-                if viewModel.currentStep != 0 {
+                // 이전
+                if stepVM.currentStep != 0 {
                     MainMiddleButton(
                         text: "이전",
                         isDisabled: false,
-                        action: {
-                            viewModel.goBack()
-                        }
+                        action: { stepVM.goBack() }
                     )
                     .tint(.green04)
                 } else {
                     Spacer().frame(width: 60)
                 }
-                
+
                 Spacer()
-                
-                // "다음" or "작성완료"
-                if viewModel.currentStep < viewModel.steps.count - 1 {
+
+                // 다음 or 작성완료
+                if stepVM.currentStep < stepVM.steps.count - 1 {
                     MainMiddleButton(
                         text: "다음",
                         isDisabled: false,
-                        action: {
-                            viewModel.goNext()
-                        }
+                        action: { stepVM.goNext() }
                     ).tint(.green04)
                 } else {
                     MainMiddleButton(
                         text: "작성완료",
-                        isDisabled: false,
+                        isDisabled: vm.isLoading,
                         action: {
-                            viewModel.isCompleted = true
-                        }
-                    )
+                            vm.submit()                 // 서버 저장 호출(이미 구현되어 있다면)
+                            withAnimation(.easeInOut) {
+                            vm.isCompleted = true   //  CompletedView로 전환
+                                                }
+                                            }                    )
                     .tint(.green04)
                 }
             }
-                .padding(.horizontal)
+            .padding(.horizontal)
         )
     }
 }
 
-#Preview {
-    AddDiaryView(viewModel: StepIndicatorViewModel())
-}
+

@@ -4,7 +4,7 @@
 //
 //  Created by 박병선 on 7/22/25.
 //
-//FilterView에 있는 컴포넌트들
+// FilterView 에서 필요한 컴포넌트들을 모아놓은 파일입니다. 
 import SwiftUI
 
 /// 나열 방식 선택 버튼
