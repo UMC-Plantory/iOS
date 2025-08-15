@@ -8,9 +8,23 @@
 import SwiftUI
 
 struct PermitView: View {
+    
     @EnvironmentObject var container: DIContainer
     
-    @State var viewModel: PermitViewModel = PermitViewModel()
+    // MARK: - Property
+    
+    @State var viewModel: PermitViewModel
+    
+    // MARK: - Init
+
+    /// DIContainer와 앱 흐름 ViewModel(AppFlowViewModel)을 주입받아 초기화
+    init(
+        container: DIContainer,
+    ) {
+        self.viewModel = .init(container: container)
+    }
+    
+    // MARK: - Body
     
     var body: some View {
         HStack {
@@ -36,8 +50,9 @@ struct PermitView: View {
                     text: "다음",
                     isDisabled: !(viewModel.termsOfServicePermit && viewModel.informationPermit),
                     action: {
-                        // FIX-ME: 개인정보 입력 뷰로 이동
-                        container.navigationRouter.push(.baseTab)
+                        Task {
+                            try await viewModel.nextButtonTapped()
+                        }
                     }
                 )
                 
@@ -112,5 +127,5 @@ struct PermitView: View {
 }
 
 #Preview {
-    PermitView()
+    PermitView(container: DIContainer())
 }

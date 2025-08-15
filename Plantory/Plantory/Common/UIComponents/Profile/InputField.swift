@@ -57,11 +57,6 @@ struct InputField: View {
                     RoundedRectangle(cornerRadius: 5)
                         .stroke(state.borderColor, lineWidth: 1)
                 )
-                .onChange(of: isFocused) {
-                    if !isFocused {
-                        state = .normal
-                    }
-                }
 
             Text(state.messageText ?? "")
                 .font(.pretendardLight(10))
