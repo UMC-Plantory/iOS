@@ -120,18 +120,12 @@ struct PlantPopupView: View {
             ScrollView(.horizontal, showsIndicators: false) {
                 HStack(spacing: 8) {
                     ForEach(items, id: \.self) { item in
-                        NavigationLink {
-                            //DiaryCheckView(diary: items, isDeleteSheetPresented: <#Binding<Bool>#>)
-                        } label: {
-                            HStack(spacing: 8) {
-                                Text(item)
-                                    .foregroundColor(Color("green08"))
-                                //Image(systemName: "chevron.right")
-                                    .foregroundColor(Color("green06"))
-                            }
-                            .font(.pretendardRegular(14))
-                            .frame(width: 66, height: 29)
-                            .overlay(RoundedRectangle(cornerRadius: 30).stroke(Color("green06"), lineWidth: 1))
+                        HStack(spacing: 8) {
+                            Text(item)
+                                .foregroundColor(Color("green08"))
+                                .font(.pretendardRegular(14))
+                                .frame(width: 66, height: 29)
+                                .overlay(RoundedRectangle(cornerRadius: 30).stroke(Color("green06"), lineWidth: 1))
                         }
                     }
                 }
@@ -188,5 +182,4 @@ private extension PlantPopupView {
         }
     }
 }
-
 
