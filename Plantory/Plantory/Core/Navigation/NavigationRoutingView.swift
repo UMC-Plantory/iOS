@@ -24,9 +24,11 @@ struct NavigationRoutingView: View {
                         case .login:
                             LoginView(container: container)
                         case .permit:
-                            PermitView()
+                            PermitView(container: container)
                         case .policy(let num):
                             PolicyView(num: num)
+                        case .profileInfo:
+                            ProfileInfoView(container: container)
                         case .baseTab:
                             BaseTabView(terrariumVM: TerrariumViewModel(container: container))
                             

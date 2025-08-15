@@ -27,6 +27,7 @@ struct BaseTabView: View {
     }
 
     var body: some View {
+
         ZStack(alignment: .bottom) {
             TabView(selection: $selectedTab) {
                 ForEach(TabItem.allCases, id: \.rawValue) { tab in
@@ -39,6 +40,7 @@ struct BaseTabView: View {
                         }
                     )
                 }
+
             }
             if isTerrariumPopupVisible {
                 TerrariumPopup(isVisible: $isTerrariumPopupVisible)
