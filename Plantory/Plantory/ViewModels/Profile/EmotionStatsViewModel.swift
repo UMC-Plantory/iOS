@@ -5,7 +5,7 @@ import Combine
 import Moya
 
 final class EmotionStatsViewModel: ObservableObject {
-    @Published var response: WeeklyEmotionResponse?
+    @Published var response: EmotionStatsResponse?
     @Published var emotionFrequency: [String: Int] = [:]         // 원본 키
     @Published var mappedEmotionFrequency: [String: Int] = [:]   // 한글 매핑된 키
     @Published var periodText: String = ""                       // "yyyy년 M월 d일 ~ yyyy년 M월 d일"
@@ -17,29 +17,47 @@ final class EmotionStatsViewModel: ObservableObject {
     @Published var topEmotionKey: String = ""
     @Published public private(set) var comment: String = ""
 
-    private let provider: MoyaProvider<ProfileRouter>
     private var cancellables = Set<AnyCancellable>()
+    /// DIContainer를 통해 의존성 주입
+    let container: DIContainer
 
-    init(provider: MoyaProvider<ProfileRouter> = APIManager.shared.testProvider(for: ProfileRouter.self)) {
-        self.provider = provider
+    init(
+        container: DIContainer
+    ) {
+        self.container = container
         fetchWeeklyEmotionStats()
     }
 
     /// 주간 감정 통계 조회
     func fetchWeeklyEmotionStats() {
-        let today = Self.isoDateFormatter.string(from: Date())
-        provider
-            .fetchWeeklyEmotionStats(today: today)
+        container.useCaseService.profileService
+            .fetchWeeklyEmotionStats()
             .receive(on: DispatchQueue.main)
             .sink { [weak self] completion in
                 if case let .failure(error) = completion {
                     self?.errorMessage = error.localizedDescription
                 }
             } receiveValue: { [weak self] resp in
-                self?.handleWeeklyEmotion(resp)
+                self?.handleEmotion(resp, scope: .weekly)
             }
             .store(in: &cancellables)
     }
+    
+    func fetchMonthlyEmotionStats() {
+            container.useCaseService.profileService
+                .fetchMonthlyEmotionStats()
+                .receive(on: DispatchQueue.main)
+                .sink { [weak self] completion in
+                    if case let .failure(error) = completion {
+                        self?.errorMessage = error.localizedDescription
+                    }
+                } receiveValue: { [weak self] resp in
+                    self?.handleEmotion(resp, scope: .monthly)
+                }
+                .store(in: &cancellables)
+        }
+    
+    private enum Scope { case weekly, monthly }
 
     // MARK: - Formatter & Mapping
 
@@ -58,48 +76,51 @@ final class EmotionStatsViewModel: ObservableObject {
     }()
 
     private static let weekdayMap: [String: String] = [
-        "monday":    "월요일",
-        "tuesday":   "화요일",
-        "wednesday": "수요일",
-        "thursday":  "목요일",
-        "friday":    "금요일",
-        "saturday":  "토요일",
-        "sunday":    "일요일"
+        "MONDAY":    "월요일",
+        "TUESDAY":   "화요일",
+        "WEDNESDAY": "수요일",
+        "THURSDAY":  "목요일",
+        "FRIDAY":    "금요일",
+        "SATURDAY":  "토요일",
+        "SUNDAY":    "일요일"
     ]
 
     private static let emotionLabelMap: [String: String] = [
-        "joy":      "기쁨",
-        "surprise": "놀람",
-        "sadness":  "슬픔",
-        "anger":    "화남",
-        "soso":     "그저그럼"
+        "HAPPY":      "기쁨",
+        "AMAZING": "놀람",
+        "SAD":  "슬픔",
+        "ANGRY":    "화남",
+        "SOSO":     "그저그럼"
     ]
 
     // MARK: - Response Handling
+    private func handleEmotion(_ resp: EmotionStatsResponse, scope: Scope) {
+            response = resp
+            emotionFrequency = resp.emotionFrequency
 
-    private func handleWeeklyEmotion(_ resp: WeeklyEmotionResponse) {
-        response = resp
-        emotionFrequency = resp.emotionFrequency
+            // 기간 포맷
+            if let s = Self.isoDateFormatter.date(from: resp.startDate),
+               let e = Self.isoDateFormatter.date(from: resp.endDate) {
+                periodText = "\(Self.periodFormatter.string(from: s)) ~ \(Self.periodFormatter.string(from: e))"
+            } else {
+                periodText = "\(resp.startDate) ~ \(resp.endDate)"
+            }
 
-        // 1) 기간 텍스트 설정
-        periodText = "\(Self.periodFormatter.string(from: resp.startDate)) ~ " +
-                     "\(Self.periodFormatter.string(from: resp.endDate))"
+            // 라벨 매핑 (대문자 키 그대로)
+            mappedEmotionFrequency = resp.emotionFrequency.reduce(into: [:]) { result, pair in
+                let ko = Self.emotionLabelMap[pair.key] ?? pair.key
+                result[ko] = pair.value
+            }
 
-        // 2) 감정 키를 한글로 매핑
-        mappedEmotionFrequency = resp.emotionFrequency.reduce(into: [:]) { result, pair in
-            let korean = Self.emotionLabelMap[pair.key] ?? pair.key
-            result[korean] = pair.value
+            // 최다 감정 비율
+            let total = resp.emotionFrequency.values.reduce(0, +)
+            let topKey = resp.mostFrequentEmotion
+            let top = resp.emotionFrequency[topKey] ?? 0
+            topEmotionRatio = total > 0 ? Double(top) / Double(total) : 0
+            topEmotionKey = topKey
+
+            comment = scope == .weekly ? "주간 감정 통계" : "월간 감정 통계"
         }
-
-        // 3) 최다 감정 비율 및 키 계산
-        let totalCount = resp.emotionFrequency.values.reduce(0, +)
-        let topKey = resp.mostFrequentEmotion
-        let topCount = resp.emotionFrequency[topKey] ?? 0
-        topEmotionRatio = totalCount > 0 ? Double(topCount) / Double(totalCount) : 0
-        topEmotionKey = topKey
-        
-        comment = "주간 감정 통계"
-    }
 }
 
 // MARK: - ViewModel Extensions (뷰용 데이터)

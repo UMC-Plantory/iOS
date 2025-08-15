@@ -36,13 +36,13 @@ struct NavigationRoutingView: View {
                         case .scrap:
                             ScrapView()
                         case .tempStorage:
-                            TempStorageView()
+                            TempStorageView(container: container)
                         case .trash:
-                            TrashView()
+                            TrashView(container: container)
                         case .emotionStats:
-                            EmotionStatsView()
+                            EmotionStatsView(container: container)
                         case .profileManage:
-                            ProfileManageView()
+                            ProfileManageView(container: container)
                         }
                     }
                     .environmentObject(container)

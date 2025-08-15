@@ -14,11 +14,11 @@ enum ChatRouter {
     case getBeforeChat(beforeData: String) // 최초 이후, 채팅창 스크롤 업
 }
 
-extension ChatRouter: APITargetType {
-    var baseURL: URL {
-        return URL(string: "\(Config.baseUrl)")!
-    }
-    
+    extension ChatRouter: APITargetType {
+        var baseURL: URL {
+            return URL(string: "\(Config.baseUrl)")!
+        }
+        
     var path: String {
         switch self {
         case .postChat:
