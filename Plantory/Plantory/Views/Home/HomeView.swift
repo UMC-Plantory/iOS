@@ -8,11 +8,14 @@
 import SwiftUI
 
 struct HomeView: View {
+
     @StateObject private var diaryStore = DiaryStore()
     @State private var month: Date = Date()
     @State private var selectedDate: Date? = nil
     @State private var showingDetailSheet = false
     @State private var showMonthPicker = false
+
+    @EnvironmentObject var container: DIContainer
 
     private let calendar = Calendar.current
     private let dateFormatter: DateFormatter = {
@@ -141,7 +144,7 @@ struct HomeView: View {
                 }
 
                 Button(action: {
-                    print("새로운 일기 추가")
+                    container.navigationRouter.push(.addDiary)
                 }) {
                     Image(systemName: "plus")
                         .font(.title)

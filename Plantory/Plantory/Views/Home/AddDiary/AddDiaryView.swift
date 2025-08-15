@@ -26,16 +26,25 @@ private enum DiaryFormatters {
     }()
 }
 
+
 struct AddDiaryView: View {
     // 단계 네비게이션
     @Bindable var stepVM: StepIndicatorViewModel
     // API/데이터
     @Bindable var vm: AddDiaryViewModel
 
+    @EnvironmentObject var container: DIContainer
+
     // 날짜 선택
     @State private var selectedDate: Date = Date()
     @State private var showFullCalendar: Bool = false
 
+    init(container: DIContainer, date: Date) {
+        self._stepVM = Bindable(wrappedValue: StepIndicatorViewModel())
+        self._vm     = Bindable(wrappedValue: AddDiaryViewModel(container: container))
+        self._selectedDate = State(initialValue: date)
+        }
+    
     var body: some View {
         ZStack(alignment: .top) {
             if vm.isCompleted {
@@ -183,7 +192,4 @@ struct AddDiaryView: View {
     }
 }
 
-#Preview {
-    AddDiaryView(stepVM: StepIndicatorViewModel(),
-                 vm: AddDiaryViewModel(container: .init()))
-}
+

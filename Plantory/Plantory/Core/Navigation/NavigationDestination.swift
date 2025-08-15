@@ -12,9 +12,10 @@ enum NavigationDestination: Equatable, Hashable {
     case permit
     case policy(num: Int)
     case profileInfo
+    case home
     case baseTab
     case addDiary
-    
+
     // 마이페이지 (담당자: 이효주)
     case scrap
     case tempStorage

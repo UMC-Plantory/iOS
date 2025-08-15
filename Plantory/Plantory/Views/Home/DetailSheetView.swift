@@ -11,6 +11,8 @@ struct DetailSheetView: View {
     let date: Date
     let entry: DiaryEntryData?
     
+    @EnvironmentObject var container: DIContainer
+    
     private let dateFormatter: DateFormatter = {
         let df = DateFormatter()
         df.dateFormat = "yyyy년 M월 d일"
@@ -91,7 +93,7 @@ struct DetailSheetView: View {
             Spacer()
             if date <= Calendar.current.startOfDay(for: Date()) {
                 Button {
-                    // 작성 페이지 이동
+                    container.navigationRouter.push(.addDiary)
                 } label: {
                     Image(systemName: "plus")
                         .font(.title3)
