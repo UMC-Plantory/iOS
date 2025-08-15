@@ -71,7 +71,6 @@ struct HomeView: View {
                         month: $viewModel.month,
                         selectedDate: $viewModel.selectedDate,
                         diaryEmotionsByDate: viewModel.diaryEmotionsByDate
-                        // ⬆️ colorForDate 인자는 현재 CalendarView 시그니처에 없습니다. 제거!
                     )
                     .onChange(of: viewModel.selectedDate) { _, newValue in
                         guard let date = newValue else { return }
@@ -132,7 +131,7 @@ struct HomeView: View {
                     date: date,
                     onTapAdd: { container.navigationRouter.push(.addDiary) } 
                 )
-                .environmentObject(container) // 안전하게 주입
+                .environmentObject(container) 
             }
         }
     }

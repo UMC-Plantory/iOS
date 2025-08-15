@@ -5,15 +5,11 @@
 //  Created by 김지우 on 8/6/25.
 //
 
+
 import SwiftUI
 import Observation
 
-/// HomeView의 시트 전용 뷰
-/// - viewModel: HomeViewModel(@Observable)에서 상태를 읽습니다
-/// - date: 시트에 표시할 선택 날짜
-/// - onTapAdd: 플러스 버튼 탭 시 호출되는 콜백(없으면 기본 라우팅 사용)
 struct DetailSheetView: View {
-    // 바인딩 주입 (@Observable -> @Bindable)
     @Bindable var viewModel: HomeViewModel
     let date: Date
     var onTapAdd: (() -> Void)? = nil
@@ -21,14 +17,12 @@ struct DetailSheetView: View {
     @EnvironmentObject var container: DIContainer
     @Environment(\.dismiss) private var dismiss
 
-    // 날짜 포맷
     private let dateFormatter: DateFormatter = {
         let df = DateFormatter()
         df.dateFormat = "yyyy년 M월 d일"
         return df
     }()
 
-    // 미래 날짜 여부
     private var isFuture: Bool {
         let cal = Calendar.current
         return cal.startOfDay(for: date) > cal.startOfDay(for: Date())
@@ -37,11 +31,8 @@ struct DetailSheetView: View {
     var body: some View {
         ZStack {
             (isFuture ? Color.gray04 : Color.white01).ignoresSafeArea()
-
             VStack(spacing: 16) {
                 Spacer().frame(height: 8)
-
-                // 헤더
                 HStack {
                     Text("\(date, formatter: dateFormatter)")
                         .font(.pretendardRegular(20))
@@ -49,25 +40,18 @@ struct DetailSheetView: View {
                     Spacer()
                     if !isFuture {
                         Button {
-                                                    // 1) 시트 닫고
-                                                    dismiss()
-                                                    // 2) 닫힘 애니메이션 직후 push (지연 0.25~0.35s 권장)
-                                                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
-                                                        if let onTapAdd {
-                                                            onTapAdd()
-                                                        } else {
-                                                            container.navigationRouter.push(.addDiary)
-                                                        }
-                                                    }
-                                                }label: {
+                            dismiss()
+                            DispatchQueue.main.asyncAfter(deadline: .now() + 0.25) {
+                                if let onTapAdd { onTapAdd() }
+                                else { container.navigationRouter.push(.addDiary) }
+                            }
+                        } label: {
                             Image(systemName: "plus")
                                 .font(.title3)
                                 .foregroundColor(.green05)
                         }
                     }
                 }
-
-                // 본문
                 ZStack {
                     if isFuture {
                         CenterMessage("미래의 일기는 작성할 수 없어요!")
@@ -77,7 +61,7 @@ struct DetailSheetView: View {
                         CenterMessage("작성된 일기가 없어요!")
                     } else if let summary = viewModel.diarySummary {
                         Button {
-                            // TODO: 일기 상세 이동 훅업 (필요 시 외부 콜백 추가)
+                            // TODO: 상세(편집)로 라우팅
                         } label: {
                             HStack {
                                 Text(summary.title)
@@ -102,7 +86,6 @@ struct DetailSheetView: View {
                         }
                         .padding(.bottom, 24)
                     } else {
-                        // 선택은 했지만 아직 값이 없는 잠깐의 순간
                         ProgressView().tint(.gray)
                     }
                 }
@@ -115,11 +98,9 @@ struct DetailSheetView: View {
         .presentationDragIndicator(.hidden)
     }
 
-    // MARK: - Helper
     @ViewBuilder
     private func CenterMessage(_ text: String) -> some View {
-        VStack {
-            Spacer()
+        VStack { Spacer()
             Text(text)
                 .font(.pretendardRegular(14))
                 .foregroundColor(.gray11)
