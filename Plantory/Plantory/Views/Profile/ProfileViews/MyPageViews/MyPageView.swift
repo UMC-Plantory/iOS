@@ -107,6 +107,9 @@ struct MyPageView: View {
         }
         .navigationBarHidden(true)
         .loadingIndicator(statsVM.isLoading)
+        .task {
+            statsVM.fetch()
+        }
     }
 }
 
