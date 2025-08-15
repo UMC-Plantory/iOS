@@ -27,15 +27,19 @@ struct ProfileSection: View {
                             .frame(width: 64, height: 64)
                             .clipShape(Circle())
                     default:
-                        Circle()
-                            .fill(Color.gray.opacity(0.2))
+                        Image("default_profile")
+                            .resizable()
+                            .scaledToFill()
                             .frame(width: 64, height: 64)
+                            .clipShape(Circle())
                     }
                 }
             } else {
-                Circle()
-                    .fill(Color.gray.opacity(0.2))
+                Image("default_profile")
+                    .resizable()
+                    .scaledToFill()
                     .frame(width: 64, height: 64)
+                    .clipShape(Circle())
             }
 
             VStack(alignment: .leading, spacing: 4) {
