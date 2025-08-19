@@ -6,6 +6,7 @@
 //
 import Foundation
 import Combine
+import Moya
 
 @MainActor
 class DiaryListViewModel: ObservableObject {
@@ -21,10 +22,9 @@ class DiaryListViewModel: ObservableObject {
     @Published var isLoading: Bool = false //현재 데이터를 불러오는 중인지 여부
     @Published private(set) var errorMessage: String?
     @Published private(set) var hasNext = false
-    @Published var query: String = "" // 검색어(옵션)
   
     // MARK: - Filter State
-       @Published var sort: String = "latest"      // "latest" | "oldest"
+    @Published var sort: SortOrder = .latest     // "latest" | "oldest"
        @Published var from: String? = nil          // "YYYY-MM"
        @Published var to: String? = nil            // "YYYY-MM"
        @Published var emotion: Emotion = .all
@@ -50,9 +50,7 @@ class DiaryListViewModel: ObservableObject {
     let container: DIContainer
     /// Combine 구독 해제를 위한 Set
     var cancellables = Set<AnyCancellable>()
-    
-  
-    
+
     // MARK: - 초기화
  
     init(
@@ -75,34 +73,12 @@ class DiaryListViewModel: ObservableObject {
         return compareDate > currentDate
     }
 
-    //일기 리스트에서 페이지 계속 불러오는 함수
-    /*func loadMoreMock() {
-        guard !isLoading else { return }
-        isLoading = true
-        
-        DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
-            let newEntries = (1...self.pageSize).map { offset -> DiaryEntry in
-                let day = self.currentPage * self.pageSize + offset
-                return DiaryEntry(
-                    id: day,
-                    date: Calendar.current.date(from: DateComponents(year: 2025, month: 5, day: day)) ?? Date(),
-                    title: "친구를 만나 좋았던 하루",
-                    content: "오늘은 점심에 유엠이랑 밥을 먹었는데 너무...",
-                    emotion: [.HAPPY, .SAD, .ANGRY].randomElement()!,
-                    isFavorite: Bool.random()
-                )
-            }
-            self.entries.append(contentsOf: newEntries)
-            self.currentPage += 1
-            self.isLoading = false
-        }
-    }
-     */
     
     //필터링 된 함수 불러오는 함수
     public func fetchFilteredDiaries(_ request: DiaryFilterRequest) {
         isLoading = true
-        diaryService.fetchFilteredDiaries(request)
+        
+        container.useCaseService.diaryService.fetchFilteredDiaries(request)
             .receive(on: DispatchQueue.main)
             .sink(receiveCompletion: { [weak self] completion in
                 if case .failure(let failure) = completion {
@@ -125,7 +101,7 @@ class DiaryListViewModel: ObservableObject {
         isLoadingDetail = true
         detailErrorMessage = nil
         
-        diaryService.fetchDiary(id: diaryId)
+        container.useCaseService.diaryService.fetchDiary(id: diaryId)
             .receive(on: DispatchQueue.main)
             .sink { [weak self] completion in
                 guard let self = self else { return }
@@ -165,7 +141,7 @@ class DiaryListViewModel: ObservableObject {
             size: self.size
            )
 
-           diaryService.fetchFilteredDiaries(nextReq)
+        container.useCaseService.diaryService.fetchFilteredDiaries(nextReq)
                .receive(on: DispatchQueue.main)
                .sink(receiveCompletion: { [weak self] completion in
                    if case .failure(let failure) = completion {

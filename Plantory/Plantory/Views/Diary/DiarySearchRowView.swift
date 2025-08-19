@@ -1,14 +1,14 @@
 //
-//  DiaryRowView.swift
+//  DiarySearchRow.swift
 //  Plantory
 //
-//  Created by 박병선 on 8/9/25.
-//  일기 개별 뷰(다이어리 리스트에서) 
+//  Created by 박병선 on 8/19/25.
+//
 
 import SwiftUI
 
-//DiaryList의 하위뷰로 각각의 일기를 보여주는 View입니다. 
-struct DiaryRow: View {
+//DiaryList의 하위뷰로 각각의 일기를 보여주는 View입니다.
+struct DiarySearchRow: View {
     let entry: DiarySummary
 
     var body: some View {
@@ -106,13 +106,13 @@ struct DiaryRow: View {
             return dateString // 변환 실패 시 원본 반환
         }
     }
+
 }
 
-
 // MARK: - Preview
-struct DiaryRow_Previews: PreviewProvider {
+struct DiarySearchRow_Previews: PreviewProvider {
     static var previews: some View {
-        DiaryRow(
+        DiarySearchRow(
             entry: DiarySummary(
                 diaryId: 1,
                 diaryDate: "2025-05-19",
@@ -127,3 +127,4 @@ struct DiaryRow_Previews: PreviewProvider {
         .background(Color.gray.opacity(0.2))
     }
 }
+

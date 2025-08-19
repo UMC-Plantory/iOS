@@ -101,5 +101,163 @@ extension DiaryRouter {
     var headers: [String: String]? {
         ["Content-Type": "application/json"]
     }
+    
+    var sampleData: Data {
+            switch self {
+            case .fetchFilteredDiaries:
+                // 필터링된 일기 리스트
+                return """
+                {
+                      "isSuccess": true,
+                      "code": "COMMON200",
+                      "message": "성공입니다.",
+                      "result": {
+                        "diaries": [
+                          {
+                            "diaryId": 1,
+                            "diaryDate": "2025-06-20",
+                            "title": "일기 제목 1",
+                            "status": "NORMAL",
+                            "emotion": "HAPPY",
+                            "content": "일기 내용"
+                          },
+                          {
+                            "diaryId": 2,
+                            "diaryDate": "2025-06-21",
+                            "title": "일기 제목 2",
+                            "status": "SCRAP",
+                            "emotion": "SAD",
+                            "content": "일기 내용"
+                          }
+                        ],
+                        "hasNext": true,
+                        "nextCursor": "2025-06-21"
+                      }
+                    }
+                """.data(using: .utf8)!
+
+            case .fetchDiary(let id):
+                // 단일 일기 조회
+                return """
+                {
+                  "isSuccess": true,
+                  "code": "COMMON200",
+                  "message": "성공입니다.",
+                  "result": {
+                    "diaryId": 1,
+                    "diaryDate": "2025-06-20"
+                    "emotion": "HAPPY",
+                    "title": "일기 제목1",
+                    "content": "오늘은…",
+                    "diaryImgUrl": "https…",
+                    "status": "NORMAL"
+                  }
+                }
+                """.data(using: .utf8)!
+
+            case .editDiary(let id, _):
+                // 수정된 일기 응답
+                return """
+                {
+                  "isSuccess": true,
+                  "code": "COMMON200",
+                  "message": "일기 수정 성공",
+                  "result": {
+                    "diaryId": 1,
+                    "diaryDate": "2025-06-20"
+                    "emotion": "HAPPY",
+                    "title": "일기 제목1",
+                    "content": "오늘은…",
+                    "diaryImgUrl": "https…",
+                    "status": "NORMAL",
+                  }
+                }
+                """.data(using: .utf8)!
+
+            case .moveToTrash:
+                // 휴지통 이동 성공 응답
+                return """
+                {
+                  "isSuccess": true,
+                  "code": "COMMON200",
+                  "message": "성공입니다.",
+                }
+                """.data(using: .utf8)!
+
+            case .deletePermanently:
+                // 영구 삭제 성공 응답
+                return """
+                {
+                  "isSuccess": true,
+                  "code": "COMMON200",
+                  "message": "일기 영구 삭제 성공",
+                }
+                """.data(using: .utf8)!
+
+            case .searchDiary:
+                // 검색 결과 리스트
+                return """
+                {
+                "isSuccess": true,
+                "code": "COMMON200",
+                "message": "성공입니다.",
+                    "result": {
+                        "diaries": [
+                          {
+                            "diaryId": 1,
+                            "diaryDate": "2025-06-20",
+                            "title": "일기 제목 1",
+                            "status": "NORMAL",
+                            "emotion": "HAPPY",
+                            "content": "일기 내용"
+                        },
+                        {
+                            "diaryId": 2,
+                            "diaryDate": "2025-06-21",
+                            "title": "일기 제목 2",
+                            "status": "SCRAP",
+                            "emotion": "SAD",
+                            "content": "일기 내용"
+                        }
+                    ],
+                    "hasNext": true,
+                    "nextCursor": “2025-06-21”,
+                    ”total": 2
+                  }
+                }
+
+                """.data(using: .utf8)!
+
+            case .scrapOn(let id):
+                // 스크랩 성공 응답
+                return """
+                {
+                  "isSuccess": true,
+                  "code": "COMMON200",
+                  "message": "성공입니다.",
+                }
+                """.data(using: .utf8)!
+
+            case .scrapOff(let id):
+                // 스크랩 취소 응답
+                return """
+                {
+                  "isSuccess": true,
+                  "code": "COMMON200",
+                  "message": "성공입니다.",
+                }
+                """.data(using: .utf8)!
+
+            case .tempStatus(let ids):
+                // 임시보관 응답
+                return """
+                {
+                  "isSuccess": true,
+                  "code": "COMMON200",
+                  "message": "성공입니다."
+                }
+                """.data(using: .utf8)!
+            }
+        }
 }
 

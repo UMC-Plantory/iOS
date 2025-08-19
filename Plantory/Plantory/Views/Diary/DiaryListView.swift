@@ -6,7 +6,7 @@
 //
 import SwiftUI
 
-// 일기 리스트 화면
+// 일기 리스트페이지 입니다.
 struct DiaryListView: View {
     @StateObject private var viewModel: DiaryListViewModel
     @Binding var isFilterSheetPresented: Bool
@@ -38,24 +38,23 @@ struct DiaryListView: View {
 
                 DiaryMonthSectionView(isFilterSheetPresented: $isFilterSheetPresented)
 
-                DiaryListContent (
-                    entries: viewModel.diaries,
+                DiaryListContent (//개별 리스트
+                    diaries: viewModel.diaries,
                         isLoading: viewModel.isLoading,
                         onAppearLast: { viewModel.fetchMore( ) },
                         onTap: { entry in
                             viewModel.fetchDiary(diaryId: entry.id)
-                            container.navigationRouter.path.append(NavigationDestination.diaryDetail(diaryId: entry.id))
+                            container.navigationRouter.path.append(NavigationDestination.diaryDetail(diaryId: entry.id))//DiaryCheckView로 이동
                         }
                 )
                 .padding(.horizontal)
             }
         }
         .sheet(isPresented: $isFilterSheetPresented) {
-            DiaryFilterView(initialSelectedMonths: [4, 5])
+            DiaryFilterView(initialSelectedMonths: [4, 5])// 리스트 필터
         }
         .navigationDestination(isPresented: $isNavigatingToSearch) {
-            // 검색 화면으로 이동
-            DiarySearchView(container: container)
+            DiarySearchView(container: container)//검색화면으로 이동합니다.
         }
     }
 }
@@ -123,7 +122,7 @@ struct DiaryHeaderView: View {
     }
 }
 
-// 월/필터 영역
+// 월/필터 영역(Home View와 연결->연/월)
 struct DiaryMonthSectionView: View {
     @Binding var isFilterSheetPresented: Bool
 
@@ -155,5 +154,28 @@ struct DiaryMonthSectionView: View {
         }
         .padding(.horizontal)
         .background(Color("brown01"))
+    }
+}
+
+// MARK: - Preview
+struct DiaryListView_Previews: PreviewProvider {
+    struct PreviewWrapper: View {
+        @State private var isFilterSheetPresented = false
+        private let container = DIContainer() // 더미 DIContainer
+        
+        var body: some View {
+            NavigationStack {
+                DiaryListView(
+                    isFilterSheetPresented: $isFilterSheetPresented,
+                    container: container
+                )
+                .environmentObject(container) // 필요하다면 주입
+            }
+        }
+    }
+
+    static var previews: some View {
+        PreviewWrapper()
+            .previewLayout(.device)
     }
 }

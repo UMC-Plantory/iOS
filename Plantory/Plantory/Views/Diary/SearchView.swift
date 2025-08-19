@@ -146,7 +146,7 @@ struct DiarySearchView: View {
 
     @ViewBuilder
     private func searchResultSection() -> some View {
-        let summary: DiarySummary
+        let _: DiarySummary
         HStack {
             Text("‘\(vm.query)’가 들어간 일기")
                 .font(.pretendardSemiBold(18))
@@ -162,17 +162,10 @@ struct DiarySearchView: View {
         List(vm.results, id: \.diaryId) { item in
             Button {
                 container.navigationRouter.path.append(
-                    NavigationDestination.diaryDetail(diaryId: item.diaryId)
+                  NavigationDestination.diaryDetail(diaryId: item.diaryId)
                 )
             } label: {
-                DiaryRow(entry: DiaryEntry(
-                            id: item.diaryId,
-                            date: Date(),              // 필요시 변환
-                            title: item.title,
-                            content: item.content,
-                            emotion: .HAPPY,           // 변환 필요
-                            isFavorite: false
-                        ))
+                DiaryRow(entry: item)
             }
         }
         .listStyle(.plain)

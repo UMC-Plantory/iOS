@@ -6,6 +6,7 @@
 //
 import Foundation
 import Combine
+import Moya
 
 final class DiaryCheckViewModel: ObservableObject {
     private enum DiaryStatus: String { case normal = "NORMAL", temp = "TEMP", scrap = "SCRAP", trash = "TRASH" }
@@ -15,24 +16,22 @@ final class DiaryCheckViewModel: ObservableObject {
     @Published var showDeleteSheet = false
     @Published var detail: DiaryDetail?
     @Published var errorMessage: String?
+    /// DIContainer를 통해 의존성 주입
+    let container: DIContainer
     private let diaryId: Int
     private let diaryService: DiaryServiceProtocol
     private var cancellables = Set<AnyCancellable>()
     
     @Published var isSaving: Bool = false
     
-   init(diaryId: Int, diaryService: DiaryServiceProtocol) {
+    init(diaryId: Int, diaryService: DiaryServiceProtocol, container: DIContainer) {
         self.diaryId = diaryId
         self.diaryService = diaryService
+        self.container = container
     }
     
-    @Published var editedTitle: String = "친구를 만나 좋았던 하루"
-    @Published var editedContent: String = """
-    오늘은 점심에 유엠이랑 밥을 먹었는데 너무 맛있었다. 
-    저녁에는 친구 집들이를 갔다. 선물로 유리 컵과 접시 세트를 사 갔는데 마침 집에 이런한 것들이 필요했다고 해서 너무 다행이었다. 
-    친구들과 재밌는 시간을 보내고 집으로 돌아와서 이렇게 일기를 쓰고 있는 지금이 참 좋은 것 같다.
-    """
-    
+    @Published var editedTitle: String = ""
+    @Published var editedContent: String = ""
     
    
     
@@ -46,7 +45,7 @@ final class DiaryCheckViewModel: ObservableObject {
         m.status = DiaryStatus.scrap.rawValue   // 로컬 즉시 반영
         diaries[i] = m
 
-        diaryService.scrapOn(id: diaryId)
+        container.useCaseService.diaryService.scrapOn(id: diaryId)
             .receive(on: DispatchQueue.main)
             .sink { [weak self] completion in
                 if case .failure(let e) = completion {
@@ -66,7 +65,7 @@ final class DiaryCheckViewModel: ObservableObject {
         }
         diaries[i] = m
 
-        diaryService.scrapOff(id: diaryId)
+        container.useCaseService.diaryService.scrapOff(id: diaryId)
             .receive(on: DispatchQueue.main)
             .sink { [weak self] completion in
                 if case .failure(let e) = completion {
@@ -97,7 +96,8 @@ final class DiaryCheckViewModel: ObservableObject {
            if var s = summary { s.status = "TRASH"; summary = s }
 
            isLoading = true
-           diaryService.moveToTrash(ids: [id])
+        
+        container.useCaseService.diaryService.moveToTrash(ids: [id])
                .receive(on: DispatchQueue.main)
                .sink { [weak self] completion in
                    guard let self else { return }
@@ -128,7 +128,7 @@ final class DiaryCheckViewModel: ObservableObject {
            summary = s
 
            isLoading = true
-           diaryService.updateTempStatus(ids: [id])
+           container.useCaseService.diaryService.updateTempStatus(ids: [id])
                .receive(on: DispatchQueue.main)
                .sink { [weak self] completion in
                    guard let self else { return }
@@ -150,7 +150,7 @@ final class DiaryCheckViewModel: ObservableObject {
     func diaryEdit(diaryId: Int, request: DiaryEditRequest) {
         isSaving = true
         
-        diaryService.editDiary(id: diaryId, data: request)
+        container.useCaseService.diaryService.editDiary(id: diaryId, data: request)
             .receive(on: DispatchQueue.main)
             .sink { [weak self] completion in
                 self?.isSaving = false

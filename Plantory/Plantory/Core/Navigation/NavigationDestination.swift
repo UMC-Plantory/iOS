@@ -22,5 +22,7 @@ enum NavigationDestination: Equatable, Hashable{
     case profileManage
     
     
-    case diaryDetail(diaryId: Int)
+    // 다이어리 (담당자: 박병선)
+    case diary //리스트뷰로 연결
+    case diaryDetail(diaryId: Int)//체크뷰로 연결
 }

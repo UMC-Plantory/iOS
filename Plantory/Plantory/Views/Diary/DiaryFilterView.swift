@@ -10,7 +10,7 @@ import SwiftUI
 struct DiaryFilterView: View {
     @Environment(\.dismiss) private var dismiss
     @StateObject  var viewModel : DiaryListViewModel
-    @State private var selectedSort: DiarySort = .latest
+    @State private var selectedSort: SortOrder = .latest
     @State private var selectedYear: Int = 2025
     @State private var selectedMonths: Set<Int>
     @State private var selectedEmotions: Set<Emotion> = [.all]
@@ -186,11 +186,11 @@ struct DiaryFilterView: View {
                     Spacer()
                     Button(action: {
                         // 필터 적용
-                        let dto = DiaryFilterRequest(
-                            sort: selectedSort,  // DiarySort 타입
+                        let dto = DiaryFilterRequest (
+                                sort: selectedSort,  // SortOrder에서 !!
                                 from: String(format: "%04d-%02d", selectedYear, selectedMonths.min() ?? 1),
                                 to: String(format: "%04d-%02d", selectedYear, selectedMonths.max() ?? 12),
-                            emotion: selectedEmotions.first ?? .all, // Emotion 타입
+                                emotion: selectedEmotions.first ?? .all, // Emotion 타입
                                 cursor: nil,
                                 size: 20
                            )

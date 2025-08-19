@@ -29,7 +29,7 @@ struct DiaryDetail: Codable {
 // MARK: - 일기 리스트 조회 + 필터 적용 요청/응답
 /// 일기 리스트 조회 + 필터 적용 Request
 struct DiaryFilterRequest: Codable {
-    var sort: String?
+    var sort: SortOrder
     var from: String?   // "YYYY-MM"
     var to: String?     // "YYYY-MM"
     var emotion: Emotion = .all
@@ -137,9 +137,3 @@ struct BasicMessageResponse: Codable { //스크랩, 스크랩 취소, 일기 휴
     let code: String
     let message: String
 }
-
-
-
-
-
-
