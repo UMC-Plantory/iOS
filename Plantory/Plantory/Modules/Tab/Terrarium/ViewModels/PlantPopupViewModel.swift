@@ -67,6 +67,14 @@ final class PlantPopupViewModel {
     var usedDateTexts: [String] {
         (detail?.usedDiaries ?? []).map { Self.formatMD($0.diaryDate) }
     }
+
+    var usedDiaryIds: [Int] {
+        (detail?.usedDiaries ?? []).map { $0.diaryId }
+    }
+
+    var usedDiaryItems: [(text: String, id: Int)] {
+        (detail?.usedDiaries ?? []).map { (Self.formatMD($0.diaryDate), $0.diaryId) }
+    }
     var stageTexts: [(String, String)] {
         guard let d = detail else { return [] }
         return [
