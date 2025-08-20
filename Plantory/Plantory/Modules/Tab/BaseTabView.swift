@@ -80,6 +80,8 @@ struct BaseTabView: View {
                     PlantPopupView(
                         viewModel: plantPopupVM,
                         onClose: {
+                            // Always return to My Garden tab when the popup closes
+                            terrariumVM.selectedTab = .myGarden
                             showPlantPopup = false
                             selectedTerrariumId = nil
                             plantPopupVM.close()
@@ -94,6 +96,14 @@ struct BaseTabView: View {
         .onAppear {
             UITabBar.appearance().backgroundColor = .white01
             UITabBar.appearance().unselectedItemTintColor = .black01
+        }
+        .onChange(of: showPlantPopup) { isPresented in
+            // Whenever the PlantPopupView toggles, force the terrarium internal tab to My Garden
+            terrariumVM.selectedTab = .myGarden
+            if isPresented {
+                // Make sure the main tab is Terrarium when the popup shows
+                selectedTab = .terrarium
+            }
         }
         .ignoresSafeArea(.keyboard)
         .navigationBarBackButtonHidden(true)
@@ -115,6 +125,9 @@ struct BaseTabView: View {
                     onInfoTapped: { isTerrariumPopupVisible = true },
                     onFlowerComplete: { showFlowerComplete = true },
                     onPlantTap: { id in
+                        // Ensure Terrarium tab and its internal tab are on My Garden when opening the popup
+                        selectedTab = .terrarium
+                        terrariumVM.selectedTab = .myGarden
                         selectedTerrariumId = id
                         plantPopupVM.open(terrariumId: id)
                         showPlantPopup = true

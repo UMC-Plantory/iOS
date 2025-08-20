@@ -9,13 +9,6 @@ import Foundation
 
 // MARK: - Terrarium Response
 
-struct TerrariumResponse: Codable {
-    let isSuccess: Bool
-    let code: String
-    let message: String
-    let result: TerrariumResult?
-}
-
 struct TerrariumResult: Codable, Equatable {
     let terrariumId: Int
     var terrariumWateringCount: Int
@@ -23,13 +16,6 @@ struct TerrariumResult: Codable, Equatable {
 }
 
 // MARK: - Watering (POST /terrariums/{id}/water)
-
-struct WateringResponse: Codable {
-    let isSuccess: Bool
-    let code: String
-    let message: String
-    let result: WateringResult?
-}
 
 struct WateringResult: Codable {
     let nickname: String?
@@ -42,13 +28,6 @@ struct WateringResult: Codable {
 
 
 // MARK: - Terrarium Monthly Response
-
-struct TerrariumMonthlyResponse: Codable {
-    let isSuccess: Bool
-    let code: String
-    let message: String
-    let result: TerrariumMonthly
-}
 
 struct TerrariumMonthlyRaw: Codable {
     let terrariumId: Int
@@ -66,13 +45,6 @@ struct TerrariumMonthly: Codable {
 
 
 // MARK: - Terrarium Detail (GET /terrariums/{terrarium_id})
-
-struct TerrariumDetailResponse: Codable {
-    let isSuccess: Bool
-    let code: String
-    let message: String
-    let result: TerrariumDetail
-}
 
 struct TerrariumDetailRaw: Codable {
     let flowerName: String
