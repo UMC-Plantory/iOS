@@ -15,7 +15,11 @@ struct PlantPopupView: View {
         if viewModel.isPresented {
             ZStack {
                 Color.black.opacity(0.4)
-                    .edgesIgnoringSafeArea(.all)
+                    .ignoresSafeArea()
+                    .contentShape(Rectangle())
+                    .onTapGesture {
+                        onClose()
+                    }
 
                 VStack(spacing: 16) {
                     HStack {
