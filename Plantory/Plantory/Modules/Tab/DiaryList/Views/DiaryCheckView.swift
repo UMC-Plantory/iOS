@@ -147,7 +147,10 @@ struct DiaryCheckView: View {
         }
         .animation(.easeInOut, value: isDeleteSheetPresented)
         .navigationBarBackButtonHidden()
-        .task { await vm.load() }
+        .task {
+            UIApplication.shared.hideKeyboard()
+            await vm.load()
+        }
         .overlay {
             if isDeleteSheetPresented {
                 BlurBackground()

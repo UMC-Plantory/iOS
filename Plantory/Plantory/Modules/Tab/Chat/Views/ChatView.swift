@@ -46,6 +46,7 @@ struct ChatView: View {
             }
         }
         .task {
+            UIApplication.shared.hideKeyboard()
             await viewModel.getChatsList()
         }
         .toastView(toast: $viewModel.toast)
