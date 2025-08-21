@@ -12,6 +12,7 @@ struct HomeView: View {
     
     // MARK: - Property
     @State private var viewModel: HomeViewModel
+    
     // MARK: - Init
     init(container: DIContainer) {
         self._viewModel = State(initialValue: .init(container: container))
@@ -131,11 +132,10 @@ struct HomeView: View {
                 let isFuture = calendar.startOfDay(for: date) > calendar.startOfDay(for: Date())
                 ZStack {
                     (isFuture ? Color.gray04 : Color.white01).ignoresSafeArea()
-                    VStack(spacing: 16) {
-                        Spacer().frame(height: 8)
+                    VStack(spacing: 0) {
                         HStack {
                             Text("\(date, formatter: dateFormatter)")
-                                .font(.pretendardRegular(20))
+                                .font(.pretendardSemiBold(20))
                                 .foregroundColor(.black01)
                             Spacer()
                             if !isFuture {
@@ -146,11 +146,13 @@ struct HomeView: View {
                                 }
                             }
                         }
+                        .padding(.top, 20)
+                        
                         ZStack {
                             if isFuture {
                                 VStack { Spacer()
                                     Text("미래의 일기는 작성할 수 없어요!")
-                                        .font(.pretendardRegular(14))
+                                        .font(.pretendardRegular(16))
                                         .foregroundColor(.gray11)
                                         .multilineTextAlignment(.center)
                                     Spacer()
@@ -158,35 +160,43 @@ struct HomeView: View {
                             } else if viewModel.noDiaryForSelectedDate {
                                 VStack { Spacer()
                                     Text("작성된 일기가 없어요!")
-                                        .font(.pretendardRegular(14))
+                                        .font(.pretendardRegular(16))
                                         .foregroundColor(.gray11)
                                         .multilineTextAlignment(.center)
                                     Spacer()
                                 }
                             } else if let summary = viewModel.diarySummary {
-                                Button { /* 일기 상세 이동 */ } label: {
-                                    HStack {
-                                        Text(summary.title)
-                                            .font(.pretendardRegular(14))
-                                            .foregroundColor(.black)
-                                            .lineLimit(1)
-                                        Spacer().frame(width: 4)
-                                        Text("•\(summary.emotion)")
-                                            .font(.pretendardRegular(12))
-                                            .foregroundColor(.gray08)
-                                        Spacer()
-                                        Image(systemName: "chevron.right")
-                                            .foregroundColor(.black)
+                                VStack {
+                                    Button {
+                                        showingDetailSheet = false
+                                        container.navigationRouter.push(.diaryDetail(diaryId: summary.diaryId))
+                                    } label: {
+                                        HStack {
+                                            Text(summary.title)
+                                                .font(.pretendardRegular(14))
+                                                .foregroundColor(.black)
+                                                .lineLimit(1)
+                                            Spacer().frame(width: 4)
+                                            Text("•\(summary.emotion)")
+                                                .font(.pretendardRegular(12))
+                                                .foregroundColor(.gray08)
+                                            Spacer()
+                                            Image("chevron_right")
+                                                .foregroundColor(.black)
+                                        }
+                                        .padding(.horizontal, 16)
+                                        .background(
+                                            RoundedRectangle(cornerRadius: 8)
+                                                .fill(CalendarView.emotionColor(for: summary.emotion))
+                                                .stroke(.gray06, lineWidth: 0.5)
+                                                .frame(maxWidth: .infinity)
+                                                .frame(height: 56)
+                                        )
                                     }
-                                    .padding(16)
-                                    .background(
-                                        RoundedRectangle(cornerRadius: 8)
-                                            .fill(CalendarView.emotionColor(for: summary.emotion))
-                                            .stroke(Color.black.opacity(0.2), lineWidth: 0.5)
-                                            .frame(width: 340, height: 56)
-                                    )
+                                    
+                                    Spacer()
                                 }
-                                .padding(.bottom, 24)
+                                .padding(.top, 52)
                             } else {
                                 ProgressView().tint(.gray)
                             }

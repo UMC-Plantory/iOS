@@ -22,12 +22,12 @@ struct LoadingIndicator: ViewModifier {
     private var loadingView: some View {
         GeometryReader { proxyReader in
             ZStack(alignment: .center) {
-                Color.gray09.opacity(0.1)
+                Color.gray09.opacity(0.15)
                     .frame(maxWidth: .infinity, maxHeight: .infinity)
                 
                 ProgressView()
                     .progressViewStyle(
-                        CircularProgressViewStyle(tint: .green08)
+                        CircularProgressViewStyle(tint: .white)
                     )
                     .scaleEffect(x: 2, y: 2, anchor: .center)
             }

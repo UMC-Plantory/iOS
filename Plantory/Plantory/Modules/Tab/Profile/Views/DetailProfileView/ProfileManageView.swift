@@ -29,6 +29,9 @@ struct ProfileManageView: View {
                 signOutPopup
             }
         }
+        .task {
+            UIApplication.shared.hideKeyboard()
+        }
     }
 
     // MARK: - Main Content
