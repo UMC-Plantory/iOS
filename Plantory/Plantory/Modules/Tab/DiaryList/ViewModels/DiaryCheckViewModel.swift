@@ -101,7 +101,7 @@ final class DiaryCheckViewModel: ObservableObject {
                     print("스크랩 실패: \(error.errorDescription ?? "알 수 없는 에러")")
                 }
             } receiveValue: { [weak self] _ in
-                _Concurrency.Task {
+                Task {
                     await self?.load()
                 }
             }
@@ -124,7 +124,7 @@ final class DiaryCheckViewModel: ObservableObject {
                     print("스크랩 취소 실패: \(error.errorDescription ?? "알 수 없는 에러")")
                 }
             } receiveValue: { [weak self] _ in
-                _Concurrency.Task {
+                Task {
                     await self?.load()
                 }
             }
@@ -203,7 +203,7 @@ final class DiaryCheckViewModel: ObservableObject {
                 }
             }, receiveValue: { [weak self] response in
                 // url을 성공적으로 받아오면 사진 업로드 API 요청
-                _Concurrency.Task {
+                Task {
                     try await self?.putImage(urls: response)
                 }
             })
@@ -227,7 +227,7 @@ final class DiaryCheckViewModel: ObservableObject {
                     }
                 }, receiveValue: { [weak self] response in
                     // 이미지를 성공적으로 업로드한다면, 회원가입 완료 API 호출
-                    _Concurrency.Task {
+                    Task {
                         try await self?.diaryEdit(profileImgUrl: urls.accessUrl)
                     }
                 })
@@ -262,7 +262,7 @@ final class DiaryCheckViewModel: ObservableObject {
                     print("수정 실패: \(error.errorDescription ?? "알 수 없는 에러")")
                 }
             } receiveValue: { [weak self] updated in
-                _Concurrency.Task {
+                Task {
                     await self?.load()
                 }
             }
