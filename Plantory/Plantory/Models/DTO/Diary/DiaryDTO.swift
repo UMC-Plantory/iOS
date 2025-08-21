@@ -6,10 +6,11 @@ import Foundation
 struct DiarySummary: Codable, Identifiable {
     let diaryId: Int
     let diaryDate: String
+    let emotion: EmotionDisplay
     let title: String
-    var status: String//일기의 상태(예: "NORMAL", "TEMP", "TRASH" 등)를 나타내는 필드
-    let emotion: String
     let content: String
+    let diaryImgUrl: String?
+    var status: String //일기의 상태(예: "NORMAL", "TEMP", "TRASH" 등)를 나타내는 필드
     
     // Identifiable 요구사항
     var id: Int { diaryId }
@@ -22,7 +23,7 @@ struct DiaryDetail: Codable {
     let emotion: String
     let title: String // 다이어리 제목
     let content: String // 다이어리 내용
-    let diaryImgUrl: String // 서버에서 받은 이미지 주소
+    let diaryImgUrl: String? // 서버에서 받은 이미지 주소
     let status: String
 }
 
@@ -95,13 +96,13 @@ struct DiaryFetchResponse: Codable {
 ///일기 수정 요청 데이터
 struct DiaryEditRequest: Codable {
     // 이미지 교체 시 새 URL 넣기, 삭제 시 isImgDeleted = true
-       let emotion: String
-       let content: String
-       let sleepStartTime: String?   // "YYYY-MM-DD'T'HH:mm:ss 또는 "YYYY-MM-DD'T'HH:mm"
-       let sleepEndTime: String?
-       let diaryImgUrl: String?      // 새 이미지 URL(없으면 nil)
-       let status: String            // NORMAL or TEMP
-       let isImgDeleted: Bool        
+   let emotion: String
+   let content: String
+   let sleepStartTime: String?   // "YYYY-MM-DD'T'HH:mm:ss 또는 "YYYY-MM-DD'T'HH:mm"
+   let sleepEndTime: String?
+   let diaryImgUrl: String?      // 새 이미지 URL(없으면 nil)
+   let status: String            // NORMAL or TEMP
+   let isImgDeleted: Bool
 }
 
 ///일기 수정 response

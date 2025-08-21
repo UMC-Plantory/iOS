@@ -79,10 +79,20 @@ struct TerrariumDetailRaw: Codable {
     let startAt: String
     let bloomAt: String
     let mostEmotion: String
-    let usedDiaries: [String]
+    let usedDiaries: [UsedDiaryRaw]
     let firstStepDate: String
     let secondStepDate: String
     let thirdStepDate: String
+}
+
+struct UsedDiaryRaw: Codable {
+    let diaryDate: String
+    let diaryId: Int
+}
+
+struct UsedDiary: Codable {
+    let diaryDate: Date
+    let diaryId: Int
 }
 
 struct TerrariumDetail: Codable {
@@ -90,7 +100,7 @@ struct TerrariumDetail: Codable {
     let startAt: Date
     let bloomAt: Date
     let mostEmotion: String
-    let usedDiaries: [Date]
+    let usedDiaries: [UsedDiary]
     let firstStepDate: Date
     let secondStepDate: Date
     let thirdStepDate: Date

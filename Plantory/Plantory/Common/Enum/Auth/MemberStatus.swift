@@ -16,4 +16,7 @@ enum MemberStatus: String, Codable {
     
     /// 회원가입 완료 상태
     case active = "ACTIVE"
+    
+    /// 회원탈퇴 상태
+    case inActive = "INACTIVE"
 }

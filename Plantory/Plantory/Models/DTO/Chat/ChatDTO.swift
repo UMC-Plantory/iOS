@@ -18,3 +18,9 @@ struct ChatResponse: Codable {
     let createdAt: String
     let isMember: Bool
 }
+
+struct ChatResult: Codable {
+    let hasNext: Bool
+    let nextCursor: String?
+    let chatsDetatilList: [ChatResponse]
+}

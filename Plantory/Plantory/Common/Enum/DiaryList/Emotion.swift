@@ -8,7 +8,7 @@ import Foundation
 import SwiftUICore
 
 enum Emotion: String,CaseIterable,Codable {
-    case all = "전체" //
+    case all = "전체"
     case ANGRY = "화남"
     case HAPPY = "기쁨"
     case SAD = "슬픔"

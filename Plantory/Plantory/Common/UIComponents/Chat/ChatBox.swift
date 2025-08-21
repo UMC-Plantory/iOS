@@ -63,14 +63,14 @@ struct ChatBox: View {
     
     /// 채팅에서 시간을 나타내는 뷰
     private var createAtView: some View {
-        Text(extractHourAndMinute(from: chatModel.createdAt) ?? "시간 없음")
+        Text(extractTime(from: chatModel.createdAt) ?? "시간 없음")
             .font(.pretendardRegular(10))
             .foregroundStyle(.black01)
     }
     
     /// 채팅에서 메시지를 나타내는 뷰
     private var messageView: some View {
-        Text(chatModel.content)
+        Text(chatModel.content.customLineBreak())
             .padding(.horizontal, 16)
             .padding(.vertical, 10)
             .font(.pretendardRegular(14))
@@ -133,8 +133,21 @@ struct ModelChatBubbleShape: Shape {
 // MARK: - 시간 변환 함수
 
 /// datetime 문자열을 시간만 반환
-func extractHourAndMinute(from datetime: String) -> String? {
-    guard let tIndex = datetime.firstIndex(of: "T") else { return nil }
-    let timePart = datetime[datetime.index(after: tIndex)...]
-    return String(timePart)
+func extractTime(from dateString: String) -> String? {
+    let formats = [
+        "yyyy-MM-dd'T'HH:mm:ss.SSSZ", // 초+밀리초 있음
+        "yyyy-MM-dd'T'HH:mm"          // 초 없음
+    ]
+    
+    let formatter = DateFormatter()
+    formatter.locale = Locale(identifier: "en_US_POSIX")
+    
+    for format in formats {
+        formatter.dateFormat = format
+        if let date = formatter.date(from: dateString) {
+            formatter.dateFormat = "HH:mm"
+            return formatter.string(from: date)
+        }
+    }
+    return nil
 }

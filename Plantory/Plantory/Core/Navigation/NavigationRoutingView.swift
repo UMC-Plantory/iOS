@@ -8,6 +8,8 @@
 
 import SwiftUI
 
+
+/// 앱 내에서 특정 화면으로의 이동을 처리하는 라우팅 뷰입니다.
 struct NavigationRoutingView: View {
     @StateObject private var container: DIContainer = .init()
     @State private var isFilterSheetPresented = false
@@ -17,72 +19,51 @@ struct NavigationRoutingView: View {
                 .environmentObject(container)
                 .navigationDestination(for: NavigationDestination.self) { destination in
                     Group {
-                        destinationView(for: destination)
+                        switch destination {
+                        // 로그인, 회원가입 뷰
+                        case .login:
+                            LoginView(container: container)
+                        case .permit:
+                            PermitView(container: container)
+                        case .policy(let num):
+                            PolicyView(num: num)
+                        case .profileInfo:
+                            ProfileInfoView(container: container)
+                            
+                        case .addDiary:
+                            AddDiaryView(container: container)
+                            
+                        // Tab 뷰
+                        case .baseTab:
+                            BaseTabView(terrariumVM: TerrariumViewModel(container: container))
+                            
+                        // 마이페이지
+                        case .scrap:
+                            ScrapView()
+                        case .tempStorage:
+                            TempStorageView(container: container)
+                        case .trash:
+                            TrashView(container: container)
+                        case .emotionStats:
+                            EmotionStatsView(container: container)
+                        case .profileManage:
+                            ProfileManageView(container: container)
+                            
+                        // 다이어리 뷰
+                        case .diaryDetail(let diaryId):
+                            DiaryCheckView(
+                                diaryId: diaryId,
+                                container: container
+                            )
+                        }
                     }
                 }
         }
-        .environmentObject(container) // 한 번만 주입하면 충분
-    }
-
-    
-    
-    // MARK: - Destination 헬퍼 (타입 추론 안정화)
-    @ViewBuilder
-    private func destinationView(for destination: NavigationDestination) -> some View {
-        switch destination {
-        // 로그인/회원가입
-        case .login:
-            LoginView(container: container)
-        case .permit:
-            PermitView(container: container)
-        case .policy(let num):
-            PolicyView(num: num)
-        case .profileInfo:
-            ProfileInfoView(container: container)
-
-        // Tab 뷰
-        case .baseTab:
-            BaseTabView(terrariumVM: TerrariumViewModel(container: container))
-
-        // 마이페이지
-        case .scrap:
-            ScrapView()
-        case .tempStorage:
-            TempStorageView(container: container)
-        case .trash:
-            TrashView(container: container)
-        case .emotionStats:
-            EmotionStatsView(container: container)
-        case .profileManage:
-            ProfileManageView(container: container)
-
-        // 다이어리 뷰
-        case .diary:
-            DiaryListView( isFilterSheetPresented: $isFilterSheetPresented,container: container)
-            
-        case .diaryDetail(let diaryId):
-                   DiaryCheckView(diary: DiaryEntry(
-                    id: diaryId,
-                    date: Date(),
-                    title: "",
-                    content: "",
-                    emotion: .HAPPY,
-                    isFavorite: false
-                ),
-                summary: DiarySummary(
-                    diaryId: diaryId,
-                    diaryDate: "",
-                    title: "",
-                    status: "NORMAL",
-                    emotion: "",
-                    content: ""
-                ),
-                isDeleteSheetPresented: .constant(false),
-                container: container)
-
-        }
+        .environmentObject(container)
     }
 }
+
+
 #Preview {
     NavigationRoutingView()
 }
