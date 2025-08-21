@@ -7,6 +7,7 @@
 
 import SwiftUI
 
+@MainActor
 struct CustomToastModifier: ViewModifier {
     @Binding var toast: CustomToast?
     @State private var workItem: DispatchWorkItem?
