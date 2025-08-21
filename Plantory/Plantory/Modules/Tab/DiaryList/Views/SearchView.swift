@@ -34,6 +34,7 @@ struct DiarySearchView: View {
         .padding(.top, 25)
         .ignoresSafeArea(.keyboard)
         .padding(.horizontal, 16)
+        .navigationBarBackButtonHidden()
         .overlay {
             if vm.isLoading { ProgressView().scaleEffect(1.1) }
         }
