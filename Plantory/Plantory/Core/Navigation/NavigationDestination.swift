@@ -22,6 +22,5 @@ enum NavigationDestination: Equatable, Hashable {
     case emotionStats
     case profileManage
     
-    
     case diaryDetail(diaryId: Int)
 }
