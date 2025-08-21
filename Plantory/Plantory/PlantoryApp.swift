@@ -16,6 +16,7 @@ struct PlantoryApp: App {
     
     init() {
         KakaoSDK.initSDK(appKey: Config.kakaoKey)
+        UIApplication.shared.hideKeyboard()
     }
     
     var body: some Scene {

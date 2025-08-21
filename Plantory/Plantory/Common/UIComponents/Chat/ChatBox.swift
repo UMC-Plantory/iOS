@@ -70,7 +70,7 @@ struct ChatBox: View {
     
     /// 채팅에서 메시지를 나타내는 뷰
     private var messageView: some View {
-        Text(chatModel.content)
+        Text(chatModel.content.customLineBreak())
             .padding(.horizontal, 16)
             .padding(.vertical, 10)
             .font(.pretendardRegular(14))
