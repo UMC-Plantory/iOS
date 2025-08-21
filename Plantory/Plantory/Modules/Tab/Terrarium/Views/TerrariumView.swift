@@ -53,7 +53,7 @@ struct TerrariumView: View {
 
                             Spacer()
 
-                            Image(viewModel.terrariumData?.terrariumWateringCount ?? 0 < 3 ? "sprout" : "leaf")
+                            Image(viewModel.terrariumData?.terrariumWateringCount ?? 0 < 3 ? "Sprout" : "Leaf")
                                 .resizable()
                                 .frame(width: 286, height: 286)
 

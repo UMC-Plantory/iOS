@@ -27,20 +27,40 @@ struct WateringResult: Codable {
 }
 
 
-// MARK: - Terrarium Monthly Response
+// MARK: - Terrarium Monthly Response (UPDATED)
+// New response shape:
+// {
+//   "isSuccess": true,
+//   "code": "string",
+//   "message": "string",
+//   "result": {
+//     "nickname": "string",
+//     "terrariumList": [
+//       { "terrariumId": 0, "bloomAt": "2025-08-21", "flowerName": "string" }
+//     ]
+//   }
+// }
 
-struct TerrariumMonthlyRaw: Codable {
+struct TerrariumMonthlyListItemRaw: Codable {
     let terrariumId: Int
-    let nickname: String
     let bloomAt: String      // "yyyy-MM-dd"
     let flowerName: String
 }
 
-struct TerrariumMonthly: Codable {
-    let terrariumId: Int
+struct TerrariumMonthlyResultRaw: Codable {
     let nickname: String
+    let terrariumList: [TerrariumMonthlyListItemRaw]
+}
+
+struct TerrariumMonthlyListItem: Codable {
+    let terrariumId: Int
     let bloomAt: Date
     let flowerName: String
+}
+
+struct TerrariumMonthlyResult: Codable {
+    let nickname: String
+    let terrariumList: [TerrariumMonthlyListItem]
 }
 
 

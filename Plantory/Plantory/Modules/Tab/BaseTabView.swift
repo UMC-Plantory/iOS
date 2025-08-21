@@ -97,7 +97,7 @@ struct BaseTabView: View {
             UITabBar.appearance().backgroundColor = .white01
             UITabBar.appearance().unselectedItemTintColor = .black01
         }
-        .onChange(of: showPlantPopup) { isPresented in
+        .onChange(of: showPlantPopup) { oldValue, isPresented in
             // Whenever the PlantPopupView toggles, force the terrarium internal tab to My Garden
             terrariumVM.selectedTab = .myGarden
             if isPresented {
