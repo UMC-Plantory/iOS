@@ -67,7 +67,7 @@ struct NavigationRoutingView: View {
                     title: "",
                     content: "",
                     emotion: .HAPPY,
-                    isFavorite: false
+                    isScrapped: false
                 ),
                 summary: DiarySummary(
                     diaryId: diaryId,

@@ -43,8 +43,8 @@ struct DiaryListView: View {
                         isLoading: viewModel.isLoading,
                         onAppearLast: { viewModel.fetchMore( ) },
                         onTap: { entry in
-                            viewModel.fetchDiary(diaryId: entry.id)
-                            container.navigationRouter.path.append(NavigationDestination.diaryDetail(diaryId: entry.id))//DiaryCheckView로 이동
+                            viewModel.fetchDiary(diaryId: entry.id)//개별 일기 조회
+                            container.navigationRouter.path.append(NavigationDestination.diaryDetail(diaryId: entry.id))//DiaryCheckView로 이동합니다
                         }
                 )
                 .padding(.horizontal)
@@ -156,6 +156,8 @@ struct DiaryMonthSectionView: View {
         .background(Color("brown01"))
     }
 }
+
+
 
 // MARK: - Preview
 struct DiaryListView_Previews: PreviewProvider {

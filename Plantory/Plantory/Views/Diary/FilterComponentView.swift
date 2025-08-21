@@ -36,7 +36,7 @@ struct EmotionTag: View {
     let action: () -> Void
 
     var body: some View {
-        Text(emotion.rawValue)
+        Text(emotion.displayName)
             .font(.pretendardRegular(14))
             .fixedSize()
             .padding(.horizontal, 12)

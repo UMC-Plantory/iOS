@@ -35,7 +35,7 @@ final class DiaryCheckViewModel: ObservableObject {
     
    
     
-    //MARK: -API
+    //MARK: -API(일기스크랩,휴지통이동,수정, 보관)
     
     ///일기 스크랩 On/OFF(DiaryCheckView에서)
     public func scrapOn(diaryId: Int) {
@@ -88,7 +88,7 @@ final class DiaryCheckViewModel: ObservableObject {
 
 
     //일기 삭제(휴지통 이동)
-    func moveToTrash(onSuccess: (() -> Void)? = nil) {
+    public func moveToTrash(onSuccess: (() -> Void)? = nil) {
            guard let id = summary?.diaryId else { return }  // 현재 상세가 없으면 리턴
         
            // (옵션) 낙관적 반영: 로컬 상태를 먼저 TRASH로 바꾸기
@@ -118,7 +118,7 @@ final class DiaryCheckViewModel: ObservableObject {
     
     //일기 보관
     //임시보관/복원 토글
-       func toggleTempStatus(onSuccess: (() -> Void)? = nil) {
+    public func toggleTempStatus(onSuccess: (() -> Void)? = nil) {
            guard var s = summary else { return }
            let id = s.diaryId
 
@@ -147,7 +147,7 @@ final class DiaryCheckViewModel: ObservableObject {
        }
     
     //일기 수정
-    func diaryEdit(diaryId: Int, request: DiaryEditRequest) {
+    public func diaryEdit(diaryId: Int, request: DiaryEditRequest) {
         isSaving = true
         
         container.useCaseService.diaryService.editDiary(id: diaryId, data: request)

@@ -24,6 +24,7 @@ struct DiaryRow: View {
                 .frame(width: 300, height: 132)
                 .overlay(
                     VStack(alignment: .leading, spacing: 0) {
+                        
                         // 즐겨찾기 아이콘
                         Image(entry.status == "SCRAP" ? "star_green" : "star_gray")
                             .resizable()
@@ -42,10 +43,9 @@ struct DiaryRow: View {
                             .font(.subheadline)
                             .foregroundColor(Color("gray08"))
                             .padding(.top,4)
-                        //.lineLimit(1)
-
+                        
                         // 감정 텍스트
-                        Text(Emotion(apiString: entry.emotion).rawValue)
+                        Text((Emotion(rawValue: entry.emotion) ?? .HAPPY).displayName)
                             .font(.pretendardRegular(12))
                             .foregroundColor(Color("green04"))
                             .padding(.top, 24)
@@ -71,7 +71,7 @@ struct DiaryRow: View {
                         .shadow(color: Color.black.opacity(0.1), radius: 2, x: 2, y: 2)
 
                         // 날짜 텍스트 (오른쪽 정렬)
-                        Text(entry.diaryDate)
+                        Text(formatToMonthDay(entry.diaryDate))
                             .font(.pretendardRegular(14))
                             .foregroundColor(Color("white01"))
                             .padding(.trailing, 3) // 텍스트 오른쪽 여백
@@ -80,7 +80,7 @@ struct DiaryRow: View {
                 .padding(.top, -4)
               
                 RoundedCorner(radius: 5, corners: [.topRight, .bottomRight])
-                    .fill(Emotion(apiString: entry.emotion).color)
+                    .fill((Emotion(rawValue: entry.emotion) ?? .HAPPY).color)
                     .frame(width: 24, height: 23)
                     .offset(x: -15)
                 
@@ -108,8 +108,8 @@ struct DiaryRow: View {
     }
 }
 
-
 // MARK: - Preview
+
 struct DiaryRow_Previews: PreviewProvider {
     static var previews: some View {
         DiaryRow(

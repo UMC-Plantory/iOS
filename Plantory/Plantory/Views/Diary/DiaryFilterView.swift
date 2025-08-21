@@ -6,7 +6,7 @@
 //
 import SwiftUI
 
-//필터시트가 올라온 화면(View) 입니다.
+//필터시트가 올라온 화면(View) 입니다. (필터화면 잘리는 것 보완)
 struct DiaryFilterView: View {
     @Environment(\.dismiss) private var dismiss
     @StateObject  var viewModel : DiaryListViewModel
@@ -68,6 +68,7 @@ struct DiaryFilterView: View {
                 HStack {
                     Text("범위")
                         .font(.pretendardSemiBold(16))
+
                     Button(action: {
                         selectedMonths.removeAll()
                     }) {
@@ -76,8 +77,8 @@ struct DiaryFilterView: View {
                             .foregroundColor(.gray)
                     }
                 }
-                .frame(maxWidth: .infinity, alignment: .leading)// ← 여기 추가!
-                .padding(.leading,10)
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .padding(.leading, 20)
                 
                 HStack {
                     Button(action: { selectedYear -= 1 }) {
@@ -157,12 +158,15 @@ struct DiaryFilterView: View {
                                 .foregroundColor(.gray)
                         }
                     }
-                    .padding(.leading, 4)
+                    .padding(.leading, 10)
                     .padding(.top,10)
                     
-                    HStack(spacing: 12) {
-                        ForEach(Emotion.allCases, id: \ .self) { emotion in
-                            EmotionTag(emotion: emotion, isSelected: selectedEmotions.contains(emotion)) {
+                    FlowLayout(spacing: 12, rowSpacing: 12) {
+                        ForEach(Emotion.allCases, id: \.self) { emotion in
+                            EmotionTag(
+                                emotion: emotion,
+                                isSelected: selectedEmotions.contains(emotion)
+                            ) {
                                 if emotion == .all {
                                     selectedEmotions = [.all]
                                 } else {
@@ -174,9 +178,12 @@ struct DiaryFilterView: View {
                                     }
                                 }
                             }
+                            // 칩의 고유 크기로 레이아웃 계산되도록 고정
+                            .fixedSize(horizontal: true, vertical: true)
                         }
                     }
                     .padding(.top,10)
+                    .padding(.leading, 10)
                 }
                 .padding(.horizontal)
                 

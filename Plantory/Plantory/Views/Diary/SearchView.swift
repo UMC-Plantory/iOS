@@ -9,10 +9,14 @@ import SwiftUI
 struct DiarySearchView: View {
     @EnvironmentObject var container: DIContainer
     @Environment(\.dismiss) private var dismiss
-
+    
     @StateObject private var vm: SearchViewModel
-
+    @State private var isNavigating = false //화면이동 제어
+    @State private var hasSearched = false //검색된 값이 있는지 나타내는 상태값
+    
+    //MARK: -initializer
     // DIContainer을 주입받아 초기화 (VM 만들 때 사용)
+    
     init(container: DIContainer) {
         _vm = StateObject(
             wrappedValue: SearchViewModel(
@@ -20,6 +24,8 @@ struct DiarySearchView: View {
             )
         )
     }
+    
+    //MARK: -BODY
 
     var body: some View {
         VStack(spacing: 10) {
@@ -38,9 +44,9 @@ struct DiarySearchView: View {
             if vm.isLoading { ProgressView().scaleEffect(1.1) }
         }
     }
-
+    
     // MARK: - Sections
-
+    
     @ViewBuilder
     private func topBar() -> some View {
         HStack {
@@ -49,7 +55,7 @@ struct DiarySearchView: View {
                     .foregroundColor(Color("black01"))
                     .padding(.leading, 13)
             }
-
+            
             HStack {
                 searchField()
                 searchButton()
@@ -59,7 +65,7 @@ struct DiarySearchView: View {
         }
         .padding(.trailing, 16)
     }
-
+    
     private func searchField() -> some View {
         TextField("키워드를 입력하세요", text: $vm.query)
             .padding(11)
@@ -76,7 +82,7 @@ struct DiarySearchView: View {
                 vm.searchDiary(keyword: q)
             }
     }
-
+    
     private func searchButton() -> some View {
         Button {
             guard !vm.query.trimmingCharacters(in: .whitespaces).isEmpty else { return }
@@ -88,7 +94,7 @@ struct DiarySearchView: View {
                 .padding(.trailing, 13)
         }
     }
-
+    
     @ViewBuilder
     private func recentSearchSection() -> some View {
         HStack {
@@ -102,7 +108,7 @@ struct DiarySearchView: View {
         }
         .padding(.horizontal)
         .padding(.top, 8)
-
+        
         ScrollView(.horizontal, showsIndicators: false) {
             HStack(spacing: 8) {
                 ForEach(vm.recentKeywords, id: \.self) { keyword in
@@ -114,7 +120,7 @@ struct DiarySearchView: View {
         }
         Spacer()
     }
-
+    
     private func recentKeywordChip(keyword: String) -> some View {
         HStack(spacing: 4) {
             Button {
@@ -143,7 +149,7 @@ struct DiarySearchView: View {
                 .stroke(Color.gray.opacity(0.3), lineWidth: 1)
         )
     }
-
+    
     @ViewBuilder
     private func searchResultSection() -> some View {
         let _: DiarySummary
@@ -162,13 +168,41 @@ struct DiarySearchView: View {
         List(vm.results, id: \.diaryId) { item in
             Button {
                 container.navigationRouter.path.append(
-                  NavigationDestination.diaryDetail(diaryId: item.diaryId)
+                    NavigationDestination.diaryDetail(diaryId: item.diaryId)
                 )
             } label: {
                 DiaryRow(entry: item)
             }
         }
         .listStyle(.plain)
+        
+        // 결과 없음 UI
+        if hasSearched && !vm.isLoading && vm.results.isEmpty {
+            VStack(spacing: 6) {
+                Text("검색 결과가 없어요")
+                    .font(.headline) //피그마에 없어서 임의로 추가
+                Text("검색어 또는 필터를 확인해보세요")
+                    .foregroundColor(.secondary)
+                    .font(.footnote)
+            }
+            .frame(maxWidth: .infinity, minHeight: 220)
+            .onAppear {
+                // 콘솔창
+                print(" 검색 결과 없음 — query: '\(vm.query)'")
+            }
+        } else {
+            // 결과 리스트
+            List(vm.results, id: \.diaryId) { item in
+                Button {
+                    container.navigationRouter.path.append(
+                        NavigationDestination.diaryDetail(diaryId: item.diaryId)
+                    )
+                } label: {
+                    DiaryRow(entry: item)
+                }
+            }
+            .listStyle(.plain)
+        }
     }
 }
 

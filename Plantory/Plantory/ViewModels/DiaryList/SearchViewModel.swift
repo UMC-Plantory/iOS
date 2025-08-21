@@ -6,7 +6,6 @@
 //
 import Combine
 import Foundation
-import Moya
 
 final class SearchViewModel: ObservableObject {
     @Published var query: String = ""
