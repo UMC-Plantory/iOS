@@ -42,7 +42,7 @@ struct TerrariumView: View {
                     GeometryReader { geometry in
                         VStack {
                             HStack {
-                                SpeechBubble(message: Text(viewModel.wateringMessage)) // Text로 감싸서 전달
+                                SpeechBubble(message: Text(viewModel.wateringMessage))
                             }
                             .frame(maxWidth: .infinity, alignment: .trailing)
                             .padding(.top, 39)
