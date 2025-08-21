@@ -1,0 +1,12 @@
+{
+  "images" : [
+    {
+      "filename" : "gauge_circle_bg.pdf",
+      "idiom" : "universal"
+    }
+  ],
+  "info" : {
+    "author" : "xcode",
+    "version" : 1
+  }
+}

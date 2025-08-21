@@ -18,36 +18,44 @@ struct ProgressGaugeView: View {
         let colors = labelColors()
         return ZStack {
             // 게이지 배경
-            Image("gauge_background")
+            Image("gauge_track")
                 .resizable()
                 .frame(width: 333, height: 74)
 
             // 초록색 진행도 상자
             HStack(spacing: stepSpacing) {
-                ForEach(0..<totalSteps, id: \.self) { i in
-                    if i == 6 && i < currentStage {
-                        GradientBox(width: 51, isCircle: true)
-                            .offset(x: -9, y: -1)
+                ForEach(0..<6, id: \.self) { i in
+                    if i < currentStage {
+                        GradientBox(
+                            width: stepWidth,
+                            height: 21,
+                            LightGradient: i < 3,
+                            isCircle: false
+                        )
                     } else {
-                        if i < currentStage {
-                            GradientBox(
-                                width: stepWidth,
-                                height: 21,
-                                LightGradient: i < 3,
-                                isCircle: false
-                            )
-                        } else {
-                            Rectangle()
-                                .fill(Color.clear)
-                                .frame(width: stepWidth, height: 21)
-                                .cornerRadius(5)
-                        }
+                        GradientBox(width: stepWidth, height: 21, isCircle: false, noGradient: true)
+                            .cornerRadius(5)
                     }
                 }
             }
             .frame(width: 333, height: 74, alignment: .leading)
             .padding(.leading, 13)
             .padding(.top, 10)
+
+            // 원형 배경(항상 표시) — 트랙의 왼쪽에서 276, 아래에서 4 만큼 오프셋
+            Image("gauge_circle_bg")
+                .resizable()
+                .frame(width: 68, height: 65)
+                .frame(width: 333, height: 74, alignment: .bottomLeading)
+                .offset(x: 269, y: 0)
+                .zIndex(1)
+
+            // 원형 내용: 7이 아닐 때도 항상 noGradient로 표시, 7일 때만 그라디언트
+            GradientBox(width: 51, isCircle: true, noGradient: currentStage != 7)
+                .frame(width: 51, height: 51)
+                .frame(width: 333, height: 74, alignment: .bottomLeading)
+                .offset(x: 279, y: -7)
+                .zIndex(2)
 
             // 단계 라벨 (위쪽)
             Text("새싹")
@@ -57,11 +65,12 @@ struct ProgressGaugeView: View {
             Text("잎새")
                 .font(.pretendardSemiBold(14))
                 .foregroundColor(colors.leaf)
-                .position(x: stepXPosition(index: 3) - 2, y: 12)
+                .position(x: stepXPosition(index: 3) - 4, y: 12)
             Text("꽃나무")
                 .font(.pretendardSemiBold(14))
                 .foregroundColor(colors.flower)
-                .position(x: stepXPosition(index: 6) + 13, y: 45) // 오른쪽 원형 마커 중앙에 위치
+                .position(x: stepXPosition(index: 6) + 12, y: 46) // 오른쪽 원형 마커 중앙에 위치
+                .zIndex(3)
         }
         .frame(width: 333, height: 74)
     }
