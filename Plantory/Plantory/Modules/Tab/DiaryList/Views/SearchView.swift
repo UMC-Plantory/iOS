@@ -8,6 +8,7 @@ import SwiftUI
 
 struct DiarySearchView: View {
     @EnvironmentObject var container: DIContainer
+    
     @Environment(\.dismiss) private var dismiss
 
     @StateObject private var vm: SearchViewModel
@@ -16,7 +17,7 @@ struct DiarySearchView: View {
     init(container: DIContainer) {
         _vm = StateObject(
             wrappedValue: SearchViewModel(
-                diaryService: container.useCaseService.diaryService
+                container: container
             )
         )
     }
@@ -27,7 +28,7 @@ struct DiarySearchView: View {
             if vm.results.isEmpty {
                 recentSearchSection()
             } else {
-                searchResultSection()
+                searchResultSection
             }
         }
         .frame(maxHeight: .infinity, alignment: .top)
@@ -38,6 +39,7 @@ struct DiarySearchView: View {
         .overlay {
             if vm.isLoading { ProgressView().scaleEffect(1.1) }
         }
+        .toastView(toast: $vm.toast)
     }
 
     // MARK: - Sections
@@ -45,48 +47,59 @@ struct DiarySearchView: View {
     @ViewBuilder
     private func topBar() -> some View {
         HStack {
-            Button { dismiss() } label: {
-                Image(systemName: "chevron.left")
-                    .foregroundColor(Color("black01"))
-                    .padding(.leading, 13)
+            Button {
+                container.navigationRouter.pop()
+            } label: {
+                Image("leftChevron")
+                    .foregroundColor(.black01)
             }
 
             HStack {
                 searchField()
+                
+                Spacer()
+                
                 searchButton()
             }
+            .padding(.horizontal, 14)
             .background(Color("brown01"))
             .cornerRadius(30)
         }
-        .padding(.trailing, 16)
     }
 
     private func searchField() -> some View {
         TextField("키워드를 입력하세요", text: $vm.query)
-            .padding(11)
+            .padding(.vertical, 10)
             .background(Color("brown01"))
-            .foregroundColor(Color("gray08"))
-            .padding(.leading, 15)
+            .foregroundColor(.gray10)
             .submitLabel(.search)
             .onSubmit {
                 let q = vm.query.trimmingCharacters(in: .whitespacesAndNewlines)
-                guard !q.isEmpty else {
-                    vm.results = []
-                    return
+                Task {
+                    vm.query = q
+                    vm.results.removeAll()
+                    vm.cursor = nil
+                    vm.hasNext = false
+                    vm.currentKeywords = ""
+                    await vm.searchDiary(keyword: q)
                 }
-                vm.searchDiary(keyword: q)
             }
     }
 
     private func searchButton() -> some View {
         Button {
             guard !vm.query.trimmingCharacters(in: .whitespaces).isEmpty else { return }
-            vm.searchDiary(keyword: vm.query)
+            Task {
+                vm.results.removeAll()
+                vm.cursor = nil
+                vm.hasNext = false
+                vm.currentKeywords = ""
+                await vm.searchDiary(keyword: vm.query)
+            }
         } label: {
             Image("search")
                 .resizable()
                 .frame(width: 20, height: 20)
-                .padding(.trailing, 13)
         }
     }
 
@@ -95,14 +108,13 @@ struct DiarySearchView: View {
         HStack {
             Text("최근 검색어")
                 .font(.pretendardSemiBold(18))
-                .foregroundColor(Color("black01"))
+                .foregroundColor(.black01)
             Spacer()
             Button("모두 지우기") { vm.clearRecent() }
                 .font(.pretendardRegular(12))
-                .foregroundColor(.gray)
+                .foregroundColor(.gray08)
         }
-        .padding(.horizontal)
-        .padding(.top, 8)
+        .padding(.vertical, 16)
 
         ScrollView(.horizontal, showsIndicators: false) {
             HStack(spacing: 8) {
@@ -110,17 +122,22 @@ struct DiarySearchView: View {
                     recentKeywordChip(keyword: keyword)
                 }
             }
-            .padding(.horizontal, 16)
-            .padding(.top, 25)
         }
+        
         Spacer()
     }
 
     private func recentKeywordChip(keyword: String) -> some View {
         HStack(spacing: 4) {
             Button {
-                vm.query = keyword
-                vm.searchDiary(keyword: keyword)
+                Task {
+                    vm.query = keyword
+                    vm.results.removeAll()
+                    vm.cursor = nil
+                    vm.hasNext = false
+                    vm.currentKeywords = ""
+                    await vm.searchDiary(keyword: keyword)
+                }
             } label: {
                 Text(keyword)
                     .font(.pretendardRegular(16))
@@ -146,35 +163,45 @@ struct DiarySearchView: View {
     }
 
     @ViewBuilder
-    private func searchResultSection() -> some View {
-        let _: DiarySummary
+    private var searchResultSection: some View {
+        Rectangle()
+            .fill(Color.gray04)
+            .frame(height: 4)
+            .padding(.horizontal, -18)
+            .padding(.bottom, 24)
+        
         HStack {
-            Text("‘\(vm.query)’가 들어간 일기")
+            Text("‘\(vm.currentKeywords)’가 들어간 일기")
                 .font(.pretendardSemiBold(18))
                 .foregroundColor(Color("black01"))
             Spacer()
-            Text("\(vm.results.count)개")
+            Text("\(vm.total)개")
                 .font(.pretendardRegular(12))
                 .foregroundColor(.gray)
         }
-        .padding(.horizontal, 16)
-        .padding(.top, 8)
         
-        List(vm.results, id: \.diaryId) { item in
-            Button {
-                container.navigationRouter.path.append(
-                  NavigationDestination.diaryDetail(diaryId: item.diaryId)
-                )
-            } label: {
-                DiaryRow(entry: item)
+        ScrollView {
+            LazyVStack(spacing: 16) {
+                ForEach(vm.results) { diary in
+                    Button {
+                        container.navigationRouter.push(.diaryDetail(diaryId: diary.diaryId))
+                    } label: {
+                        DiaryRow(entry: diary)
+                    }
+                    .buttonStyle(.plain)
+                    .onAppear {
+                        if diary.id == vm.results.last?.id {
+                            Task {
+                                await vm.searchDiary(keyword: vm.query)
+                            }
+                        }
+                    }
+                }
+                
+                if vm.isLoading {
+                    ProgressView().padding()
+                }
             }
         }
-        .listStyle(.plain)
     }
-}
-
-#Preview {
-    let c = DIContainer()
-    return DiarySearchView(container: c)
-        .environmentObject(c)   // EnvironmentObject 주입 필수!
 }

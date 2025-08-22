@@ -12,7 +12,6 @@ struct BaseTabView: View {
     // MARK: - Property
     @State private var selectedTab: TabItem = .home
     
-    @State private var isFilterSheetPresented: Bool = false
     @State private var isTerrariumPopupVisible: Bool = false
     @State private var showFlowerComplete:Bool = false
     @State private var showPlantPopup = false
@@ -105,10 +104,9 @@ struct BaseTabView: View {
         Group {
             switch tab {
             case .home:
-
                 HomeView(container:container)
             case .diary:
-                DiaryListView(isFilterSheetPresented: $isFilterSheetPresented, container: container)
+                DiaryListView(container: container)
             case .terrarium:
                 TerrariumView(
                     viewModel: terrariumVM,
@@ -129,27 +127,3 @@ struct BaseTabView: View {
         .environmentObject(container)
     }
 }
-    
-    
-/*
-// MARK: - Preview
-#Preview {
-
-    BaseTabView(terrariumVM: )
-        .environmentObject(DIContainer())
-
-    let previewContainer = makePreviewContainer()
-    let previewTerrariumVM = TerrariumViewModel(container: previewContainer)
-    BaseTabView(terrariumVM: previewTerrariumVM)
-        .environmentObject(previewContainer)
-
-}
- */
-
-#if DEBUG
-private func makePreviewContainer() -> DIContainer {
-    // TODO: 프로젝트의 DIContainer 초기화 방식에 맞게 수정하세요.
-    // 예: DIContainer(authService: MockAuthService(), api: MockAPI(), ...)
-    return DIContainer()
-}
-#endif

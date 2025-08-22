@@ -49,7 +49,8 @@ struct NavigationRoutingView: View {
                         case .profileManage:
                             ProfileManageView(container: container)
                             
-                        // 다이어리 뷰
+                        case .diarySearch:
+                            DiarySearchView(container: container)
                         case .diaryDetail(let diaryId):
                             DiaryCheckView(
                                 diaryId: diaryId,

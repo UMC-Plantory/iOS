@@ -45,7 +45,7 @@ struct DiarySearchRow: View {
                         //.lineLimit(1)
 
                         // 감정 텍스트
-                        Text(Emotion(apiString: entry.emotion).rawValue)
+                        Text(entry.emotion.rawValue)
                             .font(.pretendardRegular(12))
                             .foregroundColor(Color("green04"))
                             .padding(.top, 24)
@@ -80,7 +80,7 @@ struct DiarySearchRow: View {
                 .padding(.top, -4)
               
                 RoundedCorner(radius: 5, corners: [.topRight, .bottomRight])
-                    .fill(Emotion(apiString: entry.emotion).color)
+                    .fill(Emotion(apiString: entry.emotion.rawValue).color)
                     .frame(width: 24, height: 23)
                     .offset(x: -15)
                 
@@ -108,23 +108,3 @@ struct DiarySearchRow: View {
     }
 
 }
-
-// MARK: - Preview
-struct DiarySearchRow_Previews: PreviewProvider {
-    static var previews: some View {
-        DiarySearchRow(
-            entry: DiarySummary(
-                diaryId: 1,
-                diaryDate: "2025-05-19",
-                title: "행복했던 하루",
-                status: "NORMAL",   // "SCRAP"이면 초록별 표시
-                emotion: "HAPPY",
-                content: "오늘은 친구랑 카페에서 즐거운 시간을 보냈다."
-            )
-        )
-        .previewLayout(.sizeThatFits)
-        .padding()
-        .background(Color.gray.opacity(0.2))
-    }
-}
-

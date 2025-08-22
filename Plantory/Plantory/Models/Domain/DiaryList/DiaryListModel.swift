@@ -24,7 +24,7 @@ extension DiaryEntry {
         self.date = DateFormatter.yyyyMMdd.date(from: summary.diaryDate) ?? Date()
         self.title = summary.title
         self.content = summary.content
-        self.emotion = Emotion(apiString: summary.emotion)
+        self.emotion = Emotion(apiString: summary.emotion.rawValue)
         self.isFavorite = false                     // 서버 필드가 없다면 기본값
         self.isScrapped = (summary.status == "SCRAP")
     }

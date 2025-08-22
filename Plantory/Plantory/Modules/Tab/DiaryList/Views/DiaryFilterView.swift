@@ -1,33 +1,70 @@
-//
-//  DiaryFilterView.swift
-//  Plantory
-//
-//  Created by 박병선 on 7/22/25.
-//
 import SwiftUI
 
-//필터시트가 올라온 화면(View) 입니다.
 struct DiaryFilterView: View {
     @Environment(\.dismiss) private var dismiss
-    @StateObject  var viewModel : DiaryListViewModel
-    @State private var selectedSort: SortOrder = .latest
-    @State private var selectedYear: Int = 2025
-    @State private var selectedMonths: Set<Int>
+
+    @ObservedObject var viewModel: DiaryListViewModel
+
+    @State private var selectedYear: Int = Calendar.current.year()
+    @State private var monthStart: Int? = nil
+    @State private var monthEnd: Int?   = nil
     @State private var selectedEmotions: Set<Emotion> = [.all]
     
-    private let currentDate = Date()
-    private let calendar = Calendar.current
+    private var monthRange: ClosedRange<Int>? {
+        guard let s = monthStart, let e = monthEnd else { return nil }
+        return min(s, e)...max(s, e)
+    }
     
-    init(/// DIContainer을 주입받아 초기화
-        ///유저가 초기값 설정할 수 있도록 근데 지금은 프리뷰에 파라미터를 넘겨주도록
-           container: DIContainer = .init(),          // 프리뷰/테스트용 기본값
-           initialSelectedMonths: Set<Int> = []       // 초기 선택 월
-       ) {
-           _selectedMonths = State(initialValue: initialSelectedMonths)
-           _viewModel      = StateObject(wrappedValue: DiaryListViewModel(container: container))
-       }
+    // 탭 동작: 처음 → 나중 → 다시 시작점 변경
+    private func handleTap(month: Int, isFuture: Bool) {
+        guard !isFuture else { return }
+        if monthStart == nil {
+            monthStart = month
+            monthEnd = nil
+        } else if monthEnd == nil {
+            if month == monthStart {
+                // 같은 곳 다시 누르면 해제
+                monthStart = nil
+                monthEnd = nil
+            } else {
+                monthEnd = month
+            }
+        } else {
+            // 이미 범위가 있으면 새 시작점으로 재설정
+            monthStart = month
+            monthEnd = nil
+        }
+    }
+
+    // 스타일 헬퍼
+    private func isInRange(_ m: Int) -> Bool {
+        monthRange?.contains(m) ?? false
+    }
+    private func isEndpoint(_ m: Int) -> Bool {
+        m == monthStart || m == monthEnd
+    }
     
+    private func isFutureMonth(year: Int, month: Int, calendar: Calendar = .current) -> Bool {
+        // month 범위 안전장치 (1~12 외 값이 들어오면 미래로 취급하지 않음)
+        guard (1...12).contains(month) else { return false }
+
+        let now = Date()
+        let currentYear  = calendar.component(.year,  from: now)
+        let currentMonth = calendar.component(.month, from: now)
+
+        // 같은 달은 미래 아님, 그 이후 달만 미래
+        if year > currentYear { return true }
+        if year < currentYear { return false }
+        return month > currentMonth
+    }
     
+    private func yearMonthString(year: Int, month: Int?) -> String? {
+        guard let m = month, (1...12).contains(m) else { return nil }
+        return String(format: "%04d-%02d", year, m)   // 예: "2025-07"
+    }
+    
+    // MARK: - body
+
     var body: some View {
         VStack(alignment: .leading, spacing: 24) {
             // 상단 바
@@ -38,98 +75,86 @@ struct DiaryFilterView: View {
                 Spacer()
             }
             .padding(.top, 32)
-            .padding(.leading, 20)
-            
-            Divider()
-            
-            // 나열 방식 선택
-            VStack(alignment: .leading, spacing: 20) {
-                Text("나열")
-                    .font(.pretendardSemiBold(18))
-                    .foregroundColor(Color("black01"))
-                
-                
-                HStack(spacing: 32) {
-                    //커스텀 버튼
-                    OrderButton(title: "최신순", isSelected: selectedSort == .latest) {
-                        selectedSort = .latest
-                    }
-                    OrderButton(title: "오래된 순", isSelected: selectedSort == .oldest) {
-                        selectedSort = .oldest
-                    }
-                }
+
+            Divider().background(.gray04)
+
+            Text("나열")
+                .font(.pretendardSemiBold(18))
+                .foregroundColor(Color("black01"))
+
+            HStack(spacing: 32) {
+                OrderButton(title: "최신순",  isSelected: viewModel.sort == .latest) { viewModel.sort = .latest }
+                OrderButton(title: "오래된 순", isSelected: viewModel.sort == .oldest) { viewModel.sort = .oldest }
             }
-            .padding(.leading,20)
-            
-            Divider()
-            
+
+            Divider().background(.gray04)
+
             // 범위 선택
             VStack(alignment: .center, spacing: 12) {
-                HStack {
-                    Text("범위")
-                        .font(.pretendardSemiBold(16))
-                    Button(action: {
-                        selectedMonths.removeAll()
-                    }) {
+                HStack(spacing: 16) {
+                    Text("범위").font(.pretendardSemiBold(18))
+                    Button {
+                        monthStart = nil; monthEnd = nil
+                    } label: {
                         Image(systemName: "arrow.counterclockwise")
                             .font(.system(size: 14))
-                            .foregroundColor(.gray)
+                            .foregroundColor(.gray06)
                     }
+                    Spacer()
                 }
-                .frame(maxWidth: .infinity, alignment: .leading)// ← 여기 추가!
-                .padding(.leading,10)
                 
                 HStack {
-                    Button(action: { selectedYear -= 1 }) {
-                        Image(systemName: "chevron.left")
-                    }
-                    Text("\(String(selectedYear))년")
-                        .font(.pretendardRegular(16))
-                    
-                    Button(action: { selectedYear += 1 }) {
-                        Image(systemName: "chevron.right")
-                    }
+                    Button { selectedYear -= 1 } label: { Image(systemName: "chevron.left") }
+                    Text(verbatim: "\(selectedYear)년").font(.pretendardRegular(16))
+                    Button { selectedYear += 1 } label: { Image(systemName: "chevron.right") }
                 }
-                
-                .foregroundColor(Color("black01"))
+                .foregroundColor(.black01)
                 
                 ZStack {
                     // 연결선
                     HStack(spacing: 0) {
-                        ForEach(1..<12) { month in
-                            let isBetween = selectedMonths.contains(month) && selectedMonths.contains(month + 1)
+                        ForEach(1..<12, id: \.self) { month in
+                            let on = isInRange(month) && isInRange(month + 1)
                             Rectangle()
-                                .fill(isBetween ? Color("green04") : Color("gray06"))
+                                .fill(on ? Color("green04") : Color("gray06"))
                                 .frame(height: 2)
                                 .frame(maxWidth: .infinity)
                         }
                     }
-                     .padding(.horizontal, 12) // 원보다 살짝 안쪽
-                     .offset(y:-10)//선을 가운데로 정렬시켜주기
-
-                    //월 원형 선택
+                    .padding(.horizontal, 12)
+                    .offset(y: -10)
+                    
+                    // 월 원형 선택
                     HStack(spacing: 0) {
                         ForEach(1...12, id: \.self) { month in
-                            let isSelected = selectedMonths.contains(month)
-                            let isFuture = viewModel.isFutureMonth(year: selectedYear, month: month)
-                            let backgroundColor: Color = isSelected ? Color("green04") : (isFuture ? Color("gray03") : Color("white01"))
-                            let borderColor: Color = isSelected ? Color("green06") : Color("gray04")
-                            let textColor: Color = isSelected ? Color("green06") : (isFuture ? Color("gray06") : Color("black01"))
-
+                            let future = isFutureMonth(year: selectedYear, month: month)
+                            let inRange = isInRange(month)
+                            let endpoint = isEndpoint(month)
+                            
+                            // 색상 규칙: endpoint 진한 초록, 범위는 연한 초록, 미래는 회색
+                            let backgroundColor: Color =
+                            future ? Color("gray03")
+                            : endpoint ? Color("green04")
+                            : (inRange ? Color("green04").opacity(0.6) : Color("white01"))
+                            
+                            let borderColor: Color =
+                            future ? Color("gray04")
+                            : endpoint ? Color("green06")
+                            : (inRange ? Color("green06").opacity(0.6) : Color("gray04"))
+                            
+                            let textColor: Color =
+                            future ? Color("gray06")
+                            : endpoint ? Color("green06")
+                            : (inRange ? Color("green06").opacity(0.9) : Color("black01"))
+                            
                             VStack(spacing: 4) {
                                 Circle()
-                                    .strokeBorder(borderColor, lineWidth: 1)
+                                    .strokeBorder(borderColor, lineWidth: endpoint ? 2 : 1)
                                     .background(Circle().fill(backgroundColor))
-                                    .frame(width: 20, height: 20)
-                                    .onTapGesture {
-                                        if isFuture { return }
-                                        if isSelected {
-                                            selectedMonths.remove(month)
-                                        } else {
-                                            selectedMonths.insert(month)
-                                        }
-                                    }
-
+                                    .frame(width: 22, height: 22)
+                                    .contentShape(Circle())
+                                    .onTapGesture { handleTap(month: month, isFuture: future) }
+                                
                                 Text("\(month)")
                                     .font(.pretendardRegular(14))
                                     .foregroundColor(textColor)
@@ -137,86 +162,79 @@ struct DiaryFilterView: View {
                             .frame(maxWidth: .infinity)
                         }
                     }
-                    .padding(.horizontal, 4)
                 }
-                .padding(.horizontal)
-                
-                Divider()
-                
-                // 감정 선택
-                VStack(alignment: .leading, spacing: 12) {
-                    HStack {
-                        Text("감정")
-                            .font(.pretendardSemiBold(16))
-                            
-                        Button(action: {
+            }
+
+            Divider().background(.gray04)
+
+            // 감정 선택
+            HStack(spacing: 16) {
+                Text("감정").font(.pretendardSemiBold(18))
+                Button {
+                    selectedEmotions = [.all]
+                } label: {
+                    Image(systemName: "arrow.counterclockwise")
+                        .font(.system(size: 14))
+                        .foregroundColor(.gray)
+                }
+            }
+            .padding(.top, 12)
+
+            HStack(spacing: 12) {
+                ForEach(Emotion.allCases, id: \.self) { emotion in
+                    EmotionTag(
+                        emotion: emotion,
+                        isSelected: selectedEmotions.contains(emotion)
+                    ) {
+                        if emotion == .all {
                             selectedEmotions = [.all]
-                        }) {
-                            Image(systemName: "arrow.counterclockwise")
-                                .font(.system(size: 14))
-                                .foregroundColor(.gray)
-                        }
-                    }
-                    .padding(.leading, 4)
-                    .padding(.top,10)
-                    
-                    HStack(spacing: 12) {
-                        ForEach(Emotion.allCases, id: \ .self) { emotion in
-                            EmotionTag(emotion: emotion, isSelected: selectedEmotions.contains(emotion)) {
-                                if emotion == .all {
-                                    selectedEmotions = [.all]
-                                } else {
-                                    selectedEmotions.remove(.all)
-                                    if selectedEmotions.contains(emotion) {
-                                        selectedEmotions.remove(emotion)
-                                    } else {
-                                        selectedEmotions.insert(emotion)
-                                    }
-                                }
+                        } else {
+                            selectedEmotions.remove(.all)
+                            if selectedEmotions.contains(emotion) {
+                                selectedEmotions.remove(emotion)
+                            } else {
+                                selectedEmotions.insert(emotion)
                             }
                         }
                     }
-                    .padding(.top,10)
                 }
-                .padding(.horizontal)
-                
-                Spacer()
-                
-                HStack {
-                    Spacer()
-                    Button(action: {
-                        // 필터 적용
-                        let dto = DiaryFilterRequest (
-                                sort: selectedSort,  // SortOrder에서 !!
-                                from: String(format: "%04d-%02d", selectedYear, selectedMonths.min() ?? 1),
-                                to: String(format: "%04d-%02d", selectedYear, selectedMonths.max() ?? 12),
-                                emotion: selectedEmotions.first ?? .all, // Emotion 타입
-                                cursor: nil,
-                                size: 20
-                           )
-
-                           viewModel.fetchFilteredDiaries(dto) 
-                        dismiss()
-                    }) {
-                        Text("적용하기")
-                            .font(.pretendardSemiBold(16))
-                            .padding(.vertical, 10)
-                            .padding(.horizontal, 24)
-                            .background(Color("green06"))
-                            .foregroundColor(.white)
-                            .cornerRadius(5)
-                    }
-                    .padding(.trailing, 22)
-                }
-                .padding(.bottom, 20)
             }
-            .padding(.top, 16)
+
+            Spacer()
+                .frame(maxHeight: 148)
+
+            HStack {
+                Spacer()
+                MainMiddleButton(
+                    text: "적용하기",
+                    action: {
+                        viewModel.from = yearMonthString(year: selectedYear, month: monthStart)
+                        viewModel.to   = yearMonthString(year: selectedYear, month: monthEnd)
+                        viewModel.emotion = selectedEmotions
+
+                        Task {
+                            viewModel.diaries = []
+                            viewModel.hasNext = true
+                            viewModel.cursor = nil
+                            await viewModel.fetchFilteredDiaries()
+                            await MainActor.run { dismiss() }
+                        }
+                    }
+                )
+            }
+        }
+        .padding(.horizontal, 24)
+        .onAppear {
+            if let from = viewModel.from, let startMonth = Int(from.suffix(2)) {
+                self.selectedYear = Int(from.prefix(4)) ?? selectedYear
+                self.monthStart = startMonth
+            }
+            if let to = viewModel.to, let endMonth = Int(to.suffix(2)) {
+                self.monthEnd = endMonth
+            }
+            if !viewModel.emotion.isEmpty {
+                self.selectedEmotions = viewModel.emotion
+            }
         }
     }
-}
-
-
-
-#Preview {
-    DiaryFilterView(initialSelectedMonths: [4, 5])
 }
