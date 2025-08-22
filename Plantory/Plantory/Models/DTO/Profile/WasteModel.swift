@@ -13,3 +13,10 @@ public struct WasteDeleteResponse: Codable {}
 
 // 복원하기
 public struct RestoreResponse: Codable {}
+
+// 스크랩 응답 모델
+public struct ScrapResponse: Codable {
+    let diaries: [DiaryFilterSummary]
+    let hasNext: Bool
+    let nextCursor: String?
+}

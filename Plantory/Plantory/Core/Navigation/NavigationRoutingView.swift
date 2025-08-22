@@ -39,7 +39,7 @@ struct NavigationRoutingView: View {
                             
                         // 마이페이지
                         case .scrap:
-                            ScrapView()
+                            ScrapView(container: container)
                         case .tempStorage:
                             TempStorageView(container: container)
                         case .trash:
