@@ -11,10 +11,10 @@ struct BaseTabView: View {
 
     // MARK: - Property
     @State private var selectedTab: TabItem = .home
-    
+
     @State private var isFilterSheetPresented: Bool = false
     @State private var isTerrariumPopupVisible: Bool = false
-    @State private var showFlowerComplete:Bool = false
+    @State private var showFlowerComplete: Bool = false
     @State private var showPlantPopup = false
     @State private var selectedTerrariumId: Int? = nil
     @State private var terrariumVM: TerrariumViewModel
@@ -43,7 +43,7 @@ struct BaseTabView: View {
                 }
             }
             .allowsHitTesting(!showPlantPopup)
-            
+
             if isTerrariumPopupVisible {
                 TerrariumPopup(isVisible: $isTerrariumPopupVisible)
                     .zIndex(10)
@@ -95,20 +95,25 @@ struct BaseTabView: View {
             UITabBar.appearance().backgroundColor = .white01
             UITabBar.appearance().unselectedItemTintColor = .black01
         }
+        // ✅ CompletedView → 테라리움 탭 전환 신호 수신
+        .onReceive(NotificationCenter.default.publisher(for: .switchToTerrariumTab)) { _ in
+            selectedTab = .terrarium
+        }
         .ignoresSafeArea(.keyboard)
         .navigationBarBackButtonHidden(true)
     }
-    
+
     /// 각 탭에 해당하는 뷰
     @ViewBuilder
     private func tabView(tab: TabItem) -> some View {
         Group {
             switch tab {
             case .home:
+                HomeView(container: container)
 
-                HomeView(container:container)
             case .diary:
                 DiaryListView(isFilterSheetPresented: $isFilterSheetPresented, container: container)
+
             case .terrarium:
                 TerrariumView(
                     viewModel: terrariumVM,
@@ -120,8 +125,10 @@ struct BaseTabView: View {
                         showPlantPopup = true
                     }
                 )
+
             case .chat:
                 ChatView(container: container)
+
             case .profile:
                 MyPageView(container: container)
             }
@@ -129,27 +136,9 @@ struct BaseTabView: View {
         .environmentObject(container)
     }
 }
-    
-    
-/*
-// MARK: - Preview
-#Preview {
-
-    BaseTabView(terrariumVM: )
-        .environmentObject(DIContainer())
-
-    let previewContainer = makePreviewContainer()
-    let previewTerrariumVM = TerrariumViewModel(container: previewContainer)
-    BaseTabView(terrariumVM: previewTerrariumVM)
-        .environmentObject(previewContainer)
-
-}
- */
 
 #if DEBUG
 private func makePreviewContainer() -> DIContainer {
-    // TODO: 프로젝트의 DIContainer 초기화 방식에 맞게 수정하세요.
-    // 예: DIContainer(authService: MockAuthService(), api: MockAPI(), ...)
     return DIContainer()
 }
 #endif

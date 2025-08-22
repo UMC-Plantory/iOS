@@ -13,7 +13,7 @@ enum NavigationDestination: Equatable, Hashable {
     case policy(num: Int)
     case profileInfo
     case baseTab
-    case addDiary
+    case addDiary(date: Date)
 
     // 마이페이지 (담당자: 이효주)
     case scrap

@@ -32,8 +32,8 @@ struct NavigationRoutingView: View {
                         case .profileInfo:
                             ProfileInfoView(container: container)
                             
-                        case .addDiary:
-                            AddDiaryView(container: container)
+                        case .addDiary(let date):
+                            AddDiaryView(container: container, date: date)
                             
                             // Tab 뷰
                         case .baseTab:
