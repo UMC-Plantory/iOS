@@ -11,37 +11,48 @@ import Combine
 struct DiaryCheckView: View {
     @State private var isSaved = false //저장 상태변수
     @State private var isEditing = false // 수정 상태변수
+    @Binding var isDeleteSheetPresented: Bool
     @Environment(\.presentationMode) var presentationMode
     private let CARD_HEIGHT: CGFloat = 508 // 카드 고정 높이(피그마 기준)
-    
-    
-    //MARK: -입력 파라미터(외부에서 값을 주입받아야함
-    let summary: DiarySummary
-    let diary: DiaryEntry
+
     let container: DIContainer
-    var emotion: Emotion {
-        Emotion(rawValue: summary.emotion) ?? .HAPPY
-    } // 감정에 따른 이미지를 나타내기 위한 변수 emotion
-    @Binding var isDeleteSheetPresented: Bool
-    
-    // VM 은 init에서 주입
+    // VM 주입
     @StateObject private var vm: DiaryCheckViewModel
     
+    // 현재 상세를 편하게 꺼내 쓰는 헬퍼
+       private var detail: DiaryFetchResponse? { vm.detail }
+    
+    var emotion: Emotion {// 감정에 따른 이미지를 나타내기 위한 변수 emotion
+        Emotion(rawValue: vm.detail?.emotion ?? "HAPPY") ?? .HAPPY
+    }
+    
+//MARK: - 헬퍼 함수들
+    /// 날짜 변환 헬퍼함수
+    private var formattedDate: String {
+        guard let diary = detail else { return "—" }
+        return diary.diaryDate.toDate()?.toKoreanDiaryFormat() ?? diary.diaryDate
+    }
+    
+    ///감정을 rawValue->displayName으로 바꿔주는 헬퍼 함수
+    private var emotionDisplayName: String {
+    let raw = detail?.emotion ?? ""
+    let e = Emotion(rawValue: raw) ?? .HAPPY
+    return e.displayName
+}
+
+
     // MARK: - Init
     init(
-        diary: DiaryEntry,
-        summary: DiarySummary,
+        diaryId: Int,
         isDeleteSheetPresented: Binding<Bool>,
         container: DIContainer
     ) {
-        self.diary = diary
-        self.summary = summary
         self._isDeleteSheetPresented = isDeleteSheetPresented
         self.container = container
         
         _vm = StateObject(
             wrappedValue: DiaryCheckViewModel(
-                diaryId: summary.diaryId,
+                diaryId: diaryId,
                 diaryService: container.useCaseService.diaryService,
                 container: container
             )
@@ -107,16 +118,9 @@ struct DiaryCheckView: View {
                 Spacer()
                 
                 //diaryDate(YYYY-MM-DD) -> YYYY.MM.DD(EEEE)로 변환
-                if let date = summary.diaryDate.toDate() {
-                    Text(date.toKoreanDiaryFormat())
-                        .font(.pretendardSemiBold(20))
-                        .foregroundColor(Color("green06"))
-                } else {
-                    // 변환 실패하면 원본 문자열 그대로 표시
-                    Text(summary.diaryDate)
-                        .font(.pretendardSemiBold(20))
-                        .foregroundColor(Color("green06"))
-                }
+                Text(formattedDate)
+                    .font(.pretendardSemiBold(20))
+                    .foregroundColor(Color("green06"))
                 
                 Spacer()
                 
@@ -150,10 +154,12 @@ struct DiaryCheckView: View {
                 .resizable()
                 .frame(width: 60, height: 60)
             
-            //감정에 맞게 바인딩
-            Text((Emotion(rawValue: summary.emotion) ?? .HAPPY).displayName)
+            //감정에 맞게 바인딩(rawValue->displayName으로 매핑해서 출력됨)
+            // 사용
+            Text(emotionDisplayName)
                 .font(.pretendardRegular(16))
                 .foregroundColor(Color("green06"))
+          
         }
         .frame(maxWidth: .infinity)
         .padding(.vertical, 24)
@@ -162,31 +168,32 @@ struct DiaryCheckView: View {
     //MARK: - diaryCard
     @ViewBuilder
     private func diaryCard() -> some View {
-        ZStack(alignment: .topTrailing) {            //  코너에 붙일 수 있게
+        ZStack(alignment: .topTrailing) {
             // 카드
             RoundedRectangle(cornerRadius: 20)
                 .fill(Color("white01"))
                 .shadow(color: .black.opacity(0.06), radius: 10, x: 0, y: 4)
             
             // 내용
-            VStack(alignment: .leading, spacing: 12) {
+            VStack(alignment: .leading, spacing: 20) {
                 // 제목
                 Group{
                     if isEditing {
                         TextField("제목 입력", text: $vm.editedTitle)
-                            .font(.pretendardSemiBold(18))
+                            .font(.pretendardBold(20))
                             .foregroundColor(Color("black01"))
                             .padding(.leading, 20)
                        
                     } else {
                         Text(vm.editedTitle)
-                            .font(.pretendardSemiBold(18))
+                            .font(.pretendardBold(20))
                             .foregroundColor(Color("black01"))
                             .lineLimit(1)
                            
                     }
                 }
-                .padding(.top, 8)
+                .padding(.top, 10)
+                .padding(.leading, 8)
                 .frame(height: 24)  // 제목 높이 고정
                
                 
@@ -215,6 +222,8 @@ struct DiaryCheckView: View {
                             .frame(maxWidth: .infinity, alignment: .leading)
                     }
                 }
+                .padding(.leading, 8)
+                
                 Spacer()
                 
                 footerToolbar()
@@ -222,7 +231,7 @@ struct DiaryCheckView: View {
             .padding(16)
             
             //  카드 우상단에 ‘딱’ 붙은 리본
-            bookmarkRibbon(isOn: (summary.status == "SCRAP"))
+            bookmarkRibbon(isOn: (detail?.status == "SCRAP"))
                 .padding(.top, -4)        // 카드 안쪽 여백 미세 조정
                 .padding(.trailing, 20)   // 코너에 바짝
         }
@@ -241,7 +250,8 @@ struct DiaryCheckView: View {
     @ViewBuilder
     private func bookmarkRibbon(isOn: Bool) -> some View {
         Button {
-            vm.toggleScrap(diaryId: summary.diaryId)
+            guard let id = detail?.diaryId else { return }
+                   vm.toggleScrap(diaryId: id)//북마크를 누르면 Scrap 상태로 토글됩니다.
         } label: {
             Image(isOn ? "bookmark_green" : "bookmark_empty")
                 .resizable()
@@ -271,15 +281,15 @@ struct DiaryCheckView: View {
                        withoutAnimation {
                            if isEditing {
                                let req = DiaryEditRequest(
-                                   emotion: vm.summary?.emotion ?? summary.emotion,
+                                   emotion: vm.detail?.emotion ?? detail?.emotion ?? "HAPPY",
                                    content: vm.editedContent,
                                    sleepStartTime: nil,
                                    sleepEndTime: nil,
                                    diaryImgUrl: nil,
-                                   status: vm.summary?.status ?? summary.status,
+                                   status: vm.detail?.status ?? detail?.status ?? "NORMAL",
                                    isImgDeleted: false
                                )
-                               vm.diaryEdit(diaryId: summary.diaryId, request: req)
+                               vm.diaryEdit(diaryId: detail?.diaryId ?? 0, request: req)
                                isEditing = false
                            } else {
                                isEditing = true
@@ -288,7 +298,7 @@ struct DiaryCheckView: View {
                    }
             
             // 저장(보관함) 버튼
-            toolButton(imageName: (vm.summary?.status == "TEMP") ? "storage_gray" : "storage_vector") {
+            toolButton(imageName: (vm.detail?.status == "TEMP") ? "storage_gray" : "storage_vector") {
                        withoutAnimation {
                            isEditing = false
                            vm.toggleTempStatus { /* 성공시 추가 작업 */ }
@@ -306,10 +316,11 @@ struct DiaryCheckView: View {
          .buttonStyle(.plain)            // 기본 눌림 애니메이션 제거
          // 상태 변경시 레이아웃 애니메이션 완전 비활성화
          .animation(nil, value: isEditing)
-         .animation(nil, value: vm.summary?.status ?? "")
+         .animation(nil, value: vm.detail?.status ?? "")
     }
     
 }
+
  
 // 모든 툴바 아이콘 공통 버튼 (고정 크기 + 탭박스 균일)
 @ViewBuilder
@@ -322,185 +333,4 @@ private func toolButton(imageName: String, action: @escaping () -> Void) -> some
             .contentShape(Rectangle())
     }
     .frame(width: 48, height: 48, alignment: .center) // 버튼 박스 고정(여백 포함)
-}
-   
-#if DEBUG
-
-/// 프리뷰/개발용 Mock
-final class PreviewDiaryService: DiaryServiceProtocol {
-
-    // MARK: - 단일 일기 조회 (GET /diaries/{id})
-    func fetchDiary(id: Int) -> AnyPublisher<DiaryFetchResponse, APIError> {
-        Just(
-     
-            DiaryFetchResponse(
-                diaryId: id,
-                diaryDate: "2022-09-05",
-                emotion: "HAPPY",
-                title: "미리보기 제목",
-                content: "미리보기 본문",
-                diaryImgUrl: "https://example.com/image.jpg",
-                status: "NORMAL"
-            )
-        )
-        .setFailureType(to: APIError.self)
-        .eraseToAnyPublisher()
-    }
-
-    // MARK: - 일기 목록 필터 조회 (GET /diaries/filter?...)
-    func fetchFilteredDiaries(_ req: DiaryFilterRequest) -> AnyPublisher<DiaryFilterResult, APIError> {
-        Just(
-            DiaryFilterResult(
-                diaries: [
-                    DiarySummary(
-                        diaryId: 1,
-                        diaryDate: "2025-06-16",
-                        title: "행복했던 하루",
-                        status: "NORMAL",
-                        emotion: "HAPPY",
-                        content: "프리뷰 더미"
-                    ),
-                    DiarySummary(
-                        diaryId: 2,
-                        diaryDate: "2025-06-17",
-                        title: "조용한 하루",
-                        status: "SCRAP",
-                        emotion: "SAD",
-                        content: "프리뷰 더미"
-                    )
-                ],
-                hasNext: false,
-                nextCursor: nil
-            )
-        )
-        .setFailureType(to: APIError.self)
-        .eraseToAnyPublisher()
-    }
-
-    // MARK: - 일기 검색 (GET /diaries/search?...)
-    func searchDiary(_ req: DiarySearchRequest) -> AnyPublisher<DiarySearchResult, APIError> {
-        Just(
-            DiarySearchResult(
-                diaries: [
-                    DiarySummary(
-                        diaryId: 3,
-                        diaryDate: "2025-06-18",
-                        title: "검색 결과",
-                        status: "NORMAL",
-                        emotion: "ANGRY",
-                        content: "프리뷰 더미"
-                    )
-                ],
-                hasNext: false,
-                nextCursor: nil,
-                total: 10
-            )
-        )
-        .setFailureType(to: APIError.self)
-        .eraseToAnyPublisher()
-    }
-
-    // MARK: - 일기 수정 (PATCH /diaries/{id})
-    func editDiary(id: Int, data: DiaryEditRequest) -> AnyPublisher<DiaryDetail, APIError> {
-        Just(
-            DiaryDetail(
-                diaryId: id,
-                diaryDate: "2022-09-05",
-                emotion: data.emotion,                // 요청값 반영
-                title: "미리보기 제목(수정됨)",
-                content: data.content,                // 요청값 반영
-                diaryImgUrl: "https://example.com/image-edited.jpg",
-                status: data.status ?? "NORMAL"       // 없으면 NORMAL
-            )
-        )
-        .setFailureType(to: APIError.self)
-        .eraseToAnyPublisher()
-    }
-
-    // MARK: - 휴지통 이동 (PATCH /diaries/waste-status)
-    func moveToTrash(ids: [Int]) -> AnyPublisher<EmptyResponse, APIError> {
-        Just(EmptyResponse())
-            .setFailureType(to: APIError.self)
-            .eraseToAnyPublisher()
-    }
-
-    // MARK: - 영구 삭제 (DELETE /diaries)
-    func deletePermanently(ids: [Int]) -> AnyPublisher<EmptyResponse, APIError> {
-        Just(EmptyResponse())
-            .setFailureType(to: APIError.self)
-            .eraseToAnyPublisher()
-    }
-
-    // MARK: - 스크랩 On/Off (PATCH /diaries/{id}/scrap-status/*)
-    func scrapOn(id: Int) -> AnyPublisher<EmptyResponse, APIError> {
-        Just(EmptyResponse())
-            .setFailureType(to: APIError.self)
-            .eraseToAnyPublisher()
-    }
-
-    func scrapOff(id: Int) -> AnyPublisher<EmptyResponse, APIError> {
-        Just(EmptyResponse())
-            .setFailureType(to: APIError.self)
-            .eraseToAnyPublisher()
-    }
-
-    // MARK: - 임시보관/복원 토글 (PATCH /diaries/temp-status)
-    func updateTempStatus(ids: [Int]) -> AnyPublisher<EmptyResponse, APIError> {
-        Just(EmptyResponse())
-            .setFailureType(to: APIError.self)
-            .eraseToAnyPublisher()
-    }
-}
-#endif
-
-
-struct DiaryCheckView_Previews: PreviewProvider {
-
-    // 샘플 DiaryEntry (뷰 렌더용 모델)
-    static let sampleEntry = DiaryEntry(
-        id: 1,
-        date: Date(),
-        title: "행복했던 하루",
-        content: "친구와 카페에서 즐거운 시간을 보냈다.",
-        emotion: .HAPPY,
-        isScrapped: false
-    )
-
-    // 샘플 DiarySummary (서버 DTO)
-    static let sampleSummary = DiarySummary(
-        diaryId: 1,
-        diaryDate: "2025-06-16",
-        title: "행복했던 하루",
-        status: "NORMAL",
-        emotion: "HAPPY",
-        content: "서버에서 내려온 본문 미리보기 텍스트"
-    )
-
-    struct Wrapper: View {
-        @State private var isDeleteSheetPresented = false
-
-        // 미리보기용 DIContainer (내부에서 PreviewDiaryService 사용하도록)
-        private let container: DIContainer = {
-            let c = DIContainer()
-            // 필요 시 mock 서비스 주입 (예시)
-            // c.useCaseService = UseCaseService(diaryService: PreviewDiaryService(), ...)
-            return c
-        }()
-
-        var body: some View {
-            NavigationStack {
-                DiaryCheckView(
-                    diary: sampleEntry,
-                    summary: sampleSummary,
-                    isDeleteSheetPresented: $isDeleteSheetPresented,
-                    container: container
-                )
-            }
-        }
-    }
-
-    static var previews: some View {
-        Wrapper()
-            .background(Color("brown01"))
-    }
 }

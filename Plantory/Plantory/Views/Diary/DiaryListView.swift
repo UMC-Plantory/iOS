@@ -43,8 +43,8 @@ struct DiaryListView: View {
                         isLoading: viewModel.isLoading,
                         onAppearLast: { viewModel.fetchMore( ) },
                         onTap: { entry in
-                            viewModel.fetchDiary(diaryId: entry.id)//개별 일기 조회
-                            container.navigationRouter.path.append(NavigationDestination.diaryDetail(diaryId: entry.id))//DiaryCheckView로 이동합니다
+                            viewModel.fetchDiary(diaryId: entry.id)//특정 일기 Tap했을 때
+                            container.navigationRouter.path.append(NavigationDestination.diaryDetail(diaryId: entry.diaryId))//DiaryCheckView로 이동합니다
                         }
                 )
                 .padding(.horizontal)

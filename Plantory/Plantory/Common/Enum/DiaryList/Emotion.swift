@@ -39,7 +39,7 @@ enum Emotion: String, CaseIterable, Codable {
     
     var imageName: String {
            switch self {
-           case .all:     return "emotion_all"// 이미지 없지만 형식만 맞춤
+           case .all:     return "emotion_happy"//all은 서버에 없어서 기본값으로 설정
            case .HAPPY:   return "emotion_happy"
            case .SAD:     return "emotion_sad"
            case .ANGRY:   return "emotion_angry"

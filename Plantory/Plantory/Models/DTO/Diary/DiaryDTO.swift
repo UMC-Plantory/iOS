@@ -81,7 +81,7 @@ struct DiarySearchResult: Codable {
 
 //MARK: -단일 일기 조회 요청/응답(request 불필요)
 ///단일 일기 조회 Response
-struct DiaryFetchResponse: Codable {
+struct DiaryFetchResponse: Codable, Equatable, Hashable {
     let diaryId: Int
     let diaryDate: String
     let emotion: String
@@ -89,6 +89,28 @@ struct DiaryFetchResponse: Codable {
     let content: String
     let diaryImgUrl: String?
     let status: String
+}
+
+extension DiaryFetchResponse {
+    func copy(
+        diaryId: Int? = nil,
+        diaryDate: String? = nil,
+        emotion: String? = nil,
+        title: String? = nil,
+        content: String? = nil,
+        diaryImgUrl: String? = nil,
+        status: String? = nil
+    ) -> DiaryFetchResponse {
+        DiaryFetchResponse(
+            diaryId: diaryId ?? self.diaryId,
+            diaryDate: diaryDate ?? self.diaryDate,
+            emotion: emotion ?? self.emotion,
+            title: title ?? self.title,
+            content: content ?? self.content,
+            diaryImgUrl: diaryImgUrl ?? self.diaryImgUrl,
+            status: status ?? self.status
+        )
+    }
 }
 
 // MARK: -일기 수정 요청/응답

@@ -61,24 +61,11 @@ struct NavigationRoutingView: View {
             DiaryListView( isFilterSheetPresented: $isFilterSheetPresented,container: container)
             
         case .diaryDetail(let diaryId):
-                   DiaryCheckView(diary: DiaryEntry(
-                    id: diaryId,
-                    date: Date(),
-                    title: "",
-                    content: "",
-                    emotion: .HAPPY,
-                    isScrapped: false
-                ),
-                summary: DiarySummary(
-                    diaryId: diaryId,
-                    diaryDate: "",
-                    title: "",
-                    status: "NORMAL",
-                    emotion: "",
-                    content: ""
-                ),
-                isDeleteSheetPresented: .constant(false),
-                container: container)
+            DiaryCheckView(
+                diaryId: diaryId,
+                        isDeleteSheetPresented: .constant(false),
+                        container: container
+                    )
 
         }
     }
