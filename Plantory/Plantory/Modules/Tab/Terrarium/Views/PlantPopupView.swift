@@ -15,7 +15,11 @@ struct PlantPopupView: View {
         if viewModel.isPresented {
             ZStack {
                 Color.black.opacity(0.4)
-                    .edgesIgnoringSafeArea(.all)
+                    .ignoresSafeArea()
+                    .contentShape(Rectangle())
+                    .onTapGesture {
+                        onClose()
+                    }
 
                 VStack(spacing: 16) {
                     HStack {
@@ -120,12 +124,18 @@ struct PlantPopupView: View {
             ScrollView(.horizontal, showsIndicators: false) {
                 HStack(spacing: 8) {
                     ForEach(items, id: \.self) { item in
-                        HStack(spacing: 8) {
-                            Text(item)
-                                .foregroundColor(Color("green08"))
-                                .font(.pretendardRegular(14))
-                                .frame(width: 66, height: 29)
-                                .overlay(RoundedRectangle(cornerRadius: 30).stroke(Color("green06"), lineWidth: 1))
+                        Button(action: {
+                            // action
+                        }) {
+                            HStack(spacing: 8) {
+                                Text(item)
+                                    .foregroundColor(Color("green08"))
+                                Image(systemName: "chevron.right")
+                                    .foregroundColor(Color("green06"))
+                            }
+                            .font(.pretendardRegular(14))
+                            .frame(width: 66, height: 29)
+                            .overlay(RoundedRectangle(cornerRadius: 30).stroke(Color("green06"), lineWidth: 1))
                         }
                     }
                 }
@@ -133,7 +143,7 @@ struct PlantPopupView: View {
             }
         }
     }
-
+    
     //단계 진입일
     struct StageInfo: View {
         var items: [String]

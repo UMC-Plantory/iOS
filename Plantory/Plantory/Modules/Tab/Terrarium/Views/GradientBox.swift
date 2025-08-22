@@ -13,6 +13,7 @@ struct GradientBox: View {
     var cornerRadius: CGFloat = 5
     var LightGradient: Bool = false
     var isCircle: Bool = false
+    var noGradient: Bool = false
 
     var body: some View {
         let linearGradient = LinearGradient(
@@ -32,14 +33,39 @@ struct GradientBox: View {
 
         return Group {
             if isCircle {
-                Circle()
-                    .fill(radialGradient)
-                    .frame(width: width, height: width)
+                if noGradient {
+                    Circle()
+                        .fill(Color("brown01"))
+                        .frame(width: width, height: width)
+                        .overlay(
+                            Circle().stroke(Color("brown01"), lineWidth: 1)
+                        )
+                } else {
+                    Circle()
+                        .fill(radialGradient)
+                        .frame(width: width, height: width)
+                        .overlay(
+                            Circle().stroke(Color("green03"), lineWidth: 1)
+                        )
+                }
             } else {
-                Rectangle()
-                    .fill(linearGradient)
-                    .frame(width: width, height: height)
-                    .cornerRadius(cornerRadius)
+                if noGradient {
+                    Rectangle()
+                        .fill(Color("gray03"))
+                        .frame(width: width, height: height)
+                        .cornerRadius(cornerRadius)
+                        .overlay(
+                            RoundedRectangle(cornerRadius: cornerRadius).stroke(Color("brown03"), lineWidth: 1)
+                        )
+                } else {
+                    Rectangle()
+                        .fill(linearGradient)
+                        .frame(width: width, height: height)
+                        .cornerRadius(cornerRadius)
+                        .overlay(
+                            RoundedRectangle(cornerRadius: cornerRadius).stroke(Color("green03"), lineWidth: 1)
+                        )
+                }
             }
         }
     }
@@ -51,6 +77,8 @@ struct GradientBox_Previews: PreviewProvider {
             GradientBox(LightGradient: true)
             GradientBox(LightGradient: false)
             GradientBox(width: 51, isCircle: true)
+            GradientBox(noGradient: true)
+            GradientBox(width: 51, isCircle: true, noGradient: true)
         }
         .padding()
         .previewLayout(.sizeThatFits)

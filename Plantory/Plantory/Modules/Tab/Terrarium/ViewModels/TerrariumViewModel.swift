@@ -132,26 +132,30 @@ class TerrariumViewModel {
         return formatter.date(from: value)
     }
 
-    private func mapMonthly(_ raws: [TerrariumMonthlyRaw]) -> [TerrariumMonthly] {
-        raws.compactMap { raw in
-            guard let date = parseBloomDate(raw.bloomAt) else {
-                print("[TerrariumVM] 날짜 파싱 실패: \(raw.bloomAt)")
+    // 기존 mapMonthly 제거 후 아래로 교체
+    private func mapMonthlyResult(_ raw: TerrariumMonthlyResultRaw) -> TerrariumMonthlyResult {
+        let items: [TerrariumMonthlyListItem] = raw.terrariumList.compactMap { e in
+            guard let date = parseBloomDate(e.bloomAt) else {
+                print("[TerrariumVM] 날짜 파싱 실패: \(e.bloomAt)")
                 return nil
             }
-            return TerrariumMonthly(
-                terrariumId: raw.terrariumId,
-                nickname: raw.nickname,
+            return TerrariumMonthlyListItem(
+                terrariumId: e.terrariumId,
                 bloomAt: date,
-                flowerName: raw.flowerName
+                flowerName: e.flowerName
             )
         }
         .sorted { $0.bloomAt < $1.bloomAt }
+
+        return TerrariumMonthlyResult(nickname: raw.nickname, terrariumList: items)
     }
 
     // MARK: - 월별 테라리움 상태 & API
 
     /// 월별 테라리움 리스트 (도메인 모델)
-    var monthlyTerrariums: [TerrariumMonthly] = []
+    var monthlyTerrariums: [TerrariumMonthlyListItem] = []
+    /// 월별 응답의 닉네임 (옵션)
+    var monthlyNickname: String?
 
     /// 월 전환을 위한 현재 선택 월 (기본: 오늘)
     var selectedMonth: Date = Date()
@@ -176,10 +180,12 @@ class TerrariumViewModel {
                     self?.isLoading = false
                     self?.log("fetchMonthlyTerrarium — 실패: \(failure.localizedDescription)")
                 }
-            }, receiveValue: { [weak self] raws in
+            }, receiveValue: { [weak self] rawResult in
                 guard let self = self else { return }
-                // Service가 [TerrariumMonthlyRaw]를 반환하므로 그대로 매핑
-                let items = self.mapMonthly(raws)
+                // Service가 TerrariumMonthlyResultRaw 를 반환 -> 도메인으로 매핑
+                let result = self.mapMonthlyResult(rawResult)
+                self.monthlyNickname = result.nickname
+                let items = result.terrariumList
                 self.log("fetchMonthlyTerrarium — 응답 수신 개수: \(items.count)")
                 if let first = items.first, let last = items.last {
                     self.log("fetchMonthlyTerrarium — 기간: \(first.bloomAt) ~ \(last.bloomAt)")

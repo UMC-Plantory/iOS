@@ -43,7 +43,7 @@ struct TopView: View {
     var body: some View {
         HStack {
             (
-                Text((fixedNickname ?? viewModel.monthlyTerrariums.first?.nickname) ?? "")
+                Text((fixedNickname ?? viewModel.monthlyNickname) ?? "")
                     .font(.pretendardSemiBold(20)) +
                 Text(" 님의 식물").font(.pretendardRegular(20))
             )
@@ -73,12 +73,12 @@ struct TopView: View {
         .padding(.top, 55)
         .onAppear {
             if fixedNickname == nil {
-                fixedNickname = viewModel.monthlyTerrariums.first?.nickname
+                fixedNickname = viewModel.monthlyNickname
             }
         }
         .onChange(of: viewModel.monthlyTerrariums.count) { _, _ in
             if fixedNickname == nil {
-                fixedNickname = viewModel.monthlyTerrariums.first?.nickname
+                fixedNickname = viewModel.monthlyNickname
             }
         }
     }
@@ -98,7 +98,7 @@ struct PlantListView: View {
         GridItem(.flexible())
     ]
 
-    let items: [TerrariumMonthly]
+    let items: [TerrariumMonthlyListItem]
     var onPlantTap: (Int) -> Void
 
     var body: some View {
