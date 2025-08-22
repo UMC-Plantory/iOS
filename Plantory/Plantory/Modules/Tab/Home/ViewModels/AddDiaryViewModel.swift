@@ -11,6 +11,10 @@ import Moya
 
 @Observable
 final class AddDiaryViewModel {
+    
+    // MARK: - Toast
+    
+    var toast: CustomToast? = nil
 
     // MARK: - 입력 상태 (UI 바인딩)
     var diaryDate: String = ""                 // yyyy-MM-dd
@@ -130,6 +134,11 @@ final class AddDiaryViewModel {
         isLoading = false
         isCompleted = false
         errorMessage = error.errorDescription ?? "알 수 없는 오류가 발생했어요."
+        
+        self.toast = CustomToast(
+            title: "일기 작성 오류",
+            message: "\(error.errorDescription ?? "알 수 없는 에러")"
+        )
         print("일기 작성 오류: \(errorMessage!)")
     }
 }
