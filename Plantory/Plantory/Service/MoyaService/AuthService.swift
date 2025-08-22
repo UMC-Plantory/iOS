@@ -13,8 +13,11 @@ import Combine
 /// 인증 서비스 프로토콜
 protocol AuthServiceProtocol {
     
-    /// 로그인 요청
+    /// 카카오 로그인 요청
     func kakaoLogin(idToken: KakaoUser) -> AnyPublisher<LoginResponse, APIError>
+    
+    /// 애플 로그인 요청
+    func appleLogin(identityToken: AppleUser) -> AnyPublisher<LoginResponse, APIError>
     
     /// 약관 동의
     func postAgreements(request: AgreementsRequest) -> AnyPublisher<AgreementsResponse, APIError>
@@ -38,13 +41,22 @@ final class AuthService: AuthServiceProtocol {
         self.noTokenProvider = noTokenProvider
     }
     
-    // MARK: - 로그인 요청
+    // MARK: - 카카오 로그인 요청
     
     /// 로그인 요청
-    /// - Parameter request: 로그인 요청 모델
+    /// - Parameter idToken: 로그인 요청 모델
     /// - Returns: 채팅 응답을 Combine Publisher 형태로 반환
     func kakaoLogin(idToken: KakaoUser) -> AnyPublisher<LoginResponse, APIError> {
         return provider.requestResult(.kakaoLogin(idToken: idToken), type: LoginResponse.self)
+    }
+    
+    // MARK: - 애플 로그인 요청
+    
+    /// 로그인 요청
+    /// - Parameter identityToken: 로그인 요청 모델
+    /// - Returns: 채팅 응답을 Combine Publisher 형태로 반환
+    func appleLogin(identityToken: AppleUser) -> AnyPublisher<LoginResponse, APIError> {
+        return provider.requestResult(.appleLogin(identityToken: identityToken), type: LoginResponse.self)
     }
     
     // MARK: - 약관 동의

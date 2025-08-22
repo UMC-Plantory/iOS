@@ -10,6 +10,7 @@ import Moya
 
 enum AuthRouter {
     case kakaoLogin(idToken: KakaoUser) // 카카오 로그인
+    case appleLogin(identityToken: AppleUser) // 애플 로그인
     case sendRefreshToken(refreshToken: String) // 리프레시 토큰 갱신
     
     case postAgreements(request: AgreementsRequest) // 약관 동의
@@ -28,6 +29,8 @@ extension AuthRouter: APITargetType {
         switch self {
         case .kakaoLogin:
             return "/members/auth/kko"
+        case .appleLogin:
+            return "/members/auth/apple"
         case .sendRefreshToken:
             return "/auth/refresh"
         case .postAgreements:
@@ -50,6 +53,8 @@ extension AuthRouter: APITargetType {
         switch self {
         case .kakaoLogin(let idToken):
             return .requestJSONEncodable(idToken)
+        case .appleLogin(let identityToken):
+            return .requestJSONEncodable(identityToken)
         case .sendRefreshToken(let refrshToken):
             return .requestJSONEncodable(refrshToken)
         case .postAgreements(let request):
