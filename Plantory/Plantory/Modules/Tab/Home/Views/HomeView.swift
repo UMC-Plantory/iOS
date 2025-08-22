@@ -9,25 +9,50 @@ import SwiftUI
 
 struct HomeView: View {
     @EnvironmentObject var container: DIContainer
-    
+
     // MARK: - Property
     @State private var viewModel: HomeViewModel
-    
+
     // MARK: - Init
     init(container: DIContainer) {
         self._viewModel = State(initialValue: .init(container: container))
     }
+
     // MARK: - UI 상태
     @State private var showingDetailSheet = false
     @State private var showMonthPicker = false
     @State private var showErrorAlert = false
 
-    private let calendar = Calendar.current
-    private let dateFormatter: DateFormatter = {
-        let df = DateFormatter()
-        df.dateFormat = "yyyy년 M월 d일"
-        return df
-    }()
+    // === 캘린더 레이아웃 상수 (CalendarView와 값 맞추기) ===
+    private let cardWidth: CGFloat = 356
+    private let cellSize: CGFloat = 48          // CalendarView.CellView의 cellSize와 동일
+    private let gridSpacing: CGFloat = 6        // CalendarView LazyVGrid spacing과 동일
+    private let headerTopInset: CGFloat = 10    // 카드 상단 ↔ 요일 헤더 위 여백
+    private let headerRowHeight: CGFloat = 24   // 요일 헤더 높이
+    private let headerBottomGap: CGFloat = 8    // 요일 헤더 ↔ 날짜 그리드 사이 여백
+    private let cardBottomPadding: CGFloat = 12 // 그리드 아래 여백(미세 여백)
+
+    // === 동적 높이 계산 ===
+    private func monthGridRows(for month: Date) -> Int {
+        let cal = Calendar.current
+        let monthStart = cal.date(from: cal.dateComponents([.year, .month], from: month))!
+        let days = cal.range(of: .day, in: .month, for: monthStart)?.count ?? 0
+        let firstWeekday = cal.component(.weekday, from: monthStart) // Sun=1 … Sat=7
+        let leadingBlanks = (firstWeekday + 5) % 7                   // Mon=0 … Sun=6
+        let totalCells = leadingBlanks + days
+        return Int(ceil(Double(totalCells) / 7.0))                   // 4~6
+    }
+
+    private func gridHeight(for month: Date) -> CGFloat {
+        let rows = CGFloat(monthGridRows(for: month))
+        return rows * cellSize + (rows - 1) * gridSpacing
+    }
+
+    private func cardHeight(for month: Date) -> CGFloat {
+        headerTopInset + headerRowHeight + headerBottomGap
+        + gridHeight(for: month)
+        + cardBottomPadding
+    }
 
     var body: some View {
         ZStack {
@@ -37,48 +62,54 @@ struct HomeView: View {
                 Spacer().frame(height: 73)
                 HomeHeaderView()
                 Spacer().frame(height: 32)
+
                 Plantory.CalendarHeaderView(
-                        month: viewModel.month,
-                        onMoveMonth: { value in viewModel.moveMonth(by: value) },
-                        onTapCalendar: { showMonthPicker = true },
-                        onTapPlus: {
-                            container.navigationRouter.push(.addDiary)
-                        }
-                    )
+                    month: viewModel.month,
+                    onMoveMonth: { value in viewModel.moveMonth(by: value) },
+                    onTapCalendar: { showMonthPicker = true },
+                    onTapPlus: { container.navigationRouter.push(.addDiary(date: Date())) } // 필요시 오늘 버튼
+                )
+
                 Spacer().frame(height: 4)
 
+                // === 캘린더 카드 (높이/내부 패딩을 월에 맞춰 유동 조절) ===
                 ZStack {
+                    // 배경 카드: 주 수에 맞춰 높이 변경
                     RoundedRectangle(cornerRadius: 10)
                         .fill(Color.white01)
-                        .frame(width: 356, height: 345)
+                        .frame(width: cardWidth, height: cardHeight(for: viewModel.month))
                         .overlay(
-                            VStack {
-                                Spacer().frame(height: 10)
-                                HStack {
-                                    ForEach(CalendarView.weekdaySymbols.indices, id: \.self) { i in
-                                        Text(CalendarView.weekdaySymbols[i])
+                            // 요일 헤더(월~일)
+                            VStack(spacing: 0) {
+                                Spacer().frame(height: headerTopInset)
+                                HStack(spacing: 0) {
+                                    ForEach(CalendarView.weekdaySymbols, id: \.self) { sym in
+                                        Text(sym)
                                             .font(.pretendardRegular(14))
                                             .foregroundColor(.gray11)
-                                            .frame(maxWidth: .infinity)
+                                            .frame(maxWidth: .infinity) // 7등분 균등
                                     }
                                 }
+                                .frame(height: headerRowHeight)
                                 Spacer()
                             }
                         )
                         .padding(.vertical, 6)
 
+                    // 실제 날짜 그리드: 헤더 아래로 내리고, 뷰 자체 높이도 동적으로
                     CalendarView(
                         month: $viewModel.month,
                         selectedDate: $viewModel.selectedDate,
                         diaryEmotionsByDate: viewModel.diaryEmotionsByDate,
                         colorForDate: viewModel.colorForDate
                     )
+                    .padding(.top, headerTopInset + headerRowHeight + headerBottomGap)
+                    .frame(width: cardWidth, height: cardHeight(for: viewModel.month))
                     .onChange(of: viewModel.selectedDate) { _, newValue in
                         guard let date = newValue else { return }
                         viewModel.selectDate(date)
                         showingDetailSheet = true
                     }
-                    .frame(width: 356, height: 345)
                 }
 
                 Color.clear.frame(height: 10)
@@ -101,16 +132,14 @@ struct HomeView: View {
                 showErrorAlert = (newValue != nil) || viewModel.requiresLogin
             }
 
-            // MARK: - Month/Year Picker Overlay
+            // === Month/Year Picker Overlay ===
             if showMonthPicker {
-                // 바깥 탭 닫기용 딤 레이어
                 Color.black.opacity(0.35)
                     .ignoresSafeArea()
                     .onTapGesture { showMonthPicker = false }
                     .transition(.opacity)
                     .zIndex(1)
 
-                // 커스텀 드롭다운 피커 (초기 연/월 전달, 적용 시 커밋)
                 MonthYearPickerView(
                     initialYear: viewModel.displayYear,
                     initialMonth: viewModel.displayMonth
@@ -124,93 +153,22 @@ struct HomeView: View {
         }
         .animation(.snappy, value: showMonthPicker)
 
-        // 상세/작성 시트
+        // === 상세/작성 시트 ===
         .sheet(isPresented: $showingDetailSheet, onDismiss: {
             viewModel.selectedDate = nil
         }) {
             if let date = viewModel.selectedDate {
-                let isFuture = calendar.startOfDay(for: date) > calendar.startOfDay(for: Date())
-                ZStack {
-                    (isFuture ? Color.gray04 : Color.white01).ignoresSafeArea()
-                    VStack(spacing: 0) {
-                        HStack {
-                            Text("\(date, formatter: dateFormatter)")
-                                .font(.pretendardSemiBold(20))
-                                .foregroundColor(.black01)
-                            Spacer()
-                            if !isFuture {
-                                Button { /* 작성 화면 이동 */ } label: {
-                                    Image(systemName: "plus")
-                                        .font(.title3)
-                                        .foregroundColor(.green05)
-                                }
-                            }
-                        }
-                        .padding(.top, 20)
-                        
-                        ZStack {
-                            if isFuture {
-                                VStack { Spacer()
-                                    Text("미래의 일기는 작성할 수 없어요!")
-                                        .font(.pretendardRegular(16))
-                                        .foregroundColor(.gray11)
-                                        .multilineTextAlignment(.center)
-                                    Spacer()
-                                }
-                            } else if viewModel.noDiaryForSelectedDate {
-                                VStack { Spacer()
-                                    Text("작성된 일기가 없어요!")
-                                        .font(.pretendardRegular(16))
-                                        .foregroundColor(.gray11)
-                                        .multilineTextAlignment(.center)
-                                    Spacer()
-                                }
-                            } else if let summary = viewModel.diarySummary {
-                                VStack {
-                                    Button {
-                                        showingDetailSheet = false
-                                        container.navigationRouter.push(.diaryDetail(diaryId: summary.diaryId))
-                                    } label: {
-                                        HStack {
-                                            Text(summary.title)
-                                                .font(.pretendardRegular(14))
-                                                .foregroundColor(.black)
-                                                .lineLimit(1)
-                                            Spacer().frame(width: 4)
-                                            Text("•\(summary.emotion)")
-                                                .font(.pretendardRegular(12))
-                                                .foregroundColor(.gray08)
-                                            Spacer()
-                                            Image("chevron_right")
-                                                .foregroundColor(.black)
-                                        }
-                                        .padding(.horizontal, 16)
-                                        .background(
-                                            RoundedRectangle(cornerRadius: 8)
-                                                .fill(CalendarView.emotionColor(for: summary.emotion))
-                                                .stroke(.gray06, lineWidth: 0.5)
-                                                .frame(maxWidth: .infinity)
-                                                .frame(height: 56)
-                                        )
-                                    }
-                                    
-                                    Spacer()
-                                }
-                                .padding(.top, 52)
-                            } else {
-                                ProgressView().tint(.gray)
-                            }
-                        }
-                        .frame(maxWidth: .infinity, maxHeight: .infinity)
-                    }
-                    .padding(.horizontal, 24)
-                    .frame(height: 264)
-                }
-                .presentationDetents([.height(264)])
-                .presentationDragIndicator(.hidden)
+                //    시트는 DetailSheetView 하나만 사용
+                DetailSheetView(
+                    viewModel: viewModel,
+                    date: date,
+                    //    선택된 날짜로 작성 화면 이동
+                    onTapAdd: { container.navigationRouter.push(.addDiary(date: date)) }
+                )
+                .environmentObject(container)
             }
         }
     }
 }
 
-#Preview{ HomeView(container: .init()) }
+#Preview { HomeView(container: .init()) }

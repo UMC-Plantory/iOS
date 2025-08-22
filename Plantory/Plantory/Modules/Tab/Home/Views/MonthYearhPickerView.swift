@@ -7,7 +7,7 @@
 
 import SwiftUI
 
-// MARK: - PreferenceKey: 전역 좌표로 버튼 프레임 측정
+// MARK: - PreferenceKey
 private struct YearButtonFrameKey: PreferenceKey {
     static var defaultValue: CGRect = .zero
     static func reduce(value: inout CGRect, nextValue: () -> CGRect) { value = nextValue() }
@@ -32,7 +32,8 @@ private struct YearDropdown: View {
                             onSelect(y)
                         } label: {
                             HStack {
-                                Text("\(y)년")
+                                // 쉼표 방지
+                                Text(verbatim: "\(y)년")
                                     .font(.pretendardRegular(14))
                                     .foregroundColor(.white)
                                 Spacer()
@@ -118,7 +119,8 @@ struct MonthYearPickerView: View {
                         withAnimation(.easeInOut(duration: 0.18)) { isYearMenuOpen.toggle() }
                     } label: {
                         HStack(spacing: 8) {
-                            Text("\(draftYear)년")
+                            // 쉼표 방지
+                            Text(verbatim: "\(draftYear)년")
                                 .font(.pretendardSemiBold(20))
                                 .foregroundColor(.black01)
                             Image(systemName: "chevron.down")

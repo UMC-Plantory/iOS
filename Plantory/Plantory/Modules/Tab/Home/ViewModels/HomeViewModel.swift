@@ -5,7 +5,6 @@
 //  Created by 김지우 on 8/13/25.
 //
 
-
 import Foundation
 import Combine
 import Moya
@@ -27,7 +26,7 @@ class HomeViewModel {
     var continuousRecordCnt: Int = 0
     /// "yyyy-MM-dd" -> "HAPPY"/"SAD" ...
     var diaryEmotionsByDate: [String: String] = [:]
-    
+
     // MARK: - 년/월 선택 모달용
     var displayYear: Int {
         Calendar.current.component(.year, from: month)
@@ -35,14 +34,14 @@ class HomeViewModel {
     var displayMonth: Int {
         Calendar.current.component(.month, from: month)
     }
-    
+
     var emotionPalette: [String: Color] = [
-            "HAPPY":   .happy,
-            "SAD":     .sad,
-            "ANGRY":   .mad,
-            "SOSO":    .soso,
-            "AMAZING": .surprised
-        ]
+        "HAPPY":   .happy,
+        "SAD":     .sad,
+        "ANGRY":   .mad,
+        "SOSO":    .soso,
+        "AMAZING": .surprised
+    ]
 
     var diarySummary: HomeDiaryResult?
     var noDiaryForSelectedDate: Bool = false
@@ -57,20 +56,17 @@ class HomeViewModel {
         self.container = container
     }
 
-    
-
-    ///감정 코드 색으로 변경하는 함수
+    // MARK: - 색상 유틸
     func color(for emotionCode: String) -> Color? {
-            emotionPalette[emotionCode.uppercased()]
+        emotionPalette[emotionCode.uppercased()]
     }
 
-    ///날짜별 색상
     func colorForDate(_ date: Date) -> Color? {
         let key = Self.formatYMD(date)
         guard let code = diaryEmotionsByDate[key] else { return nil }
         return color(for: code)
     }
-    
+
     // MARK: - API
     /// 화면 진입/달 변경 시 호출
     func loadMonthly() {
@@ -101,10 +97,14 @@ class HomeViewModel {
         selectedDate = date
         let cal = Calendar.current
         if cal.startOfDay(for: date) > cal.startOfDay(for: Date()) {
+            // 미래 날짜: 요약/플래그 초기화만
             diarySummary = nil
             noDiaryForSelectedDate = false
             return
         }
+        // / API 호출 전 상태 초기화(이전 상태 끌고 오지 않도록)
+        diarySummary = nil
+        noDiaryForSelectedDate = false
         loadDiarySummary(for: date)
     }
 
@@ -112,6 +112,7 @@ class HomeViewModel {
     func moveMonth(by offset: Int) {
         if let newMonth = Calendar.current.date(byAdding: .month, value: offset, to: month) {
             month = newMonth
+            // 날짜 관련 상태 초기화
             selectedDate = nil
             diarySummary = nil
             noDiaryForSelectedDate = false
@@ -120,11 +121,11 @@ class HomeViewModel {
     }
 
     // MARK: - Private
-
     private func loadDiarySummary(for date: Date) {
         isLoadingDiary = true
         errorMessage = nil
         requiresLogin = false
+        // 호출 직전에도 '없음' 플래그는 내리고 시작
         noDiaryForSelectedDate = false
 
         let dateString = Self.formatYMD(date)
@@ -135,7 +136,10 @@ class HomeViewModel {
                 self.isLoadingDiary = false
                 if case let .failure(err) = completion { self.handleDiaryError(err) }
             } receiveValue: { [weak self] result in
-                self?.diarySummary = result
+                guard let self else { return }
+                // / 요약이 있으면 '없음' 플래그는 확실히 false
+                self.diarySummary = result
+                self.noDiaryForSelectedDate = false
             }
             .store(in: &cancellables)
     }
@@ -164,6 +168,7 @@ class HomeViewModel {
         switch err {
         case let .serverError(code, message):
             if code == "DIARY4001" {
+                // / 일기 없음: 요약 제거 + 없음 플래그 ON
                 diarySummary = nil
                 noDiaryForSelectedDate = true
             } else if ["COMMON401","JWT4001","JWT4002"].contains(code) {
@@ -192,7 +197,7 @@ class HomeViewModel {
         f.dateFormat = "yyyy-MM-dd"
         return f.string(from: date)
     }
-    
+
     func setMonth(year: Int, month m: Int) {
         // 월 범위 안전화 (1...12)
         let safeMonth = max(1, min(m, 12))

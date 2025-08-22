@@ -13,7 +13,7 @@ struct BaseTabView: View {
     @State private var selectedTab: TabItem = .home
     
     @State private var isTerrariumPopupVisible: Bool = false
-    @State private var showFlowerComplete:Bool = false
+    @State private var showFlowerComplete: Bool = false
     @State private var showPlantPopup = false
     @State private var selectedTerrariumId: Int? = nil
     @State private var terrariumVM: TerrariumViewModel
@@ -42,7 +42,7 @@ struct BaseTabView: View {
                 }
             }
             .allowsHitTesting(!showPlantPopup)
-            
+
             if isTerrariumPopupVisible {
                 TerrariumPopup(isVisible: $isTerrariumPopupVisible)
                     .zIndex(10)
@@ -107,7 +107,7 @@ struct BaseTabView: View {
         .ignoresSafeArea(.keyboard)
         .navigationBarBackButtonHidden(true)
     }
-    
+
     /// 각 탭에 해당하는 뷰
     @ViewBuilder
     private func tabView(tab: TabItem) -> some View {
@@ -131,8 +131,10 @@ struct BaseTabView: View {
                         showPlantPopup = true
                     }
                 )
+
             case .chat:
                 ChatView(container: container)
+
             case .profile:
                 MyPageView(container: container)
             }
