@@ -102,9 +102,6 @@ class LoginViewModel {
         do {
             let credential = try await container.useCaseService.appleManager.startSignInWithAppleFlow(presentationAnchor: presentationAnchor)
             try await handleLoginSuccess(credential: credential)
-            
-            // FIX-ME: routeAfterLogin 적용하기
-            container.navigationRouter.push(.permit)
         } catch {
             print("애플 로그인 실패: \(error.localizedDescription)")
         }
@@ -115,8 +112,7 @@ class LoginViewModel {
         // identityToken, authorizationCode 추출
         guard let identityToken = credential.identityToken,
               let identityTokenString = String(data: identityToken, encoding: .utf8),
-              let authorizationCode = credential.authorizationCode,
-              let authorizationCodeString = String(data: authorizationCode, encoding: .utf8) else {
+              let authorizationCode = credential.authorizationCode else {
             throw NSError(domain: "AppleTokenError", code: -2)
         }
         
