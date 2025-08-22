@@ -20,6 +20,11 @@ struct KakaoUser: KakaoDTO, Codable {
     var idToken: String
 }
 
+/// 애플 로그인 요청 구조체
+struct AppleUser: Codable {
+    let identityToken: String
+}
+
 /// 로그인 응답 구조체
 struct LoginResponse: Codable {
     let accessToken: String

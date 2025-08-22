@@ -9,75 +9,79 @@ import SwiftUI
 
 //DiaryList의 하위뷰로 각각의 일기를 보여주는 View입니다. 
 struct DiaryRow: View {
-    let entry: DiaryEntry
+    let entry: DiaryFilterSummary
 
     var body: some View {
         ZStack(alignment: .leading) {
             // 배경 카드 (회색)
             RoundedRectangle(cornerRadius: 10)
-                .fill(Color("gray02"))
-                .frame(width: 358, height: 132)
+                .fill(.gray02)
+                .frame(maxWidth: .infinity)
+                .frame(height: 132)
+                .shadow(color: .black.opacity(0.1), radius: 6, x: 0, y: 0)
 
             // 흰색 카드 + 내용
             RoundedRectangle(cornerRadius: 10)
-                .fill(Color("white01"))
-                .frame(width: 300, height: 132)
-                .overlay(
+                .fill(.white01)
+                .frame(maxWidth: .infinity)
+                .frame(height: 132)
+                .shadow(
+                    color: .black.opacity(0.1),
+                    radius: 10,
+                    x: 10, y: 10)
+                .overlay(alignment: .leading) {
                     VStack(alignment: .leading, spacing: 0) {
                         // 즐겨찾기 아이콘
-                        Image(entry.isFavorite ? "star_green" : "star_gray")
+                        Image(entry.status == "SCRAP" ? "star_green" : "star_gray")
                             .resizable()
                             .frame(width: 20, height: 20)
-                            .padding(.top, -4)
-                            
-
+                            .padding(.top, 4)
+                        
                         // 제목
                         Text(entry.title)
                             .font(.pretendardSemiBold(18))
-                            .foregroundColor(Color("black01"))
-                            .padding(.top, 8)
-
+                            .foregroundColor(.black01)
+                            .padding(.top, 4)
+                        
                         // 내용
                         Text(entry.content)
-                            .font(.subheadline)
-                            .foregroundColor(Color("gray08"))
-                            .padding(.top,4)
-                        //.lineLimit(1)
-
+                            .font(.pretendardRegular(14))
+                            .foregroundColor(.gray08)
+                            .padding(.top, 8)
+                            .lineLimit(1)
+                        
                         // 감정 텍스트
-                        Text(entry.emotion.rawValue)
+                        Text(entry.emotion.displayName)
                             .font(.pretendardRegular(12))
-                            .foregroundColor(Color("green04"))
+                            .foregroundColor(.green04)
                             .padding(.top, 24)
                     }
-                    .padding(.leading, 11)
-                 
-                )
+                    .padding(.horizontal, 11)
+                    .frame(width: 252, alignment: .leading)
+                }
 
             // 날짜와 감정 책갈피
             VStack(alignment: .trailing, spacing: 6) {
                 
                 ZStack(alignment: .trailing) {
-                        // 배경: 연한 초록(왼쪽 32pt) + 진한 초록(오른쪽 41pt)
-                        HStack(spacing: 0) {
-                            Color("green04").opacity(0.3) // 왼쪽 흐린 초록
-                                .frame(width: 32)
+                    // 배경: 연한 초록(왼쪽 32pt) + 진한 초록(오른쪽 41pt)
+                    HStack(spacing: 0) {
+                        Color(.green04).opacity(0.3) // 왼쪽 흐린 초록
+                            .frame(width: 32)
 
-                            Color("green04") // 오른쪽 진한 초록
-                                .frame(width: 41)
-                        }
-                        .frame(width: 73, height: 31)
-                        .cornerRadius(8)
-                        .shadow(color: Color.black.opacity(0.1), radius: 2, x: 2, y: 2)
-
-                        // 날짜 텍스트 (오른쪽 정렬)
-                        Text(dateFormatter.string(from: entry.date))
-                            .font(.pretendardRegular(14))
-                            .foregroundColor(Color("white01"))
-                            .padding(.trailing, 3) // 텍스트 오른쪽 여백
+                        Color(.green04) // 오른쪽 진한 초록
+                            .frame(width: 41)
                     }
+                    .frame(width: 73, height: 31)
+                    .cornerRadius(8)
+                    .shadow(color: Color.black.opacity(0.1), radius: 2, x: 2, y: 2)
 
-                .padding(.top, -4)
+                    // 날짜 텍스트 (오른쪽 정렬)
+                    Text(formatToMonthDay(entry.diaryDate))
+                        .font(.pretendardRegular(14))
+                        .foregroundColor(Color("white01"))
+                        .padding(.trailing, 4) // 텍스트 오른쪽 여백
+                }
               
                 RoundedCorner(radius: 5, corners: [.topRight, .bottomRight])
                     .fill(entry.emotion.color)
@@ -87,14 +91,21 @@ struct DiaryRow: View {
             }
             .frame(maxWidth: .infinity, alignment: .trailing)
             .frame(maxHeight: .infinity)
-            .padding(.top, -4)
-            .padding(.trailing, 30)
         }
     }
+    
+    private func formatToMonthDay(_ dateString: String) -> String {
+        let inputFormatter = DateFormatter()
+        inputFormatter.dateFormat = "yyyy-MM-dd"
+        inputFormatter.locale = Locale(identifier: "en_US_POSIX") // 안정성 위해 설정
 
-    private var dateFormatter: DateFormatter {
-        let f = DateFormatter()
-        f.dateFormat = "MM.dd"
-        return f
+        let outputFormatter = DateFormatter()
+        outputFormatter.dateFormat = "MM.dd"
+
+        if let date = inputFormatter.date(from: dateString) {
+            return outputFormatter.string(from: date)
+        } else {
+            return dateString // 변환 실패 시 원본 반환
+        }
     }
 }

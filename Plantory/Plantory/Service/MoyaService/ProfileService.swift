@@ -11,7 +11,7 @@ import Moya
 import Combine
 
 // 정렬 옵션
-public enum SortOrder: String {
+public enum SortOrder: String,Codable{
     case oldest
     case latest
 }

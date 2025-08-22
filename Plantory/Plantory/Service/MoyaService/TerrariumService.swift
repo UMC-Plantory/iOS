@@ -19,7 +19,7 @@ protocol TerrariumServiceProtocol {
     /// 물 주기
     func water(terrariumId: Int) -> AnyPublisher<WateringResult, APIError>
     /// 월별 테라리움 데이터 조회
-    func getMonthlyTerrarium(month: String) -> AnyPublisher<[TerrariumMonthlyRaw], APIError>
+    func getMonthlyTerrarium(month: String) -> AnyPublisher<TerrariumMonthlyResultRaw, APIError>
     /// 테라리움 상세 조회
     func getTerrariumDetail(terrariumId: Int) -> AnyPublisher<TerrariumDetailRaw, APIError>
 }
@@ -49,8 +49,8 @@ final class TerrariumService: TerrariumServiceProtocol {
     }
 
     /// 월별 테라리움 데이터 조회
-    func getMonthlyTerrarium(month: String) -> AnyPublisher<[TerrariumMonthlyRaw], APIError> {
-        return provider.requestResult(.getMonthlyTerrarium(month: month), type: [TerrariumMonthlyRaw].self)
+    func getMonthlyTerrarium(month: String) -> AnyPublisher<TerrariumMonthlyResultRaw, APIError> {
+        return provider.requestResult(.getMonthlyTerrarium(month: month), type: TerrariumMonthlyResultRaw.self)
     }
 
     /// 테라리움 상세 조회

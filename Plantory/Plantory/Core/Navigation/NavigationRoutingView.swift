@@ -5,16 +5,14 @@
 //  Created by 주민영 on 7/17/25.
 //
 
+
 import SwiftUI
 
 
 /// 앱 내에서 특정 화면으로의 이동을 처리하는 라우팅 뷰입니다.
 struct NavigationRoutingView: View {
-    
-    /// DIContainer 의존성 주입
     @StateObject private var container: DIContainer = .init()
-    
-    // MARK: - Body
+    @State private var isFilterSheetPresented = false
     var body: some View {
         NavigationStack(path: $container.navigationRouter.path) {
             LoginView(container: container)
@@ -22,7 +20,7 @@ struct NavigationRoutingView: View {
                 .navigationDestination(for: NavigationDestination.self) { destination in
                     Group {
                         switch destination {
-                            // 로그인, 회원가입 뷰
+                        // 로그인, 회원가입 뷰
                         case .login:
                             LoginView(container: container)
                         case .permit:
@@ -35,11 +33,11 @@ struct NavigationRoutingView: View {
                         case .addDiary(let date):
                             AddDiaryView(container: container, date: date)
                             
-                            // Tab 뷰
+                        // Tab 뷰
                         case .baseTab:
                             BaseTabView(terrariumVM: TerrariumViewModel(container: container))
                             
-                            // 마이페이지
+                        // 마이페이지
                         case .scrap:
                             ScrapView()
                         case .tempStorage:
@@ -51,7 +49,8 @@ struct NavigationRoutingView: View {
                         case .profileManage:
                             ProfileManageView(container: container)
                             
-                            // 다이어리 뷰
+                        case .diarySearch:
+                            DiarySearchView(container: container)
                         case .diaryDetail(let diaryId):
                             DiaryCheckView(
                                 diaryId: diaryId,
@@ -59,9 +58,9 @@ struct NavigationRoutingView: View {
                             )
                         }
                     }
-                    .environmentObject(container)
                 }
         }
+        .environmentObject(container)
     }
 }
 

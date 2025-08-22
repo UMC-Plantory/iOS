@@ -6,27 +6,46 @@
 //
 import Foundation
 import Combine
+import Moya
 
 @MainActor
 class DiaryListViewModel: ObservableObject {
-    @Published var entries: [DiaryEntry] = []
-    @Published var diaries: [DiarySummary] = []
-    @Published var isLoading: Bool = false //현재 데이터를 불러오는 중인지 여부
-    @Published private(set) var errorMessage: String?
-    @Published private(set) var hasNext = false
-    @Published var query: String = "" // 검색어(옵션)
     
-    private var cursor: String? = nil
-    private let diaryService: DiaryServiceProtocol
+    // MARK: - Toast
     
-  
-    
-    //나중에 API연결 할 때 무한스크롤뷰여도 페이징 안 해주면 데이터가 너무 무거워지는 거 예방
-    private var currentPage = 0
-    private let pageSize = 10
+    @Published var toast: CustomToast? = nil
     
     /// status 값 정의(서버 문자열을 안전하게 사용)
     private enum DiaryStatus: String { case normal = "NORMAL", temp = "TEMP", scrap = "SCRAP", trash = "TRASH" }
+
+    @Published var diaries: [DiaryFilterSummary] = []
+    
+    @Published var isLoading: Bool = false //현재 데이터를 불러오는 중인지 여부
+    @Published var hasNext: Bool = true
+    @Published var errorMessage: String?
+  
+    // MARK: - Filter State
+    
+    @Published var sort: SortOrder = .latest     // "latest" | "oldest"
+    @Published var from: String? = {
+        let now = Date()
+        let formatter = DateFormatter()
+        formatter.dateFormat = "yyyy-MM"
+        return formatter.string(from: now)
+    }()
+
+    @Published var to: String? = {
+        let now = Date()
+        let formatter = DateFormatter()
+        formatter.dateFormat = "yyyy-MM"
+        return formatter.string(from: now)
+    }()
+    @Published var emotion: Set<Emotion> = [.all]
+    @Published var cursor: String? = nil
+    @Published var size: Int = 10
+    
+    @Published var isLoadingDetail = false
+    @Published var detailErrorMessage: String?
 
     // MARK: - 의존성 주입 및 비동기 처리
     
@@ -34,39 +53,57 @@ class DiaryListViewModel: ObservableObject {
     let container: DIContainer
     /// Combine 구독 해제를 위한 Set
     var cancellables = Set<AnyCancellable>()
-    
+
     // MARK: - 초기화
  
-    init(
-        diaryService: DiaryServiceProtocol = DiaryService(),
-        container: DIContainer
-    ) {
-        self.diaryService = diaryService
+    init(container: DIContainer) {
         self.container = container
-        loadMoreMock()
     }
  
-    //MARK: -함수
-    //일기 리스트에서 페이지 계속 불러오는 함수
-    func loadMoreMock() {
-        guard !isLoading else { return }
+    //MARK: - 함수
+    
+    // 필터링 된 함수 불러오는 함수
+    public func fetchFilteredDiaries() async {
+        guard hasNext, !isLoading else { return }
         isLoading = true
         
-        DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
-            let newEntries = (1...self.pageSize).map { offset -> DiaryEntry in
-                let day = self.currentPage * self.pageSize + offset
-                return DiaryEntry(
-                    id: day,
-                    date: Calendar.current.date(from: DateComponents(year: 2025, month: 5, day: day)) ?? Date(),
-                    title: "친구를 만나 좋았던 하루",
-                    content: "오늘은 점심에 유엠이랑 밥을 먹었는데 너무...",
-                    emotion: [.HAPPY, .SAD, .ANGRY].randomElement()!,
-                    isFavorite: Bool.random()
-                )
-            }
-            self.entries.append(contentsOf: newEntries)
-            self.currentPage += 1
-            self.isLoading = false
-        }
+        let emotions: [Emotion] = emotion.contains(.all)
+                ? Emotion.sendableCases
+                : Emotion.sendableCases.filter { emotion.contains($0) }
+        let emotionsArray = Emotion.payload(from: emotions)
+        
+        let request = DiaryFilterRequest(
+            sort: sort,
+            from: from,
+            to: to,
+            emotion: emotionsArray,
+            cursor: cursor,
+            size: size
+        )
+        
+        container.useCaseService.diaryService.fetchFilteredDiaries(request)
+            .receive(on: DispatchQueue.main)
+            .sink(receiveCompletion: { [weak self] completion in
+                self?.isLoading = false
+                if case .failure(let failure) = completion {
+                    self?.toast = CustomToast(
+                        title: "필터 조회 오류",
+                        message: "\(failure.errorDescription ?? "알 수 없는 에러")"
+                    )
+                    print("필터 조회 오류: \(failure)")
+                }
+            }, receiveValue: { [weak self] result in
+                if result.diaries.isEmpty {
+                    self?.toast = CustomToast(
+                        title: "조회 실패",
+                        message: "해당 조건에 맞는 일기가 없어요."
+                    )
+                } else {
+                    self?.diaries.append(contentsOf: result.diaries)
+                    self?.cursor = result.nextCursor
+                    self?.hasNext = result.hasNext
+                }
+            })
+            .store(in: &cancellables)
     }
 }

@@ -7,11 +7,12 @@
 
 import Foundation
 
-enum NavigationDestination: Equatable, Hashable {
+enum NavigationDestination: Equatable, Hashable{
     case login
     case permit
     case policy(num: Int)
     case profileInfo
+    
     case baseTab
     case addDiary(date: Date)
 
@@ -22,5 +23,6 @@ enum NavigationDestination: Equatable, Hashable {
     case emotionStats
     case profileManage
     
+    case diarySearch
     case diaryDetail(diaryId: Int)
 }

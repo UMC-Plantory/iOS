@@ -11,8 +11,7 @@ struct BaseTabView: View {
 
     // MARK: - Property
     @State private var selectedTab: TabItem = .home
-
-    @State private var isFilterSheetPresented: Bool = false
+    
     @State private var isTerrariumPopupVisible: Bool = false
     @State private var showFlowerComplete: Bool = false
     @State private var showPlantPopup = false
@@ -80,6 +79,8 @@ struct BaseTabView: View {
                     PlantPopupView(
                         viewModel: plantPopupVM,
                         onClose: {
+                            // Always return to My Garden tab when the popup closes
+                            terrariumVM.selectedTab = .myGarden
                             showPlantPopup = false
                             selectedTerrariumId = nil
                             plantPopupVM.close()
@@ -95,9 +96,13 @@ struct BaseTabView: View {
             UITabBar.appearance().backgroundColor = .white01
             UITabBar.appearance().unselectedItemTintColor = .black01
         }
-        //    CompletedView → 테라리움 탭 전환 신호 수신
-        .onReceive(NotificationCenter.default.publisher(for: .switchToTerrariumTab)) { _ in
-            selectedTab = .terrarium
+        .onChange(of: showPlantPopup) { oldValue, isPresented in
+            // Whenever the PlantPopupView toggles, force the terrarium internal tab to My Garden
+            terrariumVM.selectedTab = .myGarden
+            if isPresented {
+                // Make sure the main tab is Terrarium when the popup shows
+                selectedTab = .terrarium
+            }
         }
         .ignoresSafeArea(.keyboard)
         .navigationBarBackButtonHidden(true)
@@ -109,17 +114,18 @@ struct BaseTabView: View {
         Group {
             switch tab {
             case .home:
-                HomeView(container: container)
-
+                HomeView(container:container)
             case .diary:
-                DiaryListView(isFilterSheetPresented: $isFilterSheetPresented, container: container)
-
+                DiaryListView(container: container)
             case .terrarium:
                 TerrariumView(
                     viewModel: terrariumVM,
                     onInfoTapped: { isTerrariumPopupVisible = true },
                     onFlowerComplete: { showFlowerComplete = true },
                     onPlantTap: { id in
+                        // Ensure Terrarium tab and its internal tab are on My Garden when opening the popup
+                        selectedTab = .terrarium
+                        terrariumVM.selectedTab = .myGarden
                         selectedTerrariumId = id
                         plantPopupVM.open(terrariumId: id)
                         showPlantPopup = true
@@ -136,9 +142,3 @@ struct BaseTabView: View {
         .environmentObject(container)
     }
 }
-
-#if DEBUG
-private func makePreviewContainer() -> DIContainer {
-    return DIContainer()
-}
-#endif

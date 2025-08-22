@@ -76,8 +76,18 @@ extension DiaryRouter {
     var task: Task {
         switch self {
         case .fetchFilteredDiaries(let filterData):
-            return .requestParameters(parameters: filterData.toParameters(),
-                encoding: URLEncoding.queryString
+            var params: [String: Any] = [
+                "sort":   filterData.sort.rawValue,
+                "size":   filterData.size,
+                "emotion": filterData.emotion
+            ]
+            if let from = filterData.from   { params["from"] = from }
+            if let to = filterData.to       { params["to"] = to }
+            if let cur = filterData.cursor  { params["cursor"] = cur }
+            return .requestParameters(
+                parameters: params,
+                encoding: URLEncoding(destination: .queryString,
+                                      arrayEncoding: .noBrackets)
             )
         case .fetchDiary:
             return .requestPlain
@@ -89,10 +99,10 @@ extension DiaryRouter {
             let body: [String: Any] = ["diaryIds": ids]
             return .requestParameters(parameters: body, encoding: JSONEncoding.default)
         case .deletePermanently(let ids):
-                    let body = DeleteRequest(diaryIds: ids)
-                    return .requestJSONEncodable(body)   // DELETE with body
+            let body = DeleteRequest(diaryIds: ids)
+            return .requestJSONEncodable(body)   // DELETE with body
         case .tempStatus(let ids):
-                   return .requestJSONEncodable(TempStatusRequest(diaryIds: ids))
+           return .requestJSONEncodable(TempStatusRequest(diaryIds: ids))
         case .scrapOn, .scrapOff:
             return .requestPlain
         }
@@ -101,5 +111,163 @@ extension DiaryRouter {
     var headers: [String: String]? {
         ["Content-Type": "application/json"]
     }
+    
+    var sampleData: Data {
+            switch self {
+            case .fetchFilteredDiaries:
+                // 필터링된 일기 리스트
+                return """
+                {
+                      "isSuccess": true,
+                      "code": "COMMON200",
+                      "message": "성공입니다.",
+                      "result": {
+                        "diaries": [
+                          {
+                            "diaryId": 1,
+                            "diaryDate": "2025-06-20",
+                            "title": "일기 제목 1",
+                            "status": "NORMAL",
+                            "emotion": "HAPPY",
+                            "content": "일기 내용"
+                          },
+                          {
+                            "diaryId": 2,
+                            "diaryDate": "2025-06-21",
+                            "title": "일기 제목 2",
+                            "status": "SCRAP",
+                            "emotion": "SAD",
+                            "content": "일기 내용"
+                          }
+                        ],
+                        "hasNext": true,
+                        "nextCursor": "2025-06-21"
+                      }
+                    }
+                """.data(using: .utf8)!
+
+            case .fetchDiary:
+                // 단일 일기 조회
+                return """
+                {
+                  "isSuccess": true,
+                  "code": "COMMON200",
+                  "message": "성공입니다.",
+                  "result": {
+                    "diaryId": 1,
+                    "diaryDate": "2025-06-20"
+                    "emotion": "HAPPY",
+                    "title": "일기 제목1",
+                    "content": "오늘은…",
+                    "diaryImgUrl": "https…",
+                    "status": "NORMAL"
+                  }
+                }
+                """.data(using: .utf8)!
+
+            case .editDiary:
+                // 수정된 일기 응답
+                return """
+                {
+                  "isSuccess": true,
+                  "code": "COMMON200",
+                  "message": "일기 수정 성공",
+                  "result": {
+                    "diaryId": 1,
+                    "diaryDate": "2025-06-20"
+                    "emotion": "HAPPY",
+                    "title": "일기 제목1",
+                    "content": "오늘은…",
+                    "diaryImgUrl": "https…",
+                    "status": "NORMAL",
+                  }
+                }
+                """.data(using: .utf8)!
+
+            case .moveToTrash:
+                // 휴지통 이동 성공 응답
+                return """
+                {
+                  "isSuccess": true,
+                  "code": "COMMON200",
+                  "message": "성공입니다.",
+                }
+                """.data(using: .utf8)!
+
+            case .deletePermanently:
+                // 영구 삭제 성공 응답
+                return """
+                {
+                  "isSuccess": true,
+                  "code": "COMMON200",
+                  "message": "일기 영구 삭제 성공",
+                }
+                """.data(using: .utf8)!
+
+            case .searchDiary:
+                // 검색 결과 리스트
+                return """
+                {
+                "isSuccess": true,
+                "code": "COMMON200",
+                "message": "성공입니다.",
+                    "result": {
+                        "diaries": [
+                          {
+                            "diaryId": 1,
+                            "diaryDate": "2025-06-20",
+                            "title": "일기 제목 1",
+                            "status": "NORMAL",
+                            "emotion": "HAPPY",
+                            "content": "일기 내용"
+                        },
+                        {
+                            "diaryId": 2,
+                            "diaryDate": "2025-06-21",
+                            "title": "일기 제목 2",
+                            "status": "SCRAP",
+                            "emotion": "SAD",
+                            "content": "일기 내용"
+                        }
+                    ],
+                    "hasNext": true,
+                    "nextCursor": “2025-06-21”,
+                    ”total": 2
+                  }
+                }
+
+                """.data(using: .utf8)!
+
+            case .scrapOn:
+                // 스크랩 성공 응답
+                return """
+                {
+                  "isSuccess": true,
+                  "code": "COMMON200",
+                  "message": "성공입니다.",
+                }
+                """.data(using: .utf8)!
+
+            case .scrapOff:
+                // 스크랩 취소 응답
+                return """
+                {
+                  "isSuccess": true,
+                  "code": "COMMON200",
+                  "message": "성공입니다.",
+                }
+                """.data(using: .utf8)!
+
+            case .tempStatus:
+                // 임시보관 응답
+                return """
+                {
+                  "isSuccess": true,
+                  "code": "COMMON200",
+                  "message": "성공입니다."
+                }
+                """.data(using: .utf8)!
+            }
+        }
 }
 

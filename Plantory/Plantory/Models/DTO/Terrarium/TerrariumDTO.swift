@@ -9,13 +9,6 @@ import Foundation
 
 // MARK: - Terrarium Response
 
-struct TerrariumResponse: Codable {
-    let isSuccess: Bool
-    let code: String
-    let message: String
-    let result: TerrariumResult?
-}
-
 struct TerrariumResult: Codable, Equatable {
     let terrariumId: Int
     var terrariumWateringCount: Int
@@ -23,13 +16,6 @@ struct TerrariumResult: Codable, Equatable {
 }
 
 // MARK: - Watering (POST /terrariums/{id}/water)
-
-struct WateringResponse: Codable {
-    let isSuccess: Bool
-    let code: String
-    let message: String
-    let result: WateringResult?
-}
 
 struct WateringResult: Codable {
     let nickname: String?
@@ -41,38 +27,44 @@ struct WateringResult: Codable {
 }
 
 
-// MARK: - Terrarium Monthly Response
+// MARK: - Terrarium Monthly Response (UPDATED)
+// New response shape:
+// {
+//   "isSuccess": true,
+//   "code": "string",
+//   "message": "string",
+//   "result": {
+//     "nickname": "string",
+//     "terrariumList": [
+//       { "terrariumId": 0, "bloomAt": "2025-08-21", "flowerName": "string" }
+//     ]
+//   }
+// }
 
-struct TerrariumMonthlyResponse: Codable {
-    let isSuccess: Bool
-    let code: String
-    let message: String
-    let result: TerrariumMonthly
-}
-
-struct TerrariumMonthlyRaw: Codable {
+struct TerrariumMonthlyListItemRaw: Codable {
     let terrariumId: Int
-    let nickname: String
     let bloomAt: String      // "yyyy-MM-dd"
     let flowerName: String
 }
 
-struct TerrariumMonthly: Codable {
-    let terrariumId: Int
+struct TerrariumMonthlyResultRaw: Codable {
     let nickname: String
+    let terrariumList: [TerrariumMonthlyListItemRaw]
+}
+
+struct TerrariumMonthlyListItem: Codable {
+    let terrariumId: Int
     let bloomAt: Date
     let flowerName: String
 }
 
+struct TerrariumMonthlyResult: Codable {
+    let nickname: String
+    let terrariumList: [TerrariumMonthlyListItem]
+}
+
 
 // MARK: - Terrarium Detail (GET /terrariums/{terrarium_id})
-
-struct TerrariumDetailResponse: Codable {
-    let isSuccess: Bool
-    let code: String
-    let message: String
-    let result: TerrariumDetail
-}
 
 struct TerrariumDetailRaw: Codable {
     let flowerName: String

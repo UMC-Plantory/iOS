@@ -8,12 +8,23 @@ import Foundation
 import SwiftUICore
 
 enum Emotion: String,CaseIterable,Codable {
-    case all = "전체"
-    case ANGRY = "화남"
-    case HAPPY = "기쁨"
-    case SAD = "슬픔"
-    case SOSO = "그저 그럼"
-    case AMAZING = "놀람"
+    case all = "all"
+    case ANGRY = "ANGRY"
+    case HAPPY = "HAPPY"
+    case SAD = "SAD"
+    case SOSO = "SOSO"
+    case AMAZING = "AMAZING"
+    
+    var displayText: String {
+        switch self {
+        case .all: "전체"
+        case .ANGRY: "화남"
+        case .HAPPY: "기쁨"
+        case .SAD: "슬픔"
+        case .SOSO: "그저 그럼"
+        case .AMAZING: "놀람"
+        }
+    }
     
     var color: Color {
         switch self {
@@ -23,6 +34,30 @@ enum Emotion: String,CaseIterable,Codable {
         case .SAD: return Color(hex: "#8DB6E1")
         case .SOSO : return Color(hex: "D0D0D0")
         case .AMAZING : return Color(hex: "DDFFA1")
+        }
+    }
+    
+    /// 서버로 보낼 수 있는 개별 감정 목록(ALL 제외)
+    static var sendableCases: [Emotion] { allCases.filter { $0 != .all } }
+    
+    static func payload(from selected: [Emotion]) -> [String] {
+        if selected.contains(.all) {
+            return sendableCases.map { $0.rawValue }         // ["ANGRY","HAPPY",...]
+        } else {
+            return sendableCases.filter { selected.contains($0) }.map { $0.rawValue }
+        }
+    }
+}
+
+extension Emotion {
+    init(apiString: String) {
+        switch apiString.uppercased() {
+        case "HAPPY": self = .HAPPY
+        case "SAD":   self = .SAD
+        case "ANGRY": self = .ANGRY
+        // 서버에 ALL은 없겠지만 혹시 오면 기본값 처리
+        case "ALL":   self = .HAPPY
+        default:      self = .HAPPY
         }
     }
 }

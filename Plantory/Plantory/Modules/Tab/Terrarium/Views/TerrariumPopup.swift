@@ -17,7 +17,7 @@ struct TerrariumPopup: View {
                 Color.black.opacity(0.4)
                     .edgesIgnoringSafeArea(.all)
                 
-                Image("tutorial")
+                Image("Tutorial")
                     .resizable()
                     .scaledToFill()
                     .frame(maxWidth: .infinity, maxHeight: .infinity)

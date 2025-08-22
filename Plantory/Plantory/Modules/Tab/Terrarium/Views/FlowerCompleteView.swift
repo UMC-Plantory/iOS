@@ -54,7 +54,7 @@ struct FlowerCompleteView: View {
                     Button(action: {
                         onGoHome?()
                     }, label: {
-                        Image("home")
+                        Image("Home")
                             .foregroundStyle(.gray10)
                             .fixedSize()
                     })
