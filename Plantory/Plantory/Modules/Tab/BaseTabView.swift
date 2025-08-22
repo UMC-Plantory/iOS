@@ -10,7 +10,8 @@ import SwiftUI
 struct BaseTabView: View {
 
     // MARK: - Property
-    @State private var selectedTab: TabItem = .home
+    
+    @StateObject private var tabSelection = TabSelection()
     
     @State private var isTerrariumPopupVisible: Bool = false
     @State private var showFlowerComplete: Bool = false
@@ -29,11 +30,11 @@ struct BaseTabView: View {
 
     var body: some View {
         ZStack(alignment: .bottom) {
-            TabView(selection: $selectedTab) {
+            TabView(selection: $tabSelection.selectedTab) {
                 ForEach(TabItem.allCases, id: \.rawValue) { tab in
                     Tab(
                         "",
-                        image: selectedTab == tab ? "\(tab.rawValue)_fill" : "\(tab.rawValue)",
+                        image: tabSelection.selectedTab == tab ? "\(tab.rawValue)_fill" : "\(tab.rawValue)",
                         value: tab,
                         content: {
                             tabView(tab: tab)
@@ -54,12 +55,12 @@ struct BaseTabView: View {
             FlowerCompleteView(
                 viewModel: terrariumVM,
                 onGoToGarden: {
-                    selectedTab = .terrarium
+                    tabSelection.selectedTab = .terrarium
                     terrariumVM.selectedTab = .myGarden
                     showFlowerComplete = false
                 },
                 onGoHome: {
-                    selectedTab = .home
+                    tabSelection.selectedTab = .home
                     showFlowerComplete = false
                 }
             )
@@ -101,7 +102,7 @@ struct BaseTabView: View {
             terrariumVM.selectedTab = .myGarden
             if isPresented {
                 // Make sure the main tab is Terrarium when the popup shows
-                selectedTab = .terrarium
+                tabSelection.selectedTab = .terrarium
             }
         }
         .ignoresSafeArea(.keyboard)
@@ -124,7 +125,7 @@ struct BaseTabView: View {
                     onFlowerComplete: { showFlowerComplete = true },
                     onPlantTap: { id in
                         // Ensure Terrarium tab and its internal tab are on My Garden when opening the popup
-                        selectedTab = .terrarium
+                        tabSelection.selectedTab = .terrarium
                         terrariumVM.selectedTab = .myGarden
                         selectedTerrariumId = id
                         plantPopupVM.open(terrariumId: id)
@@ -140,5 +141,13 @@ struct BaseTabView: View {
             }
         }
         .environmentObject(container)
+        .environmentObject(tabSelection)
+    }
+}
+
+class TabSelection: ObservableObject {
+    @Published var selectedTab: TabItem
+    init(selectedTab: TabItem = .home) {
+        self.selectedTab = selectedTab
     }
 }

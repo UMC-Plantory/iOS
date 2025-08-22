@@ -18,17 +18,21 @@ struct DiaryRow: View {
                 .fill(.gray02)
                 .frame(maxWidth: .infinity)
                 .frame(height: 132)
-                .shadow(color: .black.opacity(0.1), radius: 6, x: 0, y: 0)
+                .shadow(color: .black.opacity(0.1), radius: 10, x: 0, y: 2)
 
             // 흰색 카드 + 내용
             RoundedRectangle(cornerRadius: 10)
                 .fill(.white01)
                 .frame(maxWidth: .infinity)
                 .frame(height: 132)
-                .shadow(
-                    color: .black.opacity(0.1),
-                    radius: 10,
-                    x: 10, y: 10)
+                .background(
+                    Rectangle()
+                        .fill(Color.black.opacity(0.2))
+                        .frame(width: 6)
+                        .blur(radius: 6)
+                        .offset(x: 10),
+                    alignment: .trailing
+                )
                 .overlay(alignment: .leading) {
                     VStack(alignment: .leading, spacing: 0) {
                         // 즐겨찾기 아이콘
@@ -92,6 +96,7 @@ struct DiaryRow: View {
             .frame(maxWidth: .infinity, alignment: .trailing)
             .frame(maxHeight: .infinity)
         }
+        .padding(.horizontal, 16)
     }
     
     private func formatToMonthDay(_ dateString: String) -> String {

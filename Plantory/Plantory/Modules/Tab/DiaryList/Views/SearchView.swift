@@ -25,8 +25,10 @@ struct DiarySearchView: View {
     var body: some View {
         VStack(spacing: 10) {
             topBar()
+                .padding(.horizontal, 16)
             if vm.results.isEmpty {
                 recentSearchSection()
+                    .padding(.horizontal, 16)
             } else {
                 searchResultSection
             }
@@ -34,7 +36,6 @@ struct DiarySearchView: View {
         .frame(maxHeight: .infinity, alignment: .top)
         .padding(.top, 25)
         .ignoresSafeArea(.keyboard)
-        .padding(.horizontal, 16)
         .navigationBarBackButtonHidden()
         .overlay {
             if vm.isLoading { ProgressView().scaleEffect(1.1) }
@@ -179,6 +180,7 @@ struct DiarySearchView: View {
                 .font(.pretendardRegular(12))
                 .foregroundColor(.gray)
         }
+        .padding(.horizontal, 16)
         
         ScrollView {
             LazyVStack(spacing: 16) {

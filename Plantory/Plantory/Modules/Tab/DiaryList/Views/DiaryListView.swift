@@ -33,6 +33,7 @@ struct DiaryListView: View {
                         container.navigationRouter.push(.diarySearch)
                     }
                 )
+                .padding(.horizontal, 16)
 
                 Rectangle()
                     .fill(Color.gray04)
@@ -41,10 +42,10 @@ struct DiaryListView: View {
                     .padding(.horizontal, -18)
 
                 DiaryMonthSectionView(isFilterSheetPresented: $isFilterSheetPresented)
+                    .padding(.horizontal, 16)
 
                 DiaryListContent
             }
-            .padding(.horizontal, 16)
         }
         .sheet(isPresented: $isFilterSheetPresented) {
             DiaryFilterView(viewModel: viewModel)

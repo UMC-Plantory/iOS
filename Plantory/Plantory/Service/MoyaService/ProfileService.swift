@@ -31,12 +31,13 @@ protocol ProfileServiceProtocol {
     func fetchWeeklyEmotionStats() -> AnyPublisher<EmotionStatsResponse, APIError>
     func fetchMonthlyEmotionStats() -> AnyPublisher<EmotionStatsResponse, APIError>
 
-    // 임시 보관함 / 휴지통
+    // 임시 보관함 / 휴지통 / 스크랩
     func fetchTemp(sort: SortOrder) -> AnyPublisher<[Diary], APIError>
     func fetchWaste(sort: SortOrder) -> AnyPublisher<[Diary], APIError>
     func patchWaste(diaryIds: [Int]) -> AnyPublisher<WastePatchResponse, APIError>
     func deleteWaste(diaryIds: [Int]) -> AnyPublisher<WasteDeleteResponse, APIError>
     func restoreWaste(diaryIds: [Int]) -> AnyPublisher<RestoreResponse, APIError>
+    func scrap(sort: SortOrder, cursor: String?) -> AnyPublisher<ScrapResponse, APIError>
 
     // 프로필
     func fetchMyProfile() -> AnyPublisher<FetchProfileResponse, APIError>
@@ -114,6 +115,10 @@ final class ProfileService: ProfileServiceProtocol {
     
     func restoreWaste(diaryIds: [Int]) -> AnyPublisher<RestoreResponse, APIError> {
         provider.requestResult(.restore(diaryIds: diaryIds), type: RestoreResponse.self)
+    }
+    
+    func scrap(sort: SortOrder = .latest, cursor: String?) -> AnyPublisher<ScrapResponse, APIError> {
+        provider.requestResult(.scrap(sort: sort.rawValue, cursor: cursor), type: ScrapResponse.self)
     }
 
 

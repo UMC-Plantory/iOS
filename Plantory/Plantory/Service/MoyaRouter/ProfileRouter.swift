@@ -24,6 +24,9 @@ enum ProfileRouter: APITargetType {
     /// 휴지통 → 임시보관함(복원)
     case restore(diaryIds: [Int])
     
+    // 스크랩
+    case scrap(sort: String, cursor: String?)
+    
     // 상세 마이프로필
     case patchProfile(nickname: String, userCustomId: String, gender: String, birth: String, profileImgUrl: String,deleteProfileImg: Bool)
     case myProfile
@@ -53,6 +56,8 @@ extension ProfileRouter {
         case .wastePatch, .waste:             return "/diaries/waste-status"
         // 영구삭제
         case .deleteDiary:            return "/diaries"
+        // 스크랩
+        case .scrap:                    return "/diaries/scrap-status"
             
         // 마이프로필
         case .patchProfile, .myProfile, .profileStats: return "/members/profile"
@@ -112,6 +117,19 @@ extension ProfileRouter {
             return .requestParameters(
                 parameters: ["diaryIds": diaryIds],
                 encoding: JSONEncoding.default
+            )
+        
+        // 스크랩
+        case .scrap(let sort, let cursor):
+            if let cursor = cursor {
+                return .requestParameters(
+                    parameters: ["sort": sort, "cursor": cursor],
+                    encoding: URLEncoding.default
+                )
+            }
+            return .requestParameters(
+                parameters: ["sort": sort],
+                encoding: URLEncoding.default
             )
 
         // DELETE: 영구삭제 (JSON body 허용 스펙)
@@ -194,6 +212,36 @@ extension ProfileRouter {
         case .deleteDiary:
             json = """
             { "isSuccess": true, "code": "COMMON200", "message": "일기 영구 삭제 성공" }
+            """
+        case .scrap:
+            json = """
+            {
+                "isSuccess": true,
+                "code": "COMMON200",
+                "message": "성공입니다.",
+                "result": {
+                    "diaries": [
+                      {
+                        "diaryId": 1,
+                        "diaryDate": "2025-06-20",
+                        "title": "일기 제목 1",
+                        "status": "SCRAP",
+                        "emotion": "HAPPY",
+                        "content": "일기 내용"
+                    },
+                    {
+                        "diaryId": 2,
+                        "diaryDate": "2025-06-21",
+                        "title": "일기 제목 2",
+                        "status": "SCRAP",
+                        "emotion": "SAD",
+                        "content": "일기 내용"
+                    }
+                ],
+                "hasNext": true,
+                "nextCursor": “2025-06-21”
+               }
+            }
             """
         case .myProfile:
             json = """
