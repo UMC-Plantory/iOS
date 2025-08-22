@@ -122,25 +122,44 @@ class LoginViewModel {
         
         // 서버에 로그인 요청
         try await sendAppleLoginToServer(
-            identityToken: identityTokenString,
-            authorizationCode: authorizationCodeString,
-            userIdentifier: credential.user,
-            email: credential.email
+            identityToken: identityTokenString
         )
     }
     
     /// 애플 로그인 API 호출
     private func sendAppleLoginToServer(
         identityToken: String,
-        authorizationCode: String,
-        userIdentifier: String,
-        email: String?
     ) async throws {
-        print("서버로 전송할 토큰들:")
-        print("- identityToken: \(identityToken)")
-        print("- authorizationCode: \(authorizationCode)")
-        print("- userIdentifier: \(userIdentifier)")
-        print("- email: \(email ?? "")")
+        self.isLoading = true
+        
+        let identityToken = AppleUser(identityToken: identityToken)
+
+        container.useCaseService.authService.appleLogin(identityToken: identityToken)
+            .receive(on: DispatchQueue.main)
+            .sink(receiveCompletion: { [weak self] completion in
+                if case .failure(let error) = completion {
+                    self?.toast = CustomToast(
+                        title: "로그인 오류",
+                        message: "\(error.errorDescription ?? "알 수 없는 에러")"
+                    )
+                    print("로그인 오류: \(error.errorDescription ?? "알 수 없는 에러")")
+                    self?.isLoading = false
+                }
+            }, receiveValue: { [weak self] response in
+                let tokenInfo = TokenInfo(
+                    accessToken: response.accessToken,
+                    refreshToken: response.refreshToken
+                )
+                /// 받은 토큰을 키체인에 저장
+                self?.keychainManager.saveToken(tokenInfo)
+                
+                Task {
+                    await self?.routeAfterLogin(status: response.memberStatus)
+                }
+
+                self?.isLoading = false
+            })
+            .store(in: &cancellables)
     }
     
     // MARK: - private func
