@@ -2,14 +2,15 @@
 //  DiaryDTO.swift
 import Foundation
 
-// 공통 리스트 아이템(검색/필터 모두 재사용)
+// ImageUrl이 있는 구조체
 struct DiarySummary: Codable, Identifiable {
     let diaryId: Int
     let diaryDate: String
     let title: String
-    var status: String//일기의 상태(예: "NORMAL", "TEMP", "TRASH" 등)를 나타내는 필드
-    let emotion: String
+    var status: String //일기의 상태(예: "NORMAL", "TEMP", "TRASH" 등)를 나타내는 필드
+    let emotion: EmotionDisplay
     let content: String
+    let diaryImgUrl: String?
     
     // Identifiable 요구사항
     var id: Int { diaryId }
@@ -22,7 +23,7 @@ struct DiaryDetail: Codable {
     let emotion: String
     let title: String // 다이어리 제목
     let content: String // 다이어리 내용
-    let diaryImgUrl: String // 서버에서 받은 이미지 주소
+    let diaryImgUrl: String? // 서버에서 받은 이미지 주소
     let status: String
 }
 
@@ -30,30 +31,39 @@ struct DiaryDetail: Codable {
 /// 일기 리스트 조회 + 필터 적용 Request
 struct DiaryFilterRequest: Codable {
     var sort: SortOrder
-    var from: String?   // "YYYY-MM"
-    var to: String?     // "YYYY-MM"
-    var emotion: Emotion = .all
+    var from: String?
+    var to: String?
+    var emotion: [String]
     var cursor: String?
-    var size: Int = 10
+    var size: Int
     
-    func toParameters() -> [String: Any] {
-        var params: [String: Any] = [
-            "sort": sort.rawValue,
-            "size": size
-        ]
-        if let from { params["from"] = from }
-        if let to { params["to"] = to }
-        if emotion != .all { params["emotion"] = emotion.rawValue }
-        if let cursor { params["cursor"] = cursor }
-        return params
+    init(sort: SortOrder = .latest, from: String? = nil, to: String? = nil, emotion: [String], cursor: String? = nil, size: Int = 10) {
+        self.sort = sort
+        self.from = from
+        self.to = to
+        self.emotion = emotion
+        self.cursor = cursor
+        self.size = size
     }
 }
 
 /// 일기 리스트 조회 + 필터 적용 Response
 struct DiaryFilterResult: Codable {
-    let diaries: [DiarySummary]
+    let diaries: [DiaryFilterSummary]
     let hasNext: Bool
     let nextCursor: String?
+}
+
+// ImageUrl이 없는 구조체
+struct DiaryFilterSummary: Codable, Identifiable {
+    let diaryId: Int
+    let diaryDate: String
+    let title: String
+    var status: String //일기의 상태(예: "NORMAL", "TEMP", "TRASH" 등)를 나타내는 필드
+    let emotion: EmotionDisplay
+    let content: String
+    
+    var id: Int { diaryId }
 }
 
 // MARK: - 일기 검색 요청/응답
@@ -73,10 +83,10 @@ struct DiarySearchRequest :Codable {
 
 ///일기 검색 Response
 struct DiarySearchResult: Codable {
-    let diaries: [DiarySummary]
+    let diaries: [DiaryFilterSummary]
     let hasNext: Bool
     let nextCursor: String?
-    let total: Int?
+    let total: Int
 }
 
 //MARK: -단일 일기 조회 요청/응답(request 불필요)
@@ -117,13 +127,13 @@ extension DiaryFetchResponse {
 ///일기 수정 요청 데이터
 struct DiaryEditRequest: Codable {
     // 이미지 교체 시 새 URL 넣기, 삭제 시 isImgDeleted = true
-       let emotion: String
-       let content: String
-       let sleepStartTime: String?   // "YYYY-MM-DD'T'HH:mm:ss 또는 "YYYY-MM-DD'T'HH:mm"
-       let sleepEndTime: String?
-       let diaryImgUrl: String?      // 새 이미지 URL(없으면 nil)
-       let status: String            // NORMAL or TEMP
-       let isImgDeleted: Bool        
+   let emotion: String
+   let content: String
+   let sleepStartTime: String?   // "YYYY-MM-DD'T'HH:mm:ss 또는 "YYYY-MM-DD'T'HH:mm"
+   let sleepEndTime: String?
+   let diaryImgUrl: String?      // 새 이미지 URL(없으면 nil)
+   let status: String            // NORMAL or TEMP
+   let isImgDeleted: Bool
 }
 
 ///일기 수정 response

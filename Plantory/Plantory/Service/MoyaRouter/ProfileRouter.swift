@@ -55,7 +55,7 @@ extension ProfileRouter {
         case .deleteDiary:            return "/diaries"
             
         // 마이프로필
-        case .patchProfile, .myProfile, .profileStats: return "/member/myprofile"
+        case .patchProfile, .myProfile, .profileStats: return "/members/profile"
         case .withdrawAccount: return "/members"
             
         // 전체 마이페이지

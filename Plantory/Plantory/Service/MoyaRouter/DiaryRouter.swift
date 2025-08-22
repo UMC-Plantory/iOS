@@ -76,8 +76,18 @@ extension DiaryRouter {
     var task: Task {
         switch self {
         case .fetchFilteredDiaries(let filterData):
-            return .requestParameters(parameters: filterData.toParameters(),
-                encoding: URLEncoding.queryString
+            var params: [String: Any] = [
+                "sort":   filterData.sort.rawValue,
+                "size":   filterData.size,
+                "emotion": filterData.emotion
+            ]
+            if let from = filterData.from   { params["from"] = from }
+            if let to = filterData.to       { params["to"] = to }
+            if let cur = filterData.cursor  { params["cursor"] = cur }
+            return .requestParameters(
+                parameters: params,
+                encoding: URLEncoding(destination: .queryString,
+                                      arrayEncoding: .noBrackets)
             )
         case .fetchDiary:
             return .requestPlain
@@ -89,10 +99,10 @@ extension DiaryRouter {
             let body: [String: Any] = ["diaryIds": ids]
             return .requestParameters(parameters: body, encoding: JSONEncoding.default)
         case .deletePermanently(let ids):
-                    let body = DeleteRequest(diaryIds: ids)
-                    return .requestJSONEncodable(body)   // DELETE with body
+            let body = DeleteRequest(diaryIds: ids)
+            return .requestJSONEncodable(body)   // DELETE with body
         case .tempStatus(let ids):
-                   return .requestJSONEncodable(TempStatusRequest(diaryIds: ids))
+           return .requestJSONEncodable(TempStatusRequest(diaryIds: ids))
         case .scrapOn, .scrapOff:
             return .requestPlain
         }
@@ -136,7 +146,7 @@ extension DiaryRouter {
                     }
                 """.data(using: .utf8)!
 
-            case .fetchDiary(let id):
+            case .fetchDiary:
                 // 단일 일기 조회
                 return """
                 {
@@ -155,7 +165,7 @@ extension DiaryRouter {
                 }
                 """.data(using: .utf8)!
 
-            case .editDiary(let id, _):
+            case .editDiary:
                 // 수정된 일기 응답
                 return """
                 {
@@ -228,7 +238,7 @@ extension DiaryRouter {
 
                 """.data(using: .utf8)!
 
-            case .scrapOn(let id):
+            case .scrapOn:
                 // 스크랩 성공 응답
                 return """
                 {
@@ -238,7 +248,7 @@ extension DiaryRouter {
                 }
                 """.data(using: .utf8)!
 
-            case .scrapOff(let id):
+            case .scrapOff:
                 // 스크랩 취소 응답
                 return """
                 {
@@ -248,7 +258,7 @@ extension DiaryRouter {
                 }
                 """.data(using: .utf8)!
 
-            case .tempStatus(let ids):
+            case .tempStatus:
                 // 임시보관 응답
                 return """
                 {

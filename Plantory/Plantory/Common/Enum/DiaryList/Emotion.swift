@@ -7,36 +7,36 @@
 import Foundation
 import SwiftUICore
 
-enum Emotion: String, CaseIterable, Codable {
-    case all     = "ALL" // 서버엔 없지만 UI 전용으로 보관
-    case ANGRY   = "ANGRY"
-    case HAPPY   = "HAPPY"
-    case SAD     = "SAD"
-    case SOSO    = "SOSO"
+enum Emotion: String,CaseIterable,Codable {
+    case all = "all"
+    case ANGRY = "ANGRY"
+    case HAPPY = "HAPPY"
+    case SAD = "SAD"
+    case SOSO = "SOSO"
     case AMAZING = "AMAZING"
     
-    var displayName: String {
+    var displayText: String {
         switch self {
-        case .all: return "전체"
-        case .ANGRY: return "화남"
-        case .HAPPY: return "기쁨"
-        case .SAD: return "슬픔"
-        case .SOSO: return "그저 그럼"
-        case .AMAZING: return "놀람"
+        case .all: "전체"
+        case .ANGRY: "화남"
+        case .HAPPY: "기쁨"
+        case .SAD: "슬픔"
+        case .SOSO: "그저 그럼"
+        case .AMAZING: "놀람"
         }
     }
     
     var color: Color {
         switch self {
-        case .all: return Color("gray01")
+        case .all: return Color("gray01") 
         case .ANGRY: return Color(hex: "#D94531")
         case .HAPPY: return Color(hex: "#FFDC75")
         case .SAD: return Color(hex: "#8DB6E1")
-        case .SOSO: return Color(hex: "#D0D0D0")
-        case .AMAZING: return Color(hex: "#DDFFA1")
+        case .SOSO : return Color(hex: "D0D0D0")
+        case .AMAZING : return Color(hex: "DDFFA1")
         }
     }
-    
+
     var imageName: String {
            switch self {
            case .all:     return "emotion_happy"//all은 서버에 없어서 기본값으로 설정
@@ -48,4 +48,29 @@ enum Emotion: String, CaseIterable, Codable {
            }
        }
 
+    /// 서버로 보낼 수 있는 개별 감정 목록(ALL 제외)
+    static var sendableCases: [Emotion] { allCases.filter { $0 != .all } }
+    
+    static func payload(from selected: [Emotion]) -> [String] {
+        if selected.contains(.all) {
+            return sendableCases.map { $0.rawValue }         // ["ANGRY","HAPPY",...]
+        } else {
+            return sendableCases.filter { selected.contains($0) }.map { $0.rawValue }
+        }
+    }
+
 }
+
+extension Emotion {
+    init(apiString: String) {
+        switch apiString.uppercased() {
+        case "HAPPY": self = .HAPPY
+        case "SAD":   self = .SAD
+        case "ANGRY": self = .ANGRY
+        // 서버에 ALL은 없겠지만 혹시 오면 기본값 처리
+        case "ALL":   self = .HAPPY
+        default:      self = .HAPPY
+        }
+    }
+}
+
