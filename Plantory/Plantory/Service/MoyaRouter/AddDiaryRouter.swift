@@ -50,7 +50,7 @@ extension AddDiaryRouter {
     /// 샘플 데이터
     var sampleData: Data {
         switch self {
-        case .create(let body):
+        case .create:
             let json = """
             {
               "isSuccess": true,

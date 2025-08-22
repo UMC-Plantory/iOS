@@ -4,81 +4,81 @@
 //
 //  Created by 주민영 on 7/2/25.
 //
+
 import SwiftUI
 
-// 일기 리스트 화면
+// 일기 리스트페이지 입니다.
 struct DiaryListView: View {
-    @StateObject private var viewModel: DiaryListViewModel
-    @Binding var isFilterSheetPresented: Bool
-    @State private var isNavigatingToSearch = false
     @EnvironmentObject var container: DIContainer
+    
+    @StateObject private var viewModel: DiaryListViewModel
+    
+    @State var isFilterSheetPresented: Bool = false
 
     init(
-        isFilterSheetPresented: Binding<Bool>,
         container: DIContainer
     ) {
-        _isFilterSheetPresented = isFilterSheetPresented
-        // @StateObject는 init에서만 세팅
-        _viewModel = StateObject(wrappedValue: DiaryListViewModel(container: container))
+        _viewModel = StateObject(
+           wrappedValue: DiaryListViewModel(container: container)
+        )
     }
 
     var body: some View {
         ZStack {
             Color("brown01").ignoresSafeArea()
 
-            VStack(spacing: 0) {
+            VStack(spacing: 20) {
                 DiaryHeaderView(
-                    onSearchTap: { isNavigatingToSearch = true }
+                    onSearchTap: {
+                        container.navigationRouter.push(.diarySearch)
+                    }
                 )
 
                 Rectangle()
-                    .fill(Color.gray.opacity(0.2))
-                    .frame(height: 5)
+                    .fill(Color.gray04)
+                    .frame(height: 4)
+                    .padding(.bottom, 12)
+                    .padding(.horizontal, -18)
 
                 DiaryMonthSectionView(isFilterSheetPresented: $isFilterSheetPresented)
 
-                DiaryListContent(
-                    entries: viewModel.entries,
-                    isLoading: viewModel.isLoading,
-                    onAppearLast: { viewModel.loadMoreMock() }
-                )
-                .padding(.horizontal)
+                DiaryListContent
             }
+            .padding(.horizontal, 16)
         }
         .sheet(isPresented: $isFilterSheetPresented) {
-            DiaryFilterView(initialSelectedMonths: [4, 5])
+            DiaryFilterView(viewModel: viewModel)
         }
-        .navigationDestination(isPresented: $isNavigatingToSearch) {
-            // 검색 화면으로 이동
-            DiarySearchView(container: container)
+        .task {
+            viewModel.diaries = []
+            viewModel.hasNext = true
+            viewModel.cursor = nil
+            await viewModel.fetchFilteredDiaries()
         }
+        .toastView(toast: $viewModel.toast)
     }
-}
-
-// 스크롤 리스트만 분리
-private struct DiaryListContent: View {
-    let entries: [DiaryEntry]
-    let isLoading: Bool
-    let onAppearLast: () -> Void
-
-    var body: some View {
+    
+    // 스크롤 리스트
+    private var DiaryListContent: some View {
         ScrollView {
             LazyVStack(spacing: 16) {
-                ForEach(entries) { entry in
+                ForEach(viewModel.diaries) { diary in
                     Button {
-                        print("Tapped: \(entry.title)")
+                        container.navigationRouter.push(.diaryDetail(diaryId: diary.diaryId))
                     } label: {
-                        DiaryRow(entry: entry)
+                        DiaryRow(entry: diary)
                     }
                     .buttonStyle(.plain)
                     .onAppear {
-                        if entry.id == entries.last?.id { // Identifiable 가정
-                            onAppearLast()
+                        if diary.id == viewModel.diaries.last?.id {
+                            Task {
+                                await viewModel.fetchFilteredDiaries()
+                            }
                         }
                     }
                 }
 
-                if isLoading {
+                if viewModel.isLoading {
                     ProgressView().padding()
                 }
             }
@@ -94,11 +94,8 @@ struct DiaryHeaderView: View {
     var body: some View {
         HStack {
             Text("일기목록")
-                .font(.pretendardSemiBold(24))
-                .foregroundColor(Color("black01"))
-                .padding(.vertical, 16)
-                .padding(.leading, 17)
-                .fixedSize()
+                .font(.pretendardSemiBold(20))
+                .foregroundColor(.black01)
 
             Spacer()
 
@@ -107,33 +104,28 @@ struct DiaryHeaderView: View {
                     Image("search").resizable().frame(width: 20, height: 20)
                 }
 
-                Button(action: onMoreTap) {
-                    Image("verticalDot").resizable().frame(width: 3, height: 20)
-                }
+//                Button(action: onMoreTap) {
+//                    Image("verticalDot").resizable().frame(width: 3, height: 20)
+//                }
             }
-            .padding(.horizontal, 16)
-            .padding(.top, 8)
         }
     }
 }
 
-// 월/필터 영역
+// 월/필터 영역(Home View와 연결->연/월)
 struct DiaryMonthSectionView: View {
     @Binding var isFilterSheetPresented: Bool
 
     var body: some View {
         HStack {
             VStack(alignment: .leading, spacing: 0) {
-                Text("2025년")
-                    .foregroundColor(Color("green04"))
+                Text(verbatim: "\(Calendar.current.year())년")
+                    .foregroundColor(.green04)
                     .font(.pretendardRegular(14))
-                    .padding(.top, 18)
-                    .padding(.leading, 17)
 
-                Text("5월")
+                Text("\(Calendar.current.component(.month, from: Date()))월")
                     .font(.pretendardRegular(20))
-                    .foregroundColor(Color("green08"))
-                    .padding(.leading, 17)
+                    .foregroundColor(.green08)
             }
 
             Spacer()
@@ -141,13 +133,16 @@ struct DiaryMonthSectionView: View {
             Button {
                 isFilterSheetPresented = true
             } label: {
-                Image("filter_gray")
+                Image(isFilterSheetPresented ? "filter_green" : "filter_black")
                     .resizable()
                     .frame(width: 48, height: 48)
-                    .padding(.top, 33)
             }
         }
-        .padding(.horizontal)
-        .background(Color("brown01"))
     }
+}
+
+// MARK: - Preview
+#Preview {
+    DiaryListView(container: DIContainer())
+        .environmentObject(DIContainer())
 }

@@ -7,12 +7,14 @@
 
 import Foundation
 
-enum NavigationDestination: Equatable, Hashable {
+enum NavigationDestination: Equatable, Hashable{
     case login
     case permit
     case policy(num: Int)
     case profileInfo
+    
     case baseTab
+    
     case addDiary
 
     // 마이페이지 (담당자: 이효주)
@@ -22,5 +24,6 @@ enum NavigationDestination: Equatable, Hashable {
     case emotionStats
     case profileManage
     
+    case diarySearch
     case diaryDetail(diaryId: Int)
 }

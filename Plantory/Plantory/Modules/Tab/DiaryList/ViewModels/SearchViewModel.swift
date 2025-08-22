@@ -6,41 +6,77 @@
 //
 import Combine
 import Foundation
+import Moya
 
+@MainActor
 final class SearchViewModel: ObservableObject {
+    
+    // MARK: - Toast
+    
+    @Published var toast: CustomToast? = nil
+    
     @Published var query: String = ""
-    @Published var results: [DiarySummary] = []
+    @Published var total: Int = 0
+    @Published var results: [DiaryFilterSummary] = []
+    @Published var currentKeywords: String = ""
+    
     @Published var recentKeywords: [String] = []
-    @Published var isLoading = false
-    @Published var cursor: String?
-    @Published var hasNext = false
+    
+    @Published var isLoading: Bool = false
+    @Published var cursor: String? = nil
+    @Published var hasNext: Bool = false
 
-    private var cancellables = Set<AnyCancellable>()
-    private let diaryService: DiaryServiceProtocol
+    // MARK: - 의존성 주입 및 비동기 처리
+    
+    /// DIContainer를 통해 의존성 주입
+    let container: DIContainer
+    /// Combine 구독 해제를 위한 Set
+    var cancellables = Set<AnyCancellable>()
 
-    //MARK: -initializer
-    init(diaryService: DiaryServiceProtocol) {
-        self.diaryService = diaryService
+    //MARK: - initializer
+    init(container: DIContainer) {
+        self.container = container
     }
 
-    //MARK: -함수
+    //MARK: - 함수
+    
     //일기 검색
-    func searchDiary(keyword: String) {
+    func searchDiary(keyword: String) async {
         guard !keyword.isEmpty else {
-                results = []
-                return
-            }
+            self.toast = CustomToast(
+                title: "검색 실패",
+                message: "검색어를 한 글자 이상 입력해주세요."
+            )
+            return
+        }
+        
         isLoading = true
-        diaryService.searchDiary(DiarySearchRequest(keyword: keyword, cursor: nil, size: 20))
+        
+        container.useCaseService.diaryService.searchDiary(DiarySearchRequest(keyword: keyword, cursor: cursor, size: 20))
             .receive(on: DispatchQueue.main)
             .sink { [weak self] completion in
                 self?.isLoading = false
-                if case .failure(let e) = completion { print("검색 실패:", e) }
+                if case .failure(let error) = completion {
+                    self?.toast = CustomToast(
+                        title: "검색 실패",
+                        message: "\(error.errorDescription ?? "알 수 없는 에러")"
+                    )
+                    print("검색 실패: \(error.errorDescription ?? "알 수 없는 에러")")
+                }
             } receiveValue: { [weak self] res in
-                self?.results = res.diaries
-                self?.cursor = res.nextCursor
-                self?.hasNext = res.hasNext
-                self?.saveRecent(keyword: keyword)
+                if res.diaries.isEmpty {
+                    self?.toast = CustomToast(
+                        title: "검색 실패",
+                        message: "검색한 키워드와 일치하는 일기가 없어요."
+                    )
+                } else {
+                    self?.currentKeywords = keyword
+                    self?.results.append(contentsOf: res.diaries)
+                    self?.cursor = res.nextCursor
+                    self?.hasNext = res.hasNext
+                    self?.total = res.total
+                    self?.saveRecent(keyword: keyword)
+                }
             }
             .store(in: &cancellables)
     }
