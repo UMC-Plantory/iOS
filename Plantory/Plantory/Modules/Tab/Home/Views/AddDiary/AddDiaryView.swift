@@ -38,8 +38,11 @@ struct AddDiaryView: View {
     @State private var selectedDate: Date = Date()
     @State private var showFullCalendar: Bool = false
 
-    // 🔒 스텝 라벨 영역 고정 높이 (초록 바 들뜸 방지)
-    private let stepLabelHeight: CGFloat = 20
+    // 🔧 스텝 인디케이터 설정
+    private let stepLabelHeight: CGFloat = 20      // 라벨 영역 고정
+    private let stepBarGap: CGFloat = 6            // 막대 사이 간격
+    private let stepBarWidth: CGFloat = 80         // 막대/컬럼 너비 고정
+    private let stepBarHeight: CGFloat = 8
 
     init(container: DIContainer, date: Date = Date()) {
         self._stepVM = Bindable(wrappedValue: StepIndicatorViewModel())
@@ -113,28 +116,26 @@ struct AddDiaryView: View {
 
             Spacer().frame(height: 40)
 
-            // ✅ 스텝 인디케이터 (라벨 영역 고정: 들뜸 방지)
-            HStack(spacing: 0) {
+            // 스텝 인디케이터 (컬럼 너비 고정 + 고정 간격)
+            HStack(spacing: stepBarGap) {
                 ForEach(stepVM.steps.indices, id: \.self) { index in
-                    VStack(spacing: 4) {
+                    VStack(spacing: 6) {
                         RoundedRectangle(cornerRadius: 70)
                             .fill(index <= stepVM.currentStep ? Color.green04 : Color.gray08.opacity(0.3))
-                            .frame(height: 8)
+                            .frame(width: stepBarWidth, height: stepBarHeight)
 
-                        // 항상 라벨 공간을 차지하고, 현재 스텝만 보이게
                         Text(stepVM.steps[index].title)
                             .font(.pretendardRegular(14))
                             .foregroundColor(.diaryfont)
-                            .opacity(index == stepVM.currentStep ? 1 : 0)
-                            .frame(height: stepLabelHeight) // ← 고정 높이
+                            .opacity(index == stepVM.currentStep ? 1 : 0) // 공간은 유지
+                            .frame(height: stepLabelHeight)
+                            .lineLimit(1)
+                            .minimumScaleFactor(0.85)
                     }
-                    .frame(maxWidth: .infinity)
-
-                    if index < stepVM.steps.count - 1 {
-                        Spacer(minLength: 8)
-                    }
+                    .frame(width: stepBarWidth) // ← 컬럼 자체도 고정폭
                 }
             }
+            .frame(maxWidth: .infinity, alignment: .center) // 그룹은 가운데 정렬
         }
     }
 
