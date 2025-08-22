@@ -158,11 +158,11 @@ struct HomeView: View {
             viewModel.selectedDate = nil
         }) {
             if let date = viewModel.selectedDate {
-                // ✅ 시트는 DetailSheetView 하나만 사용
+                //    시트는 DetailSheetView 하나만 사용
                 DetailSheetView(
                     viewModel: viewModel,
                     date: date,
-                    // ✅ 선택된 날짜로 작성 화면 이동
+                    //    선택된 날짜로 작성 화면 이동
                     onTapAdd: { container.navigationRouter.push(.addDiary(date: date)) }
                 )
                 .environmentObject(container)

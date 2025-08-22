@@ -95,7 +95,7 @@ struct BaseTabView: View {
             UITabBar.appearance().backgroundColor = .white01
             UITabBar.appearance().unselectedItemTintColor = .black01
         }
-        // ✅ CompletedView → 테라리움 탭 전환 신호 수신
+        //    CompletedView → 테라리움 탭 전환 신호 수신
         .onReceive(NotificationCenter.default.publisher(for: .switchToTerrariumTab)) { _ in
             selectedTab = .terrarium
         }
