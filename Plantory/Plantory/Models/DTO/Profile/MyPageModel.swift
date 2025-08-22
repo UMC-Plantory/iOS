@@ -20,6 +20,7 @@ public struct PatchProfileResponse: Codable {
 // 상세 마이페이지!!!
 // result 안의 6개 필드만 디코딩한다.
 public struct FetchProfileResponse: Codable {
+    public let memberId: Int
     public let nickname: String
     public let userCustomId: String
     public let gender: String

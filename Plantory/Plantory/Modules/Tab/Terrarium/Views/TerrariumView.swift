@@ -87,7 +87,7 @@ struct TerrariumView: View {
                         )
                     }
                 } else {
-                    MyGardenContent(onPlantTap: { id in
+                    MyGardenContent(container: container, onPlantTap: { id in
                         onPlantTap(id)
                     })
                 }

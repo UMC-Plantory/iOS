@@ -8,11 +8,17 @@
 import SwiftUI
 
 struct MyGardenContent: View {
-    @State private var viewModel = TerrariumViewModel(container: DIContainer())
+    @State private var viewModel: TerrariumViewModel
     @State private var selectedSegment: String = "나의 정원"
     @State private var isPlantPopupPresented: Bool = false
-    @State private var popupVM = PlantPopupViewModel(container: DIContainer())
+    @State private var popupVM: PlantPopupViewModel
     var onPlantTap: (Int) -> Void
+    
+    init(container: DIContainer, onPlantTap: @escaping (Int) -> Void) {
+        self.viewModel = TerrariumViewModel(container: container)
+        self.popupVM = PlantPopupViewModel(container: container)
+        self.onPlantTap = onPlantTap
+    }
 
     var body: some View {
         VStack {
@@ -151,5 +157,5 @@ struct PlantListView: View {
 }
 
 #Preview {
-    MyGardenContent(onPlantTap: { _ in })
+    MyGardenContent(container: DIContainer(), onPlantTap: { _ in })
 }

@@ -8,6 +8,7 @@
 import SwiftUI
 
 struct PlantPopupView: View {
+    @EnvironmentObject var container: DIContainer
     @State var viewModel: PlantPopupViewModel
     var onClose: () -> Void
 
@@ -67,7 +68,7 @@ struct PlantPopupView: View {
                     VStack(alignment: .leading, spacing: 24) {
                         VStack(alignment: .leading, spacing: 10) {
                             SectionLabel(text: "사용된 일기")
-                            DiaryInfo(items: viewModel.usedDateTexts)
+                            DiaryInfo(container: container, items: viewModel.usedDiaryItems)
                         }
                         
                         VStack(alignment: .leading, spacing: 10) {
@@ -76,7 +77,6 @@ struct PlantPopupView: View {
                         }
                     }
                     .frame(width: 278)
-                    .clipped()
 
                     Spacer()
                 }
@@ -118,26 +118,32 @@ struct PlantPopupView: View {
 
     //사용된 일기
     struct DiaryInfo: View {
-        var items: [String]
+        let container: DIContainer
+        
+        var items: [(text: String, id: Int)]
 
         var body: some View {
             ScrollView(.horizontal, showsIndicators: false) {
                 HStack(spacing: 8) {
-                    ForEach(items, id: \.self) { item in
+                    ForEach(items, id: \.id) { item in
                         Button(action: {
-                            // action
+                            container.navigationRouter.push(.diaryDetail(diaryId: item.id))
                         }) {
                             HStack(spacing: 8) {
-                                Text(item)
+                                Text(item.text)
                                     .foregroundColor(Color("green08"))
                                 Image(systemName: "chevron.right")
                                     .foregroundColor(Color("green06"))
                             }
                             .font(.pretendardRegular(14))
-                            .frame(width: 66, height: 29)
-                            .overlay(RoundedRectangle(cornerRadius: 30).stroke(Color("green06"), lineWidth: 1))
+                            .frame(width: 66, height: 32)
+                            .overlay(
+                                RoundedRectangle(cornerRadius: 30)
+                                    .stroke(Color("green06"), lineWidth: 1)
+                            )
                         }
                     }
+                    .padding(.vertical, 4)
                 }
                 .padding(.horizontal, 4)
             }
@@ -149,10 +155,13 @@ struct PlantPopupView: View {
         var items: [String]
 
         var body: some View {
-            HStack(spacing: 8) {
-                ForEach(items, id: \.self) { item in
-                    StageInfo.StageChip(item: item)
+            ScrollView(.horizontal, showsIndicators: false) {
+                HStack(spacing: 8) {
+                    ForEach(items, id: \.self) { item in
+                        StageInfo.StageChip(item: item)
+                    }
                 }
+                .padding(.vertical, 4)
             }
         }
         
@@ -172,7 +181,10 @@ struct PlantPopupView: View {
                 .font(.pretendardRegular(14))
                 .frame(height: 29)
                 .padding(.horizontal, 8)
-                .overlay(RoundedRectangle(cornerRadius: 30).stroke(Color("green06"), lineWidth: 1))
+                .overlay(
+                    RoundedRectangle(cornerRadius: 30)
+                        .stroke(Color("green06"), lineWidth: 1)
+                )
             }
         }
     }

@@ -60,7 +60,10 @@ extension ProfileRouter {
         case .scrap:                    return "/diaries/scrap-status"
             
         // 마이프로필
-        case .patchProfile, .myProfile, .profileStats: return "/members/profile"
+        case .myProfile: return "/members/myprofile"
+            
+        // 마이프로필
+        case .patchProfile, .profileStats: return "/members/profile"
         case .withdrawAccount: return "/members"
             
         // 전체 마이페이지

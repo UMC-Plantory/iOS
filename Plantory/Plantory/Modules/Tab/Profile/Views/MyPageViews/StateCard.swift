@@ -18,7 +18,8 @@ struct StatCard: View {
                 Text(stat.value)
                     .font(.pretendardMedium(20))
                 Text(stat.label)
-                    .font(.pretendardRegular(16))
+                    .font(.pretendardRegular(14))
+                    .lineLimit(1)
             }
             .frame(maxWidth: .infinity)
             .padding()

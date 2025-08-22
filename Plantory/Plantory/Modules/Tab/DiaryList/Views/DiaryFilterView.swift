@@ -180,25 +180,28 @@ struct DiaryFilterView: View {
             }
             .padding(.top, 12)
 
-            HStack(spacing: 12) {
-                ForEach(Emotion.allCases, id: \.self) { emotion in
-                    EmotionTag(
-                        emotion: emotion,
-                        isSelected: selectedEmotions.contains(emotion)
-                    ) {
-                        if emotion == .all {
-                            selectedEmotions = [.all]
-                        } else {
-                            selectedEmotions.remove(.all)
-                            if selectedEmotions.contains(emotion) {
-                                selectedEmotions.remove(emotion)
+            ScrollView(.horizontal) {
+                HStack(spacing: 12) {
+                    ForEach(Emotion.allCases, id: \.self) { emotion in
+                        EmotionTag(
+                            emotion: emotion,
+                            isSelected: selectedEmotions.contains(emotion)
+                        ) {
+                            if emotion == .all {
+                                selectedEmotions = [.all]
                             } else {
-                                selectedEmotions.insert(emotion)
+                                selectedEmotions.remove(.all)
+                                if selectedEmotions.contains(emotion) {
+                                    selectedEmotions.remove(emotion)
+                                } else {
+                                    selectedEmotions.insert(emotion)
+                                }
                             }
                         }
                     }
                 }
             }
+            .scrollIndicators(.hidden)
 
             Spacer()
                 .frame(maxHeight: 148)
@@ -237,4 +240,8 @@ struct DiaryFilterView: View {
             }
         }
     }
+}
+
+#Preview {
+    DiaryFilterView(viewModel: DiaryListViewModel(container: DIContainer()))
 }

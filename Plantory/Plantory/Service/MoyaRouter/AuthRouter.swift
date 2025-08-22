@@ -42,7 +42,7 @@ extension AuthRouter: APITargetType {
     
     var method: Moya.Method {
         switch self {
-        case .patchSignup:
+        case .patchSignup, .appleLogin:
             return .patch
         default:
             return .post

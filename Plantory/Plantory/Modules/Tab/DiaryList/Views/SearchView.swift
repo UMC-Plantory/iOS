@@ -40,6 +40,9 @@ struct DiarySearchView: View {
         .overlay {
             if vm.isLoading { ProgressView().scaleEffect(1.1) }
         }
+        .task {
+            UIApplication.shared.hideKeyboard()
+        }
         .toastView(toast: $vm.toast)
     }
 
