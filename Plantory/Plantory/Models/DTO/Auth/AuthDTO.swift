@@ -57,13 +57,13 @@ struct SignupRequest: Codable {
     let userCustomId: String
     let gender: String
     let birth: String
-    let profileImgUrl: String
+    let profileImgUrl: String?
 }
 
 /// 회원가입 완료 응답 구조체
 struct SignupResponse: Codable {
     let nickname: String
     let userCustomId: String
-    let profileImgUrl: String
+    let profileImgUrl: String?
     let status: MemberStatus
 }

@@ -42,4 +42,31 @@ extension MoyaProvider {
             }
             .eraseToAnyPublisher()
     }
+    
+    func requestStatus(
+        _ target: Target
+    ) -> AnyPublisher<StatusResponseOnly, APIError> {
+        return self.requestPublisher(target)
+            .map(StatusResponseOnly.self)
+            .tryMap { response in
+                if response.isSuccess {
+                    return response
+                } else {
+                    throw APIError.serverError(
+                        code: response.code,
+                        message: response.message
+                    )
+                }
+            }
+            .mapError { error in
+                if let moya = error as? MoyaError {
+                    return .moyaError(moya)
+                } else if let api = error as? APIError {
+                    return api
+                } else {
+                    return .unknown
+                }
+            }
+            .eraseToAnyPublisher()
+    }
 }

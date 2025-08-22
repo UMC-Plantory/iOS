@@ -73,6 +73,9 @@ struct AddDiaryView: View {
             // 최초 진입 시 오늘 날짜를 diaryDate에 세팅
             vm.diaryDate = DiaryFormatters.day.string(from: selectedDate)
         }
+        .task {
+            UIApplication.shared.hideKeyboard() // 초기 진입 시 키보드 숨김
+        }
         .navigationBarBackButtonHidden(true)
         .sheet(isPresented: $showFullCalendar) {
             DatePickerCalendarView(selectedDate: $selectedDate) {

@@ -70,12 +70,11 @@ class ProfileInfoViewModel: ObservableObject {
         $birth.map(Self.validateBirthDate).assign(to: &$birthState)
         
         // 버튼 활성화 조건
-        let firstFour = Publishers.CombineLatest4($selectedImage, $nameState, $idState, $birthState)
-        Publishers.CombineLatest(firstFour, $gender)
-            .map { (firstFourValues, gender) in
-                let (image, nameState, idState, birthState) = firstFourValues
-                
-                guard image != nil else { return false }
+        let firstThree = Publishers.CombineLatest3($nameState, $idState, $birthState)
+        Publishers.CombineLatest(firstThree, $gender)
+            .map { (firstThreeValues, gender) in
+                let (nameState, idState, birthState) = firstThreeValues
+
                 guard case .success = nameState else { return false }
                 guard case .success = idState else { return false }
                 guard case .success = birthState else { return false }
@@ -111,6 +110,14 @@ class ProfileInfoViewModel: ObservableObject {
     }
     
     // MARK: - API
+    
+    func didTapNextButton() async {
+        if selectedImage != nil {
+            try? await generatePresignedURL()
+        } else {
+            try? await patchSignup(profileImgUrl: nil)
+        }
+    }
     
     /// Presigned URL을 받아오는 API 호출
     func generatePresignedURL() async throws {
@@ -166,7 +173,7 @@ class ProfileInfoViewModel: ObservableObject {
         }
     }
     
-    private func patchSignup(profileImgUrl: String) async throws {
+    private func patchSignup(profileImgUrl: String?) async throws {
         let request = SignupRequest(
             nickname: name,
             userCustomId: id,

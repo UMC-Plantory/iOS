@@ -87,6 +87,7 @@ struct DetailSheetView: View {
                     } else if viewModel.noDiaryForSelectedDate {
                         CenterMessage("작성된 일기가 없어요!")
                     } else if let summary = viewModel.diarySummary {
+
                         Button {
                             // TODO: 일기 상세 이동 (route 연결)
                         } label: {
@@ -113,8 +114,37 @@ struct DetailSheetView: View {
                                 RoundedRectangle(cornerRadius: 8)
                                     .stroke(Color.black.opacity(0.2), lineWidth: 0.5)
                             )
+
+                        VStack {
+                            Button {
+                                dismiss()
+                                container.navigationRouter.push(.diaryDetail(diaryId: summary.diaryId))
+                            } label: {
+                                HStack {
+                                    Text(summary.title)
+                                        .font(.pretendardRegular(14))
+                                        .foregroundColor(.black)
+                                        .lineLimit(1)
+                                    Spacer().frame(width: 4)
+                                    Text("•\(summary.emotion)")
+                                        .font(.pretendardRegular(12))
+                                        .foregroundColor(.gray08)
+                                    Spacer()
+                                    Image("chevron_right")
+                                        .foregroundColor(.black)
+                                }
+                                .padding(16)
+                                .background(
+                                    RoundedRectangle(cornerRadius: 8)
+                                        .fill(CalendarView.emotionColor(for: summary.emotion))
+                                        .stroke(Color.black.opacity(0.2), lineWidth: 0.5)
+                                        .frame(width: 340, height: 56)
+                                )
+                            }
+                            
+                            Spacer()
+
                         }
-                        .padding(.bottom, 24)
                     } else {
                         // 선택은 했지만 아직 값이 없는 잠깐의 순간
                         ProgressView().tint(.gray)

@@ -21,6 +21,6 @@ struct ChatResponse: Codable {
 
 struct ChatResult: Codable {
     let hasNext: Bool
-    let nextCursor: String
+    let nextCursor: String?
     let chatsDetatilList: [ChatResponse]
 }

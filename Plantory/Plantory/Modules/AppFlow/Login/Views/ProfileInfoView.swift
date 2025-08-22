@@ -91,7 +91,7 @@ struct ProfileInfoView: View {
                     isDisabled: !viewModel.isFormValid,
                     action: {
                         Task {
-                            try await viewModel.generatePresignedURL()
+                            await viewModel.didTapNextButton()
                         }
                     }
                 )

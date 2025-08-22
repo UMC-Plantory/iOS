@@ -11,7 +11,7 @@ struct ChatView: View {
     
     // MARK: - Property
     
-    @State var viewModel: ChatViewModel
+    @StateObject var viewModel: ChatViewModel
     
     @FocusState private var isFocused: Bool
     
@@ -21,7 +21,7 @@ struct ChatView: View {
     init(
         container: DIContainer
     ) {
-        self.viewModel = .init(container: container)
+        _viewModel = StateObject(wrappedValue: ChatViewModel(container: container))
     }
     
     // MARK: - Body
@@ -45,6 +45,10 @@ struct ChatView: View {
                 isFocused = false
             }
         }
+        .task {
+            UIApplication.shared.hideKeyboard()
+            await viewModel.getChatsList()
+        }
         .toastView(toast: $viewModel.toast)
         .loadingIndicator(viewModel.isFetchingChats)
     }
@@ -52,29 +56,31 @@ struct ChatView: View {
     // MARK: - Chat Message List
     
     private var chatMessageView: some View {
-        RefreshableView(
-            reverse: true,
-            isLastPage: viewModel.isLast
-        ) {
-            LazyVStack(spacing: 16) {
-                ForEach(viewModel.messages, id: \.id) { chat in
-                    //MARK: - Chat Message View
-                    ChatBox(chatModel: chat)
+        ScrollViewReader { proxy in
+            RefreshableView(
+                reverse: true,
+                isLastPage: !viewModel.hasNext
+            ) {
+                LazyVStack(spacing: 16) {
+                    ForEach(viewModel.messages, id: \.id) { chat in
+                        //MARK: - Chat Message View
+                        ChatBox(chatModel: chat)
+                    }
+                    
+                    if viewModel.isPostingChat {
+                        ChatLoadingBox()
+                    }
                 }
-                
-                if viewModel.isPostingChat {
-                    ChatLoadingBox()
+            } onRefresh: {
+                await viewModel.getChatsList()
+            }
+            .task(id: viewModel.messages.count) {
+                if viewModel.shouldScrollToBottom {
+                    scrollToLastMessage(proxy: proxy)
+                    viewModel.shouldScrollToBottom = false
                 }
             }
-        } onRefresh: {
-            viewModel.getChatsList()
         }
-        .task {
-            viewModel.getChatsList()
-        }
-//        .onChange(of: viewModel.shouldScrollToBottom) {
-//            scrollToLastMessage(proxy: proxy)
-//        }
     }
     
     // MARK: - Input Field
@@ -88,7 +94,9 @@ struct ChatView: View {
                 .submitLabel(.send)
                 .onSubmit({
                     guard !viewModel.isPostingChat else { return }
-                    viewModel.sendMessage()
+                    Task {
+                        await viewModel.sendMessage()
+                    }
                     isFocused = true
                 })
             
@@ -96,7 +104,9 @@ struct ChatView: View {
             SendButton(
                 isDisabled: viewModel.textInput.isEmpty,
                 action: {
-                    viewModel.sendMessage()
+                    Task {
+                        await viewModel.sendMessage()
+                    }
                     isFocused = true
                 }
             )

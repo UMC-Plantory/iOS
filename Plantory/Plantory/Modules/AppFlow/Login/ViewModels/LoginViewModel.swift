@@ -148,7 +148,7 @@ class LoginViewModel {
     @MainActor
     private func routeAfterLogin(status: MemberStatus) {
         switch status {
-        case .pending:
+        case .pending, .inActive:
             container.navigationRouter.push(.permit)
         case .agree:
             container.navigationRouter.push(.profileInfo)
