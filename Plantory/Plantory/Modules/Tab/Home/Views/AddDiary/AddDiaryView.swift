@@ -7,7 +7,6 @@
 
 import SwiftUI
 
-
 struct MyDateFormatter {
     static let shared: DateFormatter = {
         let today = DateFormatter()
@@ -15,6 +14,7 @@ struct MyDateFormatter {
         return today
     }()
 }
+
 // 공통 포맷터
 private enum DiaryFormatters {
     static let day: DateFormatter = {
@@ -25,7 +25,6 @@ private enum DiaryFormatters {
         return f
     }()
 }
-
 
 struct AddDiaryView: View {
     // 단계 네비게이션
@@ -39,12 +38,15 @@ struct AddDiaryView: View {
     @State private var selectedDate: Date = Date()
     @State private var showFullCalendar: Bool = false
 
+    // 🔒 스텝 라벨 영역 고정 높이 (초록 바 들뜸 방지)
+    private let stepLabelHeight: CGFloat = 20
+
     init(container: DIContainer, date: Date = Date()) {
-            self._stepVM = Bindable(wrappedValue: StepIndicatorViewModel())
-            self._vm     = Bindable(wrappedValue: AddDiaryViewModel(container: container))
-            self._selectedDate = State(initialValue: date)
-        }
-    
+        self._stepVM = Bindable(wrappedValue: StepIndicatorViewModel())
+        self._vm     = Bindable(wrappedValue: AddDiaryViewModel(container: container))
+        self._selectedDate = State(initialValue: date)
+    }
+
     var body: some View {
         ZStack(alignment: .top) {
             if vm.isCompleted {
@@ -84,13 +86,13 @@ struct AddDiaryView: View {
             HStack {
                 Spacer().frame(width: 10)
                 Button(action: {
-                      container.navigationRouter.pop()
-                      container.navigationRouter.push(.baseTab)
+                    container.navigationRouter.pop()
+                    container.navigationRouter.push(.baseTab)
                 }) {
                     Image(.home)
                         .foregroundColor(.diaryfont)
                 }
-                
+
                 Spacer().frame(width: 80)
 
                 Button {
@@ -111,6 +113,7 @@ struct AddDiaryView: View {
 
             Spacer().frame(height: 40)
 
+            // ✅ 스텝 인디케이터 (라벨 영역 고정: 들뜸 방지)
             HStack(spacing: 0) {
                 ForEach(stepVM.steps.indices, id: \.self) { index in
                     VStack(spacing: 4) {
@@ -118,14 +121,12 @@ struct AddDiaryView: View {
                             .fill(index <= stepVM.currentStep ? Color.green04 : Color.gray08.opacity(0.3))
                             .frame(height: 8)
 
-                        if index == stepVM.currentStep {
-                            Text(stepVM.steps[index].title)
-                                .font(.pretendardRegular(14))
-                                .foregroundColor(.diaryfont)
-                                .padding(.top, 4)
-                        } else {
-                            Spacer().frame(height: 16)
-                        }
+                        // 항상 라벨 공간을 차지하고, 현재 스텝만 보이게
+                        Text(stepVM.steps[index].title)
+                            .font(.pretendardRegular(14))
+                            .foregroundColor(.diaryfont)
+                            .opacity(index == stepVM.currentStep ? 1 : 0)
+                            .frame(height: stepLabelHeight) // ← 고정 높이
                     }
                     .frame(maxWidth: .infinity)
 
@@ -188,11 +189,12 @@ struct AddDiaryView: View {
                         text: "작성완료",
                         isDisabled: vm.isLoading,
                         action: {
-                            vm.submit()                 // 서버 저장 호출(이미 구현되어 있다면)
+                            vm.submit() // 서버 저장 호출(이미 구현되어 있다면)
                             withAnimation(.easeInOut) {
-                            vm.isCompleted = true   //  CompletedView로 전환
-                                                }
-                                            }                    )
+                                vm.isCompleted = true // CompletedView로 전환
+                            }
+                        }
+                    )
                     .tint(.green04)
                 }
             }
@@ -200,5 +202,3 @@ struct AddDiaryView: View {
         )
     }
 }
-
-

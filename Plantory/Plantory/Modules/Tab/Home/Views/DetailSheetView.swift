@@ -34,9 +34,20 @@ struct DetailSheetView: View {
         return cal.startOfDay(for: date) > cal.startOfDay(for: Date())
     }
 
+    /// 헤더의 + 버튼 노출 여부: 미래 X, 로딩 X, "일기 없음" O, 그리고 요약이 없어야 함(방어적)
+    private var showPlus: Bool {
+        guard !isFuture else { return false }
+        if viewModel.isLoadingDiary { return false }
+        if viewModel.diarySummary != nil { return false } // / 요약 있으면 무조건 숨김
+        return viewModel.noDiaryForSelectedDate
+    }
+
     var body: some View {
+        // 배경색: 미래는 gray07, 그 외엔 white01
+        let sheetBackground = isFuture ? Color.gray05 : Color.white01
+
         ZStack {
-            (isFuture ? Color.gray04 : Color.white01).ignoresSafeArea()
+            sheetBackground.ignoresSafeArea()
 
             VStack(spacing: 16) {
                 Spacer().frame(height: 8)
@@ -47,19 +58,19 @@ struct DetailSheetView: View {
                         .font(.pretendardRegular(20))
                         .foregroundColor(.black01)
                     Spacer()
-                    if !isFuture {
+                    if showPlus {
                         Button {
-                                                    // 1) 시트 닫고
-                                                    dismiss()
-                                                    // 2) 닫힘 애니메이션 직후 push (지연 0.25~0.35s 권장)
-                                                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
-                                                        if let onTapAdd {
-                                                            onTapAdd()
-                                                        } else {
-                                                            container.navigationRouter.push(.addDiary)
-                                                        }
-                                                    }
-                                                }label: {
+                            // 1) 시트 닫고
+                            dismiss()
+                            // 2) 닫힘 애니메이션 직후 push (지연 0.25~0.35s 권장)
+                            DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
+                                if let onTapAdd {
+                                    onTapAdd()
+                                } else {
+                                    container.navigationRouter.push(.addDiary)
+                                }
+                            }
+                        } label: {
                             Image(systemName: "plus")
                                 .font(.title3)
                                 .foregroundColor(.green05)
@@ -77,7 +88,7 @@ struct DetailSheetView: View {
                         CenterMessage("작성된 일기가 없어요!")
                     } else if let summary = viewModel.diarySummary {
                         Button {
-                            // TODO: 일기 상세 이동 훅업 (필요 시 외부 콜백 추가)
+                            // TODO: 일기 상세 이동 (route 연결)
                         } label: {
                             HStack {
                                 Text(summary.title)
@@ -93,11 +104,14 @@ struct DetailSheetView: View {
                                     .foregroundColor(.black)
                             }
                             .padding(16)
+                            .frame(width: 340, height: 56)
                             .background(
                                 RoundedRectangle(cornerRadius: 8)
                                     .fill(CalendarView.emotionColor(for: summary.emotion))
+                            )
+                            .overlay(
+                                RoundedRectangle(cornerRadius: 8)
                                     .stroke(Color.black.opacity(0.2), lineWidth: 0.5)
-                                    .frame(width: 340, height: 56)
                             )
                         }
                         .padding(.bottom, 24)

@@ -52,13 +52,6 @@ struct HomeView: View {
         + cardBottomPadding
     }
 
-    private let calendar = Calendar.current
-    private let dateFormatter: DateFormatter = {
-        let df = DateFormatter()
-        df.dateFormat = "yyyy년 M월 d일"
-        return df
-    }()
-
     var body: some View {
         ZStack {
             Color.brown01.ignoresSafeArea()
@@ -163,76 +156,12 @@ struct HomeView: View {
             viewModel.selectedDate = nil
         }) {
             if let date = viewModel.selectedDate {
-                let isFuture = calendar.startOfDay(for: date) > calendar.startOfDay(for: Date())
-                ZStack {
-                    (isFuture ? Color.gray04 : Color.white01).ignoresSafeArea()
-                    VStack(spacing: 16) {
-                        Spacer().frame(height: 8)
-                        HStack {
-                            Text("\(date, formatter: dateFormatter)")
-                                .font(.pretendardRegular(20))
-                                .foregroundColor(.black01)
-                            Spacer()
-                            if !isFuture {
-                                Button { /* 작성 화면 이동 */ } label: {
-                                    Image(systemName: "plus")
-                                        .font(.title3)
-                                        .foregroundColor(.green05)
-                                }
-                            }
-                        }
-                        ZStack {
-                            if isFuture {
-                                VStack { Spacer()
-                                    Text("미래의 일기는 작성할 수 없어요!")
-                                        .font(.pretendardRegular(14))
-                                        .foregroundColor(.gray11)
-                                        .multilineTextAlignment(.center)
-                                    Spacer()
-                                }
-                            } else if viewModel.noDiaryForSelectedDate {
-                                VStack { Spacer()
-                                    Text("작성된 일기가 없어요!")
-                                        .font(.pretendardRegular(14))
-                                        .foregroundColor(.gray11)
-                                        .multilineTextAlignment(.center)
-                                    Spacer()
-                                }
-                            } else if let summary = viewModel.diarySummary {
-                                Button { /* 일기 상세 이동 */ } label: {
-                                    HStack {
-                                        Text(summary.title)
-                                            .font(.pretendardRegular(14))
-                                            .foregroundColor(.black)
-                                            .lineLimit(1)
-                                        Spacer().frame(width: 4)
-                                        Text("•\(summary.emotion)")
-                                            .font(.pretendardRegular(12))
-                                            .foregroundColor(.gray08)
-                                        Spacer()
-                                        Image(systemName: "chevron.right")
-                                            .foregroundColor(.black)
-                                    }
-                                    .padding(16)
-                                    .background(
-                                        RoundedRectangle(cornerRadius: 8)
-                                            .fill(CalendarView.emotionColor(for: summary.emotion))
-                                            .stroke(Color.black.opacity(0.2), lineWidth: 0.5)
-                                            .frame(width: 340, height: 75)
-                                    )
-                                }
-                                .padding(.bottom, 24)
-                            } else {
-                                ProgressView().tint(.gray)
-                            }
-                        }
-                        .frame(maxWidth: .infinity, maxHeight: .infinity)
-                    }
-                    .padding(.horizontal, 24)
-                    .frame(height: 264)
-                }
-                .presentationDetents([.height(264)])
-                .presentationDragIndicator(.hidden)
+                // / DetailSheetView가 + 노출/미노출 및 미래 배경을 판단
+                DetailSheetView(
+                    viewModel: viewModel,
+                    date: date,
+                    onTapAdd: { container.navigationRouter.push(.addDiary) }
+                )
             }
         }
     }

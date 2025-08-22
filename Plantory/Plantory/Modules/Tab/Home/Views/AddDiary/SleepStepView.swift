@@ -47,22 +47,22 @@ struct SleepStepView: View {
                 .font(.pretendardSemiBold(20))
                 .foregroundColor(.diaryfont)
 
-            // 기상
-            VStack(spacing: 12) {
-                Text("기상")
-                    .font(.pretendardSemiBold(20))
-                    .foregroundStyle(.diaryfont)
-
-                timePickers(hour: $wakeHour, minute: $wakeMinute, period: $wakePeriod)
-            }
-
-            // 취침
+            //취침 시간 선택
             VStack(spacing: 16) {
                 Text("취침")
                     .font(.pretendardSemiBold(20))
                     .foregroundColor(.diaryfont)
 
                 timePickers(hour: $sleepHour, minute: $sleepMinute, period: $sleepPeriod)
+            }
+
+            //기상 시간 선택
+            VStack(spacing: 12) {
+                Text("기상")
+                    .font(.pretendardSemiBold(20))
+                    .foregroundStyle(.diaryfont)
+
+                timePickers(hour: $wakeHour, minute: $wakeMinute, period: $wakePeriod)
             }
 
             Spacer()
