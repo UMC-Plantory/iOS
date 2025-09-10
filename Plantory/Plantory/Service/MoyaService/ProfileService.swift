@@ -109,10 +109,12 @@ final class ProfileService: ProfileServiceProtocol {
         provider.requestResult(.wastePatch(diaryIds: diaryIds), type: WastePatchResponse.self)
     }
 
+    // 영구삭제
     func deleteWaste(diaryIds: [Int]) -> AnyPublisher<WasteDeleteResponse, APIError> {
         provider.requestResult(.deleteDiary(diaryIds: diaryIds), type: WasteDeleteResponse.self)
     }
     
+    // 임시보관함으로 복원
     func restoreWaste(diaryIds: [Int]) -> AnyPublisher<RestoreResponse, APIError> {
         provider.requestResult(.restore(diaryIds: diaryIds), type: RestoreResponse.self)
     }
