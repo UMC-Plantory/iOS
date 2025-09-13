@@ -151,35 +151,18 @@ struct DiaryCheckView: View {
             UIApplication.shared.hideKeyboard()
             await vm.load()
         }
-        .overlay {
-            if isDeleteSheetPresented {
-                BlurBackground()
-                    .onTapGesture {
-                        withAnimation(.spring()) {
-                            isDeleteSheetPresented = false
-                        }
-                    }
-                
-                PopUp(
-                    title: "일기를 삭제하시겠습니까?",
-                    message: "일기 삭제 시, 일기는 휴지통으로 이동하게 됩니다.",
-                    confirmTitle: "삭제하기",
-                    cancelTitle: "취소",
-                    onConfirm: {
-                        vm.moveToTrash {
-                            // 성공 콜백: 시트 닫고 화면도 필요하면 닫기
-                            isDeleteSheetPresented = false
-                            container.navigationRouter.pop()
-                        }
-                    },
-                    onCancel: {
-                        isDeleteSheetPresented = false
-                    }
-                )
-                .transition(.scale)
-                .zIndex(1)
+        .popup(
+            isPresented: $isDeleteSheetPresented,
+            title: "일기를 삭제하시겠습니까?",
+            message: "일기 삭제 시, 일기는 휴지통으로 이동하게 됩니다.",
+            confirmTitle: "삭제하기",
+            cancelTitle: "취소",
+            onConfirm: {
+                vm.moveToTrash {
+                    container.navigationRouter.pop()
+                }
             }
-        }
+        )
         .toastView(toast: $vm.toast)
         .loadingIndicator(vm.isLoading)
     }
