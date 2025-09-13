@@ -124,7 +124,7 @@ class LoginViewModel {
     
     /// 애플 로그인 API 호출
     private func sendAppleLoginToServer(
-        identityToken: String,
+        identityToken: String
     ) async throws {
         self.isLoading = true
         
