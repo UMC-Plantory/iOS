@@ -1,5 +1,5 @@
 //
-//  PopUpModifier.swift
+//  PopupModifier.swift
 //  Plantory
 //
 //  Created by 주민영 on 9/11/25.
@@ -7,7 +7,7 @@
 
 import SwiftUI
 
-struct PopUpModifier: ViewModifier {
+struct PopupModifier: ViewModifier {
     @Binding var isPresented: Bool
     
     let title: String
