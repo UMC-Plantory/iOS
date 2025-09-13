@@ -8,7 +8,7 @@
 <br/>
 
 ## 👥 멤버
-| 팀장 👑  | 팀원 👩🏻‍💻 | 팀원 👩🏻‍💻 | 팀원 👨🏻‍💻 | 팀원 👩🏻‍💻 |
+| PL | FE | FE | FE | FE |
 |:------:|:------:|:------:|:------:|:------:|
 |<img src="https://github.com/minyoy.png" width="160px" />|<img src="https://github.com/jiwookim1202.png" width="160px" />|<img src="https://github.com/Byeongseon-Park.png" width="160px" />|<img src="https://github.com/Jhw9n.png" width="160px" />|<img src="https://github.com/Hyohyoju.png" width="160px" />|
 | [주민영 (민요이)](https://github.com/minyoy) | [김지우 (카이)](https://github.com/jiwookim1202) | [박병선 (고니)](https://github.com/Byeongseon-Park) | [박정환 (파머)](https://github.com/Jhw9n) | [이효주 (김리쭈)](https://github.com/Hyohyoju) |
@@ -171,38 +171,59 @@ if let user = self.veryLongFunctionNameWhichReturnsOptionalUser(),
 ## 🗂️ 폴더 컨벤션
 ```
 Plantory
-├── App
 ├── Common
-│ └── Enum
-│	└── Protocol
-│	└── UIComponents
+│   ├── Enum
+│   │   ├── Auth
+│   │   ├── Common
+│   │   ├── DiaryList
+│   │   ├── Error
+│   │   ├── Home
+│   │   ├── Tab
+│   │   └── Terrarium
+│   └── UIComponents
+│       ├── Chat
+│       ├── Custom
+│       ├── DiaryList
+│       └── Profile
 ├── Core
-│	└── Navigation
-│	└── Utils
+│   ├── DIContainer
+│   ├── Navigation
+│   └── Utils
 ├── Models
-│	└── DTO
-│	└── Domain
-├── ViewModels
-│	└── Chat
-│	└── Diary
-│	└── Home
-│	└── Login
-│	└── Profile
-│	└── Terrarium
-├── Views
-│	└── Chat
-│	└── Diary
-│	└── Home
-│	└── Login
-│	└── Profile
-│	└── Terrarium
+│   ├── DTO
+│   │   ├── Auth
+│   │   ├── Chat
+│   │   ├── Common
+│   │   ├── Diary
+│   │   ├── Home
+│   │   ├── Profile
+│   │   └── Terrarium
+│   └── Domain
+│       ├── Auth
+│       ├── Chat
+│       ├── Common
+│       ├── DiaryList
+│       ├── Home
+│       └── Profile
+├── Modules
+│   ├── AppFlow
+│   │   └── Login
+│   └── Tab
+│       ├── Chat
+│       ├── DiaryList
+│       ├── Home
+│       ├── Profile
+│       └── Terrarium
 ├── Resource
-│	└── Assets
-│	└── Extension
-│	└── Font
-│	└── Keychain
-│	└── Modifier
-├── Service
-│	└── MoyaRouter
-│	└── MoyaService
+│   ├── Assets
+│   ├── Extension
+│   ├── Font
+│   ├── Keychain
+│   └── Modifier
+└── Service
+    ├── Common
+    ├── MoyaRouter
+    ├── MoyaService
+    ├── Social
+    └── Token
 ```
