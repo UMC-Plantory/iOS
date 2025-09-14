@@ -48,7 +48,7 @@ struct ProfileInfoView: View {
     }
     
     private var profileInfoView: some View {
-        VStack(spacing: 33) {
+        VStack(spacing: 0) {
             headerView
             
             if viewModel.isCompleted {
@@ -62,13 +62,14 @@ struct ProfileInfoView: View {
                 )
                 .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .center)
             } else {
-                ScrollView(.vertical, showsIndicators: false) {
+                AdaptiveScrollView(topPadding: 24, bottomPadding: 72) {
                     profileView
                 }
+                .scrollIndicators(.hidden)
             }
         }
-        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
         .padding(.horizontal, 16)
+        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
         .navigationBarBackButtonHidden()
     }
     

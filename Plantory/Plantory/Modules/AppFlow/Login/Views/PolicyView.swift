@@ -18,14 +18,13 @@ struct PolicyView: View {
     }
     
     var body: some View {
-        VStack {
+        VStack(spacing: 0) {
             Divider()
                 .foregroundStyle(.gray06)
                 .frame(height: 1)
                 .padding(.top, 8)
-                .padding(.bottom, 20)
             
-            ScrollView {
+            AdaptiveScrollView {
                 Text(termsSections[self.num].body)
                     .kerning(1)
                     .font(.pretendardRegular(14))
@@ -139,4 +138,10 @@ struct PolicyView: View {
         )
     ]
 
+}
+
+#Preview {
+    NavigationStack {
+        PolicyView(num: 1)
+    }
 }
