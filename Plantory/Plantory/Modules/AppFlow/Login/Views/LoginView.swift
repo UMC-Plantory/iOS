@@ -27,30 +27,33 @@ struct LoginView: View {
     // MARK: - Body
     
     var body: some View {
-        VStack {
-            logoView
-            
-            Spacer()
-                .frame(maxHeight: 94)
-            
-            VStack(spacing: 22) {
-                loginIndicatorView
-                
-                socialLoginView
-            }
-        }
-        .padding(.horizontal, 16)
-        .padding(.top, 128)
-        .frame(maxWidth: .infinity, maxHeight: .infinity)
-        .background(
+        ZStack(alignment: .center) {
             RadialGradient(
                 colors: [.white01, .green01],
                 center: .center,
                 startRadius: 0,
                 endRadius: 130
             )
-        )
-        .ignoresSafeArea()
+            .ignoresSafeArea()
+            
+            VStack {
+                Spacer()
+                logoView
+                Spacer()
+                Spacer()
+            }
+            
+            VStack {
+                Spacer()
+                
+                VStack(spacing: 22) {
+                    loginIndicatorView
+                    socialLoginView
+                }
+                .padding(.horizontal, 16)
+                .padding(.bottom, 32)
+            }
+        }
         .navigationBarBackButtonHidden()
         .toastView(toast: $viewModel.toast)
         .loadingIndicator(viewModel.isLoading)
@@ -111,6 +114,15 @@ struct LoginView: View {
     }
 }
 
-#Preview {
-    LoginView(container: .init())
+struct LoginView_Preview: PreviewProvider {
+    static var devices = ["iPhone SE (3rd generation)", "iPhone 11", "iPhone 16 Pro Max"]
+    
+    static var previews: some View {
+        ForEach(devices, id: \.self) { device in
+            LoginView(container: DIContainer())
+                .environment(NavigationRouter())
+                .previewDevice(PreviewDevice(rawValue: device))
+                .previewDisplayName(device)
+        }
+    }
 }
