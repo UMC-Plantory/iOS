@@ -54,31 +54,41 @@ struct ChatView: View {
     }
     
     // MARK: - Chat Message List
-    
+    @ViewBuilder
     private var chatMessageView: some View {
-        ScrollViewReader { proxy in
-            RefreshableView(
-                reverse: true,
-                isLastPage: !viewModel.hasNext
-            ) {
-                LazyVStack(spacing: 16) {
-                    ForEach(viewModel.messages, id: \.id) { chat in
-                        //MARK: - Chat Message View
-                        ChatBox(chatModel: chat)
+        if viewModel.messages.isEmpty {
+            NothingView(
+                mainText: "아직 기록된 대화가 없어요",
+                subText: "첫 대화를 시작해 보세요!"
+            )
+            .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .center)
+        } else {
+            ScrollViewReader { proxy in
+                RefreshableView(
+                    reverse: true,
+                    isLastPage: !viewModel.hasNext
+                ) {
+                    LazyVStack(spacing: 16) {
+                        ForEach(viewModel.messages, id: \.id) { chat in
+                            //MARK: - Chat Message View
+                            ChatBox(chatModel: chat)
+                        }
+                        
+                        if viewModel.isPostingChat {
+                            ChatLoadingBox()
+                            
+                        }
                     }
-                    
-                    if viewModel.isPostingChat {
-                        ChatLoadingBox()
+                } onRefresh: {
+                    await viewModel.getChatsList()
+                }
+                .task(id: viewModel.messages.count) {
+                    if viewModel.shouldScrollToBottom {
+                        scrollToLastMessage(proxy: proxy)
+                        viewModel.shouldScrollToBottom = false
                     }
                 }
-            } onRefresh: {
-                await viewModel.getChatsList()
-            }
-            .task(id: viewModel.messages.count) {
-                if viewModel.shouldScrollToBottom {
-                    scrollToLastMessage(proxy: proxy)
-                    viewModel.shouldScrollToBottom = false
-                }
+                .scrollIndicators(.hidden)
             }
         }
     }
