@@ -12,6 +12,8 @@ import KakaoSDKAuth
 @main
 struct PlantoryApp: App {
     
+    @StateObject private var container: DIContainer = .init()
+    
     @UIApplicationDelegateAdaptor(AppDelegate.self) var appDelegate
     
     init() {
@@ -21,6 +23,7 @@ struct PlantoryApp: App {
     var body: some Scene {
         WindowGroup {
             NavigationRoutingView()
+                .environmentObject(container)
         }
     }
 }

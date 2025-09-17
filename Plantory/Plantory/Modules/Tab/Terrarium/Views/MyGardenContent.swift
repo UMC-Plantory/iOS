@@ -8,16 +8,16 @@
 import SwiftUI
 
 struct MyGardenContent: View {
+    @EnvironmentObject var container: DIContainer
+    @EnvironmentObject var popupManager: PopupManager
+    
     @State private var viewModel: TerrariumViewModel
     @State private var selectedSegment: String = "나의 정원"
-    @State private var isPlantPopupPresented: Bool = false
     @State private var popupVM: PlantPopupViewModel
-    var onPlantTap: (Int) -> Void
     
-    init(container: DIContainer, onPlantTap: @escaping (Int) -> Void) {
+    init(container: DIContainer) {
         self.viewModel = TerrariumViewModel(container: container)
         self.popupVM = PlantPopupViewModel(container: container)
-        self.onPlantTap = onPlantTap
     }
 
     var body: some View {
@@ -27,7 +27,22 @@ struct MyGardenContent: View {
 
             // 데이터를 제대로 받아왔을 때, PlantListView 표시
             if !viewModel.monthlyTerrariums.isEmpty {
-                PlantListView(items: viewModel.monthlyTerrariums, onPlantTap: onPlantTap)
+                PlantListView(items: viewModel.monthlyTerrariums, onPlantTap: { id in
+                    container.selectedTab = .terrarium
+                    viewModel.selectedTab = .myGarden
+                    popupVM.open(terrariumId: id)
+                    popupManager.show {
+                        PlantPopupView(
+                            viewModel: popupVM,
+                            onClose: {
+                                viewModel.selectedTab = .myGarden
+                                popupManager.dismiss()
+                                popupVM.close()
+                            }
+                        )
+                        .environmentObject(container)
+                    }
+                })
             }
 
             Spacer()
@@ -157,5 +172,5 @@ struct PlantListView: View {
 }
 
 #Preview {
-    MyGardenContent(container: DIContainer(), onPlantTap: { _ in })
+    MyGardenContent(container: DIContainer())
 }
