@@ -75,7 +75,7 @@ struct CompletedView: View {
     private var completedImage: some View {
         ZStack {
             Image(.gradientCircle)
-            Image("sprout_image")
+            Image("only_sprout")
         }
     }
 }
