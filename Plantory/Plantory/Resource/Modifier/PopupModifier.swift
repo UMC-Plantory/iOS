@@ -62,7 +62,7 @@ extension View {
         onConfirm: @escaping () -> Void = {},
         onCancel: @escaping () -> Void = {}
     ) -> some View {
-        self.modifier(PopUpModifier(
+        self.modifier(PopupModifier(
             isPresented: isPresented,
             title: title,
             message: message,
@@ -73,3 +73,4 @@ extension View {
         ))
     }
 }
+
