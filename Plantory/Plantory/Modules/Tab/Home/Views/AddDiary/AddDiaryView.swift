@@ -38,35 +38,49 @@ struct AddDiaryView: View {
     @State private var selectedDate: Date = Date()
     @State private var showFullCalendar: Bool = false
 
-    // 🔧 스텝 인디케이터 설정
-    private let stepLabelHeight: CGFloat = 20      // 라벨 영역 고정
-    private let stepBarGap: CGFloat = 6            // 막대 사이 간격
-    private let stepBarWidth: CGFloat = 80         // 막대/컬럼 너비 고정
-    private let stepBarHeight: CGFloat = 8
 
     init(container: DIContainer, date: Date = Date()) {
         self._stepVM = Bindable(wrappedValue: StepIndicatorViewModel())
-        self._vm     = Bindable(wrappedValue: AddDiaryViewModel(container: container))
+        self._vm      = Bindable(wrappedValue: AddDiaryViewModel(container: container))
         self._selectedDate = State(initialValue: date)
     }
 
     var body: some View {
         ZStack(alignment: .top) {
             if vm.isCompleted {
-                CompletedView()
+                
+                
+                ScrollView { // CompletedView를 스크롤뷰로 감싸 작은 화면에서 잘리지 않도록 함
+                    VStack {
+                        CompletedView()
+                           
+                    }
+                    .frame(maxWidth: .infinity, minHeight: UIScreen.main.bounds.height - (UIApplication.shared.windows.first?.safeAreaInsets.top ?? 0) - (UIApplication.shared.windows.first?.safeAreaInsets.bottom ?? 0)) // 뷰포트 높이 이상으로 설정하여 공간 확보
+                    .background(Color.diarybackground.ignoresSafeArea(.all, edges: .all))
+                }
+                .background(Color.diarybackground.ignoresSafeArea(.all, edges: .all)) // 전체 배경색을 안전하게 적용
+                .ignoresSafeArea(.keyboard) // 키보드가 올라와도 안전 영역 무시
+              
+
+
             } else {
+                
                 Color.diarybackground.ignoresSafeArea()
 
-                VStack(spacing: 24) {
-                    Spacer().frame(height: 160) // header 고정 공간 확보
-                    stepContentView
-                    navigationButtons
+                VStack{
+                    headerView
+                    Spacer()
+
+                      
+                        stepContentView
+                        Spacer().frame(height:30)
+                        navigationButtons
+                      
                 }
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
                 .padding()
 
-                headerView
-                    .background(Color.diarybackground)
-                    .padding()
+                
             }
         }
         .toastView(toast: $vm.toast)
@@ -89,7 +103,13 @@ struct AddDiaryView: View {
 
     // 홈버튼 + 현재 날짜/날짜선택
     private var headerView: some View {
-        VStack {
+
+        let labelHeight: CGFloat = 20
+        let barGap: CGFloat = 6
+        let barWidth: CGFloat = 80
+        let barHeight: CGFloat = 8
+
+        return VStack {
             HStack {
                 Spacer().frame(width: 10)
                 Button(action: {
@@ -108,8 +128,8 @@ struct AddDiaryView: View {
                     HStack(spacing: 6) {
                         Image(systemName: "calendar")
                         Text(vm.diaryDate.isEmpty
-                             ? MyDateFormatter.shared.string(from: Date())
-                             : vm.diaryDate)
+                              ? MyDateFormatter.shared.string(from: Date())
+                              : vm.diaryDate)
                     }
                     .font(.pretendardSemiBold(18))
                     .foregroundStyle(.diaryfont)
@@ -121,22 +141,22 @@ struct AddDiaryView: View {
             Spacer().frame(height: 40)
 
             // 스텝 인디케이터 (컬럼 너비 고정 + 고정 간격)
-            HStack(spacing: stepBarGap) {
+            HStack(spacing: barGap) {
                 ForEach(stepVM.steps.indices, id: \.self) { index in
                     VStack(spacing: 6) {
                         RoundedRectangle(cornerRadius: 70)
                             .fill(index <= stepVM.currentStep ? Color.green04 : Color.gray08.opacity(0.3))
-                            .frame(width: stepBarWidth, height: stepBarHeight)
+                            .frame(width: barWidth, height: barHeight) // stepBarWidth -> barWidth, stepBarHeight -> barHeight
 
                         Text(stepVM.steps[index].title)
                             .font(.pretendardRegular(14))
                             .foregroundColor(.diaryfont)
                             .opacity(index == stepVM.currentStep ? 1 : 0) // 공간은 유지
-                            .frame(height: stepLabelHeight)
+                            .frame(height: labelHeight)
                             .lineLimit(1)
                             .minimumScaleFactor(0.85)
                     }
-                    .frame(width: stepBarWidth) // ← 컬럼 자체도 고정폭
+                    .frame(width: barWidth)
                 }
             }
             .frame(maxWidth: .infinity, alignment: .center) // 그룹은 가운데 정렬
@@ -205,5 +225,18 @@ struct AddDiaryView: View {
             }
             .padding(.horizontal)
         )
+    }
+}
+
+struct AddDiaryView_Preview: PreviewProvider {
+    static var devices = ["iPhone SE (3rd generation)", "iPhone 11", "iPhone 16 Pro Max"]
+
+    static var previews: some View {
+        ForEach(devices, id: \.self) { device in
+            AddDiaryView(container: DIContainer())
+                .environment(NavigationRouter())
+                .previewDevice(PreviewDevice(rawValue: device))
+                .previewDisplayName(device)
+        }
     }
 }

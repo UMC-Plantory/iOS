@@ -12,8 +12,7 @@ struct PhotoStepView: View {
     private let boxSize = CGSize(width: 205, height: 207)
 
     var body: some View {
-        Spacer().frame(height: 20)
-
+        
         VStack {
             Text("오늘의 사진을 선택한다면 무엇인가요?")
                 .font(.pretendardSemiBold(20))
