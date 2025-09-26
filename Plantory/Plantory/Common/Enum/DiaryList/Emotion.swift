@@ -5,7 +5,7 @@
 //  Created by 박병선 on 8/2/25.
 //
 import Foundation
-import SwiftUICore
+import SwiftUI
 
 enum Emotion: String,CaseIterable,Codable {
     case all = "all"
