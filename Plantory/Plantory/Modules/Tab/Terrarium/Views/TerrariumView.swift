@@ -35,9 +35,9 @@ struct TerrariumView: View {
                                 SpeechBubble(message: Text(viewModel.wateringMessage))
                             }
                             .frame(maxWidth: .infinity, alignment: .trailing)
-                            .padding(.top, 6)
+                            .padding(.top, 12)
                             .padding(.trailing, 28)
-                            //.padding(.bottom, 4)
+                            .padding(.bottom, 2)
                             
                             Spacer()
 

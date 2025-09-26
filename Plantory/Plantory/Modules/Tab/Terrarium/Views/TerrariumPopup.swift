@@ -12,47 +12,34 @@ struct TerrariumPopup: View {
     @EnvironmentObject var popupManager: PopupManager
     
     var body: some View {
-        GeometryReader { proxy in
-            let w = proxy.size.width
-            let h = proxy.size.height
-            ZStack {
-                Color.black.opacity(0.85)
-                    .ignoresSafeArea()
+        ZStack{
+            Color.black.opacity(0.8)
+                .edgesIgnoringSafeArea(.all)
+            
+            GeometryReader { geometry in
+                let isSmallHeight = geometry.size.height <= 670
+                Image(isSmallHeight ? "Tutorial-320x568" : "Tutorial-390x844")
+                    .resizable()
+                    .scaledToFill()
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+                    .edgesIgnoringSafeArea(.all)
+            }
 
-                // tutorial1: top-left, responsive insets
-                Image("tutorial1")
-                    .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
-                    .padding(.top, h * 0.02)
-                    .padding(.leading, w * 0.36)
-
-                // tutorial2: centered, responsive vertical offset
-                Image("tutorial2")
-                    .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .center)
-                    .offset(y: -h * 0.186)
-
-                // tutorial3: lower-left, responsive insets
-                Image("tutorial3")
-                    .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
-                    .padding(.top, h * 0.653)
-                    .padding(.leading, w * 0.366)
-
-                // Close button (top-trailing), sized and inset relatively
-                VStack {
-                    HStack {
-                        Spacer()
-                        Button(action: {
-                            popupManager.dismiss()
-                        }) {
-                            Image(systemName: "xmark")
-                                .font(.system(size: 48, weight: .light))
-                                .foregroundColor(.white)
-                        }
-                    }
-                    .padding(.top, h * 0.04)
-                    .padding(.trailing, w * 0.04)
-
+            // 닫기 버튼
+            VStack {
+                HStack {
                     Spacer()
+                    Button(action: {
+                        popupManager.dismiss()
+                    }) {
+                        Image(systemName: "xmark")
+                            .font(.system(size: 48, weight: .light))
+                            .foregroundColor(.white)
+                    }
                 }
+                .padding(.top, 8)
+                .padding(.trailing, 16)
+                Spacer()
             }
         }
     }
