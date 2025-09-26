@@ -11,6 +11,7 @@ struct MainMiddleButton: View {
     let text: String
     let action: () -> Void
     var isDisabled: Bool = false
+    var fontSize: CGFloat = 18
 
     /// 커스텀 버튼 생성자
     /// - Parameters:
@@ -20,17 +21,19 @@ struct MainMiddleButton: View {
     init(
         text: String,
         isDisabled: Bool = false,
+        fontSize: CGFloat = 18,
         action: @escaping () -> Void
     ) {
         self.text = text
         self.isDisabled = isDisabled
+        self.fontSize = fontSize
         self.action = action
     }
 
     var body: some View {
         Button(action: action) {
             Text(text)
-                .font(.pretendardRegular(18))
+                .font(.pretendardRegular(fontSize))
                 .padding(.horizontal, 12)
                 .padding(.vertical, 8)
         }

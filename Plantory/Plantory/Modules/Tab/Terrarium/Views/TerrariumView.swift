@@ -29,21 +29,24 @@ struct TerrariumView: View {
                 if viewModel.selectedTab == .terrarium {
                     GeometryReader { geometry in
                         VStack {
+                            Spacer()
+
                             HStack {
                                 SpeechBubble(message: Text(viewModel.wateringMessage))
                             }
                             .frame(maxWidth: .infinity, alignment: .trailing)
-                            .padding(.top, 39)
-                            .padding(.trailing, 16)
-                            .padding(.bottom,10)
+                            .padding(.top, 12)
+                            .padding(.trailing, 28)
+                            .padding(.bottom, 2)
+                            
+                            Spacer()
 
                             ProgressGaugeView(currentStage: viewModel.terrariumData?.terrariumWateringCount ?? 0)
 
                             Spacer()
 
                             Image(viewModel.terrariumData?.terrariumWateringCount ?? 0 < 3 ? "Sprout" : "Leaf")
-                                .resizable()
-                                .frame(width: 286, height: 286)
+                            
 
                             Spacer()
 
@@ -67,13 +70,14 @@ struct TerrariumView: View {
                                 }
                                 Spacer()
                             }
-                            .padding(.bottom, 96).padding(.leading, 16)
+                            .padding(.bottom, 96)
+                            .padding(.leading, 16)
                         }
                         .background(
                             Ellipse()
                                 .fill(Color("green04"))
                                 .frame(width: 631, height: 363)
-                                .offset(y: 60),
+                                .offset(y: 50),
                             alignment: .bottom
                         )
                     }
@@ -111,10 +115,6 @@ struct TerrariumView: View {
                 }
             )
             .environmentObject(container)
-            .onAppear {
-                // FlowerCompleteView가 나타날 때 갱신
-                viewModel.fetchTerrarium()
-            }
         }
         .loadingIndicator(viewModel.isLoading)
     }

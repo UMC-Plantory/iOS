@@ -13,14 +13,17 @@ struct TerrariumPopup: View {
     
     var body: some View {
         ZStack{
-            Color.black.opacity(0.4)
+            Color.black.opacity(0.8)
                 .edgesIgnoringSafeArea(.all)
             
-            Image("Tutorial")
-                .resizable()
-                .scaledToFill()
-                .frame(maxWidth: .infinity, maxHeight: .infinity)
-                .edgesIgnoringSafeArea(.all)
+            GeometryReader { geometry in
+                let isSmallHeight = geometry.size.height <= 670
+                Image(isSmallHeight ? "Tutorial-320x568" : "Tutorial-390x844")
+                    .resizable()
+                    .scaledToFill()
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+                    .edgesIgnoringSafeArea(.all)
+            }
 
             // 닫기 버튼
             VStack {
@@ -34,7 +37,7 @@ struct TerrariumPopup: View {
                             .foregroundColor(.white)
                     }
                 }
-                .padding(.top, 47)
+                .padding(.top, 8)
                 .padding(.trailing, 16)
                 Spacer()
             }
