@@ -97,12 +97,17 @@ struct DiaryHeaderView: View {
             Text("일기목록")
                 .font(.pretendardSemiBold(20))
                 .foregroundColor(.black01)
+                .padding(.top)
 
             Spacer()
 
             HStack(spacing: 20) {
                 Button(action: onSearchTap) {
-                    Image("search").resizable().frame(width: 20, height: 20)
+                    Image("search")
+                        .resizable()
+                        .frame(width: 20, height: 20)
+                        .padding(.top)
+                        .padding(.trailing)
                 }
 
 //                Button(action: onMoreTap) {
@@ -131,16 +136,19 @@ struct DiaryMonthSectionView: View {
 
             Spacer()
 
+            //필터 버튼
             Button {
                 isFilterSheetPresented = true
             } label: {
                 Image(isFilterSheetPresented ? "filter_green" : "filter_black")
                     .resizable()
                     .frame(width: 48, height: 48)
+                    .padding(.trailing, -4)
             }
         }
     }
 }
+
 
 // MARK: - Preview
 #Preview {

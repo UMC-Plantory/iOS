@@ -85,6 +85,7 @@ struct DiaryCheckView: View {
                     HStack(spacing: 4) {
                         Spacer()
                         
+                        //수정버튼
                         Button {
                             withAnimation {
                                 if vm.isEditing {
@@ -103,6 +104,7 @@ struct DiaryCheckView: View {
                                 .frame(width: 40, height: 40)
                         }
                         
+                        //저장버튼
                         Button(action: {
                             if !vm.isSaving {
                                 vm.toggleTempStatus() {
@@ -118,6 +120,7 @@ struct DiaryCheckView: View {
                                 .frame(width: 40, height: 40)
                         }
                         
+                        //삭제 버튼
                         Button(action: {
                             isDeleteSheetPresented = true
                         }) {
