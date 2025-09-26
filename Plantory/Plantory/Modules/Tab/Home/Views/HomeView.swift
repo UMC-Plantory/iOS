@@ -58,8 +58,8 @@ struct HomeView: View {
         ZStack {
             Color.brown01.ignoresSafeArea()
 
-            VStack {
-                Spacer().frame(height: 73)
+            ScrollView {
+                Spacer().frame(height: 43)
                 HomeHeaderView()
                 Spacer().frame(height: 32)
 

@@ -22,8 +22,10 @@ struct PlantoryApp: App {
     
     var body: some Scene {
         WindowGroup {
-            NavigationRoutingView()
-                .environmentObject(container)
+            HomeView(container: .init())
+            
+            //NavigationRoutingView()
+                //.environmentObject(container)
         }
     }
 }

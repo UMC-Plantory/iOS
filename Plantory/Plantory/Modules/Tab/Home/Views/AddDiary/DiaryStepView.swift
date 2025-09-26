@@ -13,7 +13,7 @@ struct DiaryStepView: View {
     @Environment(\.colorScheme) var colorScheme
 
     var body: some View {
-        Spacer().frame(height: 40)
+        
 
         VStack {
             Text("오늘은 어떤 일이 있었나요?")
