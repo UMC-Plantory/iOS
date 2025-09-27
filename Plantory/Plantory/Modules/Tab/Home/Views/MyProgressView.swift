@@ -57,7 +57,7 @@ struct MyProgressView: View {
                     }
                     Text("현재 연속 기록")
                         .font(.pretendardRegular(10))
-                        .foregroundColor(.gray09)
+                        .foregroundColor(.mono04)
                 }
                 .offset(x: -8) 
                 Spacer().frame(width: 16) // 우측 여백
@@ -67,7 +67,7 @@ struct MyProgressView: View {
         .frame(width: cardSize.width, height: cardSize.height, alignment: .leading)
         .background(
             RoundedRectangle(cornerRadius: 10)
-                .fill(Color.white01)
+                .fill(Color.calendarbackground)
         )
         .accessibilityElement(children: .combine)
         .accessibilityLabel(Text("나의 플랜토리 진행도 \(Int(progress * 100))퍼센트, 연속 기록 \(currentStreak)일")
@@ -81,15 +81,15 @@ struct MyProgressView: View {
                 VStack(spacing: 2) {
                     Text("새싹")
                         .font(.pretendardRegular(10))
-                        .foregroundStyle(.green06)
-                    Circle().fill(Color.green06).frame(width: 3, height: 3)
+                        .foregroundStyle(.homeIcon)
+                    Circle().fill(.homeIcon).frame(width: 3, height: 3)
                 }
                 Spacer().frame(width: 68)
                 VStack(spacing: 2) {
                     Text("잎새")
                         .font(.pretendardRegular(10))
-                        .foregroundStyle(.green06)
-                    Circle().fill(Color.green06).frame(width: 3, height: 3)
+                        .foregroundStyle(.homeIcon)
+                    Circle().fill(.homeIcon).frame(width: 3, height: 3)
                 }
             }
 
@@ -112,7 +112,7 @@ struct MyProgressView: View {
                         .overlay(
                             Text("꽃나무")
                                 .font(.pretendardRegular(10))
-                                .foregroundColor(.black)
+                                .foregroundColor(.black01)
                         )
                 }
                 .frame(width: 230, height: 10)
@@ -126,7 +126,7 @@ struct MyProgressView: View {
                 let clampedX = max(0, min(187 - percentLabelWidth, targetX))
                 Text("\(Int(progress * 100))%")
                     .font(.pretendardRegular(10))
-                    .foregroundStyle(.green06)
+                    .foregroundStyle(.homeIcon)
                     .frame(width: percentLabelWidth, alignment: .center)
                     .offset(x: clampedX)
                     .animation(.easeInOut(duration: 0.25), value: progress)

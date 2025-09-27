@@ -37,12 +37,12 @@ struct CalendarHeaderView: View {
                 Button(action: onTapCalendar) {
                     Image(systemName: "calendar")
                         .font(.title)
-                        .foregroundColor(.black)
+                        .foregroundColor(.homeIcon)
                 }
                 Button(action: onTapPlus) {
                     Image(systemName: "plus")
                         .font(.title)
-                        .foregroundColor(.black)
+                        .foregroundColor(.homeIcon)
                 }
             }
             Spacer().frame(height: 18)
