@@ -34,9 +34,9 @@ protocol ProfileServiceProtocol {
     // 임시 보관함 / 휴지통 / 스크랩
     func fetchTemp(sort: SortOrder) -> AnyPublisher<[Diary], APIError>
     func fetchWaste(sort: SortOrder) -> AnyPublisher<[Diary], APIError>
-    func patchWaste(diaryIds: [Int]) -> AnyPublisher<WastePatchResponse, APIError>
-    func deleteWaste(diaryIds: [Int]) -> AnyPublisher<WasteDeleteResponse, APIError>
-    func restoreWaste(diaryIds: [Int]) -> AnyPublisher<RestoreResponse, APIError>
+    func patchWaste(diaryIds: [Int]) -> AnyPublisher<StatusResponseOnly, APIError>
+    func deleteWaste(diaryIds: [Int]) -> AnyPublisher<StatusResponseOnly, APIError>
+    func restoreWaste(diaryIds: [Int]) -> AnyPublisher<StatusResponseOnly, APIError>
     func scrap(sort: SortOrder, cursor: String?) -> AnyPublisher<ScrapResponse, APIError>
 
     // 프로필
@@ -105,18 +105,18 @@ final class ProfileService: ProfileServiceProtocol {
             .eraseToAnyPublisher()
     }
 
-    func patchWaste(diaryIds: [Int]) -> AnyPublisher<WastePatchResponse, APIError> {
-        provider.requestResult(.wastePatch(diaryIds: diaryIds), type: WastePatchResponse.self)
+    func patchWaste(diaryIds: [Int]) -> AnyPublisher<StatusResponseOnly, APIError> {
+        provider.requestResult(.wastePatch(diaryIds: diaryIds), type: StatusResponseOnly.self)
     }
 
     // 영구삭제
-    func deleteWaste(diaryIds: [Int]) -> AnyPublisher<WasteDeleteResponse, APIError> {
-        provider.requestResult(.deleteDiary(diaryIds: diaryIds), type: WasteDeleteResponse.self)
+    func deleteWaste(diaryIds: [Int]) -> AnyPublisher<StatusResponseOnly, APIError> {
+        provider.requestResult(.deleteDiary(diaryIds: diaryIds), type: StatusResponseOnly.self)
     }
     
     // 임시보관함으로 복원
-    func restoreWaste(diaryIds: [Int]) -> AnyPublisher<RestoreResponse, APIError> {
-        provider.requestResult(.restore(diaryIds: diaryIds), type: RestoreResponse.self)
+    func restoreWaste(diaryIds: [Int]) -> AnyPublisher<StatusResponseOnly, APIError> {
+        provider.requestResult(.restore(diaryIds: diaryIds), type: StatusResponseOnly.self)
     }
     
     func scrap(sort: SortOrder = .latest, cursor: String?) -> AnyPublisher<ScrapResponse, APIError> {

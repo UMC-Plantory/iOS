@@ -17,61 +17,63 @@ struct EmotionStatsView: View {
         }
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 24) {
-            Spacer().frame(height: 45)
-            
-            WeekMonthPicker(selection: $page)
-                .frame(maxWidth: .infinity, alignment: .center)
-                .onChange(of: page) { old, new in
-                    if new == 0 { viewModel.fetchWeeklyEmotionStats()
+        ScrollView(.vertical, showsIndicators: false) {
+            VStack(alignment: .leading, spacing: 24) {
+                Spacer().frame(height: 45)
+                
+                WeekMonthPicker(selection: $page)
+                    .frame(maxWidth: .infinity, alignment: .center)
+                    .onChange(of: page) { old, new in
+                        if new == 0 { viewModel.fetchWeeklyEmotionStats()
+                        }
+                        else {
+                            // 월간 감정 통계 패치 함수
+                        }
                     }
-                    else {
-                        // 월간 감정 통계 패치 함수
-                    }
-                }
-            
-            VStack(alignment: .leading, spacing: 8) {
-                Text(viewModel.comment)
-                    .font(.pretendardSemiBold(18))
-                Text(viewModel.periodText)
-                    .font(.pretendardRegular(16))
-                    .foregroundColor(.gray09)
-                HStack {
-                    (
-                        Text("오늘은 \(viewModel.todayWeekdayLabel)이에요!\n지난 한 주간에는 ")
-                        + Text(viewModel.mostFrequentEmotionLabel).bold()
-                        + Text("이 가장 많이 기록 되었어요!")
-                    )
-                    .font(.pretendardRegular(12))
-                    .foregroundColor(.green06)
-                    .fixedSize(horizontal: false, vertical: true)
-                    .frame(minHeight: 50, alignment: .topLeading)
-                    Spacer()
-                }
-                HStack{
-                    Spacer()
-                    if viewModel.topEmotionKey != "" {
-                        EmotionGaugeView(
-                            progress: viewModel.topEmotionRatio,
-                            emotionKey: viewModel.topEmotionKey
+                
+                VStack(alignment: .leading, spacing: 8) {
+                    Text(viewModel.comment)
+                        .font(.pretendardSemiBold(18))
+                    Text(viewModel.periodText)
+                        .font(.pretendardRegular(16))
+                        .foregroundColor(.gray09)
+                    HStack {
+                        (
+                            Text("오늘은 \(viewModel.todayWeekdayLabel)이에요!\n지난 한 주간에는 ")
+                            + Text(viewModel.mostFrequentEmotionLabel).bold()
+                            + Text("이 가장 많이 기록 되었어요!")
                         )
-                        .frame(width: 120, height: 120)
+                        .font(.pretendardRegular(12))
+                        .foregroundColor(.green06)
+                        .fixedSize(horizontal: false, vertical: true)
+                        .frame(minHeight: 50, alignment: .topLeading)
+                        Spacer()
                     }
+                    HStack{
+                        Spacer()
+                        if viewModel.topEmotionKey != "" {
+                            EmotionGaugeView(
+                                progress: viewModel.topEmotionRatio,
+                                emotionKey: viewModel.topEmotionKey
+                            )
+                            .frame(width: 120, height: 120)
+                        }
+                    }
+                    Spacer().frame(height: 30)
+                    EmotionPercentageChartView(data: viewModel.emotionPercentages)
                 }
-                Spacer().frame(height: 30)
-                EmotionPercentageChartView(data: viewModel.emotionPercentages)
+                Spacer()
             }
-            Spacer()
-        }
-        .padding(.horizontal, 28)
-        .onChange(of: page) { _, new in
-            if new == 0 {
-                viewModel.fetchWeeklyEmotionStats()
-            } else {
-                viewModel.fetchMonthlyEmotionStats()
+            .padding(.horizontal, 28)
+            .onChange(of: page) { _, new in
+                if new == 0 {
+                    viewModel.fetchWeeklyEmotionStats()
+                } else {
+                    viewModel.fetchMonthlyEmotionStats()
+                }
             }
+            .loadingIndicator(viewModel.isLoading)
         }
-        .loadingIndicator(viewModel.isLoading)
     }
 }
 

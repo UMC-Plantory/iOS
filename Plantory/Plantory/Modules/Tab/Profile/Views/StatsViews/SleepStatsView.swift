@@ -12,37 +12,38 @@ struct SleepStatsView: View {
     }
 
     var body: some View {
-        VStack(spacing: 0) {
-            
-            WeekMonthPicker(selection: $page)
-                .padding(.top, 69)
-                .padding(.bottom, 12)
-                .frame(maxWidth: .infinity)
-                .onChange(of: page) { _, new in
-                    if new == 0 { viewModel.fetchWeekly() }
-                    else        { viewModel.fetchMonthly() }
-                }
+        ScrollView(.vertical, showsIndicators: false) {
+            VStack(spacing: 0) {
+                
+                WeekMonthPicker(selection: $page)
+                    .padding(.top, 69)
+                    .padding(.bottom, 12)
+                    .frame(maxWidth: .infinity)
+                    .onChange(of: page) { _, new in
+                        if new == 0 { viewModel.fetchWeekly() }
+                        else        { viewModel.fetchMonthly() }
+                    }
 
-            Group {
-                if page == 0 {
-                    weeklyArea
-                } else {
-                    monthlyArea
+                Group {
+                    if page == 0 {
+                        weeklyArea
+                    } else {
+                        monthlyArea
+                    }
                 }
+                .padding(.horizontal, 28)
+                .animation(.default, value: page)
+                .animation(.default, value: viewModel.isWeeklyEmpty)
+                .animation(.default, value: viewModel.isMonthlyEmpty)
             }
-            .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
-            .padding(.horizontal, 28)
-            .animation(.default, value: page)
-            .animation(.default, value: viewModel.isWeeklyEmpty)
-            .animation(.default, value: viewModel.isMonthlyEmpty)
+            .frame(maxWidth: .infinity, alignment: .top)
         }
-        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
         .onAppear {
-            // 최초 진입 시 현재 탭에 맞는 데이터 로드
             if page == 0 { viewModel.fetchWeekly() }
             else         { viewModel.fetchMonthly() }
         }
     }
+
 }
 
 // MARK: - Weekly / Monthly Content
