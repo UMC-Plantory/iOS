@@ -35,16 +35,16 @@ private struct YearDropdown: View {
                                 // 쉼표 방지
                                 Text(verbatim: "\(y)년")
                                     .font(.pretendardRegular(14))
-                                    .foregroundColor(.white01)
+                                    .foregroundColor(.white01Dynamic)
                                 Spacer()
                             }
                             .padding(.horizontal, 16)
                             .frame(height: rowHeight)
-                            .background(y == selected ? Color.white01.opacity(0.08) : .clear)
+                            .background(y == selected ? Color.white01Dynamic.opacity(0.08) : .clear)
                         }
                         .id(y)
 
-                        Divider().background(Color.white01.opacity(0.5))
+                        Divider().background(Color.white01Dynamic.opacity(0.5))
                     }
                 }
             }
@@ -122,10 +122,10 @@ struct MonthYearPickerView: View {
                             // 쉼표 방지
                             Text(verbatim: "\(draftYear)년")
                                 .font(.pretendardSemiBold(20))
-                                .foregroundColor(.black01)
+                                .foregroundColor(.black01Dynamic)
                             Image(systemName: "chevron.down")
                                 .font(.system(size: 16, weight: .semibold))
-                                .foregroundColor(.black01)
+                                .foregroundColor(.black01Dynamic)
                                 .rotationEffect(.degrees(isYearMenuOpen ? 180 : 0))
                         }
                         .padding(.vertical, 10)
@@ -168,7 +168,7 @@ struct MonthYearPickerView: View {
                         Button { draftMonth = m } label: {
                             Text("\(m)월")
                                 .font(.pretendardRegular(18))
-                                .foregroundColor(.white01)
+                                .foregroundColor(.white01Dynamic)
                                 .frame(width: 72, height: 44)
                                 .background(
                                     RoundedRectangle(cornerRadius: 10)
@@ -183,7 +183,7 @@ struct MonthYearPickerView: View {
             // clipShape 쓰면 드롭다운이 잘리니 background로 둥근 모양만 적용
             .background(
                 RoundedRectangle(cornerRadius: 20)
-                    .fill(Color.white01)
+                    .fill(Color.white01Dynamic)
                     .shadow(color: .black.opacity(0.1), radius: 12, y: 6)
             )
             .frame(width: 336)

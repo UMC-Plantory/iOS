@@ -13,13 +13,13 @@ struct StrokeButtonStyle: ButtonStyle {
     
     func makeBody(configuration: Configuration) -> some View {
         configuration.label
-            .foregroundColor(colorScheme == .light ? .black01 : .gray04Always)
+            .foregroundColor(colorScheme == .light ? .black01Dynamic : .gray04)
             .background(
                 RoundedRectangle(cornerRadius: 5)
                     .fill(
                         colorScheme == .light ?
-                        configuration.isPressed ? Color.gray02 : Color.white01
-                        : configuration.isPressed ? Color.gray09Always : Color.gray08
+                        configuration.isPressed ? Color.gray02 : Color.white01Dynamic
+                        : configuration.isPressed ? Color.gray09 : Color.gray08
                     )
                     .strokeBorder(Color.gray04, lineWidth: 1)
             )

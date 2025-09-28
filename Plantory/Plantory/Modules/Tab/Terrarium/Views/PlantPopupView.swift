@@ -204,4 +204,3 @@ private extension PlantPopupView {
         }
     }
 }
-

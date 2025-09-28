@@ -35,7 +35,7 @@ struct ScrapView: View {
                     HStack(spacing: 4) {
                         Text(isNew ? "최신순" : "오래된순")
                             .font(.pretendardRegular(14))
-                            .foregroundStyle(.black01)
+                            .foregroundStyle(.black01Dynamic)
                             .offset(x: 15)
                         if showMenu {
                             Image("Up")

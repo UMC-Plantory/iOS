@@ -37,7 +37,7 @@ struct DiaryListView: View {
                 .padding(.trailing, 12)
 
                 Rectangle()
-                    .fill(Color.gray04)
+                    .fill(Color.gray04Dynamic)
                     .frame(height: 4)
                     .padding(.bottom, 12)
                     .padding(.horizontal, -18)
@@ -97,7 +97,7 @@ struct DiaryHeaderView: View {
         HStack {
             Text("일기목록")
                 .font(.pretendardSemiBold(20))
-                .foregroundColor(.black01)
+                .foregroundColor(.black01Dynamic)
 
             Spacer()
 
@@ -106,7 +106,7 @@ struct DiaryHeaderView: View {
                     Image("search").resizable()
                         .renderingMode(.template)
                         .frame(width: 20, height: 20)
-                        .foregroundColor(.black01)
+                        .foregroundColor(.black01Dynamic)
                 }
 
 //                Button(action: onMoreTap) {

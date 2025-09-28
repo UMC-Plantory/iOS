@@ -52,7 +52,7 @@ struct ChatBox: View {
                     .clipShape(ModelChatBubbleShape())
                     .overlay(
                         ModelChatBubbleShape()
-                            .stroke(.black01, lineWidth: 1)
+                            .stroke(.black01Dynamic, lineWidth: 1)
                     )
             }
             
@@ -65,7 +65,7 @@ struct ChatBox: View {
     private var createAtView: some View {
         Text(extractTime(from: chatModel.createdAt) ?? "시간 없음")
             .font(.pretendardRegular(10))
-            .foregroundStyle(.black01)
+            .foregroundStyle(.black01Dynamic)
     }
     
     /// 채팅에서 메시지를 나타내는 뷰
@@ -93,12 +93,12 @@ struct ChatLoadingBox: View {
 
                 ProgressView()
                     .padding()
-                    .tint(.gray11Always)
-                    .background(.white01)
+                    .tint(.gray11)
+                    .background(.white01Dynamic)
                     .clipShape(ModelChatBubbleShape())
                     .overlay(
                         ModelChatBubbleShape()
-                            .stroke(.black01, lineWidth: 1)
+                            .stroke(.black01Dynamic, lineWidth: 1)
                     )
             }
         }

@@ -14,7 +14,7 @@ struct HomeHeaderView: View {
         HStack {
             Text("오늘 하루는 어땠나요?")
                 .font(.pretendardRegular(24))
-                .foregroundColor(.black01)
+                .foregroundColor(.black01Dynamic)
             Spacer()
         }
     }

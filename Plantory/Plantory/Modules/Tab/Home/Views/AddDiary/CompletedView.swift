@@ -44,7 +44,7 @@ struct CompletedView: View {
                 Text("오늘의 감정이\n마음의 잎을 틔워냈어요")
                     .font(.pretendardBold(20))
                     .multilineTextAlignment(.center)
-                    .foregroundStyle(.black01)
+                    .foregroundStyle(.black01Dynamic)
 
                 Spacer().frame(height: 100)
 

@@ -34,7 +34,7 @@ struct DiarySearchRow: View {
                         // 제목
                         Text(entry.title)
                             .font(.pretendardSemiBold(18))
-                            .foregroundColor(Color("black01"))
+                            .foregroundColor(Color("black01Dynamic"))
                             .padding(.top, 8)
 
                         // 내용
@@ -73,7 +73,7 @@ struct DiarySearchRow: View {
                         // 날짜 텍스트 (오른쪽 정렬)
                         Text(entry.diaryDate)
                             .font(.pretendardRegular(14))
-                            .foregroundColor(Color("white01"))
+                            .foregroundColor(Color("white01Dynamic"))
                             .padding(.trailing, 3) // 텍스트 오른쪽 여백
                     }
 

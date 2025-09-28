@@ -50,7 +50,7 @@ struct InputField: View {
             TextField(placeholder, text: $text)
                 .font(.pretendardRegular(14))
                 .focused($isFocused)
-                .foregroundColor(.black01)
+                .foregroundColor(.black01Dynamic)
                 .padding(.horizontal, 16)
                 .padding(.vertical, 12)
                 .background(

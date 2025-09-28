@@ -86,7 +86,7 @@ struct HomeView: View {
                                     ForEach(CalendarView.weekdaySymbols, id: \.self) { sym in
                                         Text(sym)
                                             .font(.pretendardRegular(14))
-                                            .foregroundColor(.gray11)
+                                            .foregroundColor(.gray11Dynamic)
                                             .frame(maxWidth: .infinity) // 7등분 균등
                                     }
                                 }

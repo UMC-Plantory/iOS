@@ -30,7 +30,7 @@ struct MyProgressView: View {
                 VStack(alignment: .leading, spacing: 3) {
                     Text("나의 플랜토리")
                         .font(.pretendardRegular(14))
-                        .foregroundStyle(.black01)
+                        .foregroundStyle(.black01Dynamic)
                     progressbar
                 }
                 .frame(maxWidth: .infinity, alignment: .leading)
@@ -49,10 +49,10 @@ struct MyProgressView: View {
                         HStack(spacing: 0.1) {
                             Text("\(currentStreak)")
                                 .font(.pretendardBold(18))
-                                .foregroundColor(.black01)
+                                .foregroundColor(.black01Dynamic)
                             Text("일")
                                 .font(.pretendardRegular(14))
-                                .foregroundColor(.black01)
+                                .foregroundColor(.black01Dynamic)
                         }
                     }
                     Text("현재 연속 기록")
@@ -96,7 +96,7 @@ struct MyProgressView: View {
             // Progress 바
             ZStack(alignment: .leading) {
                 Capsule()
-                    .fill(Color.brown01)
+                    .fill(Color.brown01Dynamic)
                     .frame(width: 187, height: 4)
 
                 Capsule()
@@ -107,12 +107,12 @@ struct MyProgressView: View {
                 HStack {
                     Spacer().frame(width: 180)
                     Circle()
-                        .fill(Color.brown01)
+                        .fill(Color.brown01Dynamic)
                         .frame(width: 36, height: 36)
                         .overlay(
                             Text("꽃나무")
                                 .font(.pretendardRegular(10))
-                                .foregroundColor(.black01)
+                                .foregroundColor(.black01Dynamic)
                         )
                 }
                 .frame(width: 230, height: 10)

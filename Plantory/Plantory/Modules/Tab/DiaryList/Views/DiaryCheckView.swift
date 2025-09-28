@@ -60,7 +60,7 @@ struct DiaryCheckView: View {
                     // 제목
                     Text(vm.summary?.title ?? "제목 없음")
                         .font(.pretendardSemiBold(18))
-                        .foregroundColor(.black01)
+                        .foregroundColor(.black01Dynamic)
                         .padding(.top, 20)
                     
                     DiaryCheckImageView()
@@ -70,13 +70,13 @@ struct DiaryCheckView: View {
                     if vm.isEditing {
                         TextEditor(text: $vm.editedContent)
                             .font(.pretendardRegular(16))
-                            .foregroundColor(.black01)
+                            .foregroundColor(.black01Dynamic)
                             .frame(height: 140)
                     } else {
                         ScrollView(.vertical) {
                             Text(vm.editedContent)
                                 .font(.pretendardRegular(16))
-                                .foregroundColor(.black01)
+                                .foregroundColor(.black01Dynamic)
                         }
                         .scrollIndicators(.hidden)
                     }
@@ -129,7 +129,7 @@ struct DiaryCheckView: View {
                 }
                 .padding(18)
                 .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
-                .background(.white01, in: RoundedRectangle(cornerRadius: 10))
+                .background(.white01Dynamic, in: RoundedRectangle(cornerRadius: 10))
                 .overlay(alignment: .topTrailing) {
                     Button(action: {
                         vm.toggleScrap()
@@ -206,7 +206,7 @@ struct DiaryCheckView: View {
                     .frame(width: 60, height: 60)
             } else {
                 Circle()
-                    .fill(.white01)
+                    .fill(.white01Dynamic)
                     .frame(width: 60, height: 60)
                     .overlay(
                         ProgressView()

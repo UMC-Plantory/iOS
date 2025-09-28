@@ -42,8 +42,8 @@ struct BaseTabView: View {
                 .zIndex(99)
             }
         }
-        .tint(.black01)
-        .toolbarBackground(.white01, for: .tabBar)
+        .tint(.black01Dynamic)
+        .toolbarBackground(.white01Dynamic, for: .tabBar)
         .ignoresSafeArea(.keyboard)
         .navigationBarBackButtonHidden(true)
     }

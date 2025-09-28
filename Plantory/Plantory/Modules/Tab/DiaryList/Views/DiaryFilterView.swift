@@ -71,7 +71,7 @@ struct DiaryFilterView: View {
             HStack {
                 Text("필터")
                     .font(.pretendardSemiBold(20))
-                    .foregroundColor(Color("black01"))
+                    .foregroundColor(Color("black01Dynamic"))
                 Spacer()
             }
             .padding(.top, 32)
@@ -80,7 +80,7 @@ struct DiaryFilterView: View {
 
             Text("나열")
                 .font(.pretendardSemiBold(18))
-                .foregroundColor(Color("black01"))
+                .foregroundColor(Color("black01Dynamic"))
 
             HStack(spacing: 32) {
                 OrderButton(title: "최신순",  isSelected: viewModel.sort == .latest) { viewModel.sort = .latest }
@@ -108,7 +108,7 @@ struct DiaryFilterView: View {
                     Text(verbatim: "\(selectedYear)년").font(.pretendardRegular(16))
                     Button { selectedYear += 1 } label: { Image(systemName: "chevron.right") }
                 }
-                .foregroundColor(.black01)
+                .foregroundColor(.black01Dynamic)
                 
                 ZStack {
                     // 연결선
@@ -135,7 +135,7 @@ struct DiaryFilterView: View {
                             let backgroundColor: Color =
                             future ? Color("gray03")
                             : endpoint ? Color("green04")
-                            : (inRange ? Color("green04").opacity(0.6) : Color("white01"))
+                            : (inRange ? Color("green04").opacity(0.6) : Color("white"))
                             
                             let borderColor: Color =
                             future ? Color("gray04")
@@ -145,7 +145,7 @@ struct DiaryFilterView: View {
                             let textColor: Color =
                             future ? Color("gray06")
                             : endpoint ? Color("green06")
-                            : (inRange ? Color("green06").opacity(0.9) : Color("black01"))
+                            : (inRange ? Color("green06").opacity(0.9) : Color("black"))
                             
                             VStack(spacing: 4) {
                                 Circle()

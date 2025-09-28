@@ -22,7 +22,7 @@ struct OrderButton: View {
                     .foregroundColor(isSelected ? Color("green04") : .gray)
 
                 Text(title)
-                    .foregroundColor(Color("black01"))
+                    .foregroundColor(Color("black01Dynamic"))
                     .font(.pretendardRegular(16))
             }
         }
@@ -41,7 +41,7 @@ struct EmotionTag: View {
             .fixedSize()
             .padding(.horizontal, 12)
             .padding(.vertical, 8)
-            .background(isSelected ? .green04 : .white01)
+            .background(isSelected ? .green04 : .white)
             .foregroundColor(isSelected ? .white : .gray08)
             .overlay(
                 RoundedRectangle(cornerRadius: 20)

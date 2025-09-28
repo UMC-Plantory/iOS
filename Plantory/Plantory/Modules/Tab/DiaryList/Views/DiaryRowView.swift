@@ -44,7 +44,7 @@ struct DiaryRow: View {
                         // 제목
                         Text(entry.title)
                             .font(.pretendardSemiBold(18))
-                            .foregroundColor(.black01)
+                            .foregroundColor(.black01Dynamic)
                             .padding(.top, 4)
                         
                         // 내용
@@ -83,7 +83,7 @@ struct DiaryRow: View {
                     // 날짜 텍스트 (오른쪽 정렬)
                     Text(formatToMonthDay(entry.diaryDate))
                         .font(.pretendardRegular(14))
-                        .foregroundColor(Color("white01"))
+                        .foregroundColor(Color("white01Dynamic"))
                         .padding(.trailing, 4) // 텍스트 오른쪽 여백
                 }
               

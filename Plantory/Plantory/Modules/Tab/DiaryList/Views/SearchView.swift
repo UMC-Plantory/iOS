@@ -60,7 +60,7 @@ struct DiarySearchView: View {
             } label: {
                 Image("leftChevron")
                     .renderingMode(.template)
-                    .foregroundColor(.black01)
+                    .foregroundColor(.black01Dynamic)
             }
 
             HStack {
@@ -109,7 +109,7 @@ struct DiarySearchView: View {
             Image("search")
                 .resizable()
                 .renderingMode(.template)
-                .foregroundColor(.black01)
+                .foregroundColor(Color.black01Dynamic)
                 .frame(width: 20, height: 20)
         }
     }
@@ -119,7 +119,7 @@ struct DiarySearchView: View {
         HStack {
             Text("최근 검색어")
                 .font(.pretendardSemiBold(18))
-                .foregroundColor(.black01)
+                .foregroundColor(Color.black01Dynamic)
             Spacer()
             Button("모두 지우기") { vm.clearRecent() }
                 .font(.pretendardRegular(12))
@@ -176,7 +176,7 @@ struct DiarySearchView: View {
     @ViewBuilder
     private var searchResultSection: some View {
         Rectangle()
-            .fill(Color.gray04)
+            .fill(Color.gray04Dynamic)
             .frame(height: 4)
             .padding(.horizontal, -18)
             .padding(.bottom, 24)
@@ -184,7 +184,7 @@ struct DiarySearchView: View {
         HStack {
             Text("‘\(vm.currentKeywords)’가 들어간 일기")
                 .font(.pretendardSemiBold(18))
-                .foregroundColor(Color("black01"))
+                .foregroundColor(Color("black01Dynamic"))
             Spacer()
             Text("\(vm.total)개")
                 .font(.pretendardRegular(12))

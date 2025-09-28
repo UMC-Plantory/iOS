@@ -24,7 +24,7 @@ struct PhotoStepView: View {
             ZStack {
                 // 배경 박스
                 RoundedRectangle(cornerRadius: 10)
-                    .fill(Color.gray04Always)
+                    .fill(Color.gray04)
                     .frame(width: boxSize.width, height: boxSize.height)
 
                 // 이미지 표시 (있을 때만)
