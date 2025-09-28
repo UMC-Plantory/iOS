@@ -37,7 +37,7 @@ struct AlignmentView: View {
                     }
                     .foregroundStyle(.gray09Dynamic)
                 }
-                .background(Color.white01Dynamic)
+                .background(Color.adddiarybackground)
             }
         }
 

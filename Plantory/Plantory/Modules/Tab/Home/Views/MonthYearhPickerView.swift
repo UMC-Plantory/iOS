@@ -168,7 +168,7 @@ struct MonthYearPickerView: View {
                         Button { draftMonth = m } label: {
                             Text("\(m)월")
                                 .font(.pretendardRegular(18))
-                                .foregroundColor(.white01Dynamic)
+                                .foregroundColor(draftMonth == m ? .white : .white01Dynamic)
                                 .frame(width: 72, height: 44)
                                 .background(
                                     RoundedRectangle(cornerRadius: 10)

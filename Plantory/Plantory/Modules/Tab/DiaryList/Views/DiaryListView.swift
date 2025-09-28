@@ -130,7 +130,7 @@ struct DiaryMonthSectionView: View {
 
                 Text("\(Calendar.current.component(.month, from: Date()))월")
                     .font(.pretendardRegular(20))
-                    .foregroundColor(.green08)
+                    .foregroundColor(.green08Dynamic)
             }
 
             Spacer()

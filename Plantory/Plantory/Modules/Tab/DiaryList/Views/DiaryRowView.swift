@@ -83,7 +83,7 @@ struct DiaryRow: View {
                     // 날짜 텍스트 (오른쪽 정렬)
                     Text(formatToMonthDay(entry.diaryDate))
                         .font(.pretendardRegular(14))
-                        .foregroundColor(Color("white01Dynamic"))
+                        .foregroundColor(Color.white)
                         .padding(.trailing, 4) // 텍스트 오른쪽 여백
                 }
               

@@ -25,40 +25,43 @@ struct ScrapView: View {
     }
     
     var body: some View {
-        VStack(spacing: 5) {
-            Spacer()
-            
-            Divider().background(.gray04)
-            
-            HStack {
+        ZStack {
+            Color.adddiarybackground.ignoresSafeArea()
+            VStack(spacing: 5) {
                 Spacer()
                 
-                Button {
-                    showMenu.toggle()
-                } label: {
-                    HStack(spacing: 4) {
-                        Text(isNew ? "최신순" : "오래된순")
-                            .font(.pretendardRegular(14))
-                            .foregroundStyle(.gray09Dynamic)
-                            .offset(x: 15)
-                        Group {
-                            if showMenu {
-                                Image("Up")
-                                    .renderingMode(.template)
-                            } else {
-                                Image("Down")
-                                    .renderingMode(.template)
+                Divider().background(.gray04)
+                
+                HStack {
+                    Spacer()
+                    
+                    Button {
+                        showMenu.toggle()
+                    } label: {
+                        HStack(spacing: 4) {
+                            Text(isNew ? "최신순" : "오래된순")
+                                .font(.pretendardRegular(14))
+                                .foregroundStyle(.gray09Dynamic)
+                                .offset(x: 15)
+                            Group {
+                                if showMenu {
+                                    Image("Up")
+                                        .renderingMode(.template)
+                                } else {
+                                    Image("Down")
+                                        .renderingMode(.template)
+                                }
                             }
+                            .foregroundStyle(.gray09Dynamic)
                         }
-                        .foregroundStyle(.gray09Dynamic)
+                        .background(Color.adddiarybackground)
                     }
-                    .background(Color.white01Dynamic)
                 }
+                
+                Spacer()
+                
+                content
             }
-            
-            Spacer()
-
-            content
         }
         .overlay(
             Group {
@@ -106,7 +109,10 @@ struct ScrapView: View {
             title: "스크랩",
             leading: Button(action: { container.navigationRouter.pop()
             }, label: {
-                Image("leftChevron").fixedSize()
+                Image("leftChevron")
+                    .renderingMode(.template)
+                    .foregroundStyle(.black01Dynamic)
+                    .fixedSize()
             }
         ))
         .navigationBarBackButtonHidden(true)

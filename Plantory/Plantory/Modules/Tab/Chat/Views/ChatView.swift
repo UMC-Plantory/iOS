@@ -97,7 +97,12 @@ struct ChatView: View {
     
     private var inputField: some View {
         HStack {
-            TextField("플랜토리에게 하고 싶은 말을 입력해보세요.", text: $viewModel.textInput)
+            TextField(
+                "",
+                text: $viewModel.textInput,
+                prompt: Text("플랜토리에게 하고 싶은 말을 입력해보세요.")
+                    .foregroundColor(.gray06)
+            )
                 .font(.pretendardRegular(12))
                 .foregroundStyle(.black)
                 .focused($isFocused)

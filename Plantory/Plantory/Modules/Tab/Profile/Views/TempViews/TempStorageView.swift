@@ -18,7 +18,11 @@ struct TempStorageView: View {
 
     var body: some View {
         ZStack {
+            Color.adddiarybackground.ignoresSafeArea()
+            
             VStack {
+                Spacer()
+                
                 Divider().background(.gray04)
                 
                 VStack(spacing: 5) {

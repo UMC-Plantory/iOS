@@ -169,7 +169,7 @@
                             ? .white
                             : isFuture
                                 ? .gray06
-                                : (hasEntry ? .green06 : .gray10)
+                                : (hasEntry ? .green06 : .gray10Dynamic)
                     )
             }
             .frame(width: cellSize, height: cellSize)

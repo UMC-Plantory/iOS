@@ -133,19 +133,19 @@ struct DiaryFilterView: View {
                             
                             // 색상 규칙: endpoint 진한 초록, 범위는 연한 초록, 미래는 회색
                             let backgroundColor: Color =
-                            future ? Color("gray03")
+                            future ? Color("gray03Dynamic")
                             : endpoint ? Color("green04")
-                            : (inRange ? Color("green04").opacity(0.6) : Color("white"))
+                            : (inRange ? Color("green04").opacity(0.6) : Color.white)
                             
                             let borderColor: Color =
-                            future ? Color("gray04")
+                            future ? Color("gray04Dynamic")
                             : endpoint ? Color("green06")
                             : (inRange ? Color("green06").opacity(0.6) : Color("gray04"))
                             
                             let textColor: Color =
                             future ? Color("gray06")
                             : endpoint ? Color("green06")
-                            : (inRange ? Color("green06").opacity(0.9) : Color("black"))
+                            : (inRange ? Color("green06").opacity(0.9) : Color.black01Dynamic)
                             
                             VStack(spacing: 4) {
                                 Circle()

@@ -58,25 +58,24 @@ struct DiarySearchRow: View {
             VStack(alignment: .trailing, spacing: 6) {
                 
                 ZStack(alignment: .trailing) {
-                        // 배경: 연한 초록(왼쪽 32pt) + 진한 초록(오른쪽 41pt)
-                        HStack(spacing: 0) {
-                            Color("green04").opacity(0.3) // 왼쪽 흐린 초록
-                                .frame(width: 32)
+                    // 배경: 연한 초록(왼쪽 32pt) + 진한 초록(오른쪽 41pt)
+                    HStack(spacing: 0) {
+                        Color("green04").opacity(0.3) // 왼쪽 흐린 초록
+                            .frame(width: 32)
 
-                            Color("green04") // 오른쪽 진한 초록
-                                .frame(width: 41)
-                        }
-                        .frame(width: 73, height: 31)
-                        .cornerRadius(5)
-                        .shadow(color: Color.black.opacity(0.1), radius: 2, x: 2, y: 2)
-
-                        // 날짜 텍스트 (오른쪽 정렬)
-                        Text(entry.diaryDate)
-                            .font(.pretendardRegular(14))
-                            .foregroundColor(Color("white01Dynamic"))
-                            .padding(.trailing, 3) // 텍스트 오른쪽 여백
+                        Color("green04") // 오른쪽 진한 초록
+                            .frame(width: 41)
                     }
+                    .frame(width: 73, height: 31)
+                    .cornerRadius(5)
+                    .shadow(color: Color.black.opacity(0.1), radius: 2, x: 2, y: 2)
 
+                    // 날짜 텍스트 (오른쪽 정렬)
+                    Text(formatToMonthDay(entry.diaryDate))
+                        .font(.pretendardRegular(14))
+                        .foregroundStyle(Color.white)
+                        .padding(.trailing, 3) // 텍스트 오른쪽 여백
+                }
                 .padding(.top, -4)
               
                 RoundedCorner(radius: 5, corners: [.topRight, .bottomRight])
@@ -107,4 +106,18 @@ struct DiarySearchRow: View {
         }
     }
 
+}
+
+#Preview {
+    DiarySearchRow(
+        entry: DiarySummary(
+            diaryId: 1,
+            diaryDate: "2025-09-27",
+            title: "가을 산책",
+            status: "SCRAP",
+            emotion: .HAPPY,
+            content: "오늘은 단풍이 정말 예뻤다. 따뜻한 햇살 덕분에 기분 좋은 하루였다.",
+            diaryImgUrl: nil
+        )
+    )
 }

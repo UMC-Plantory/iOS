@@ -75,7 +75,7 @@ struct DetailSheetView: View {
                         } label: {
                             Image(systemName: "plus")
                                 .font(.title3)
-                                .foregroundColor(.green05)
+                                .foregroundColor(.green06Dynamic)
                         }
                     }
                 }

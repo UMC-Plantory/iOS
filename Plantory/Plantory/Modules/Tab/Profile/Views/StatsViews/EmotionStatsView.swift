@@ -83,11 +83,11 @@ struct EmotionPercentageChartView: View {
 
     /// 감정별 그라데이션 색상 매핑 (한글 레이블 기준)
     private let gradientColorMap: [String: [Color]] = [
-        "기쁨":     [Color.yellow.opacity(0.05), Color.yellow.opacity(0.1), Color.yellow.opacity(0.5)],
-        "놀람":     [Color.green03.opacity(0.1),  Color.green03.opacity(0.4),  Color.green03.opacity(1.0)],
-        "슬픔":     [Color.blue.opacity(0.05),   Color.blue.opacity(0.1),   Color.blue.opacity(0.3)],
-        "화남":     [Color.pink.opacity(0.05),   Color.pink.opacity(0.1),   Color.pink.opacity(0.5)],
-        "그저그럼": [Color.gray.opacity(0.05),   Color.gray.opacity(0.1),   Color.gray.opacity(0.5)]
+        "기쁨":     [Color.happy.opacity(0.1), Color.happy.opacity(0.3), Color.happy.opacity(0.8)],
+        "놀람":     [Color.surprised.opacity(0.1),  Color.surprised.opacity(0.3),  Color.surprised.opacity(0.8)],
+        "슬픔":     [Color.sad.opacity(0.1),   Color.sad.opacity(0.3),   Color.sad.opacity(0.8)],
+        "화남":     [Color.mad.opacity(0.1),   Color.mad.opacity(0.3),   Color.mad.opacity(0.8)],
+        "그저그럼": [Color.soso.opacity(0.1),   Color.soso.opacity(0.3), Color.soso.opacity(0.8)]
     ]
 
     var body: some View {

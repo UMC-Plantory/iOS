@@ -12,6 +12,7 @@ import Kingfisher
 struct DiaryCheckView: View {
     
     @EnvironmentObject var container: DIContainer
+    @Environment(\.colorScheme) var colorScheme
     
     //MARK: - 상태
     @State var diaryId: Int
@@ -38,7 +39,7 @@ struct DiaryCheckView: View {
     
     var body: some View {
         ZStack {
-            Color.brown01.ignoresSafeArea()
+            Color.homebackground.ignoresSafeArea()
             
             VStack(alignment: .center, spacing: 48) {
                 
@@ -59,7 +60,7 @@ struct DiaryCheckView: View {
                 VStack(alignment: .leading, spacing: 16) {
                     // 제목
                     Text(vm.summary?.title ?? "제목 없음")
-                        .font(.pretendardSemiBold(18))
+                        .font(.pretendardSemiBold(20))
                         .foregroundColor(.black01Dynamic)
                         .padding(.top, 20)
                     
@@ -100,6 +101,8 @@ struct DiaryCheckView: View {
                         } label: {
                             Image("edit_vector")
                                 .resizable()
+                                .renderingMode(.template)
+                                .foregroundStyle(.black01Dynamic)
                                 .frame(width: 40, height: 40)
                         }
                         
@@ -113,8 +116,9 @@ struct DiaryCheckView: View {
                                 }
                             }
                         }) {
-                            Image(vm.isSaving ? "storage_gray" : "storage_vector")
+                            Image(vm.isSaving ? (colorScheme == .light ? "storage_gray": "storage_white") : "storage_vector")
                                 .resizable()
+                                .foregroundStyle(.black01Dynamic)
                                 .frame(width: 40, height: 40)
                         }
                         
@@ -123,6 +127,8 @@ struct DiaryCheckView: View {
                         }) {
                             Image("delete_vector")
                                 .resizable()
+                                .renderingMode(.template)
+                                .foregroundStyle(.black01Dynamic)
                                 .frame(width: 40, height: 40)
                         }
                     }
@@ -136,6 +142,8 @@ struct DiaryCheckView: View {
                     }) {
                         Image(vm.summary?.status == "SCRAP" ? "bookmark_green" : "bookmark_empty")
                             .resizable()
+                            .renderingMode(.template)
+                            .foregroundStyle(.green06Dynamic)
                             .frame(width: 20, height: 23)
                     }
                     .padding(.trailing, 18)
@@ -172,16 +180,16 @@ struct DiaryCheckView: View {
             Button(action: {
                 container.navigationRouter.pop()
             }) {
-                Image(systemName: "chevron.left")
-                    .foregroundColor(.green06)
-                
+                Image("leftChevron")
+                    .renderingMode(.template)
+                    .foregroundColor(.diarycheckIcon)
             }
             
             Spacer()
             
             Text(formatToKoreanDate(vm.summary?.diaryDate) ?? "날짜 없음")
                 .font(.pretendardSemiBold(20))
-                .foregroundColor(.green06)
+                .foregroundColor(.diarycheckIcon)
             
             Spacer()
             
@@ -191,6 +199,8 @@ struct DiaryCheckView: View {
             }) {
                 Image("home_green")
                     .resizable()
+                    .renderingMode(.template)
+                    .foregroundColor(.diarycheckIcon)
                     .frame(width: 24, height: 24)
                     .padding(.trailing,10)
             }
@@ -206,7 +216,7 @@ struct DiaryCheckView: View {
                     .frame(width: 60, height: 60)
             } else {
                 Circle()
-                    .fill(.white01Dynamic)
+                    .fill(.white)
                     .frame(width: 60, height: 60)
                     .overlay(
                         ProgressView()
@@ -216,7 +226,7 @@ struct DiaryCheckView: View {
             
             Text(vm.summary?.emotion.displayName ?? "이미지 없음")
                 .font(.pretendardSemiBold(14))
-                .foregroundColor(.green04)
+                .foregroundColor(.green04Dynamic)
         }
     }
     
@@ -241,4 +251,8 @@ struct DiaryCheckView: View {
 
         return printer.string(from: date)
     }
+}
+
+#Preview {
+    DiaryCheckView(diaryId: 3, container: DIContainer())
 }

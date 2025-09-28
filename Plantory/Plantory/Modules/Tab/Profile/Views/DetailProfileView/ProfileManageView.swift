@@ -21,6 +21,8 @@ struct ProfileManageView: View {
 
     var body: some View {
         ZStack {
+            Color.adddiarybackground.ignoresSafeArea()
+            
             VStack {
                 Spacer()
                 

@@ -152,7 +152,7 @@ struct DiarySearchView: View {
             } label: {
                 Text(keyword)
                     .font(.pretendardRegular(16))
-                    .foregroundColor(Color("gray06"))
+                    .foregroundColor(Color.gray10Dynamic)
             }
             Button {
                 if let i = vm.recentKeywords.firstIndex(of: keyword) {
@@ -169,7 +169,7 @@ struct DiarySearchView: View {
         .padding(.horizontal, 12)
         .background(
             RoundedRectangle(cornerRadius: 20)
-                .stroke(Color.gray.opacity(0.3), lineWidth: 1)
+                .stroke(Color.gray06, lineWidth: 1)
         )
     }
 
@@ -188,7 +188,7 @@ struct DiarySearchView: View {
             Spacer()
             Text("\(vm.total)개")
                 .font(.pretendardRegular(12))
-                .foregroundColor(.gray)
+                .foregroundColor(.gray08Dynamic)
         }
         .padding(.horizontal, 16)
         

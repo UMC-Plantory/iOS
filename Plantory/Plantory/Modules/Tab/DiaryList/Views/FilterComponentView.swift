@@ -41,11 +41,11 @@ struct EmotionTag: View {
             .fixedSize()
             .padding(.horizontal, 12)
             .padding(.vertical, 8)
-            .background(isSelected ? .green04 : .white)
+            .background(isSelected ? Color.green04 : Color.white01Dynamic)
             .foregroundColor(isSelected ? .white : .gray08)
             .overlay(
                 RoundedRectangle(cornerRadius: 20)
-                    .stroke(Color.gray.opacity(0.3), lineWidth: 1)
+                    .stroke(Color.gray08, lineWidth: 1)
             )
             .cornerRadius(20)
             .onTapGesture {

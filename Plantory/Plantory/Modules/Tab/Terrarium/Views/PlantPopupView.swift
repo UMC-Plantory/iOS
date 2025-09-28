@@ -27,6 +27,7 @@ struct PlantPopupView: View {
                         Text(viewModel.flowerNameText)
                             .font(.pretendardSemiBold(20))
                             .padding(.leading, 149)
+                            .foregroundStyle(.black)
                         Spacer()
                         Button(action: {
                             onClose()
@@ -49,16 +50,19 @@ struct PlantPopupView: View {
                                 SectionLabel(text: "최다 감정")
                                 Text(viewModel.feelingText)
                                     .font(.pretendardRegular(16))
+                                    .foregroundStyle(.green08)
                             }
                             HStack(alignment: .center, spacing: 12) {
                                 SectionLabel(text: "생성일")
                                 Text(viewModel.birthDateText)
                                     .font(.pretendardRegular(16))
+                                    .foregroundStyle(.green08)
                             }
                             HStack(alignment: .center, spacing: 12) {
                                 SectionLabel(text: "완성일")
                                 Text(viewModel.completeDateText)
                                     .font(.pretendardRegular(16))
+                                    .foregroundStyle(.green08)
                             }
                         }
                     }

@@ -65,6 +65,7 @@ struct ProfileImageView: View {
                                 Text("프로필 수정")
                                     .font(.pretendardRegular(10))
                                     .padding(7)
+                                    .foregroundStyle(Color.black01Dynamic)
                                     .frame(maxWidth: .infinity)
                             }
                             Button(action: {
@@ -75,16 +76,16 @@ struct ProfileImageView: View {
                                 Text("프로필 삭제")
                                     .font(.pretendardRegular(10))
                                     .padding(7)
+                                    .foregroundStyle(Color.black01Dynamic)
                                     .frame(maxWidth: .infinity)
                             }
                         }
-                        .background(Color.white)
+                        .background(Color.white01Dynamic)
                         .cornerRadius(5)
                         .shadow(color: Color.black.opacity(0.1), radius: 2, x: 0, y: 2)
                         .frame(width: 90)
                         .offset(x: 60, y: 50)
                         .zIndex(2)
-                        .foregroundStyle(.black)
                     }
                 },
                 alignment: .bottomTrailing

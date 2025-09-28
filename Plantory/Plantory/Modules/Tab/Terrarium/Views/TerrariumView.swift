@@ -71,8 +71,8 @@ struct TerrariumView: View {
                         .background(
                             Ellipse()
                                 .fill(Color("green04"))
-                                .frame(width: 631, height: 363)
-                                .offset(y: 60),
+                                .frame(width: 631, height: 383)
+                                .offset(y: 80),
                             alignment: .bottom
                         )
                     }

@@ -17,22 +17,28 @@ struct TrashView: View {
     @State private var showRestorePopUp = false
 
     var body: some View {
-        VStack {
-            Divider().foregroundStyle(.gray04)
+        ZStack {
+            Color.adddiarybackground.ignoresSafeArea()
             
-            VStack(spacing: 5) {
-                AlignmentView(isNew: $isNewSorting, selectedCount: checkedItems.count)
+            VStack {
+                Spacer()
                 
-                content
+                Divider().foregroundStyle(.gray04)
                 
-                TrashFootView(
-                    isEditing: $isEditing,
-                    isEmpty: checkedItems.isEmpty,
-                    onRestore: { withAnimation(.spring()) { showRestorePopUp = true } },
-                    onDelete: { withAnimation(.spring()) { showDeletePopUp = true } }
-                )
+                VStack(spacing: 5) {
+                    AlignmentView(isNew: $isNewSorting, selectedCount: checkedItems.count)
+                    
+                    content
+                    
+                    TrashFootView(
+                        isEditing: $isEditing,
+                        isEmpty: checkedItems.isEmpty,
+                        onRestore: { withAnimation(.spring()) { showRestorePopUp = true } },
+                        onDelete: { withAnimation(.spring()) { showDeletePopUp = true } }
+                    )
+                }
+                .padding(.horizontal)
             }
-            .padding(.horizontal)
         }
         .onChange(of: isNewSorting) { _, newValue in
             viewModel.fetchWaste(sort: newValue ? .latest : .oldest)
