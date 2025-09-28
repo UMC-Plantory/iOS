@@ -31,3 +31,8 @@ struct AddDiaryResponse: Codable {
     let status: String
 }
 
+
+//일기 임시저장 구조체
+struct DiaryExistResult: Decodable {
+    let isExist: Bool
+}

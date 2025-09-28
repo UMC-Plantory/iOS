@@ -27,3 +27,8 @@ struct DiaryCreateResult: Decodable {
     let diaryImgUrl: String?
     let status: String
 }
+
+//임시저장 결과 조회
+struct TempDiaryExistResult: Decodable {
+    let isExist: Bool
+}
