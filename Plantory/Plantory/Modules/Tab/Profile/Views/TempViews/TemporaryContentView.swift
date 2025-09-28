@@ -19,18 +19,22 @@ struct TemporaryContentView: View {
             VStack(alignment: .leading) {
                 Text(title)
                     .font(.pretendardSemiBold(18))
-                    .foregroundColor(.black)
+                    .foregroundColor(.black01Dynamic)
                 Text(dateText)
                     .font(.pretendardMedium(12))
-                    .foregroundColor(.gray)
+                    .foregroundColor(.gray08Dynamic)
             }
             .frame(height: 48)
             Spacer()
             if isEditing {
                 Button { isChecked.toggle() } label: {
-                    Image(isChecked ? "Check_Filled" : "Check_Empty")
+                    Image("Check_Empty")
                         .resizable()
-                        .frame(width: 48, height: 48)
+                        .renderingMode(.template)
+                        .foregroundStyle(isChecked ? .white : .black01Dynamic)
+                        .frame(width: 28, height: 28)
+                        .background(isChecked ? Color.green06Dynamic : .clear)
+                        .clipShape(Circle())
                 }
                 .buttonStyle(.plain)
             }
@@ -41,8 +45,24 @@ struct TemporaryContentView: View {
             onNavigate()
         }
         .padding()
-        .background(Color.gray02)
+        .background(Color.gray02Dynamic)
         .cornerRadius(8)
         .shadow(color: Color.black.opacity(0.1), radius: 0, x: 2, y: 2)
     }
+}
+
+
+#Preview {
+    @Previewable @State var isEditing = true
+    @Previewable @State var isChecked = true
+    
+    return TemporaryContentView(
+        title: "오늘의 일기 작성하기",
+        dateText: "2025-09-27",
+        isEditing: $isEditing,
+        isChecked: $isChecked,
+        onNavigate: {
+            print("Navigate tapped")
+        }
+    )
 }

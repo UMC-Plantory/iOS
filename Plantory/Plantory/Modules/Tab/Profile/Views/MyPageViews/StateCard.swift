@@ -17,8 +17,10 @@ struct StatCard: View {
             VStack(spacing: 4) {
                 Text(stat.value)
                     .font(.pretendardMedium(20))
+                    .foregroundStyle(.black)
                 Text(stat.label)
                     .font(.pretendardRegular(14))
+                    .foregroundStyle(.black)
                     .lineLimit(1)
             }
             .frame(maxWidth: .infinity)

@@ -39,7 +39,7 @@ struct MyProgressView: View {
                 Spacer().frame(width: 24)
                 Divider()
                     .frame(width: 0.5, height: 88)
-                    .background(.gray10)
+                    .background(.gray10Dynamic)
                 Spacer().frame(width: 24)
 
                 // 우측: 연속 기록

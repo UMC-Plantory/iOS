@@ -15,7 +15,7 @@ struct DiaryRow: View {
         ZStack(alignment: .leading) {
             // 배경 카드 (회색)
             RoundedRectangle(cornerRadius: 10)
-                .fill(.gray02)
+                .fill(.gray02Dynamic)
                 .frame(maxWidth: .infinity)
                 .frame(height: 132)
                 .shadow(color: .black.opacity(0.1), radius: 10, x: 0, y: 2)

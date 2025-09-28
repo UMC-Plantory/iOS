@@ -14,15 +14,15 @@ public enum FieldState {
 
     var borderColor: Color {
         switch self {
-        case .normal:   return Color.gray06
-        case .success:  return Color.green06
+        case .normal:   return Color.gray06Dynamic
+        case .success:  return Color.green06Dynamic
         case .error:    return Color.red
         }
     }
     var messageColor: Color {
         switch self {
         case .normal:   return .clear
-        case .success:  return Color.green06
+        case .success:  return Color.green06Dynamic
         case .error:    return Color.red
         }
     }

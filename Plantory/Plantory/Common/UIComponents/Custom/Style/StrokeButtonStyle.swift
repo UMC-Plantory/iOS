@@ -18,7 +18,7 @@ struct StrokeButtonStyle: ButtonStyle {
                 RoundedRectangle(cornerRadius: 5)
                     .fill(
                         colorScheme == .light ?
-                        configuration.isPressed ? Color.gray02 : Color.white01Dynamic
+                        configuration.isPressed ? Color.gray02Dynamic : Color.white01Dynamic
                         : configuration.isPressed ? Color.gray09 : Color.gray08
                     )
                     .strokeBorder(Color.gray04, lineWidth: 1)

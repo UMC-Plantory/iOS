@@ -17,19 +17,23 @@ struct TrashView: View {
     @State private var showRestorePopUp = false
 
     var body: some View {
-        VStack(spacing: 5) {
-            AlignmentView(isNew: $isNewSorting, selectedCount: checkedItems.count)
-
-            content
-
-            TrashFootView(
-                isEditing: $isEditing,
-                isEmpty: checkedItems.isEmpty,
-                onRestore: { withAnimation(.spring()) { showRestorePopUp = true } },
-                onDelete: { withAnimation(.spring()) { showDeletePopUp = true } }
-            )
+        VStack {
+            Divider().foregroundStyle(.gray04)
+            
+            VStack(spacing: 5) {
+                AlignmentView(isNew: $isNewSorting, selectedCount: checkedItems.count)
+                
+                content
+                
+                TrashFootView(
+                    isEditing: $isEditing,
+                    isEmpty: checkedItems.isEmpty,
+                    onRestore: { withAnimation(.spring()) { showRestorePopUp = true } },
+                    onDelete: { withAnimation(.spring()) { showDeletePopUp = true } }
+                )
+            }
+            .padding(.horizontal)
         }
-        .padding(.horizontal)
         .onChange(of: isNewSorting) { _, newValue in
             viewModel.fetchWaste(sort: newValue ? .latest : .oldest)
         }
@@ -104,11 +108,14 @@ struct TrashView: View {
             if isEditing {
                 Button(action: toggleAllSelection) {
                     Text(checkedItems.count == sortedCells.count ? "전체 선택 해제" : "전체 선택")
-                        .font(.pretendardRegular(14)).foregroundStyle(.green07)
+                        .font(.pretendardRegular(14)).foregroundStyle(.green07Dynamic)
                 }
             } else {
                 Button(action: dismiss.callAsFunction) {
-                    Image("leftChevron").fixedSize()
+                    Image("leftChevron")
+                        .renderingMode(.template)
+                        .foregroundStyle(.black01Dynamic)
+                        .fixedSize()
                 }
             }
         }
@@ -117,7 +124,7 @@ struct TrashView: View {
     private var navigationTrailing: some View {
         Button(action: { isEditing.toggle() }) {
             Text(isEditing ? "취소" : "편집")
-                .font(.pretendardRegular(14)).foregroundStyle(.green07)
+                .font(.pretendardRegular(14)).foregroundStyle(.green07Dynamic)
         }
     }
 

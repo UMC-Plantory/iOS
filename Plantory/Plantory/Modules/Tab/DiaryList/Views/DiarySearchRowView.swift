@@ -15,7 +15,7 @@ struct DiarySearchRow: View {
         ZStack(alignment: .leading) {
             // 배경 카드 (회색)
             RoundedRectangle(cornerRadius: 10)
-                .fill(Color("gray02"))
+                .fill(Color("gray02Dynamic"))
                 .frame(width: 358, height: 132)
 
             // 흰색 카드 + 내용

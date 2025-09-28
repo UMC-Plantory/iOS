@@ -13,8 +13,8 @@ struct EmotionStatsView: View {
     @State private var page: Int = 0    // 0 = Week, 1 = Month
 
     init(container: DIContainer) {
-            _viewModel = StateObject(wrappedValue: EmotionStatsViewModel(container: container))
-        }
+        _viewModel = StateObject(wrappedValue: EmotionStatsViewModel(container: container))
+    }
 
     var body: some View {
         VStack(alignment: .leading, spacing: 24) {
@@ -33,9 +33,10 @@ struct EmotionStatsView: View {
             VStack(alignment: .leading, spacing: 8) {
                 Text(viewModel.comment)
                     .font(.pretendardSemiBold(18))
+                    .foregroundStyle(.black01Dynamic)
                 Text(viewModel.periodText)
                     .font(.pretendardRegular(16))
-                    .foregroundColor(.gray09)
+                    .foregroundColor(.gray09Dynamic)
                 HStack {
                     (
                         Text("오늘은 \(viewModel.todayWeekdayLabel)이에요!\n지난 한 주간에는 ")
@@ -43,7 +44,7 @@ struct EmotionStatsView: View {
                         + Text("이 가장 많이 기록 되었어요!")
                     )
                     .font(.pretendardRegular(12))
-                    .foregroundColor(.green06)
+                    .foregroundColor(.green06Dynamic)
                     .fixedSize(horizontal: false, vertical: true)
                     .frame(minHeight: 50, alignment: .topLeading)
                     Spacer()
@@ -119,7 +120,7 @@ struct EmotionPercentageChartView: View {
                     AxisValueLabel {
                         Text("\(intValue)%")
                             .font(.pretendardRegular(12))
-                            .foregroundStyle(Color.gray09)
+                            .foregroundStyle(Color.gray09Dynamic)
                             .padding(.leading, 8)
                     }
                 }
@@ -131,7 +132,7 @@ struct EmotionPercentageChartView: View {
                     if let label = value.as(String.self) {
                         Text(label)
                             .font(.pretendardRegular(12))
-                            .foregroundStyle(Color.gray09)
+                            .foregroundStyle(Color.gray09Dynamic)
                     }
                 }
             }

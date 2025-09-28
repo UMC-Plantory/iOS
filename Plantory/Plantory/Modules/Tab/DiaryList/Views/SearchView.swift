@@ -80,7 +80,7 @@ struct DiarySearchView: View {
         TextField("키워드를 입력하세요", text: $vm.query)
             .padding(.vertical, 10)
             .background(.searchbar)
-            .foregroundColor(.gray10)
+            .foregroundColor(.gray10Dynamic)
             .submitLabel(.search)
             .onSubmit {
                 let q = vm.query.trimmingCharacters(in: .whitespacesAndNewlines)

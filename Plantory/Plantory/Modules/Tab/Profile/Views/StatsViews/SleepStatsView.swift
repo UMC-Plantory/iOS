@@ -6,32 +6,33 @@ struct SleepStatsView: View {
     @State private var page: Int = 0    // 0 = Week, 1 = Month
 
     init(container: DIContainer) {
-            _viewModel = StateObject(wrappedValue: SleepStatsViewModel(container: container))
-        }
+        _viewModel = StateObject(wrappedValue: SleepStatsViewModel(container: container))
+    }
 
     var body: some View {
         VStack(alignment: .leading, spacing: 24) {
             Spacer().frame(height: 45)
             
-                WeekMonthPicker(selection: $page)
-                    .frame(maxWidth: .infinity, alignment: .center)
-                    .onChange(of: page) { old, new in
-                        if new == 0 { viewModel.fetchWeekly() }
-                        else       { viewModel.fetchMonthly() }
-                    }
+            WeekMonthPicker(selection: $page)
+                .frame(maxWidth: .infinity, alignment: .center)
+                .onChange(of: page) { old, new in
+                    if new == 0 { viewModel.fetchWeekly() }
+                    else       { viewModel.fetchMonthly() }
+                }
 
 
             // ——— 여기부터 텍스트 섹션 ———
             VStack(alignment: .leading, spacing: 8) {
                 Text(viewModel.comment)
                     .font(.pretendardSemiBold(18))
+                    .foregroundStyle(.black01Dynamic)
                 Text(viewModel.periodText)
                     .font(.pretendardRegular(16))
-                    .foregroundColor(.gray09)
+                    .foregroundColor(.gray09Dynamic)
                 HStack {
                         Text(viewModel.averageComment)
                             .font(.pretendardRegular(12))
-                            .foregroundColor(.green06)
+                            .foregroundColor(.green06Dynamic)
                             .fixedSize(horizontal: false, vertical: true)
                             .frame(minHeight: 68, alignment: .topLeading)
                     Spacer()
@@ -59,6 +60,9 @@ struct SleepStatsView: View {
             Spacer()
         }
         .padding(.horizontal, 28) // ③ 전체 좌우 여백
+        .background(
+            Color.white01Dynamic.ignoresSafeArea()
+        )
     }
 }
 

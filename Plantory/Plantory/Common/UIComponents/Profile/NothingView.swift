@@ -13,6 +13,8 @@ import SwiftUI
 ///  buttonTitle: "리스트 페이지로 이동하기",
 ///  buttonAction: {})
 struct NothingView: View {
+    @Environment(\.colorScheme) var colorScheme
+    
     let mainText: String
     let subText: String
     let buttonTitle: String?
@@ -38,11 +40,11 @@ struct NothingView: View {
             VStack {
                 Text(mainText)
                     .font(.pretendardSemiBold(16))
-                    .foregroundStyle(.gray10)
+                    .foregroundStyle(.gray10Dynamic)
                 Spacer().frame(height: 5)
                 Text(subText)
                     .font(.pretendardMedium(14))
-                    .foregroundStyle(.gray07)
+                    .foregroundStyle(.gray08Dynamic)
             }
             
             if let title = buttonTitle,
@@ -54,7 +56,9 @@ struct NothingView: View {
                         .padding(.horizontal, 8)
                         .padding(.vertical, 4)
                         .background(
-                            RoundedRectangle(cornerRadius: 5).stroke(.green06, lineWidth: 1)
+                            RoundedRectangle(cornerRadius: 5)
+                                .fill(colorScheme == .light ? .clear : .yellow01)
+                                .stroke(.green06, lineWidth: 1)
                         )
                 }
             }

@@ -24,15 +24,20 @@ struct AlignmentView: View {
                 HStack(spacing: 4) {
                     Text(isNew ? "최신순" : "오래된순")
                         .font(.pretendardRegular(14))
-                        .foregroundStyle(.black01Dynamic)
+                        .foregroundStyle(.gray09Dynamic)
                         .offset(x: 15)
-                    if showMenu {
-                        Image("Up")
-                    } else {
-                        Image("Down")
+                    Group {
+                        if showMenu {
+                            Image("Up")
+                                .renderingMode(.template)
+                        } else {
+                            Image("Down")
+                                .renderingMode(.template)
+                        }
                     }
+                    .foregroundStyle(.gray09Dynamic)
                 }
-                .background(Color.white)
+                .background(Color.white01Dynamic)
             }
         }
 
@@ -46,8 +51,8 @@ struct AlignmentView: View {
                             showMenu = false
                         } label: {
                             Text("최신순")
-                                .font(isNew ? .pretendardSemiBold(10) : .pretendardRegular(10))
-                                .foregroundColor(isNew ? .green06 : .black)
+                                .font(isNew ? .pretendardBold(10) : .pretendardRegular(10))
+                                .foregroundColor(isNew ? .green06Dynamic : .gray09Dynamic)
                                 .padding(8)
                                 .frame(maxWidth: .infinity, alignment: .leading)
                         }
@@ -56,13 +61,13 @@ struct AlignmentView: View {
                             showMenu = false
                         } label: {
                             Text("오래된순")
-                                .font(!isNew ? .pretendardSemiBold(10) : .pretendardRegular(10))
-                                .foregroundColor(!isNew ? .green06 : .black)
+                                .font(!isNew ? .pretendardBold(10) : .pretendardRegular(10))
+                                .foregroundColor(!isNew ? .green06Dynamic : .gray09Dynamic)
                                 .padding(8)
                                 .frame(maxWidth: .infinity, alignment: .leading)
                         }
                     }
-                    .background(Color.white)
+                    .background(Color.white01Dynamic)
                     .cornerRadius(8)
                     .shadow(color: .black.opacity(0.1), radius: 0, x: 2, y: 2)
                     .frame(width: 80)
