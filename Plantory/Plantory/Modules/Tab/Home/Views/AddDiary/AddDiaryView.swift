@@ -49,7 +49,6 @@ struct AddDiaryView: View {
         ZStack(alignment: .top) {
             if vm.isCompleted {
                 
-                
                 ScrollView { // CompletedView를 스크롤뷰로 감싸 작은 화면에서 잘리지 않도록 함
                     VStack {
                         CompletedView()
@@ -171,8 +170,11 @@ struct AddDiaryView: View {
             EmotionStepView(vm: vm) { stepVM.goNext() }
         case 1:
             DiaryStepView(vm: vm)
+                .padding(.top,50)
+
         case 2:
             PhotoStepView(vm: vm)
+                .padding(.top,70)
         case 3:
             SleepStepView(vm: vm, selectedDate: selectedDate)
         default:
@@ -214,7 +216,7 @@ struct AddDiaryView: View {
                         text: "작성완료",
                         isDisabled: vm.isLoading,
                         action: {
-                            vm.submit() // 서버 저장 호출(이미 구현되어 있다면)
+                            vm.submit()
                             withAnimation(.easeInOut) {
                                 vm.isCompleted = true // CompletedView로 전환
                             }

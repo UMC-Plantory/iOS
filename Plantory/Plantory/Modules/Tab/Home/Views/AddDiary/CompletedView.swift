@@ -45,8 +45,7 @@ struct CompletedView: View {
                     .font(.pretendardBold(20))
                     .multilineTextAlignment(.center)
                     .foregroundStyle(.diaryfont)
-
-                Spacer().frame(height: 80)
+                    .padding(.bottom, 20)
 
                 // 하단 버튼
                 HStack {
@@ -68,10 +67,7 @@ struct CompletedView: View {
 
                     Spacer().frame(width: 28)
                 }
-                // MARK: - 수정된 부분: 하단 안전 영역과 추가 패딩을 적용하여 버튼 잘림 방지
                 .padding(.bottom, 20) // 하단에 약간의 여백 추가
-                
-                
             }//VStack_end
             .frame(maxWidth: .infinity, maxHeight: .infinity)
         }
@@ -79,7 +75,7 @@ struct CompletedView: View {
 
     private var completedImage: some View {
         ZStack {
-            Image(.gradientCircle)
+            Image("gradient_circle")
             Image("sprout_image")
         }
     }
