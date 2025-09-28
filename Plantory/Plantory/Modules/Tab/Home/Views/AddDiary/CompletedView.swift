@@ -75,8 +75,13 @@ struct CompletedView: View {
 
     private var completedImage: some View {
         ZStack {
+
             Image("gradient_circle")
             Image("sprout_image")
+
+            Image(.gradientCircle)
+            Image("only_sprout")
+
         }
     }
 }
