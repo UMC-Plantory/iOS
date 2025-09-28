@@ -20,7 +20,7 @@ struct DiarySearchRow: View {
 
             // 흰색 카드 + 내용
             RoundedRectangle(cornerRadius: 10)
-                .fill(Color("white01"))
+                .fill(.diaryrowbackground)
                 .frame(width: 300, height: 132)
                 .overlay(
                     VStack(alignment: .leading, spacing: 0) {
@@ -42,7 +42,7 @@ struct DiarySearchRow: View {
                             .font(.subheadline)
                             .foregroundColor(Color("gray08"))
                             .padding(.top,4)
-                        //.lineLimit(1)
+                            .lineLimit(1)
 
                         // 감정 텍스트
                         Text(entry.emotion.rawValue)
@@ -67,7 +67,7 @@ struct DiarySearchRow: View {
                                 .frame(width: 41)
                         }
                         .frame(width: 73, height: 31)
-                        .cornerRadius(8)
+                        .cornerRadius(5)
                         .shadow(color: Color.black.opacity(0.1), radius: 2, x: 2, y: 2)
 
                         // 날짜 텍스트 (오른쪽 정렬)

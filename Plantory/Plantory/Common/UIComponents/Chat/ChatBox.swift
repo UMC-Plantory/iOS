@@ -48,7 +48,7 @@ struct ChatBox: View {
                     .frame(width: 32, height: 32)
                 
                 messageView
-                    .background(.white01)
+                    .background(.white)
                     .clipShape(ModelChatBubbleShape())
                     .overlay(
                         ModelChatBubbleShape()
@@ -74,7 +74,7 @@ struct ChatBox: View {
             .padding(.horizontal, 16)
             .padding(.vertical, 10)
             .font(.pretendardRegular(14))
-            .foregroundColor(.gray11)
+            .foregroundColor(.black)
     }
 }
 
@@ -93,7 +93,7 @@ struct ChatLoadingBox: View {
 
                 ProgressView()
                     .padding()
-                    .tint(.gray11)
+                    .tint(.gray11Always)
                     .background(.white01)
                     .clipShape(ModelChatBubbleShape())
                     .overlay(

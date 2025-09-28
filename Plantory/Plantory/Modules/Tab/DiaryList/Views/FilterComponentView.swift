@@ -41,8 +41,8 @@ struct EmotionTag: View {
             .fixedSize()
             .padding(.horizontal, 12)
             .padding(.vertical, 8)
-            .background(isSelected ? Color("green04") : Color.white)
-            .foregroundColor(isSelected ? .white : .gray)
+            .background(isSelected ? .green04 : .white01)
+            .foregroundColor(isSelected ? .white : .gray08)
             .overlay(
                 RoundedRectangle(cornerRadius: 20)
                     .stroke(Color.gray.opacity(0.3), lineWidth: 1)

@@ -55,7 +55,7 @@ struct AddDiaryView: View {
             if vm.isCompleted {
                 CompletedView()
             } else {
-                Color.diarybackground.ignoresSafeArea()
+                Color.adddiarybackground.ignoresSafeArea()
 
                 VStack(spacing: 24) {
                     Spacer().frame(height: 160) // header 고정 공간 확보
@@ -65,7 +65,7 @@ struct AddDiaryView: View {
                 .padding()
 
                 headerView
-                    .background(Color.diarybackground)
+                    .background(Color.adddiarybackground)
                     .padding()
             }
         }
@@ -97,7 +97,7 @@ struct AddDiaryView: View {
                     container.navigationRouter.push(.baseTab)
                 }) {
                     Image(.home)
-                        .foregroundColor(.diaryfont)
+                        .foregroundColor(Color.adddiaryIcon)
                 }
 
                 Spacer().frame(width: 80)
@@ -112,7 +112,7 @@ struct AddDiaryView: View {
                              : vm.diaryDate)
                     }
                     .font(.pretendardSemiBold(18))
-                    .foregroundStyle(.diaryfont)
+                    .foregroundStyle(Color.adddiaryIcon)
                 }
 
                 Spacer()
@@ -130,7 +130,7 @@ struct AddDiaryView: View {
 
                         Text(stepVM.steps[index].title)
                             .font(.pretendardRegular(14))
-                            .foregroundColor(.diaryfont)
+                            .foregroundColor(.adddiaryfont)
                             .opacity(index == stepVM.currentStep ? 1 : 0) // 공간은 유지
                             .frame(height: stepLabelHeight)
                             .lineLimit(1)
@@ -206,4 +206,11 @@ struct AddDiaryView: View {
             .padding(.horizontal)
         )
     }
+}
+
+#Preview {
+    AddDiaryView(
+        container: DIContainer(),
+        date: Date()
+    )
 }

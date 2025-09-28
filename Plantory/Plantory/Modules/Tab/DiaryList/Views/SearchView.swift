@@ -23,18 +23,22 @@ struct DiarySearchView: View {
     }
 
     var body: some View {
-        VStack(spacing: 10) {
-            topBar()
-                .padding(.horizontal, 16)
-            if vm.results.isEmpty {
-                recentSearchSection()
+        ZStack {
+            Color.searchbackground.ignoresSafeArea()
+            
+            VStack(spacing: 10) {
+                topBar()
                     .padding(.horizontal, 16)
-            } else {
-                searchResultSection
+                if vm.results.isEmpty {
+                    recentSearchSection()
+                        .padding(.horizontal, 16)
+                } else {
+                    searchResultSection
+                }
             }
+            .padding(.top, 25)
         }
         .frame(maxHeight: .infinity, alignment: .top)
-        .padding(.top, 25)
         .ignoresSafeArea(.keyboard)
         .navigationBarBackButtonHidden()
         .overlay {
@@ -55,6 +59,7 @@ struct DiarySearchView: View {
                 container.navigationRouter.pop()
             } label: {
                 Image("leftChevron")
+                    .renderingMode(.template)
                     .foregroundColor(.black01)
             }
 
@@ -66,7 +71,7 @@ struct DiarySearchView: View {
                 searchButton()
             }
             .padding(.horizontal, 14)
-            .background(Color("brown01"))
+            .background(.searchbar)
             .cornerRadius(30)
         }
     }
@@ -74,7 +79,7 @@ struct DiarySearchView: View {
     private func searchField() -> some View {
         TextField("키워드를 입력하세요", text: $vm.query)
             .padding(.vertical, 10)
-            .background(Color("brown01"))
+            .background(.searchbar)
             .foregroundColor(.gray10)
             .submitLabel(.search)
             .onSubmit {
@@ -103,6 +108,8 @@ struct DiarySearchView: View {
         } label: {
             Image("search")
                 .resizable()
+                .renderingMode(.template)
+                .foregroundColor(.black01)
                 .frame(width: 20, height: 20)
         }
     }
@@ -145,7 +152,7 @@ struct DiarySearchView: View {
             } label: {
                 Text(keyword)
                     .font(.pretendardRegular(16))
-                    .foregroundColor(Color("gray10"))
+                    .foregroundColor(Color("gray06"))
             }
             Button {
                 if let i = vm.recentKeywords.firstIndex(of: keyword) {
@@ -155,7 +162,7 @@ struct DiarySearchView: View {
                 Image(systemName: "xmark")
                     .resizable()
                     .frame(width: 8, height: 8)
-                    .foregroundColor(.gray)
+                    .foregroundColor(.gray08)
             }
         }
         .padding(.vertical, 8)
@@ -209,4 +216,9 @@ struct DiarySearchView: View {
             }
         }
     }
+}
+
+#Preview {
+    DiarySearchView(container: DIContainer())
+        .environmentObject(DIContainer())
 }

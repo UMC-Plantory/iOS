@@ -100,7 +100,7 @@ struct MyProgressView: View {
                     .frame(width: 187, height: 4)
 
                 Capsule()
-                    .fill(Color.green04)
+                    .fill(Color.progressbar)
                     .frame(width: 187 * progress, height: 4)
                     .animation(.easeInOut(duration: 0.25), value: progress)
 

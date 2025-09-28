@@ -38,7 +38,7 @@ struct ChatView: View {
         .background {
             //MARK: - Background
             ZStack {
-                Color.white
+                Color.background
             }
             .ignoresSafeArea()
             .onTapGesture {
@@ -110,7 +110,7 @@ struct ChatView: View {
                     isFocused = true
                 })
             
-            //MARK: - Send Button
+            // MARK: - Send Button
             SendButton(
                 isDisabled: viewModel.textInput.isEmpty,
                 action: {
@@ -123,9 +123,13 @@ struct ChatView: View {
         }
         .padding(.horizontal, 16)
         .padding(.vertical, 11.5)
+        .background(
+            RoundedRectangle(cornerRadius: 10)
+                .fill(.white)
+        )
         .overlay {
             RoundedRectangle(cornerRadius: 10)
-                .stroke(.gray05, lineWidth: 1)
+                .stroke(.gray06, lineWidth: 1)
         }
     }
     

@@ -76,7 +76,7 @@ struct DiaryFilterView: View {
             }
             .padding(.top, 32)
 
-            Divider().background(.gray04)
+            Divider().background(.gray03)
 
             Text("나열")
                 .font(.pretendardSemiBold(18))
@@ -87,7 +87,7 @@ struct DiaryFilterView: View {
                 OrderButton(title: "오래된 순", isSelected: viewModel.sort == .oldest) { viewModel.sort = .oldest }
             }
 
-            Divider().background(.gray04)
+            Divider().background(.gray03)
 
             // 범위 선택
             VStack(alignment: .center, spacing: 12) {
@@ -165,7 +165,7 @@ struct DiaryFilterView: View {
                 }
             }
 
-            Divider().background(.gray04)
+            Divider().background(.gray03)
 
             // 감정 선택
             HStack(spacing: 16) {

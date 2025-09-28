@@ -25,7 +25,7 @@ struct DiaryListView: View {
 
     var body: some View {
         ZStack {
-            Color("brown01").ignoresSafeArea()
+            Color.homebackground.ignoresSafeArea()
 
             VStack(spacing: 20) {
                 DiaryHeaderView(
@@ -34,6 +34,7 @@ struct DiaryListView: View {
                     }
                 )
                 .padding(.horizontal, 16)
+                .padding(.trailing, 12)
 
                 Rectangle()
                     .fill(Color.gray04)
@@ -102,7 +103,10 @@ struct DiaryHeaderView: View {
 
             HStack(spacing: 20) {
                 Button(action: onSearchTap) {
-                    Image("search").resizable().frame(width: 20, height: 20)
+                    Image("search").resizable()
+                        .renderingMode(.template)
+                        .frame(width: 20, height: 20)
+                        .foregroundColor(.black01)
                 }
 
 //                Button(action: onMoreTap) {
@@ -134,7 +138,7 @@ struct DiaryMonthSectionView: View {
             Button {
                 isFilterSheetPresented = true
             } label: {
-                Image(isFilterSheetPresented ? "filter_green" : "filter_black")
+                Image("filter_green")
                     .resizable()
                     .frame(width: 48, height: 48)
             }

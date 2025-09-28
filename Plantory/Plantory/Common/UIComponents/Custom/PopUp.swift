@@ -9,6 +9,8 @@ import SwiftUI
 
 /// 공용 확인/취소 팝업 컴포넌트
 struct PopUp: View {
+    @Environment(\.colorScheme) var colorScheme
+    
     let title: String
     let message: String
     let confirmTitle: String
@@ -57,7 +59,8 @@ struct PopUp: View {
             .padding(24)
             .background(
                 RoundedRectangle(cornerRadius: 10)
-                    .fill(Color.white)
+                    .fill(Color.white01)
+                    .stroke(colorScheme == .dark ? .gray11Always : .clear)
             )
             .padding(.horizontal, 25)
             .scaleEffect(appearScale)

@@ -43,8 +43,8 @@ struct DetailSheetView: View {
     }
 
     var body: some View {
-        // 배경색: 미래는 gray07, 그 외엔 white01
-        let sheetBackground = isFuture ? Color.gray07 : Color.white01
+        // 배경색: 미래는 gray04, 그 외엔 white01
+        let sheetBackground = isFuture ? Color.gray04 : Color.white01
 
         ZStack {
             sheetBackground.ignoresSafeArea()

@@ -148,6 +148,7 @@ private struct ResultsListView: View {
                     ProgressView().padding()
                 } else if hasNext {
                     Button("더 불러오기", action: onLoadMore)
+                        .foregroundColor(.black01)
                         .padding(.vertical, 12)
                 }
             }
@@ -155,4 +156,40 @@ private struct ResultsListView: View {
         }
         .background(Color(.systemGray6))
     }
+}
+
+#Preview {
+    ResultsListView(
+        results: [
+            DiarySummary(
+                diaryId: 1,
+                diaryDate: "09.25",
+                title: "가을 산책",
+                status: "NORMAL", emotion: .HAPPY,
+                content: "오늘은 날씨가 좋아서 공원에 다녀왔다. 시원한 바람이 기분을 좋게 했다.",
+                diaryImgUrl: nil
+            ),
+            DiarySummary(
+                diaryId: 2,
+                diaryDate: "09.24",
+                title: "비 오는 날",
+                status: "NORMAL", emotion: .SAD,
+                content: "하루 종일 비가 와서 기분이 조금 가라앉았다. 그래도 따뜻한 차를 마시니 한결 나아졌다.",
+                diaryImgUrl: nil
+            ),
+            DiarySummary(
+                diaryId: 3,
+                diaryDate: "09.23",
+                title: "스터디 모임",
+                status: "NORMAL", emotion: .SOSO,
+                content: "친구들과 모여서 공부했다. 진도는 많이 못 나갔지만 유익한 시간이 되었다.",
+                diaryImgUrl: nil
+            )
+        ],
+        isLoading: false,
+        hasNext: true,
+        onLoadMore: {
+            print("Load more diaries…")
+        }
+    )
 }

@@ -17,14 +17,14 @@ struct PhotoStepView: View {
         VStack {
             Text("오늘의 사진을 선택한다면 무엇인가요?")
                 .font(.pretendardSemiBold(20))
-                .foregroundStyle(.diaryfont)
+                .foregroundStyle(.adddiaryfont)
                 .multilineTextAlignment(.center)
                 .frame(maxWidth: .infinity, alignment: .center)
 
             ZStack {
                 // 배경 박스
                 RoundedRectangle(cornerRadius: 10)
-                    .fill(Color.gray04)
+                    .fill(Color.gray04Always)
                     .frame(width: boxSize.width, height: boxSize.height)
 
                 // 이미지 표시 (있을 때만)

@@ -22,7 +22,7 @@ struct DiaryRow: View {
 
             // 흰색 카드 + 내용
             RoundedRectangle(cornerRadius: 10)
-                .fill(.white01)
+                .fill(.diaryrowbackground)
                 .frame(maxWidth: .infinity)
                 .frame(height: 132)
                 .background(
@@ -77,7 +77,7 @@ struct DiaryRow: View {
                             .frame(width: 41)
                     }
                     .frame(width: 73, height: 31)
-                    .cornerRadius(8)
+                    .cornerRadius(5)
                     .shadow(color: Color.black.opacity(0.1), radius: 2, x: 2, y: 2)
 
                     // 날짜 텍스트 (오른쪽 정렬)
@@ -113,4 +113,17 @@ struct DiaryRow: View {
             return dateString // 변환 실패 시 원본 반환
         }
     }
+}
+
+#Preview {
+    DiaryRow(entry:
+        DiaryFilterSummary(
+            diaryId: 1,
+            diaryDate: "2025-09-27",
+            title: "첫 번째 일기",
+            status: "completed",
+            emotion: .HAPPY,
+            content: "오늘은 정말 즐거운 하루였다. 친구들과 함께 점심을 먹고 산책도 다녀왔다."
+        )
+    )
 }
