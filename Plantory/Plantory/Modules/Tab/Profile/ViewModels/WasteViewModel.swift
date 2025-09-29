@@ -38,10 +38,8 @@ public class WasteViewModel: ObservableObject {
         refreshTrigger
             .map { [weak self] in
                 guard let self else {
-                    print("🔴 refreshTrigger: self is nil, returning Empty publisher")
                     return Empty<[Diary], APIError>().eraseToAnyPublisher()
                 }
-                print("🔵 refreshTrigger: Triggering fetchWaste with sort: \(self.lastSort)")
                 return self.container.useCaseService.profileService
                     .fetchWaste(sort: self.lastSort) // AnyPublisher<[Diary], APIError>
             }
@@ -50,12 +48,10 @@ public class WasteViewModel: ObservableObject {
                 receiveSubscription: { [weak self] _ in
                     self?.isLoading = true
                     self?.errorMessage = nil
-                    print("🔵 refreshTrigger: Subscription started, isLoading = true")
                 },
                 receiveCancel: { [weak self] in
                     // switchToLatest로 취소될 때도 로딩 OFF
                     self?.isLoading = false
-                    print("🔴 refreshTrigger: Subscription cancelled, isLoading = false")
                 }
             )
             .receive(on: DispatchQueue.main)
@@ -64,19 +60,16 @@ public class WasteViewModel: ObservableObject {
                 self?.isLoading = false
                 if case let .failure(error) = completion {
                     self?.errorMessage = error.localizedDescription
-                    print("🔴 refreshTrigger: Error received: \(error.localizedDescription)")
                 }
             } receiveValue: { [weak self] diaries in
                 // 값 도착 시에도 바로 로딩 OFF (cancel/complete 누락 방지)
                 self?.isLoading = false
                 self?.handleWaste(diaries)
-                print("✅ refreshTrigger: Diaries fetched, count: \(diaries.count)")
             }
             .store(in: &cancellables)
     }
 
     private func triggerRefresh() {
-        print("🔵 triggerRefresh: Sending refresh trigger")
         refreshTrigger.send(())
     }
 
@@ -84,7 +77,6 @@ public class WasteViewModel: ObservableObject {
     /// 휴지통 일기 목록을 서버에서 가져옵니다.
     /// - Parameter sort: `.latest` 또는 `.oldest`
     public func fetchWaste(sort: SortOrder = .latest) {
-        print("🔵 fetchWaste: Triggering fetch with sort: \(sort)")
         lastSort = sort
         triggerRefresh()
     }
@@ -93,21 +85,21 @@ public class WasteViewModel: ObservableObject {
     public func deleteForever(ids: [Int], sort: SortOrder = .latest) {
         isLoading = true
         errorMessage = nil
-        print("🔵 deleteForever: Attempting to delete diaries with ids: \(ids)")
 
         container.useCaseService.profileService
             .deleteWaste(diaryIds: ids)
             .receive(on: DispatchQueue.main)
-            .sink { completion in
-                switch completion {
-                case .failure(let error):
-                    print("❌ Delete failed: \(error.localizedDescription)")
-                    
-                case .finished:
-                    print("✅ Delete completed successfully")
+            .sink { [weak self] completion in
+                self?.isLoading = false
+                if case let .failure(error) = completion {
+                    self?.errorMessage = error.localizedDescription
                 }
-            } receiveValue: { response in
-                print("📬 Response received: \(response)")
+            } receiveValue: { [weak self] _ in
+                guard let self else { return }
+                // 휴지통 화면에서는 삭제한 항목을 즉시 제거
+                self.diaries.removeAll { ids.contains($0.id) }
+                self.lastSort = sort
+                self.triggerRefresh()
             }
             .store(in: &cancellables)
 
@@ -118,7 +110,6 @@ public class WasteViewModel: ObservableObject {
     public func restoreWaste(ids: [Int], sort: SortOrder = .latest) {
         isLoading = true
         errorMessage = nil
-        print("🔵 restoreWaste: Attempting to restore diaries with ids: \(ids)")
 
         container.useCaseService.profileService
             .restoreWaste(diaryIds: ids)
@@ -127,13 +118,11 @@ public class WasteViewModel: ObservableObject {
                 self?.isLoading = false
                 if case let .failure(error) = completion {
                     self?.errorMessage = error.localizedDescription
-                    print("🔴 restoreWaste: Error during restore: \(error.localizedDescription)")
                 }
             } receiveValue: { [weak self] _ in
                 guard let self else { return }
                 // 휴지통 화면에서는 복원된 항목을 즉시 제거
                 self.diaries.removeAll { ids.contains($0.id) }
-                print("✅ restoreWaste: Diaries restored, remaining count: \(self.diaries.count)")
                 self.lastSort = sort
                 self.triggerRefresh()
             }
@@ -142,7 +131,6 @@ public class WasteViewModel: ObservableObject {
 
     // MARK: - Handlers
     private func handleWaste(_ diaries: [Diary]) {
-        print("✅ handleWaste: Handling fetched diaries, count: \(diaries.count)")
         self.diaries = diaries
     }
 

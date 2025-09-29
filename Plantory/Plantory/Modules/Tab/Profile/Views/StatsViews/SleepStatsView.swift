@@ -53,11 +53,16 @@ private extension SleepStatsView {
     var weeklyArea: some View {
         if !viewModel.weeklyLoaded {
             loadingView
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
         } else if viewModel.isWeeklyEmpty {
-            NothingView(
-                mainText: "주간 수면 통계 기록이 없어요",
-                subText: "하루 하루 일기를 통해 수면 시간을 기록해 보세요!"
-            )
+            VStack {
+                Spacer().frame(height: 120)
+                NothingView(
+                    mainText: "주간 수면 통계 기록이 없어요",
+                    subText: "하루 하루 일기를 통해 수면 시간을 기록해 보세요!"
+                )
+                Spacer()
+            }
             .frame(maxWidth: .infinity, maxHeight: .infinity)
             .transition(.opacity)
         } else {
@@ -69,11 +74,16 @@ private extension SleepStatsView {
     var monthlyArea: some View {
         if !viewModel.monthlyLoaded {
             loadingView
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
         } else if viewModel.isMonthlyEmpty {
-            NothingView(
-                mainText: "월간 수면 통계 기록이 없어요",
-                subText: "한 달 동안의 수면 패턴을 모아볼 수 있어요!"
-            )
+            VStack {
+                Spacer().frame(height: 120)
+                NothingView(
+                    mainText: "월간 수면 통계 기록이 없어요",
+                    subText: "한 달 동안의 수면 패턴을 모아볼 수 있어요!"
+                )
+                Spacer()
+            }
             .frame(maxWidth: .infinity, maxHeight: .infinity)
             .transition(.opacity)
         } else {

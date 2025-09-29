@@ -106,17 +106,17 @@ final class ProfileService: ProfileServiceProtocol {
     }
 
     func patchWaste(diaryIds: [Int]) -> AnyPublisher<StatusResponseOnly, APIError> {
-        provider.requestResult(.wastePatch(diaryIds: diaryIds), type: StatusResponseOnly.self)
+        provider.requestStatus(.wastePatch(diaryIds: diaryIds))
     }
 
     // 영구삭제
     func deleteWaste(diaryIds: [Int]) -> AnyPublisher<StatusResponseOnly, APIError> {
-        provider.requestResult(.deleteDiary(diaryIds: diaryIds), type: StatusResponseOnly.self)
+        provider.requestStatus(.deleteDiary(diaryIds: diaryIds))
     }
     
     // 임시보관함으로 복원
     func restoreWaste(diaryIds: [Int]) -> AnyPublisher<StatusResponseOnly, APIError> {
-        provider.requestResult(.restore(diaryIds: diaryIds), type: StatusResponseOnly.self)
+        provider.requestStatus(.restore(diaryIds: diaryIds))
     }
     
     func scrap(sort: SortOrder = .latest, cursor: String?) -> AnyPublisher<ScrapResponse, APIError> {

@@ -57,6 +57,7 @@ struct TempStorageView: View {
     private var content: some View {
         if viewModel.isLoading {
             ProgressView()
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
         } else if let error = viewModel.errorMessage {
             Text(error).foregroundColor(.red)
         } else if sortedCells.isEmpty {
@@ -64,6 +65,7 @@ struct TempStorageView: View {
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
         } else {
             diaryList
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
         }
     }
 

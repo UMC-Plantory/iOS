@@ -13,66 +13,144 @@ struct EmotionStatsView: View {
     @State private var page: Int = 0    // 0 = Week, 1 = Month
 
     init(container: DIContainer) {
-            _viewModel = StateObject(wrappedValue: EmotionStatsViewModel(container: container))
-        }
+        _viewModel = StateObject(wrappedValue: EmotionStatsViewModel(container: container))
+    }
 
     var body: some View {
         ScrollView(.vertical, showsIndicators: false) {
             VStack(alignment: .leading, spacing: 24) {
                 Spacer().frame(height: 45)
-                
+
                 WeekMonthPicker(selection: $page)
                     .frame(maxWidth: .infinity, alignment: .center)
-                    .onChange(of: page) { old, new in
-                        if new == 0 { viewModel.fetchWeeklyEmotionStats()
-                        }
-                        else {
-                            // 월간 감정 통계 패치 함수
-                        }
-                    }
-                
-                VStack(alignment: .leading, spacing: 8) {
-                    Text(viewModel.comment)
-                        .font(.pretendardSemiBold(18))
-                    Text(viewModel.periodText)
-                        .font(.pretendardRegular(16))
-                        .foregroundColor(.gray09)
-                    HStack {
-                        (
-                            Text("오늘은 \(viewModel.todayWeekdayLabel)이에요!\n지난 한 주간에는 ")
-                            + Text(viewModel.mostFrequentEmotionLabel).bold()
-                            + Text("이 가장 많이 기록 되었어요!")
-                        )
-                        .font(.pretendardRegular(12))
-                        .foregroundColor(.green06)
-                        .fixedSize(horizontal: false, vertical: true)
-                        .frame(minHeight: 50, alignment: .topLeading)
-                        Spacer()
-                    }
-                    HStack{
-                        Spacer()
-                        if viewModel.topEmotionKey != "" {
-                            EmotionGaugeView(
-                                progress: viewModel.topEmotionRatio,
-                                emotionKey: viewModel.topEmotionKey
-                            )
-                            .frame(width: 120, height: 120)
+                    .onChange(of: page) { _, new in
+                        if new == 0 {
+                            viewModel.fetchWeeklyEmotionStats()
+                        } else {
+                            viewModel.fetchMonthlyEmotionStats()
                         }
                     }
-                    Spacer().frame(height: 30)
-                    EmotionPercentageChartView(data: viewModel.emotionPercentages)
+
+                // 주간/월간 영역 전환
+                Group {
+                    if page == 0 {
+                        weeklyArea
+                    } else {
+                        monthlyArea
+                    }
                 }
-                Spacer()
             }
             .padding(.horizontal, 28)
-            .onChange(of: page) { _, new in
-                if new == 0 {
-                    viewModel.fetchWeeklyEmotionStats()
-                } else {
-                    viewModel.fetchMonthlyEmotionStats()
+            .loadingIndicator(viewModel.isLoading)
+        }
+        .onAppear {
+            // 최초 진입 시 주간 패치
+            viewModel.fetchWeeklyEmotionStats()
+        }
+    }
+}
+
+// MARK: - Weekly / Monthly Content
+private extension EmotionStatsView {
+
+    @ViewBuilder
+    var weeklyArea: some View {
+        if !viewModel.weeklyLoaded {
+            loadingView
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
+        } else if viewModel.isWeeklyEmpty {
+            VStack {
+                Spacer().frame(height: 120)
+                    NothingView(
+                        mainText: "주간 감정 통계 기록이 없어요",
+                        subText: "하루 하루 일기를 통해 감정을 기록해 보세요!"
+                    )
+                    Spacer()
+                }
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
+                .transition(.opacity)
+        } else {
+            weeklyContent
+        }
+    }
+
+    @ViewBuilder
+    var monthlyArea: some View {
+        if !viewModel.monthlyLoaded {
+            loadingView
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
+        } else if viewModel.isMonthlyEmpty {
+            VStack {
+                Spacer().frame(height: 120)
+                NothingView(
+                    mainText: "월간 감정 통계 기록이 없어요",
+                    subText: "한 달 동안의 감정 패턴을 모아볼 수 있어요!"
+                )
+                Spacer()
+            }
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
+            .transition(.opacity)
+        } else {
+            monthlyContent
+        }
+    }
+
+    var loadingView: some View {
+        VStack {
+            Spacer()
+            ProgressView()
+            Spacer()
+        }
+    }
+
+    // ----- 실제 주간/월간 본문 -----
+    var weeklyContent: some View {
+        VStack(alignment: .leading, spacing: 20) {
+            headerSection
+            EmotionPercentageChartView(data: viewModel.emotionPercentages)
+                .frame(maxWidth: .infinity, alignment: .leading)
+        }
+    }
+
+    var monthlyContent: some View {
+        VStack(alignment: .leading, spacing: 20) {
+            headerSection
+            EmotionPercentageChartView(data: viewModel.emotionPercentages)
+                .frame(maxWidth: .infinity, alignment: .leading)
+        }
+    }
+
+    // 공통 헤더(설명, 기간, 게이지)
+    var headerSection: some View {
+        VStack(alignment: .leading, spacing: 8) {
+            Text(viewModel.comment)
+                .font(.pretendardSemiBold(18))
+
+            Text(viewModel.periodText)
+                .font(.pretendardRegular(16))
+                .foregroundColor(.gray09)
+
+            HStack(alignment: .top) {
+                (
+                    Text("오늘은 \(viewModel.todayWeekdayLabel)이에요!\n지난 기간에는 ")
+                    + Text(viewModel.mostFrequentEmotionLabel).bold()
+                    + Text("이 가장 많이 기록 되었어요!")
+                )
+                .font(.pretendardRegular(12))
+                .foregroundColor(.green06)
+                .fixedSize(horizontal: false, vertical: true)
+                .frame(minHeight: 68, alignment: .topLeading)
+
+                Spacer()
+
+                if !viewModel.topEmotionKey.isEmpty {
+                    EmotionGaugeView(
+                        progress: viewModel.topEmotionRatio,
+                        emotionKey: viewModel.topEmotionKey
+                    )
+                    .frame(width: 120, height: 120)
                 }
             }
-            .loadingIndicator(viewModel.isLoading)
         }
     }
 }
@@ -142,6 +220,8 @@ struct EmotionPercentageChartView: View {
     }
 }
 
+// MARK: - Preview
 #Preview {
-    EmotionStatsView(container: .init())
+    let container = DIContainer()
+    EmotionStatsView(container: container)
 }

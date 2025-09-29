@@ -64,6 +64,7 @@ struct TrashView: View {
     private var content: some View {
         if viewModel.isLoading {
             ProgressView()
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
         } else if let error = viewModel.errorMessage {
             Text(error).foregroundColor(.red)
         } else if sortedCells.isEmpty {
@@ -71,6 +72,7 @@ struct TrashView: View {
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
         } else {
             diaryList
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
         }
     }
 
@@ -158,6 +160,7 @@ struct TrashView: View {
 
     private func performDeletion() {
         withAnimation(.spring()) { showDeletePopUp = false }
+        // Call Delete API
         viewModel.deleteForever(ids: Array(checkedItems))
         checkedItems.removeAll()
         isEditing = false
