@@ -1,8 +1,8 @@
 //
-//  AddDiaryView.swift
-//  Plantory
+//  AddDiaryView.swift
+//  Plantory
 //
-//  Created by 김지우 on 7/15/25.
+//  Created by 김지우 on 7/15/25.
 //
 
 import SwiftUI
@@ -39,9 +39,9 @@ struct AddDiaryView: View {
     @State private var showFullCalendar: Bool = false
 
     // 🔧 스텝 인디케이터 설정
-    private let stepLabelHeight: CGFloat = 20      // 라벨 영역 고정
-    private let stepBarGap: CGFloat = 6            // 막대 사이 간격
-    private let stepBarWidth: CGFloat = 80         // 막대/컬럼 너비 고정
+    private let stepLabelHeight: CGFloat = 20        // 라벨 영역 고정
+    private let stepBarGap: CGFloat = 6              // 막대 사이 간격
+    private let stepBarWidth: CGFloat = 80           // 막대/컬럼 너비 고정
     private let stepBarHeight: CGFloat = 8
 
     init(container: DIContainer, date: Date = Date()) {
@@ -166,13 +166,26 @@ struct AddDiaryView: View {
             return AnyView(EmptyView())
         }
 
+        // ✨ 수정된 로직 시작: 현재 단계 유효성 검사 반영
+        
+        // 1. 현재 단계가 일기 본문 작성 단계(Step 1)인지 확인
+        let isDiaryStep = stepVM.currentStep == 1
+        
+        // 2. 현재 단계의 유효성 검사 결과 (Step 1일 때만 vm.isDiaryContentValid 사용)
+        let isCurrentStepValid = isDiaryStep ? vm.isDiaryContentValid : true
+        
+        // 3. 버튼 비활성화 조건: 로딩 중이거나, 현재 단계의 유효성 검사를 통과하지 못했을 때
+        let isButtonDisabled = vm.isLoading || !isCurrentStepValid
+        
+        // ✨ 수정된 로직 끝
+
         return AnyView(
             HStack {
                 // 이전
                 if stepVM.currentStep != 0 {
                     MainMiddleButton(
                         text: "이전",
-                        isDisabled: false,
+                        isDisabled: vm.isLoading,
                         action: { stepVM.goBack() }
                     )
                     .tint(.green04)
@@ -186,17 +199,17 @@ struct AddDiaryView: View {
                 if stepVM.currentStep < stepVM.steps.count - 1 {
                     MainMiddleButton(
                         text: "다음",
-                        isDisabled: false,
+                        isDisabled: isButtonDisabled,
                         action: { stepVM.goNext() }
                     ).tint(.green04)
                 } else {
                     MainMiddleButton(
                         text: "작성완료",
-                        isDisabled: vm.isLoading,
+                        isDisabled: isButtonDisabled,
                         action: {
-                            vm.submit() // 서버 저장 호출(이미 구현되어 있다면)
+                            vm.submit()
                             withAnimation(.easeInOut) {
-                                vm.isCompleted = true // CompletedView로 전환
+                                vm.isCompleted = true
                             }
                         }
                     )

@@ -37,7 +37,13 @@ final class AddDiaryViewModel {
     init(container: DIContainer) {
         self.container = container
     }
-
+    
+    /// 현재 단계(일기 작성: Step 1)에서 '다음' 버튼 활성화 여부
+    /// - 일기 내용(content)이 공백이 아닌 한 글자 이상일 때만 true 반환.
+    var isDiaryContentValid: Bool {
+        // 공백만 있는 경우를 제거하기 위해 trim()을 사용하여 실제 문자가 있는지 확인
+        return !content.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
+    }
     // MARK: - 바인딩 헬퍼
     func setEmotion(_ v: String) { emotion = v }
     func setContent(_ v: String) { content = v }
