@@ -66,7 +66,7 @@ struct DiaryFilterView: View {
     // MARK: - body
 
     var body: some View {
-        ScrollView {
+        ScrollView(.vertical, showsIndicators: false)  {
             VStack(alignment: .leading, spacing: 24) {
                 // 상단 바
                 HStack {
