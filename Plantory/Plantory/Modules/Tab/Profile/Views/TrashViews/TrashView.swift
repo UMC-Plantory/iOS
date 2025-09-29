@@ -29,7 +29,7 @@ struct TrashView: View {
                 onDelete: { withAnimation(.spring()) { showDeletePopUp = true } }
             )
         }
-        .padding(.horizontal)
+        .padding(.horizontal, 8)
         .onChange(of: isNewSorting) { _, newValue in
             viewModel.fetchWaste(sort: newValue ? .latest : .oldest)
         }

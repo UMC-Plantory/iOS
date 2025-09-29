@@ -29,7 +29,7 @@ struct TempStorageView: View {
                     onDelete: { withAnimation(.spring()) { showPopUp = true } }
                 )
             }
-            .padding(.horizontal)
+            .padding(.horizontal, 8)
             .onChange(of: isNewSorting) { _, newValue in
                 viewModel.fetchTemp(sort: newValue ? .latest : .oldest)
             }

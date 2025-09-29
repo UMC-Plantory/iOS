@@ -51,10 +51,7 @@ private extension SleepStatsView {
 
     @ViewBuilder
     var weeklyArea: some View {
-        if !viewModel.weeklyLoaded {
-            loadingView
-                .frame(maxWidth: .infinity, maxHeight: .infinity)
-        } else if viewModel.isWeeklyEmpty {
+        if viewModel.isWeeklyEmpty {
             VStack {
                 Spacer().frame(height: 120)
                 NothingView(
@@ -72,10 +69,7 @@ private extension SleepStatsView {
 
     @ViewBuilder
     var monthlyArea: some View {
-        if !viewModel.monthlyLoaded {
-            loadingView
-                .frame(maxWidth: .infinity, maxHeight: .infinity)
-        } else if viewModel.isMonthlyEmpty {
+        if viewModel.isMonthlyEmpty {
             VStack {
                 Spacer().frame(height: 120)
                 NothingView(
