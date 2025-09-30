@@ -21,6 +21,12 @@ public class SleepStatsViewModel: ObservableObject {
     @Published public private(set) var comment: String = ""
     // 24시간 대비 평균 수면 비율
     @Published public private(set) var progress: Double = 0
+    // 주간 수면 통계, 월간 수면 통계 정보가 없는지
+    @Published public private(set) var isWeeklyEmpty: Bool = false
+    @Published public private(set) var isMonthlyEmpty: Bool = false
+    // 최초 진입에 NothingView가 섣불리 뜨지 않기 위한 로드 여부
+    @Published var weeklyLoaded = false
+    @Published var monthlyLoaded = false
     
     // MARK: - Dependencies (의존성 주입)
     /// 날짜 계산에 사용할 캘린더 (테스트 용도 DI)
@@ -67,18 +73,33 @@ public class SleepStatsViewModel: ObservableObject {
     // MARK: - API Fetch (데이터 요청)
     /// 주간 통계 데이터 요청 및 처리 흐름
     public func fetchWeekly() {
+        weeklyLoaded = false
         container.useCaseService.profileService.fetchWeeklyStats()
-            .receive(on: DispatchQueue.main) // 메인 스레드에서 결과 처리
+            .receive(on: DispatchQueue.main)
             .sink(
-                receiveCompletion: { completion in
+                receiveCompletion: { [weak self] completion in
+                    guard let self else { return }
+                    defer { self.weeklyLoaded = true }
                     if case let .failure(error) = completion {
-                        // 네트워크 오류 처리 (개발 편의를 위해 print 사용)
-                        print("Error fetching weekly stats:", error)
+                        // 비즈니스 에러: 데이터 없음 → 빈 상태로 매핑
+                        if case let APIError.serverError(code, _) = error, code == "STATISTIC4001" {
+                            self.isWeeklyEmpty = true
+                            self.clearWeeklyUIState()
+                        } else {
+                            // 네트워크/기타 에러 → 적절히 에러 상태로
+                            print(error)
+                        }
                     }
                 },
                 receiveValue: { [weak self] response in
-                    // 성공적으로 받아온 응답을 핸들러로 전달
-                    self?.handleWeekly(response)
+                    guard let self else { return }
+                    // 정상 응답 → 비어있는지 판단
+                    self.isWeeklyEmpty = response.dailySleepRecords.isEmpty
+                    if self.isWeeklyEmpty {
+                        self.clearWeeklyUIState()
+                    } else {
+                        self.handleWeekly(response)   // 기존 정상 처리
+                    }
                 }
             )
             .store(in: &cancellables)
@@ -86,21 +107,54 @@ public class SleepStatsViewModel: ObservableObject {
 
     /// 월간 통계 데이터 요청 및 처리 흐름
     public func fetchMonthly() {
+        monthlyLoaded = false
         container.useCaseService.profileService.fetchMonthlyStats()
             .receive(on: DispatchQueue.main)
             .sink(
-                receiveCompletion: { completion in
+                receiveCompletion: { [weak self] completion in
+                    guard let self else { return }
+                    defer { self.monthlyLoaded = true }
                     if case let .failure(error) = completion {
-                        print("Error fetching monthly stats:", error)
+                        if case let APIError.serverError(code, _) = error, code == "STATISTIC4001" {
+                            self.isMonthlyEmpty = true
+                            self.clearMonthlyUIState()
+                        } else {
+                            print(error)
+                        }
                     }
                 },
                 receiveValue: { [weak self] response in
-                    self?.handleMonthly(response)
+                    guard let self else { return }
+                    self.isMonthlyEmpty = response.weeklySleepRecords.isEmpty
+                    if self.isMonthlyEmpty {
+                        self.clearMonthlyUIState()
+                    } else {
+                        self.handleMonthly(response)
+                    }
                 }
             )
             .store(in: &cancellables)
     }
 
+    // 주간 비었을 때 UI 상태 초기화
+    private func clearWeeklyUIState() {
+        daily = []
+        progress = 0
+        averageText = ""
+        averageComment = ""
+        comment = "주간 평균 수면 시간"
+        periodText = ""
+    }
+    
+    // 월간 비었을 때 UI 상태 초기화
+    private func clearMonthlyUIState() {
+        daily = []
+        progress = 0
+        averageText = ""
+        averageComment = ""
+        comment = "월간 평균 수면 시간"
+        periodText = ""
+    }
     // MARK: - Handlers (응답 처리)
     /**
      주간 통계 응답 처리 및 Published 프로퍼티 업데이트
@@ -111,6 +165,7 @@ public class SleepStatsViewModel: ObservableObject {
         // 1. DTO → 뷰 모델 변환
         let model = WeeklySleepStatsModel(from: response, calendar: calendar)
         daily = model.daily
+        isWeeklyEmpty = response.dailySleepRecords.isEmpty
 
         // 2. 오늘 요일 한글로 변환 (Calendar.weekday: 1=일요일 ~ 7=토요일)
         let idx = calendar.component(.weekday, from: today) - 1
@@ -136,6 +191,7 @@ public class SleepStatsViewModel: ObservableObject {
         // 1. DTO → 뷰 모델 변환
         let model = MonthlySleepStatsModel(from: response)
         monthly = model.weekly
+        isMonthlyEmpty = response.weeklySleepRecords.isEmpty
 
         // 2. 기간 텍스트 설정
         periodText = "\(Self.periodFormatter.string(from: model.startDate)) ~ " +
