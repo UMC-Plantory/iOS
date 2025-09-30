@@ -29,7 +29,7 @@ struct TrashView: View {
                 onDelete: { withAnimation(.spring()) { showDeletePopUp = true } }
             )
         }
-        .padding(.horizontal)
+        .padding(.horizontal, 8)
         .onChange(of: isNewSorting) { _, newValue in
             viewModel.fetchWaste(sort: newValue ? .latest : .oldest)
         }
@@ -61,6 +61,7 @@ struct TrashView: View {
     private var content: some View {
         if viewModel.isLoading {
             ProgressView()
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
         } else if let error = viewModel.errorMessage {
             Text(error).foregroundColor(.red)
         } else if sortedCells.isEmpty {
@@ -68,6 +69,7 @@ struct TrashView: View {
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
         } else {
             diaryList
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
         }
     }
 
@@ -131,8 +133,8 @@ struct TrashView: View {
 
     private func performDeletion() {
         withAnimation(.spring()) { showDeletePopUp = false }
+        // Call Delete API
         viewModel.deleteForever(ids: Array(checkedItems))
-        // 실제로 삭제할 때는 fetch()로 수정된 리스트 불러오기 !!
         checkedItems.removeAll()
         isEditing = false
     }

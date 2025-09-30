@@ -121,7 +121,6 @@ struct ActionButtons: View {
                     )
             }
         }
-        .padding(.vertical, 16)
     }
 }
 
