@@ -10,6 +10,7 @@ import SwiftUI
 struct ProfileInfoView: View {
     
     @EnvironmentObject var container: DIContainer
+    @EnvironmentObject var sessionManager: SessionManager
     
     // MARK: - Property
     
@@ -22,7 +23,9 @@ struct ProfileInfoView: View {
 
     /// DIContainer와 앱 흐름 ViewModel(AppFlowViewModel)을 주입받아 초기화
     init(container: DIContainer) {
-        _viewModel = StateObject(wrappedValue: ProfileInfoViewModel(container: container))
+        _viewModel = StateObject(
+            wrappedValue: ProfileInfoViewModel(container: container)
+        )
     }
     
     // MARK: - Body
@@ -55,7 +58,7 @@ struct ProfileInfoView: View {
                     subText: "플랜토리의 다양한 서비스를 이용해보세요.",
                     buttonTitle: "홈으로 이동하기",
                     buttonAction: {
-                        container.navigationRouter.push(.baseTab)
+                        sessionManager.isLoggedIn = true
                     }
                 )
                 .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .center)

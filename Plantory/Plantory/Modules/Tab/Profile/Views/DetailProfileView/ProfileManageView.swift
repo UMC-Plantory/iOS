@@ -5,6 +5,7 @@ import UIKit
 struct ProfileManageView: View {
     private let container: DIContainer
     @Environment(\.dismiss) private var dismiss
+    @EnvironmentObject var sessionManager: SessionManager
 
     @StateObject private var vm: ProfileViewModel
 
@@ -34,6 +35,7 @@ struct ProfileManageView: View {
             onConfirm: {
                 vm.withdrawAccount()
                 container.navigationRouter.reset()
+                sessionManager.isLoggedIn = false
             }
         )
         .task {

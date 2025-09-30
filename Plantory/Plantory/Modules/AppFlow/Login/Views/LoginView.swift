@@ -19,9 +19,10 @@ struct LoginView: View {
 
     /// DIContainer를 주입받아 초기화
     init(
-        container: DIContainer
+        container: DIContainer,
+        sessionManager: SessionManager
     ) {
-        self.viewModel = .init(container: container)
+        self.viewModel = .init(container: container, sessionManager: sessionManager)
     }
     
     // MARK: - Body
@@ -119,7 +120,7 @@ struct LoginView_Preview: PreviewProvider {
     
     static var previews: some View {
         ForEach(devices, id: \.self) { device in
-            LoginView(container: DIContainer())
+            LoginView(container: DIContainer(), sessionManager: SessionManager())
                 .environment(NavigationRouter())
                 .previewDevice(PreviewDevice(rawValue: device))
                 .previewDisplayName(device)

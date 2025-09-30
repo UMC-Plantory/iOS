@@ -6,6 +6,7 @@ import CombineMoya
 struct MyPageView: View {
     @EnvironmentObject var container: DIContainer
     @EnvironmentObject var popupManager: PopupManager
+    @EnvironmentObject var sessionManager: SessionManager
     
     @State private var showSleepSheet = false
     @State private var showEmotionSheet = false
@@ -77,6 +78,7 @@ struct MyPageView: View {
                                 onConfirm: {
                                     statsVM.logout()
                                     container.navigationRouter.reset()
+                                    sessionManager.isLoggedIn = false
                                 },
                                 onCancel: {
                                     popupManager.dismiss()
