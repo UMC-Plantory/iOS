@@ -33,16 +33,14 @@ struct TempStorageView: View {
             .onChange(of: isNewSorting) { _, newValue in
                 viewModel.fetchTemp(sort: newValue ? .latest : .oldest)
             }
-            .overlay {
-                if showPopUp {
-                    BlurBackground()
-                        .onTapGesture {
-                            withAnimation(.spring()) { showPopUp = false }
-                        }
-                    
-                    deleteConfirmationPopUp
-                }
-            }
+            .popup(
+                isPresented: $showPopUp,
+                title: "보관한 일기를 삭제하시겠습니까?",
+                message: "일기 삭제 시, 해당 일기는 휴지통으로 이동합니다.",
+                confirmTitle: "삭제하기",
+                cancelTitle: "취소",
+                onConfirm: performDeletion
+            )
             .customNavigation(
                 title: "임시보관함",
                 leading: navigationLeading,
@@ -121,19 +119,6 @@ struct TempStorageView: View {
             Text(isEditing ? "취소" : "편집")
                 .font(.pretendardRegular(16)).foregroundStyle(.green07)
         }
-    }
-
-    // MARK: - 삭제 확인 팝업
-    private var deleteConfirmationPopUp: some View {
-        PopUp(
-            title: "보관한 일기를 삭제하시겠습니까?",
-            message: "일기 삭제 시, 해당 일기는 휴지통으로 이동합니다.",
-            confirmTitle: "삭제하기",
-            cancelTitle: "취소",
-            onConfirm: performDeletion,
-            onCancel: { withAnimation(.spring()) { showPopUp = false } }
-        )
-        .transition(.scale.combined(with: .opacity))
     }
 
     // MARK: - 액션

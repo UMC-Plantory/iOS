@@ -43,7 +43,6 @@ struct PermitView: View {
                     .padding(.top, 44)
                     
                     Spacer()
-                        .frame(height: 168)
                 }
                 
                 MainMiddleButton(
@@ -59,6 +58,8 @@ struct PermitView: View {
                 Spacer()
             }
             .padding(.horizontal, 16)
+            .padding(.vertical, 12)
+            .padding(.bottom, 24)
         }
         .padding(.top, 10)
         .navigationBarBackButtonHidden(true)
@@ -129,5 +130,7 @@ struct PermitView: View {
 }
 
 #Preview {
-    PermitView(container: DIContainer())
+    NavigationStack {
+        PermitView(container: DIContainer())
+    }
 }

@@ -24,11 +24,18 @@ struct ProfileManageView: View {
             ScrollView(.vertical, showsIndicators: false) {
                 profileContent
             }
-
-            if isShowingSignOutPopup {
-                signOutPopup
-            }
         }
+        .popup(
+            isPresented: $isShowingSignOutPopup,
+            title: "계정을 탈퇴하시겠습니까?",
+            message: "계정 탈퇴 시, 계정과 관련된 모든 권한과 정보가 삭제됩니다.",
+            confirmTitle: "탈퇴하기",
+            cancelTitle: "취소",
+            onConfirm: {
+                vm.withdrawAccount()
+                container.navigationRouter.reset()
+            }
+        )
         .task {
             UIApplication.shared.hideKeyboard()
         }
@@ -80,31 +87,6 @@ struct ProfileManageView: View {
         Button(action: dismiss.callAsFunction) {
             Image("leftChevron").fixedSize()
         }
-    }
-
-    // MARK: - Sign Out PopUp
-    private var signOutPopup: some View {
-        PopUp(
-            title: "계정을 탈퇴하시겠습니까?",
-            message: "계정 탈퇴 시, 계정과 관련된 모든 권한과 정보가 삭제됩니다.",
-            confirmTitle: "탈퇴하기",
-            cancelTitle: "취소",
-            onConfirm: {
-                vm.withdrawAccount()
-                container.navigationRouter.reset()
-            },
-            onCancel: {
-                withAnimation(.spring()) { isShowingSignOutPopup = false }
-            }
-        )
-        .zIndex(1)
-        .onChange(of: vm.isWithdrawn, initial: false) { _, done in
-                    if done {
-                        isShowingSignOutPopup = false
-                        // 후처리: 세션 정리 & 화면 전환
-                        dismiss()  // 최소 동작: 현재 화면 닫기
-                    }
-                }
     }
 }
 

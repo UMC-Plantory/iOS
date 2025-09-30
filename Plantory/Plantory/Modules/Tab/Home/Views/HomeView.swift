@@ -58,8 +58,8 @@ struct HomeView: View {
         ZStack {
             Color.brown01.ignoresSafeArea()
 
-            VStack {
-                Spacer().frame(height: 73)
+            ScrollView {
+                Spacer().frame(height: 43)
                 HomeHeaderView()
                 Spacer().frame(height: 32)
 
@@ -119,6 +119,7 @@ struct HomeView: View {
             }
             .padding(.horizontal, 32)
             .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
+            .scrollIndicators(.hidden)
             .onAppear { viewModel.loadMonthly() }
             .onChange(of: viewModel.month) { _, _ in viewModel.loadMonthly() }
             .alert(isPresented: $showErrorAlert) {
@@ -132,7 +133,7 @@ struct HomeView: View {
                 showErrorAlert = (newValue != nil) || viewModel.requiresLogin
             }
 
-            // === Month/Year Picker Overlay ===
+            //Month/Year Picker Overlay
             if showMonthPicker {
                 Color.black.opacity(0.35)
                     .ignoresSafeArea()
@@ -149,6 +150,8 @@ struct HomeView: View {
                 }
                 .transition(.scale.combined(with: .opacity))
                 .zIndex(2)
+                .padding(.horizontal, 25)
+
             }
         }
         .animation(.snappy, value: showMonthPicker)

@@ -39,25 +39,22 @@ struct TrashView: View {
             trailing: navigationTrailing
         )
         .navigationBarBackButtonHidden(true)
-        .overlay {
-            if showDeletePopUp {
-                BlurBackground()
-                    .onTapGesture {
-                        withAnimation(.spring()) { showDeletePopUp = false }
-                    }
-                
-                deleteConfirmationPopUp
-            }
-            
-            if showRestorePopUp {
-                BlurBackground()
-                    .onTapGesture {
-                        withAnimation(.spring()) { showRestorePopUp = false }
-                    }
-                
-                restoreConfirmationPopUp
-            }
-        }
+        .popup(
+            isPresented: $showDeletePopUp,
+            title: "일기를 삭제하시겠습니까?",
+            message: "일기 삭제 시, 해당 일기는 영구 삭제됩니다.",
+            confirmTitle: "삭제하기",
+            cancelTitle: "취소",
+            onConfirm: performDeletion
+        )
+        .popup(
+            isPresented: $showRestorePopUp,
+            title: "해당 일기를 복원하시겠습니까?",
+            message: "일기 복원 시, 해당 일기는 유지됩니다.",
+            confirmTitle: "복원하기",
+            cancelTitle: "취소",
+            onConfirm: performRestore
+        )
     }
 
     @ViewBuilder
@@ -124,30 +121,6 @@ struct TrashView: View {
             Text(isEditing ? "취소" : "편집")
                 .font(.pretendardRegular(14)).foregroundStyle(.green07)
         }
-    }
-
-    private var deleteConfirmationPopUp: some View {
-        PopUp(
-            title: "일기를 삭제하시겠습니까?",
-            message: "일기 삭제 시, 해당 일기는 영구 삭제됩니다.",
-            confirmTitle: "삭제하기",
-            cancelTitle: "취소",
-            onConfirm: performDeletion,
-            onCancel: { withAnimation(.spring()) { showDeletePopUp = false } }
-        )
-        .transition(.scale.combined(with: .opacity))
-    }
-
-    private var restoreConfirmationPopUp: some View {
-        PopUp(
-            title: "해당 일기를 복원하시겠습니까?",
-            message: "일기 복원 시, 해당 일기는 유지됩니다.",
-            confirmTitle: "복원하기",
-            cancelTitle: "취소",
-            onConfirm: performRestore,
-            onCancel: { withAnimation(.spring()) { showRestorePopUp = false } }
-        )
-        .transition(.scale.combined(with: .opacity))
     }
 
     private func toggleAllSelection() {

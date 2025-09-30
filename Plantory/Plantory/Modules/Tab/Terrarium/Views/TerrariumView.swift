@@ -9,25 +9,13 @@ import SwiftUI
 
 struct TerrariumView: View {
     @EnvironmentObject var container: DIContainer
+    @EnvironmentObject var popupManager: PopupManager
+    
     @State var viewModel: TerrariumViewModel
-    @State private var showFlowerCompleteView = false
-    var onInfoTapped: () -> Void
-    var onFlowerComplete: () -> Void = {}
-    var onPlantTap: (Int) -> Void = { _ in }
-    var memberId: Int = 1
+    @State private var showFlowerComplete: Bool = false
 
-    init(
-        viewModel: TerrariumViewModel,
-        onInfoTapped: @escaping () -> Void,
-        onFlowerComplete: @escaping () -> Void = {},
-        onPlantTap: @escaping (Int) -> Void = { _ in },
-        initialTab: TerrariumTab = .terrarium
-    ) {
-        self.viewModel = viewModel
-        self.onInfoTapped = onInfoTapped
-        self.onFlowerComplete = onFlowerComplete
-        self.onPlantTap = onPlantTap
-        self.viewModel.selectedTab = initialTab
+    init(container: DIContainer) {
+        self.viewModel = TerrariumViewModel(container: container)
     }
 
     var body: some View {
@@ -70,7 +58,10 @@ struct TerrariumView: View {
 
                             HStack {
                                 Button(action: {
-                                    onInfoTapped()
+                                    popupManager.show {
+                                        TerrariumPopup()
+                                            .environmentObject(popupManager)
+                                    }
                                 }) {
                                     Image("information")
                                 }
@@ -87,21 +78,42 @@ struct TerrariumView: View {
                         )
                     }
                 } else {
-                    MyGardenContent(container: container, onPlantTap: { id in
-                        onPlantTap(id)
-                    })
+                    MyGardenContent(container: container)
+                    .environmentObject(container)
+                    .environmentObject(popupManager)
                 }
             }
         }
         .onChange(of: viewModel.terrariumData?.terrariumWateringCount) { _, newValue in
             if let c = newValue, c >= 7 {
-                onFlowerComplete() // 부모에게 “띄워!” 신호
+                showFlowerComplete = true // 부모에게 “띄워!” 신호
             }
         }
         .onAppear {
             viewModel.fetchTerrarium()
             if let c = viewModel.terrariumData?.terrariumWateringCount, c >= 7 {
-                onFlowerComplete() // 진입 시 이미 7 이상이면 즉시 요청
+                showFlowerComplete = true // 진입 시 이미 7 이상이면 즉시 요청
+            }
+        }
+        .fullScreenCover(isPresented: $showFlowerComplete, onDismiss: {
+            viewModel.fetchTerrarium()
+        }) {
+            FlowerCompleteView(
+                viewModel: viewModel,
+                onGoToGarden: {
+                    container.selectedTab = .terrarium
+                    viewModel.selectedTab = .myGarden
+                    showFlowerComplete = false
+                },
+                onGoHome: {
+                    container.selectedTab = .home
+                    showFlowerComplete = false
+                }
+            )
+            .environmentObject(container)
+            .onAppear {
+                // FlowerCompleteView가 나타날 때 갱신
+                viewModel.fetchTerrarium()
             }
         }
         .loadingIndicator(viewModel.isLoading)
@@ -176,13 +188,6 @@ struct WateringButton: View {
     }
 }
 
-struct TerrariumView_Preview: PreviewProvider {
-    static var previews: some View {
-        TerrariumView(
-            viewModel: TerrariumViewModel(container: DIContainer()),
-            onInfoTapped: { print("Info tapped") },
-            onFlowerComplete: { print("Flower complete!") },
-            onPlantTap: { print("tap \($0)") },
-            initialTab: .terrarium )
-    }
+#Preview {
+    TerrariumView(container: DIContainer())
 }

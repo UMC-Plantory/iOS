@@ -11,8 +11,8 @@ import SwiftUI
 
 /// 앱 내에서 특정 화면으로의 이동을 처리하는 라우팅 뷰입니다.
 struct NavigationRoutingView: View {
-    @StateObject private var container: DIContainer = .init()
-    @State private var isFilterSheetPresented = false
+    @EnvironmentObject var container: DIContainer
+    
     var body: some View {
         NavigationStack(path: $container.navigationRouter.path) {
             LoginView(container: container)
@@ -35,7 +35,7 @@ struct NavigationRoutingView: View {
                             
                         // Tab 뷰
                         case .baseTab:
-                            BaseTabView(terrariumVM: TerrariumViewModel(container: container))
+                            BaseTabView()
                             
                         // 마이페이지
                         case .scrap:

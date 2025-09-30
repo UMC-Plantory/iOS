@@ -1,11 +1,11 @@
 {
   "images" : [
     {
-      "filename" : "chevron_right.svg",
       "idiom" : "universal",
       "scale" : "1x"
     },
     {
+      "filename" : "envelope_open.pdf",
       "idiom" : "universal",
       "scale" : "2x"
     },
