@@ -6,17 +6,13 @@
 //
 
 import SwiftUI
+import SwiftData
 import Kingfisher
-
-//ai 답장 생성 상태
-enum ReplyState {
-    case loading //로딩중
-    case arrived //ai답장 생성 완료
-    case complete //ai답장 확인
-}
 
 // 개별일기를 확인하는 View
 struct DiaryCheckView: View {
+    
+    @Environment(\.modelContext) private var context
     
     @EnvironmentObject var container: DIContainer
     
@@ -28,7 +24,6 @@ struct DiaryCheckView: View {
     // VM 은 init에서 주입
     @StateObject private var vm: DiaryCheckViewModel
     
-    @State private var state: ReplyState = .loading
     // MARK: - Init
      init(
        diaryId: Int,
@@ -46,7 +41,6 @@ struct DiaryCheckView: View {
     
     // MARK: -Body
     var body: some View {
- 
             ZStack {
                 Color.brown01.ignoresSafeArea()
                 
@@ -94,7 +88,7 @@ struct DiaryCheckView: View {
                         HStack(spacing: 4) {
                             Spacer()
                             
-                            Button {
+                            Button(action: {
                                 withAnimation {
                                     if vm.isEditing {
                                         Task {
@@ -104,11 +98,12 @@ struct DiaryCheckView: View {
                                     } else {
                                         // 편집 모드로 진입
                                         vm.isEditing = true
-                                } label: {
+                                    }
+                                }}, label: {
                                     Image("edit_vector")
                                         .resizable()
                                         .frame(width: 40, height: 40)
-                                }
+                            })
                                   
                             Button(action: {
                                 if !vm.isSaving {
@@ -148,21 +143,25 @@ struct DiaryCheckView: View {
                         .padding(.trailing, 18)
                     }
                     .padding(.horizontal, 18)
-                    .padding(.bottom, 28)
                         
-                        
-                        //AI 답장 모달
+                    //AI 답장 모달
+                    if (!vm.isEditing) {
                         VStack {
-                               if state == .loading {
-                                   LoadingCardView()
-                               } else if state == .arrived {
-                                   ArrivedCardView(onConfirm: {
-                                       state = .complete
-                                   })
-                               } else if state == .complete {
-                                   CompleteCardView()
-                               }
-                           }
+                            if vm.state == nil {
+                                EmptyView()
+                            } else if vm.state == .loading {
+                                LoadingCardView()
+                            } else if vm.state == .arrived {
+                                ArrivedCardView(onConfirm: {
+                                    vm.state = .complete
+                                    vm.saveAsOpened()
+                                })
+                            } else if vm.state == .complete {
+                                CompleteCardView(vm: vm)
+                            }
+                        }
+                        .padding(.horizontal, 18)
+                    }
                 }
                 .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
             }
@@ -172,6 +171,8 @@ struct DiaryCheckView: View {
         .task {
             UIApplication.shared.hideKeyboard()
             await vm.load()
+            await vm.fetchNickname()
+            vm.context = context
         }
         .popup(
             isPresented: $isDeleteSheetPresented,
@@ -187,8 +188,6 @@ struct DiaryCheckView: View {
         )
         .toastView(toast: $vm.toast)
         .loadingIndicator(vm.isLoading)
-
-        
     }
     
     
@@ -214,7 +213,6 @@ struct DiaryCheckView: View {
             
             Button(action: {
                 container.navigationRouter.reset()
-                container.navigationRouter.push(.baseTab)
             }) {
                 Image("home_green")
                     .resizable()
@@ -304,7 +302,7 @@ private struct ArrivedCardView: View {
     var onConfirm: () -> Void   // 버튼 액션을 외부에서 주입
     
     var body: some View {
-        VStack(spacing: 16) {
+        VStack(spacing: 12) {
             // 아이콘
             Image("envelope_closed")
                 .resizable()
@@ -328,48 +326,43 @@ private struct ArrivedCardView: View {
                     .cornerRadius(5)
             }
         }
-        .padding()
-        .frame(width:358, height: 176)
+        .frame(width: 358, height: 176)
         .background(Color.white01)
         .cornerRadius(10)
-        .shadow(radius: 2)
     }
 }
 
 ///AI답장 확인
 private struct CompleteCardView: View {
-    var nickname: String = "유엠씨"
-    var reply: String = "답장 내용 …… 어쩌구 저쩌구 오늘은 점심에 유엠이랑 밥을 먹었는데 너무 맛있었다. 저녁에는 친구 집들이를 갔다. 선물로 유리컵과 접시 세트를 사 갔는데 마침 집에 이러한 것들이 필요했다고 해서 너무 다행이었다."
+    @ObservedObject var vm: DiaryCheckViewModel
 
     var body: some View {
         VStack(alignment: .center, spacing: 12) {
-            Image( "envelope_open")
+            Image("envelope_open")
                 .resizable()
                 .scaledToFit()
                 .frame(width: 35, height: 48)
             
             // 상단 아이콘 + 제목
-            HStack(spacing: 8) {
-                    Text("\(nickname)")
+            HStack(spacing: 0) {
+                Text("\(vm.nickname)")
                     .font(.pretendardSemiBold(18))
                     .foregroundStyle(.green05)
-                + Text("에게 드리는 답장")
+                Text("님에게 드리는 답장")
                     .font(.pretendardSemiBold(18))
                     .foregroundStyle(.black01)
-        
             }
 
             // 본문
-            Text(reply)
+            Text(vm.summary?.aiComment ?? "답장 없음")
                 .font(.pretendardRegular(16))
                 .foregroundStyle(.gray11)
                 .multilineTextAlignment(.leading)
+                .padding(12)
         }
-        .padding()
+        .padding(24)
         .background(Color.white01)
-        .frame(width: 358, height: 262)
         .cornerRadius(10)
-        .shadow(radius: 2)
     }
 }
 
@@ -392,7 +385,7 @@ private struct LoadingDotsView: View {
                             .repeatForever()
                             .delay(Double(i) * 0.15), // 점차적으로 딜레이
                         value: animate
-                                        )
+                    )
             }
         }
         .onAppear {
