@@ -8,15 +8,6 @@ struct EmotionGaugeView: View {
     let emotionKey: String
 
     @State private var animatedProgress: Double = 0
-
-    // 감정 키 → 이미지 자산 이름 매핑
-    private static let imageNameMap: [String: String] = [
-        "HAPPY":      "happy",
-        "AMAZING": "surprise",
-        "SAD":  "sad",
-        "ANGRY":    "angry",
-        "SOSO":     "soso"
-    ]
     
     // 감정 키 → 게이지 그라데이션 색상 매핑
     private static let gradientColorMap: [String: [Color]] = [
@@ -31,7 +22,7 @@ struct EmotionGaugeView: View {
         GeometryReader { geo in
             let diameter = min(geo.size.width, geo.size.height)
             let lineWidth = diameter * (16 / 120)
-            let imageName = Self.imageNameMap[emotionKey] ?? "emotion_default"
+            let imageName = emotionKey
             let colors = Self.gradientColorMap[emotionKey] ?? Self.gradientColorMap.values.first!
 
             ZStack {

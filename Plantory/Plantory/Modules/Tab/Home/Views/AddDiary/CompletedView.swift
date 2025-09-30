@@ -45,8 +45,7 @@ struct CompletedView: View {
                     .font(.pretendardBold(20))
                     .multilineTextAlignment(.center)
                     .foregroundStyle(.diaryfont)
-
-                Spacer().frame(height: 100)
+                    .padding(.bottom, 20)
 
                 // 하단 버튼
                 HStack {
@@ -68,14 +67,34 @@ struct CompletedView: View {
 
                     Spacer().frame(width: 28)
                 }
-            }
+                .padding(.bottom, 20) // 하단에 약간의 여백 추가
+            }//VStack_end
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
         }
     }
 
     private var completedImage: some View {
         ZStack {
-            Image(.gradientCircle)
+
+            Image("gradient_circle")
             Image("sprout_image")
+
+            Image(.gradientCircle)
+            Image("only_sprout")
+
+        }
+    }
+}
+
+struct CompletedView_Preview: PreviewProvider {
+    static var devices = ["iPhone SE (3rd generation)", "iPhone 11", "iPhone 16 Pro Max"]
+
+    static var previews: some View {
+        ForEach(devices, id: \.self) { device in
+            CompletedView()
+                .environment(NavigationRouter())
+                .previewDevice(PreviewDevice(rawValue: device))
+                .previewDisplayName(device)
         }
     }
 }
