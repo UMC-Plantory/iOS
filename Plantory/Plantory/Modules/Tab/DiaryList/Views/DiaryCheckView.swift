@@ -90,7 +90,6 @@ struct DiaryCheckView: View {
                             }
                             .scrollIndicators(.hidden)
                         }
-                        
                         // 공유 아이콘들
                         HStack(spacing: 4) {
                             Spacer()
@@ -105,14 +104,12 @@ struct DiaryCheckView: View {
                                     } else {
                                         // 편집 모드로 진입
                                         vm.isEditing = true
-                                    }
+                                } label: {
+                                    Image("edit_vector")
+                                        .resizable()
+                                        .frame(width: 40, height: 40)
                                 }
-                            } label: {
-                                Image("edit_vector")
-                                    .resizable()
-                                    .frame(width: 40, height: 40)
-                            }
-                            
+                                  
                             Button(action: {
                                 if !vm.isSaving {
                                     vm.toggleTempStatus() {
