@@ -89,7 +89,9 @@ struct TempStorageView: View {
                                 }
                             }
                         ),
-                        onNavigate: {}
+                        onNavigate: {
+                            container.navigationRouter.push(.diaryDetail(diaryId: cell.id))
+                        }
                     )
                     .frame(maxWidth: .infinity)
                 }
