@@ -88,6 +88,7 @@ struct MyPageView: View {
             }
             .padding(.vertical, 24)
         }
+        .scrollIndicators(.hidden)
         .sheet(isPresented: $showSleepSheet) {
             SleepStatsView(container: container)
         }
