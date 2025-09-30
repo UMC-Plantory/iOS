@@ -13,6 +13,9 @@ import Moya
 protocol AddDiaryServicieProtocol {
     /// 새 일기 등록 (NORMAL/TEMP 공통)
     func createDiary(_ request: AddDiaryRequest) -> AnyPublisher<AddDiaryResponse, APIError>
+    func checkDiaryExist(date: String) -> AnyPublisher<DiaryExistResult, APIError>
+    func fetchTempDiary(date: String) -> AnyPublisher<TempDiaryResponse, APIError>
+    func checkTempExist(date: String) -> AnyPublisher<DiaryExistResult, APIError>
 }
 
 /// 일기 생성 서비스
@@ -40,5 +43,19 @@ final class AddDiaryService: AddDiaryServicieProtocol {
 
     func createDiary(_ request: AddDiaryRequest) -> AnyPublisher<AddDiaryResponse, APIError> {
         provider.requestResult(.create(body: request), type: AddDiaryResponse.self)
+    }
+    
+    // 이미 해당 날짜 일기 존재 여부
+    func checkDiaryExist(date: String) -> AnyPublisher<DiaryExistResult, APIError> {
+        provider.requestResult(.checkExist(date: date), type: DiaryExistResult.self)
+    }
+
+    // 서버 보관 TEMP 불러오기
+    func fetchTempDiary(date: String) -> AnyPublisher<TempDiaryResponse, APIError> {
+        provider.requestResult(.getTemp(date: date), type: TempDiaryResponse.self)
+    }
+    
+    func checkTempExist(date: String) -> AnyPublisher<DiaryExistResult, APIError> {
+        provider.requestResult(.checkTempExist(date: date), type: DiaryExistResult.self)
     }
 }

@@ -36,3 +36,14 @@ struct AddDiaryResponse: Codable {
 struct DiaryExistResult: Decodable {
     let isExist: Bool
 }
+
+// TEMP 불러오기 응답 (서버 보관된 임시저장 불러오기용)
+struct TempDiaryResponse: Codable {
+    let diaryDate: String
+    let emotion: String?
+    let content: String?
+    let sleepStartTime: String?
+    let sleepEndTime: String?
+    let diaryImgUrl: String?
+    let status: String   // "TEMP"
+}
