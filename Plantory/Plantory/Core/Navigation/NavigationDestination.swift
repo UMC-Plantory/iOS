@@ -7,8 +7,7 @@
 
 import Foundation
 
-enum NavigationDestination: Equatable, Hashable{
-    case login
+enum NavigationDestination: Equatable, Hashable {
     case permit
     case policy(num: Int)
     case profileInfo

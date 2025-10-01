@@ -24,8 +24,6 @@ struct NavigationRoutingView: View {
                     Group {
                         switch destination {
                         // 로그인, 회원가입 뷰
-                        case .login:
-                            LoginView(container: container, sessionManager: sessionManager)
                         case .permit:
                             PermitView(container: container)
                         case .policy(let num):
