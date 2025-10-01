@@ -30,25 +30,23 @@ struct ProfileInfoView: View {
     var body: some View {
         // 메인 콘텐츠
         profileInfoView
-            .overlay {
-                // 로그인 화면으로 돌아가는 팝업
-                if isShowingGoToLoginPopup {
-                    BlurBackground()
-                        .onTapGesture {
-                            withAnimation(.spring()) {
-                                isShowingGoToLoginPopup = false
-                            }
-                        }
-                    
-                    GoToLoginPopup
+            .popup(
+                isPresented: $isShowingGoToLoginPopup,
+                title: "로그인 화면으로 돌아가시겠습니까?",
+                message: "로그인 화면으로 돌아가면 작성 중인 내용이 모두 삭제됩니다.",
+                confirmTitle: "돌아가기",
+                cancelTitle: "취소",
+                onConfirm: {
+                    // 로그인 화면으로 이동한 후 팝업 닫기
+                    container.navigationRouter.reset()
                 }
-            }
+            )
             .toastView(toast: $viewModel.toast)
             .loadingIndicator(viewModel.isLoading)
     }
     
     private var profileInfoView: some View {
-        VStack(spacing: 33) {
+        VStack(spacing: 0) {
             headerView
             
             if viewModel.isCompleted {
@@ -62,13 +60,14 @@ struct ProfileInfoView: View {
                 )
                 .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .center)
             } else {
-                ScrollView(.vertical, showsIndicators: false) {
+                AdaptiveScrollView(topPadding: 24, bottomPadding: 72) {
                     profileView
                 }
+                .scrollIndicators(.hidden)
             }
         }
-        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
         .padding(.horizontal, 16)
+        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
         .navigationBarBackButtonHidden()
     }
     
@@ -155,27 +154,6 @@ struct ProfileInfoView: View {
                 state: $viewModel.genderState
             )
         }
-    }
-    
-    // MARK: - Go To Login Popup
-    /// 로그인으로 돌아가는 팝업뷰
-    private var GoToLoginPopup: some View {
-        PopUp(
-            title: "로그인 화면으로 돌아가시겠습니까?",
-            message: "로그인 화면으로 돌아가면 작성 중인 내용이 모두 삭제됩니다.",
-            confirmTitle: "돌아가기",
-            cancelTitle: "취소",
-            onConfirm: {
-                // 로그인 화면으로 이동한 후 팝업 닫기
-                container.navigationRouter.reset()
-                withAnimation(.spring()) { isShowingGoToLoginPopup = false }
-            },
-            onCancel: {
-                // 팝업 닫기
-                withAnimation(.spring()) { isShowingGoToLoginPopup = false }
-            }
-        )
-        .zIndex(10)
     }
 }
 

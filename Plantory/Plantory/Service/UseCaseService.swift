@@ -12,42 +12,27 @@ class UseCaseService {
     
     let kakaoManager: KakakoLoginManager
     let appleManager: AppleLoginManager
+    
     let imageService: ImageService
     let authService: AuthService
     let chatService: ChatService
-
     let addDiaryService: AddDiaryService
-
-
     let diaryService: DiaryService
-
-
     let homeService: HomeService
-
     let terrariumService: TerrariumService
     let profileService: ProfileService
-
-
-
     
     init() {
         self.kakaoManager = .init()
         self.appleManager = .init()
+        
         self.imageService = .init()
         self.authService = .init()
         self.chatService = .init()
-        
         self.addDiaryService = .init()
-
-
         self.diaryService = .init()
-
-
         self.homeService = .init()
-
         self.terrariumService = .init()
         self.profileService = .init()
-
-
     }
 }

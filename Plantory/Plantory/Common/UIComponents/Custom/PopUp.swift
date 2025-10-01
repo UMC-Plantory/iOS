@@ -79,7 +79,7 @@ struct BlurBackground: View {
     
     var body: some View {
         Color.black.opacity(0.4)
-            .ignoresSafeArea()
+            .ignoresSafeArea(edges: .all)
             .opacity(blurAmount)
             .onAppear {
                 withAnimation(.easeInOut(duration: 0.1)) {

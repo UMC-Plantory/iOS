@@ -22,7 +22,7 @@ struct DiaryDate: Decodable{
 }
 
 //특정 날짜 클릭 시 조회되는 일기 결과
-struct HomeDiaryResult: Decodable{
+struct HomeDiaryResult: Decodable {
     let diaryId: Int
     let diaryDate: String
     let emotion: String

@@ -111,8 +111,7 @@ class LoginViewModel {
     private func handleLoginSuccess(credential: ASAuthorizationAppleIDCredential) async throws {
         // identityToken, authorizationCode 추출
         guard let identityToken = credential.identityToken,
-              let identityTokenString = String(data: identityToken, encoding: .utf8),
-              let authorizationCode = credential.authorizationCode else {
+              let identityTokenString = String(data: identityToken, encoding: .utf8) else {
             throw NSError(domain: "AppleTokenError", code: -2)
         }
         
@@ -124,7 +123,7 @@ class LoginViewModel {
     
     /// 애플 로그인 API 호출
     private func sendAppleLoginToServer(
-        identityToken: String,
+        identityToken: String
     ) async throws {
         self.isLoading = true
         

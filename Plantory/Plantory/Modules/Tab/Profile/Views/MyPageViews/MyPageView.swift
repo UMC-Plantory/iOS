@@ -4,7 +4,8 @@ import CombineMoya
 
 // MARK: 메인 뷰
 struct MyPageView: View {
-    private let container: DIContainer
+    @EnvironmentObject var container: DIContainer
+    @EnvironmentObject var popupManager: PopupManager
     
     @State private var showSleepSheet = false
     @State private var showEmotionSheet = false
@@ -18,7 +19,6 @@ struct MyPageView: View {
     @StateObject private var statsVM: MyPageStatsViewModel
     
     init(container: DIContainer) {
-        self.container = container
         _sleepViewModel = StateObject(wrappedValue: SleepStatsViewModel(container: container))
         _statsVM = StateObject(wrappedValue: MyPageStatsViewModel(container: container))
     }
@@ -68,7 +68,21 @@ struct MyPageView: View {
                     trashAction:     { container.navigationRouter.push(.trash) },
                     logoutAction: {
                         // 로그아웃 판넬
-                        withAnimation(.spring()) { showLogout = true }
+                        popupManager.show {
+                            PopUp(
+                                title: "로그아웃 하시겠습니까?",
+                                message: "로그아웃 시, 로그인 화면으로 돌아갑니다.",
+                                confirmTitle: "로그아웃",
+                                cancelTitle: "취소",
+                                onConfirm: {
+                                    statsVM.logout()
+                                    container.navigationRouter.reset()
+                                },
+                                onCancel: {
+                                    popupManager.dismiss()
+                                }
+                            )
+                        }
                     }
                 )
             }
@@ -81,31 +95,6 @@ struct MyPageView: View {
         .sheet(isPresented: $showEmotionSheet) {
             EmotionStatsView(container: container)
                 .presentationDetents([.fraction(0.9)])
-        }
-        .overlay {
-            if showLogout {
-                BlurBackground()
-                    .onTapGesture {
-                        withAnimation(.spring()) { showLogout = false }
-                    }
-                
-                PopUp(
-                    title: "로그아웃 하시겠습니까?",
-                    message: "로그아웃 시, 로그인 화면으로 돌아갑니다.",
-                    confirmTitle: "로그아웃",
-                    cancelTitle: "취소",
-                    onConfirm: {
-                        statsVM.logout()
-                        container.navigationRouter.reset()
-                    },
-                    onCancel: { withAnimation(.spring()) { showLogout = false } }
-                )
-            }
-        }
-        .onChange(of: statsVM.didLogout, initial: false) { _, done in
-            if done {
-                showLogout = false
-            }
         }
         .navigationBarHidden(true)
         .loadingIndicator(statsVM.isLoading)

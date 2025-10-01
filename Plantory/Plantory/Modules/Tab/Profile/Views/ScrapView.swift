@@ -94,7 +94,7 @@ struct ScrapView: View {
             }
         }
         .customNavigation(
-            title: "휴지통",
+            title: "스크랩",
             leading: Button(action: { container.navigationRouter.pop()
             }, label: {
                 Image("leftChevron").fixedSize()
@@ -154,5 +154,7 @@ struct ScrapView: View {
 }
 
 #Preview {
-    ScrapView(container: DIContainer())
+    NavigationStack {
+        ScrapView(container: DIContainer())
+    }
 }

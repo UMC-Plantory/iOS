@@ -35,7 +35,7 @@ struct NothingView: View {
             Spacer()
             VStack(spacing: 20) {
                 
-                Image("Plant")
+                Image("only_sprout")
                     .resizable()
                     .frame(width: 151, height: 93)
                 VStack {
