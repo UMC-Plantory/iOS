@@ -76,9 +76,11 @@ struct MyPageView: View {
         }
         .sheet(isPresented: $showSleepSheet) {
             SleepStatsView(container: container)
+                .presentationDetents([.fraction(0.9)])
         }
         .sheet(isPresented: $showEmotionSheet) {
             EmotionStatsView(container: container)
+                .presentationDetents([.fraction(0.9)])
         }
         .overlay {
             if showLogout {

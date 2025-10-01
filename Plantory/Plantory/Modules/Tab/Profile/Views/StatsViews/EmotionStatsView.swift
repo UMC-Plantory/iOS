@@ -99,7 +99,7 @@ private extension EmotionStatsView {
 
     // ----- 실제 주간/월간 본문 -----
     var weeklyContent: some View {
-        VStack(alignment: .leading, spacing: 20) {
+        VStack(alignment: .leading, spacing: 28) {
             headerSection
             EmotionPercentageChartView(data: viewModel.emotionPercentages)
                 .frame(maxWidth: .infinity, alignment: .leading)
@@ -107,7 +107,7 @@ private extension EmotionStatsView {
     }
 
     var monthlyContent: some View {
-        VStack(alignment: .leading, spacing: 20) {
+        VStack(alignment: .leading, spacing: 28) {
             headerSection
             EmotionPercentageChartView(data: viewModel.emotionPercentages)
                 .frame(maxWidth: .infinity, alignment: .leading)

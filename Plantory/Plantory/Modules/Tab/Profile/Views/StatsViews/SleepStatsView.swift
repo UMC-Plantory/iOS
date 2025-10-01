@@ -95,16 +95,18 @@ private extension SleepStatsView {
 
     // ----- 실제 주간/월간 본문 -----
     var weeklyContent: some View {
-        VStack(alignment: .leading, spacing: 20) {
+        VStack(alignment: .leading) {
             headerSection
+            Spacer().frame(height: 28)
             WeekChartView(daily: viewModel.daily)
                 .frame(maxWidth: .infinity, alignment: .leading)
         }
     }
 
     var monthlyContent: some View {
-        VStack(alignment: .leading, spacing: 20) {
+        VStack(alignment: .leading) {
             headerSection
+            Spacer().frame(height: 28)
             MonthChartView(weekly: viewModel.monthly)
                 .frame(maxWidth: .infinity, alignment: .leading)
         }
