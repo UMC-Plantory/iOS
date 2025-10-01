@@ -1,18 +1,11 @@
-//
-//  DiaryCheckView.swift
-//  Plantory
-//
-//  Created by 박병선 on 7/22/25.
-//
-
 import SwiftUI
 import Kingfisher
 
-//ai 답장 생성 상태
+// ai 답장 생성 상태
 enum ReplyState {
-    case loading //로딩중
-    case arrived //ai답장 생성 완료
-    case complete //ai답장 확인
+    case loading // 로딩중
+    case arrived // ai답장 생성 완료
+    case complete // ai답장 확인
 }
 
 // 개별일기를 확인하는 View
@@ -20,7 +13,7 @@ struct DiaryCheckView: View {
     
     @EnvironmentObject var container: DIContainer
     
-    //MARK: - 상태
+    // MARK: - 상태
     @State var diaryId: Int
     
     @State var isDeleteSheetPresented: Bool = false
@@ -29,30 +22,30 @@ struct DiaryCheckView: View {
     @StateObject private var vm: DiaryCheckViewModel
     
     @State private var state: ReplyState = .loading
-    // MARK: - Init
-     init(
-       diaryId: Int,
-       container: DIContainer
-   ) {
-       self.diaryId = diaryId
-
-       _vm = StateObject(
-           wrappedValue: DiaryCheckViewModel(
-               diaryId: diaryId,
-               container: container
-           )
-       )
-   }
     
-    // MARK: -Body
+    // MARK: - Init
+    init(
+        diaryId: Int,
+        container: DIContainer
+    ) {
+        self.diaryId = diaryId
+
+        _vm = StateObject(
+            wrappedValue: DiaryCheckViewModel(
+                diaryId: diaryId,
+                container: container
+            )
+        )
+    }
+    
+    // MARK: - Body
     var body: some View {
- 
-            ZStack {
-                Color.brown01.ignoresSafeArea()
-                
-                ScrollView(.vertical, showsIndicators: false) {
-                    VStack(alignment: .center, spacing: 48) {
-                        VStack(spacing: 24) {
+        ZStack {
+            Color.brown01.ignoresSafeArea()
+            
+            ScrollView(.vertical, showsIndicators: false) {
+                VStack(alignment: .center, spacing: 48) {
+                    VStack(spacing: 24) {
                         // 뒤로가기, 날짜, 홈
                         headerView
                         
@@ -90,6 +83,7 @@ struct DiaryCheckView: View {
                             }
                             .scrollIndicators(.hidden)
                         }
+                        
                         // 공유 아이콘들
                         HStack(spacing: 4) {
                             Spacer()
@@ -104,12 +98,14 @@ struct DiaryCheckView: View {
                                     } else {
                                         // 편집 모드로 진입
                                         vm.isEditing = true
-                                } label: {
-                                    Image("edit_vector")
-                                        .resizable()
-                                        .frame(width: 40, height: 40)
+                                    }
                                 }
-                                  
+                            } label: {
+                                Image("edit_vector")
+                                    .resizable()
+                                    .frame(width: 40, height: 40)
+                            }
+                            
                             Button(action: {
                                 if !vm.isSaving {
                                     vm.toggleTempStatus() {
@@ -149,20 +145,19 @@ struct DiaryCheckView: View {
                     }
                     .padding(.horizontal, 18)
                     .padding(.bottom, 28)
-                        
-                        
-                        //AI 답장 모달
-                        VStack {
-                               if state == .loading {
-                                   LoadingCardView()
-                               } else if state == .arrived {
-                                   ArrivedCardView(onConfirm: {
-                                       state = .complete
-                                   })
-                               } else if state == .complete {
-                                   CompleteCardView()
-                               }
-                           }
+                    
+                    // AI 답장 모달
+                    VStack {
+                        if state == .loading {
+                            LoadingCardView()
+                        } else if state == .arrived {
+                            ArrivedCardView(onConfirm: {
+                                state = .complete
+                            })
+                        } else if state == .complete {
+                            CompleteCardView()
+                        }
+                    }
                 }
                 .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
             }
@@ -187,13 +182,9 @@ struct DiaryCheckView: View {
         )
         .toastView(toast: $vm.toast)
         .loadingIndicator(vm.isLoading)
-
-        
     }
     
-    
-    
-    // MARK: -하위뷰들
+    // MARK: - 하위 뷰들
     private var headerView: some View {
         HStack {
             Button(action: {
@@ -201,7 +192,6 @@ struct DiaryCheckView: View {
             }) {
                 Image(systemName: "chevron.left")
                     .foregroundColor(.green06)
-                
             }
             
             Spacer()
@@ -270,10 +260,8 @@ struct DiaryCheckView: View {
     }
 }
 
-
-
- // MARK: -모달 뷰
-///AI 답장 로딩 중
+// MARK: - 모달 뷰
+/// AI 답장 로딩 중
 private struct LoadingCardView: View {
     @State private var animate = false
 
@@ -295,11 +283,9 @@ private struct LoadingCardView: View {
         .background(Color.white01)
         .cornerRadius(10)
     }
-       
-    
 }
 
-///AI 답장 도착
+/// AI 답장 도착
 private struct ArrivedCardView: View {
     var onConfirm: () -> Void   // 버튼 액션을 외부에서 주입
     
@@ -317,7 +303,7 @@ private struct ArrivedCardView: View {
 
             // 버튼
             Button {
-                onConfirm() //버튼 클릭
+                onConfirm() // 버튼 클릭
             } label: {
                 Text("답장 확인하기")
                     .font(.pretendardRegular(14))
@@ -329,14 +315,14 @@ private struct ArrivedCardView: View {
             }
         }
         .padding()
-        .frame(width:358, height: 176)
+        .frame(width: 358, height: 176)
         .background(Color.white01)
         .cornerRadius(10)
         .shadow(radius: 2)
     }
 }
 
-///AI답장 확인
+/// AI 답장 확인
 private struct CompleteCardView: View {
     var nickname: String = "유엠씨"
     var reply: String = "답장 내용 …… 어쩌구 저쩌구 오늘은 점심에 유엠이랑 밥을 먹었는데 너무 맛있었다. 저녁에는 친구 집들이를 갔다. 선물로 유리컵과 접시 세트를 사 갔는데 마침 집에 이러한 것들이 필요했다고 해서 너무 다행이었다."
@@ -356,7 +342,6 @@ private struct CompleteCardView: View {
                 + Text("에게 드리는 답장")
                     .font(.pretendardSemiBold(18))
                     .foregroundStyle(.black01)
-        
             }
 
             // 본문
@@ -373,7 +358,7 @@ private struct CompleteCardView: View {
     }
 }
 
-//LoadingCardView의 컴포넌트
+// LoadingCardView의 컴포넌트
 private struct LoadingDotsView: View {
     @State private var animate = false
     let totalDots = 6
@@ -392,7 +377,7 @@ private struct LoadingDotsView: View {
                             .repeatForever()
                             .delay(Double(i) * 0.15), // 점차적으로 딜레이
                         value: animate
-                                        )
+                    )
             }
         }
         .onAppear {

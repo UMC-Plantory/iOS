@@ -85,7 +85,9 @@ struct MyPageView: View {
                         }
                     },
                     themeAction: {
-                        
+                        popupManager.show {
+                            ThemePopup()
+                        }
                     },
                     alarmAction: {
                         
