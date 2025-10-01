@@ -83,6 +83,12 @@ struct MyPageView: View {
                                 }
                             )
                         }
+                    },
+                    themeAction: {
+                        
+                    },
+                    alarmAction: {
+                        
                     }
                 )
             }
@@ -149,6 +155,8 @@ struct MenuSection: View {
     let tempAction:  () -> Void
     let trashAction: () -> Void
     let logoutAction: () -> Void
+    let themeAction: () -> Void
+    let alarmAction: () -> Void
 
     var body: some View {
         VStack(spacing: 0) {
@@ -157,6 +165,10 @@ struct MenuSection: View {
             MenuRow(icon: "scrap", title: "임시보관함", action: tempAction)
             MenuRow(icon: "delete", title: "휴지통", action: trashAction)
             MenuRow(icon: "logout", title: "로그아웃", action: logoutAction)
+            Divider().padding(.vertical, 8)
+            MenuRow(icon: "theme", title: "테마", action: themeAction)
+            MenuRow(icon: "alarm", title: "알람 설정", action: alarmAction)
+
         }
         .background(Color.white)
     }
