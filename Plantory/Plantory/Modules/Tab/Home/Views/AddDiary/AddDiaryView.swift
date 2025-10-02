@@ -55,9 +55,9 @@ struct AddDiaryView: View {
                            
                     }
                     .frame(maxWidth: .infinity, minHeight: UIScreen.main.bounds.height - (UIApplication.shared.windows.first?.safeAreaInsets.top ?? 0) - (UIApplication.shared.windows.first?.safeAreaInsets.bottom ?? 0)) // 뷰포트 높이 이상으로 설정하여 공간 확보
-                    .background(Color.diarybackground.ignoresSafeArea(.all, edges: .all))
+                    .background(Color.adddiarybackground.ignoresSafeArea(.all, edges: .all))
                 }
-                .background(Color.diarybackground.ignoresSafeArea(.all, edges: .all)) // 전체 배경색을 안전하게 적용
+                .background(Color.adddiarybackground.ignoresSafeArea(.all, edges: .all)) // 전체 배경색을 안전하게 적용
                 .ignoresSafeArea(.keyboard) // 키보드가 올라와도 안전 영역 무시
             } else {
                 Color.adddiarybackground.ignoresSafeArea()
