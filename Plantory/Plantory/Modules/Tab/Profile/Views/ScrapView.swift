@@ -132,7 +132,7 @@ struct ScrapView: View {
             ProgressView()
         } else if viewModel.diaries.isEmpty {
             NothingView(mainText: "스크랩 한 일기가 없어요", subText: "오래 보관하고 싶은 일기를 스크랩 해보세요!", buttonTitle: "리스트 페이지로 이동하기", buttonAction: {
-                container.navigationRouter.pop()
+                container.navigationRouter.push(.diarySearch)
             })
             Spacer()
         } else {

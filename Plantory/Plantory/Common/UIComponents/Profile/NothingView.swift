@@ -33,35 +33,40 @@ struct NothingView: View {
     }
     
     var body: some View {
-        VStack(spacing: 20) {
-            Image("Plant")
-                .resizable()
-                .frame(width: 151, height: 93)
-            VStack {
-                Text(mainText)
-                    .font(.pretendardSemiBold(16))
-                    .foregroundStyle(.gray10Dynamic)
-                Spacer().frame(height: 5)
-                Text(subText)
-                    .font(.pretendardMedium(14))
-                    .foregroundStyle(.gray08Dynamic)
-            }
-            
-            if let title = buttonTitle,
-               let action = buttonAction {
-                Button(action: action) {
-                    Text(title)
-                        .font(.pretendardRegular(14))
-                        .foregroundStyle(.green06)
-                        .padding(.horizontal, 8)
-                        .padding(.vertical, 4)
-                        .background(
-                            RoundedRectangle(cornerRadius: 5)
-                                .fill(colorScheme == .light ? .clear : .yellow01)
-                                .stroke(.green06, lineWidth: 1)
-                        )
+        VStack {
+            Spacer()
+            VStack(spacing: 20) {
+                
+                Image("only_sprout")
+                    .resizable()
+                    .frame(width: 151, height: 93)
+                VStack {
+                    Text(mainText)
+                        .font(.pretendardSemiBold(16))
+                        .foregroundStyle(.gray10Dynamic)
+                    Spacer().frame(height: 5)
+                    Text(subText)
+                        .font(.pretendardMedium(14))
+                        .foregroundStyle(.gray08Dynamic)
+                }
+                
+                if let title = buttonTitle,
+                   let action = buttonAction {
+                    Button(action: action) {
+                        Text(title)
+                            .font(.pretendardRegular(14))
+                            .foregroundStyle(.green06)
+                            .padding(.horizontal, 8)
+                            .padding(.vertical, 4)
+                            .background(
+                                RoundedRectangle(cornerRadius: 5)
+                                    .fill(colorScheme == .light ? .clear : .yellow01)
+                                    .stroke(.green06, lineWidth: 1)
+                            )
+                    }
                 }
             }
+            Spacer()
         }
     }
 }

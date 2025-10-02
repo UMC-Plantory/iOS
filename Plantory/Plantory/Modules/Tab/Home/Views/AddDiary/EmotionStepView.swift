@@ -12,11 +12,12 @@ struct EmotionStepView: View {
     let onSelected: () -> Void
 
     var body: some View {
-        Spacer().frame(height: 40)
+        
 
         Text("오늘의 감정을 선택해주세요")
             .font(.pretendardSemiBold(20))
             .foregroundStyle(.adddiaryfont)
+            .padding(.bottom, 20)
 
         ZStack {
             RoundedRectangle(cornerRadius: 12)
@@ -59,3 +60,4 @@ struct EmotionStepView: View {
         }
     }
 }
+

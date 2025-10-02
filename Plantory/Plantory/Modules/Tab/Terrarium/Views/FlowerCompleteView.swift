@@ -30,10 +30,11 @@ struct FlowerCompleteView: View {
                 lowContent
                 
                 Spacer()
-                
-                MainBigButton(
+
+                MainMiddleButton(
                     text: "나의 정원 가기",
                     isDisabled: false,
+                    fontSize: 20,
                     action: {
                         onGoToGarden?()
                     }
@@ -182,10 +183,7 @@ private extension FlowerCompleteView {
 }
 
 #Preview {
-    FlowerCompleteView(
-        viewModel: TerrariumViewModel(container: DIContainer()),
-        onGoToGarden: {},
-        onGoHome: {}
-    )
-    .environmentObject(DIContainer())
+    let container = DIContainer()
+    return FlowerCompleteView(viewModel: TerrariumViewModel(container: container))
+        .environmentObject(container)
 }

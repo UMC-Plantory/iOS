@@ -20,4 +20,10 @@ public struct StatusResponseOnly: Codable {
     public let isSuccess: Bool
     public let code: String
     public let message: String
+    
+    enum CodingKeys: String, CodingKey {
+        case isSuccess = "isSuccess"
+        case code = "code"
+        case message = "message"
+    }
 }

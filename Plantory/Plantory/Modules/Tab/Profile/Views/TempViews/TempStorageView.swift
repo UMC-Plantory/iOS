@@ -39,6 +39,7 @@ struct TempStorageView: View {
                 }
                 .padding(.horizontal)
             }
+            .padding(.horizontal, 8)
             .onChange(of: isNewSorting) { _, newValue in
                 viewModel.fetchTemp(sort: newValue ? .latest : .oldest)
             }
@@ -64,6 +65,7 @@ struct TempStorageView: View {
     private var content: some View {
         if viewModel.isLoading {
             ProgressView()
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
         } else if let error = viewModel.errorMessage {
             Text(error).foregroundColor(.red)
         } else if sortedCells.isEmpty {
@@ -71,6 +73,7 @@ struct TempStorageView: View {
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
         } else {
             diaryList
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
         }
     }
 

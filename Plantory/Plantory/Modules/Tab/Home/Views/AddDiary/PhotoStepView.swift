@@ -12,14 +12,13 @@ struct PhotoStepView: View {
     private let boxSize = CGSize(width: 205, height: 207)
 
     var body: some View {
-        Spacer().frame(height: 20)
-
+        
         VStack {
             Text("오늘의 사진을 선택한다면 무엇인가요?")
                 .font(.pretendardSemiBold(20))
                 .foregroundStyle(.adddiaryfont)
                 .multilineTextAlignment(.center)
-                .frame(maxWidth: .infinity, alignment: .center)
+                .padding(.bottom, 64)
 
             ZStack {
                 // 배경 박스
@@ -56,7 +55,8 @@ struct PhotoStepView: View {
                     .zIndex(1)
                 }
             }
-            .frame(height: 300) // 상하 여백 확보(원하면 줄여도 됨)
+            Spacer()
+            
         }
         .padding()
 
@@ -90,7 +90,6 @@ struct PhotoStepView: View {
             }
         }
 
-        Spacer().frame(height: 20)
     }
 }
 
@@ -111,4 +110,8 @@ private func downsample(data: Data, maxPixel: CGFloat) -> UIImage? {
 
     guard let cgImg = CGImageSourceCreateThumbnailAtIndex(src, 0, downOptions as CFDictionary) else { return nil }
     return UIImage(cgImage: cgImg)
+}
+
+#Preview{
+    PhotoStepView(vm: AddDiaryViewModel(container: DIContainer()))
 }
