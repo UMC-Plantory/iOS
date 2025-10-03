@@ -46,7 +46,7 @@ extension HomeRouter: APITargetType {
         case .getHomeMonthly(let yearMonth):
             var params: [String: Any] = [:]
             if let ym = yearMonth, !ym.isEmpty {
-                params["yearMonth"] = ym
+                params["year_month"] = ym
             }
             return .requestParameters(parameters: params, encoding: URLEncoding.queryString)
 
