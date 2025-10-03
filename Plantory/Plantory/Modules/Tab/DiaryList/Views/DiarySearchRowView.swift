@@ -117,7 +117,8 @@ struct DiarySearchRow: View {
             status: "SCRAP",
             emotion: .HAPPY,
             content: "오늘은 단풍이 정말 예뻤다. 따뜻한 햇살 덕분에 기분 좋은 하루였다.",
-            diaryImgUrl: nil
+            diaryImgUrl: nil,
+            aiComment: nil
         )
     )
 }

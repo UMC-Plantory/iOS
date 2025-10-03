@@ -167,7 +167,8 @@ private struct ResultsListView: View {
                 title: "가을 산책",
                 status: "NORMAL", emotion: .HAPPY,
                 content: "오늘은 날씨가 좋아서 공원에 다녀왔다. 시원한 바람이 기분을 좋게 했다.",
-                diaryImgUrl: nil
+                diaryImgUrl: nil,
+                aiComment: nil
             ),
             DiarySummary(
                 diaryId: 2,
@@ -175,7 +176,8 @@ private struct ResultsListView: View {
                 title: "비 오는 날",
                 status: "NORMAL", emotion: .SAD,
                 content: "하루 종일 비가 와서 기분이 조금 가라앉았다. 그래도 따뜻한 차를 마시니 한결 나아졌다.",
-                diaryImgUrl: nil
+                diaryImgUrl: nil,
+                aiComment: nil
             ),
             DiarySummary(
                 diaryId: 3,
@@ -183,7 +185,8 @@ private struct ResultsListView: View {
                 title: "스터디 모임",
                 status: "NORMAL", emotion: .SOSO,
                 content: "친구들과 모여서 공부했다. 진도는 많이 못 나갔지만 유익한 시간이 되었다.",
-                diaryImgUrl: nil
+                diaryImgUrl: nil,
+                aiComment: nil
             )
         ],
         isLoading: false,

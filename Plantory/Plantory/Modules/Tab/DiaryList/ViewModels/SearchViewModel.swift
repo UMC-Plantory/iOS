@@ -24,7 +24,7 @@ final class SearchViewModel: ObservableObject {
     
     @Published var isLoading: Bool = false
     @Published var cursor: String? = nil
-    @Published var hasNext: Bool = false
+    @Published var hasNext: Bool = true
 
     // MARK: - 의존성 주입 및 비동기 처리
     
@@ -42,6 +42,7 @@ final class SearchViewModel: ObservableObject {
     
     //일기 검색
     func searchDiary(keyword: String) async {
+        guard hasNext else { return }
         guard !keyword.isEmpty else {
             self.toast = CustomToast(
                 title: "검색 실패",
@@ -49,7 +50,6 @@ final class SearchViewModel: ObservableObject {
             )
             return
         }
-        
         isLoading = true
         
         container.useCaseService.diaryService.searchDiary(DiarySearchRequest(keyword: keyword, cursor: cursor, size: 20))

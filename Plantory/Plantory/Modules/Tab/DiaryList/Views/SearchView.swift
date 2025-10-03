@@ -88,7 +88,7 @@ struct DiarySearchView: View {
                     vm.query = q
                     vm.results.removeAll()
                     vm.cursor = nil
-                    vm.hasNext = false
+                    vm.hasNext = true
                     vm.currentKeywords = ""
                     await vm.searchDiary(keyword: q)
                 }
@@ -101,7 +101,7 @@ struct DiarySearchView: View {
             Task {
                 vm.results.removeAll()
                 vm.cursor = nil
-                vm.hasNext = false
+                vm.hasNext = true
                 vm.currentKeywords = ""
                 await vm.searchDiary(keyword: vm.query)
             }
@@ -145,7 +145,7 @@ struct DiarySearchView: View {
                     vm.query = keyword
                     vm.results.removeAll()
                     vm.cursor = nil
-                    vm.hasNext = false
+                    vm.hasNext = true
                     vm.currentKeywords = ""
                     await vm.searchDiary(keyword: keyword)
                 }

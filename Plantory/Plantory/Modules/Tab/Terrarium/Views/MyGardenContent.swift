@@ -37,7 +37,12 @@ struct MyGardenContent: View {
 
             // 데이터를 제대로 받아왔을 때, 또는 프리뷰 오버라이드가 있을 때 표시
             let listItems = previewOverrideItems ?? viewModel.monthlyTerrariums
-            if !listItems.isEmpty {
+            if listItems.isEmpty {
+                NothingView(
+                    mainText: "이번 달에 자란 식물이 없어요",
+                    subText: "오늘의 일기로 물뿌리개를 얻고, 식물을 키워보세요!"
+                )
+            } else {
                 PlantListView(items: listItems, onPlantTap: { id in
                     container.selectedTab = .terrarium
                     viewModel.selectedTab = .myGarden

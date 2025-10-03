@@ -48,6 +48,7 @@ struct NothingView: View {
                     Text(subText)
                         .font(.pretendardMedium(14))
                         .foregroundStyle(.gray08Dynamic)
+                        .multilineTextAlignment(.center)
                 }
                 
                 if let title = buttonTitle,

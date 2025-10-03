@@ -94,11 +94,11 @@ struct ChatLoadingBox: View {
                 ProgressView()
                     .padding()
                     .tint(.gray11)
-                    .background(.white01Dynamic)
+                    .background(.white)
                     .clipShape(ModelChatBubbleShape())
                     .overlay(
                         ModelChatBubbleShape()
-                            .stroke(.black01Dynamic, lineWidth: 1)
+                            .stroke(.black, lineWidth: 1)
                     )
             }
         }

@@ -11,7 +11,11 @@ struct ChatView: View {
     
     // MARK: - Property
     
+    @EnvironmentObject var popupManager: PopupManager
+    
     @StateObject var viewModel: ChatViewModel
+    
+//    @State var isSearching: Bool = false
     
     @FocusState private var isFocused: Bool
     
@@ -28,6 +32,8 @@ struct ChatView: View {
     
     var body: some View {
         VStack(alignment: .leading) {
+            headerView
+            
             chatMessageView
             
             inputField
@@ -53,10 +59,93 @@ struct ChatView: View {
         .loadingIndicator(viewModel.isFetchingChats)
     }
     
+    // MARK: - Chat Header
+    @ViewBuilder
+    private var headerView: some View {
+        ZStack(alignment: .center) {
+            Text("Plantory AI")
+                .font(.pretendardSemiBold(20))
+                .foregroundStyle(.black01Dynamic)
+            
+            HStack(spacing: 20) {
+                Spacer()
+                
+//                    Button(action: {
+//                        withAnimation {
+//                            isSearching = true
+//                        }
+//                    }, label: {
+//                        Image("search")
+//                            .resizable()
+//                            .frame(width: 24, height: 24)
+//                    })
+                
+                Button(action: {
+                    popupManager.show {
+                        PopUp(
+                            title: "대화 내용을 초기화하시겠습니까?",
+                            message: "대화 내용은 한 번 삭제하면 복구할 수 없습니다.",
+                            confirmTitle: "삭제하기",
+                            cancelTitle: "취소",
+                            onConfirm: {
+                                Task {
+                                    await viewModel.deleteChats()
+                                }
+                            },
+                            onCancel: {
+                                popupManager.dismiss()
+                            }
+                        )
+                    }
+                }, label: {
+                    Image("reset")
+                        .renderingMode(.template)
+                        .foregroundStyle(.black01Dynamic)
+                })
+            }
+        }
+        .frame(height: 40)
+    }
+    
+//    private var searchField: some View {
+//        HStack {
+//            HStack {
+//                Image("search")
+//                    .resizable()
+//                    .frame(width: 20, height: 20)
+//                
+//                Spacer()
+//                
+//                TextField("대화내용 검색", text: $viewModel.query)
+//                    .padding(.vertical, 10)
+//                    .font(.pretendardRegular(16))
+//                    .foregroundColor(.gray10)
+//                    .submitLabel(.search)
+//                    .onSubmit {
+//                        
+//                    }
+//            }
+//            .padding(.horizontal, 14)
+//            .background(Color("gray03"))
+//            .cornerRadius(8)
+//        
+//            Button(action: {
+//                withAnimation {
+//                    isSearching = false
+//                }
+//            }, label: {
+//                Text("취소")
+//                    .font(.pretendardRegular(18))
+//                    .foregroundStyle(.black)
+//            })
+//            .padding(.leading, 12)
+//        }
+//    }
+    
     // MARK: - Chat Message List
     @ViewBuilder
     private var chatMessageView: some View {
-        if viewModel.messages.isEmpty {
+        if !viewModel.isPostingChat && !viewModel.isFetchingChats && viewModel.messages.isEmpty {
             NothingView(
                 mainText: "아직 기록된 대화가 없어요",
                 subText: "첫 대화를 시작해 보세요!"
@@ -70,13 +159,11 @@ struct ChatView: View {
                 ) {
                     LazyVStack(spacing: 16) {
                         ForEach(viewModel.messages, id: \.id) { chat in
-                            //MARK: - Chat Message View
                             ChatBox(chatModel: chat)
                         }
                         
                         if viewModel.isPostingChat {
                             ChatLoadingBox()
-                            
                         }
                     }
                 } onRefresh: {

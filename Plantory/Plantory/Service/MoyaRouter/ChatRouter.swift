@@ -11,6 +11,7 @@ import Moya
 enum ChatRouter {
     case postChat(chatData: ChatRequest) // 채팅 보내기
     case getChatsList(cursor: String?) // 채팅 기록 조회
+    case deleteChats // 채팅 기록 초기화
 }
 
     extension ChatRouter: APITargetType {
@@ -20,7 +21,7 @@ enum ChatRouter {
         
     var path: String {
         switch self {
-        case .postChat, .getChatsList:
+        case .postChat, .getChatsList, .deleteChats:
             return "/chats"
         }
     }
@@ -29,6 +30,8 @@ enum ChatRouter {
         switch self {
         case .postChat:
             return .post
+        case .deleteChats:
+            return .delete
         default:
             return .get
         }
@@ -44,6 +47,8 @@ enum ChatRouter {
             } else {
                 return .requestParameters(parameters: ["size": 8], encoding: URLEncoding.queryString)
             }
+        case .deleteChats:
+            return .requestPlain
         }
     }
     

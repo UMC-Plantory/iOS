@@ -78,9 +78,10 @@ final class DiaryCheckViewModel: ObservableObject {
     
     // 조건을 바탕으로 ReplyState 결정
     private func determineState(from summary: DiarySummary) -> ReplyState? {
-        if summary.status == "TEMP", summary.aiComment == "임시 코멘트" {
+        let aiComment = summary.aiComment ?? ""
+        if summary.status == "TEMP", aiComment == "임시 코멘트" {
             return nil
-        } else if summary.aiComment == "임시 코멘트" {
+        } else if aiComment == "임시 코멘트" {
             return .loading
         } else if isReplyOpened(id: summary.diaryId) {
             return .complete
@@ -231,7 +232,6 @@ final class DiaryCheckViewModel: ObservableObject {
         guard let diaryId = summary?.diaryId else { return }
 
         isLoading = true
-        print(diaryId)
         container.useCaseService.diaryService.updateTempStatus(ids: [diaryId])
            .receive(on: DispatchQueue.main)
            .sink { [weak self] completion in

@@ -8,6 +8,8 @@
 import SwiftUI
 
 struct CustomToastView: View {
+    @Environment(\.colorScheme) var colorScheme
+    
     var title: String
     var message: String
     var onCancelTapped: (() -> Void)
@@ -36,7 +38,7 @@ struct CustomToastView: View {
             }
             .padding()
         }
-        .background(Color.black01Dynamic.opacity(0.3))
+        .background(colorScheme == .light ? Color.black01Dynamic.opacity(0.3) : Color.gray11.opacity(0.8))
         .frame(minWidth: 0, maxWidth: .infinity)
         .clipShape(RoundedRectangle(cornerRadius: 8))
         .shadow(color: Color.black.opacity(0.25), radius: 4, x: 0, y: 1)
