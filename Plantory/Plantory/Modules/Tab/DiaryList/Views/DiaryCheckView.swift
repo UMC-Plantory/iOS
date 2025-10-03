@@ -94,7 +94,7 @@ struct DiaryCheckView: View {
                         HStack(spacing: 4) {
                             Spacer()
                             
-                            Button {
+                            Button(action: {
                                 withAnimation {
                                     if vm.isEditing {
                                         Task {
@@ -104,11 +104,13 @@ struct DiaryCheckView: View {
                                     } else {
                                         // 편집 모드로 진입
                                         vm.isEditing = true
-                                } label: {
-                                    Image("edit_vector")
-                                        .resizable()
-                                        .frame(width: 40, height: 40)
+                                    }
                                 }
+                            }) {
+                                Image("edit_vector")
+                                    .resizable()
+                                    .frame(width: 40, height: 40)
+                            }
                                   
                             Button(action: {
                                 if !vm.isSaving {
@@ -215,6 +217,7 @@ struct DiaryCheckView: View {
             Button(action: {
                 container.navigationRouter.reset()
                 container.navigationRouter.push(.baseTab)
+                container.selectedTab = .home
             }) {
                 Image("home_green")
                     .resizable()
