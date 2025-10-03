@@ -28,12 +28,9 @@ class DiaryListViewModel: ObservableObject {
     
     @Published var sort: SortOrder = .latest     // "latest" | "oldest"
     @Published var from: String? = {
-        let now = Date()
-        let formatter = DateFormatter()
-        formatter.dateFormat = "yyyy-MM"
-        return formatter.string(from: now)
+        let year = Calendar.current.component(.year, from: Date())
+        return "\(year)-01"
     }()
-
     @Published var to: String? = {
         let now = Date()
         let formatter = DateFormatter()

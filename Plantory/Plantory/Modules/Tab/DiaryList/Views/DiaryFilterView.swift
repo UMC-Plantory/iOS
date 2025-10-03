@@ -246,6 +246,7 @@ struct DiaryFilterView: View {
                 if let to = viewModel.to, let endMonth = Int(to.suffix(2)) {
                     self.monthEnd = endMonth
                 }
+                
                 if !viewModel.emotion.isEmpty {
                     self.selectedEmotions = viewModel.emotion
                 }
