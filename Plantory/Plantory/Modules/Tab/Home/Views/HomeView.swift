@@ -56,7 +56,7 @@ struct HomeView: View {
 
     var body: some View {
         ZStack {
-            Color.brown01.ignoresSafeArea()
+            Color.homebackground.ignoresSafeArea()
 
             ScrollView {
                 Spacer().frame(height: 43)
@@ -76,7 +76,7 @@ struct HomeView: View {
                 ZStack {
                     // 배경 카드: 주 수에 맞춰 높이 변경
                     RoundedRectangle(cornerRadius: 10)
-                        .fill(Color.white01)
+                        .fill(Color.calendarbackground)
                         .frame(width: cardWidth, height: cardHeight(for: viewModel.month))
                         .overlay(
                             // 요일 헤더(월~일)
@@ -86,7 +86,7 @@ struct HomeView: View {
                                     ForEach(CalendarView.weekdaySymbols, id: \.self) { sym in
                                         Text(sym)
                                             .font(.pretendardRegular(14))
-                                            .foregroundColor(.gray11)
+                                            .foregroundColor(.gray11Dynamic)
                                             .frame(maxWidth: .infinity) // 7등분 균등
                                     }
                                 }
@@ -174,4 +174,7 @@ struct HomeView: View {
     }
 }
 
-#Preview { HomeView(container: .init()) }
+#Preview {
+    HomeView(container: .init())
+        .environmentObject(DIContainer())
+}

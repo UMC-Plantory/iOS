@@ -45,9 +45,10 @@ struct ProfileSection: View {
             VStack(alignment: .leading, spacing: 4) {
                 Text(nickname.isEmpty ? " " : nickname)
                     .font(.pretendardMedium(20))
+                    .foregroundStyle(.black01Dynamic)
                 Text(userCustomId.isEmpty ? " " : userCustomId)
                     .font(.pretendardRegular(16))
-                    .foregroundColor(.gray09)
+                    .foregroundColor(.gray09Dynamic)
             }
 
             Spacer()

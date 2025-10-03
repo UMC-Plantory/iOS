@@ -16,6 +16,7 @@ struct ProfileMemberInfoView: View {
         VStack(alignment: .leading, spacing: 3) {
             Text("회원정보")
                 .font(.pretendardSemiBold(18))
+                .foregroundStyle(.black01Dynamic)
 
             Spacer().frame(height: 9)
 
@@ -65,7 +66,7 @@ struct ProfileMemberInfoView: View {
                     Spacer()
                     Text("회원 탈퇴하기")
                         .font(.pretendardLight(12))
-                        .foregroundStyle(.gray08)
+                        .foregroundStyle(.gray08Dynamic)
                         .underline()
                     Spacer()
                 }

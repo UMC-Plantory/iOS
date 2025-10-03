@@ -42,10 +42,8 @@ struct BaseTabView: View {
                 .zIndex(99)
             }
         }
-        .onAppear {
-            UITabBar.appearance().backgroundColor = .white01
-            UITabBar.appearance().unselectedItemTintColor = .black01
-        }
+        .tint(.black01Dynamic)
+        .toolbarBackground(.white01Dynamic, for: .tabBar)
         .ignoresSafeArea(.keyboard)
         .navigationBarBackButtonHidden(true)
     }
@@ -70,4 +68,9 @@ struct BaseTabView: View {
         .environmentObject(container)
         .environmentObject(popupManager)
     }
+}
+
+#Preview {
+    BaseTabView()
+        .environmentObject(DIContainer())
 }

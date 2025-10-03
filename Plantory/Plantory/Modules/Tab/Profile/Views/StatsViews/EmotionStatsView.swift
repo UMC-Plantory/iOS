@@ -119,10 +119,11 @@ private extension EmotionStatsView {
         VStack(alignment: .leading, spacing: 8) {
             Text(viewModel.comment)
                 .font(.pretendardSemiBold(18))
+                .foregroundStyle(.black01Dynamic)
 
             Text(viewModel.periodText)
                 .font(.pretendardRegular(16))
-                .foregroundColor(.gray09)
+                .foregroundColor(.gray09Dynamic)
 
             HStack(alignment: .top) {
                 (
@@ -131,7 +132,7 @@ private extension EmotionStatsView {
                     + Text("이 가장 많이 기록 되었어요!")
                 )
                 .font(.pretendardRegular(12))
-                .foregroundColor(.green06)
+                .foregroundColor(.green06Dynamic)
                 .fixedSize(horizontal: false, vertical: true)
                 .frame(minHeight: 68, alignment: .topLeading)
 
@@ -156,11 +157,11 @@ struct EmotionPercentageChartView: View {
 
     /// 감정별 그라데이션 색상 매핑 (한글 레이블 기준)
     private let gradientColorMap: [String: [Color]] = [
-        "기쁨":     [Color.yellow.opacity(0.05), Color.yellow.opacity(0.1), Color.yellow.opacity(0.5)],
-        "놀람":     [Color.green03.opacity(0.1),  Color.green03.opacity(0.4),  Color.green03.opacity(1.0)],
-        "슬픔":     [Color.blue.opacity(0.05),   Color.blue.opacity(0.1),   Color.blue.opacity(0.3)],
-        "화남":     [Color.pink.opacity(0.05),   Color.pink.opacity(0.1),   Color.pink.opacity(0.5)],
-        "그저그럼": [Color.gray.opacity(0.05),   Color.gray.opacity(0.1),   Color.gray.opacity(0.5)]
+        "기쁨":     [Color.happyDynamic.opacity(0.05), Color.happyDynamic.opacity(0.1), Color.happyDynamic.opacity(0.5)],
+        "놀람":     [Color.surprisedDynamic.opacity(0.1), Color.surprisedDynamic.opacity(0.4), Color.surprisedDynamic.opacity(1.0)],
+        "슬픔":     [Color.sadDynamic.opacity(0.05), Color.sadDynamic.opacity(0.1), Color.sadDynamic.opacity(0.3)],
+        "화남":     [Color.madDynamic.opacity(0.05), Color.madDynamic.opacity(0.1), Color.madDynamic.opacity(0.5)],
+        "그저그럼": [Color.sosoDynamic.opacity(0.05), Color.sosoDynamic.opacity(0.1), Color.sosoDynamic.opacity(0.5)]
     ]
 
     var body: some View {
@@ -193,7 +194,7 @@ struct EmotionPercentageChartView: View {
                     AxisValueLabel {
                         Text("\(intValue)%")
                             .font(.pretendardRegular(12))
-                            .foregroundStyle(Color.gray09)
+                            .foregroundStyle(Color.gray09Dynamic)
                             .padding(.leading, 8)
                     }
                 }
@@ -205,7 +206,7 @@ struct EmotionPercentageChartView: View {
                     if let label = value.as(String.self) {
                         Text(label)
                             .font(.pretendardRegular(12))
-                            .foregroundStyle(Color.gray09)
+                            .foregroundStyle(Color.gray09Dynamic)
                     }
                 }
             }

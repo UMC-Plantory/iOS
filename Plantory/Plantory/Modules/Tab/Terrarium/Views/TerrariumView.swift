@@ -20,8 +20,7 @@ struct TerrariumView: View {
 
     var body: some View {
         ZStack {
-            Color("yellow01")
-                .ignoresSafeArea()
+            Color.terrariumbackground.ignoresSafeArea()
 
             VStack(spacing: 0) {
                 CustomSegmentView(selectedSegment: $viewModel.selectedTab)
@@ -76,8 +75,8 @@ struct TerrariumView: View {
                         .background(
                             Ellipse()
                                 .fill(Color("green04"))
-                                .frame(width: 631, height: 363)
-                                .offset(y: 50),
+                                .frame(width: 631, height: 383)
+                                .offset(y: 80),
                             alignment: .bottom
                         )
                     }
@@ -180,7 +179,7 @@ struct WateringButton: View {
                     .fill(Color.white)
                     .overlay(
                         RoundedRectangle(cornerRadius: 30)
-                            .stroke(Color("green06"), lineWidth: 1)
+                            .stroke(Color("green06Always"), lineWidth: 1)
                     )
             )
             .shadow(color: Color.black.opacity(0.15), radius: 4, x: 0, y: 2)

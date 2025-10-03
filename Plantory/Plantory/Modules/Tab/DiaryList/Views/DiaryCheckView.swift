@@ -18,6 +18,8 @@ enum ReplyState {
 // 개별일기를 확인하는 View
 struct DiaryCheckView: View {
     
+    @Environment(\.colorScheme) var colorScheme
+    
     @EnvironmentObject var container: DIContainer
     
     //MARK: - 상태
@@ -25,10 +27,11 @@ struct DiaryCheckView: View {
     
     @State var isDeleteSheetPresented: Bool = false
     
+    @State private var state: ReplyState = .arrived
+    
     // VM 은 init에서 주입
     @StateObject private var vm: DiaryCheckViewModel
     
-    @State private var state: ReplyState = .loading
     // MARK: - Init
      init(
        diaryId: Int,
@@ -46,125 +49,137 @@ struct DiaryCheckView: View {
     
     // MARK: -Body
     var body: some View {
- 
-            ZStack {
-                Color.brown01.ignoresSafeArea()
+        ZStack {
+            Color.homebackground.ignoresSafeArea()
+            
+            VStack(alignment: .center, spacing: 48) {
                 
                 ScrollView(.vertical, showsIndicators: false) {
                     VStack(alignment: .center, spacing: 48) {
                         VStack(spacing: 24) {
-                        // 뒤로가기, 날짜, 홈
-                        headerView
-                        
-                        Divider()
-                            .foregroundStyle(.gray04)
-                            .frame(height: 0.6)
-                            .padding(-18)
-                    }
-                    
-                    // 감정 아이콘
-                    emotionView
-                    
-                    // 일기 카드 내용
-                    VStack(alignment: .leading, spacing: 16) {
-                        // 제목
-                        Text(vm.summary?.title ?? "제목 없음")
-                            .font(.pretendardSemiBold(18))
-                            .foregroundColor(.black01)
-                            .padding(.top, 20)
-                        
-                        DiaryCheckImageView()
-                            .environmentObject(vm)
-                        
-                        // 본문
-                        if vm.isEditing {
-                            TextEditor(text: $vm.editedContent)
-                                .font(.pretendardRegular(16))
-                                .foregroundColor(.black01)
-                                .frame(height: 140)
-                        } else {
-                            ScrollView(.vertical) {
-                                Text(vm.editedContent)
-                                    .font(.pretendardRegular(16))
-                                    .foregroundColor(.black01)
-                            }
-                            .scrollIndicators(.hidden)
-                        }
-                        // 공유 아이콘들
-                        HStack(spacing: 4) {
-                            Spacer()
+                            // 뒤로가기, 날짜, 홈
+                            headerView
                             
-                            Button {
-                                withAnimation {
-                                    if vm.isEditing {
-                                        Task {
-                                            await vm.didTapEditing()
-                                        }
-                                        vm.isEditing = false
-                                    } else {
-                                        // 편집 모드로 진입
-                                        vm.isEditing = true
-                                } label: {
-                                    Image("edit_vector")
-                                        .resizable()
-                                        .frame(width: 40, height: 40)
+                            Divider()
+                                .foregroundStyle(.gray04)
+                                .frame(height: 0.6)
+                                .padding(-18)
+                        }
+                        
+                        // 감정 아이콘
+                        emotionView
+                        
+                        // 일기 카드 내용
+                        VStack(alignment: .leading, spacing: 16) {
+                            // 제목
+                            Text(vm.summary?.title ?? "제목 없음")
+                                .font(.pretendardSemiBold(18))
+                                .foregroundColor(.black01Dynamic)
+                                .padding(.top, 16)
+                            
+                            DiaryCheckImageView()
+                                .environmentObject(vm)
+                            
+                            // 본문
+                            if vm.isEditing {
+                                TextEditor(text: $vm.editedContent)
+                                    .font(.pretendardRegular(16))
+                                    .foregroundColor(.black01Dynamic)
+                                    .frame(height: 140)
+                            } else {
+                                ScrollView(.vertical) {
+                                    Text(vm.editedContent)
+                                        .font(.pretendardRegular(16))
+                                        .foregroundColor(.black01Dynamic)
                                 }
-                                  
-                            Button(action: {
-                                if !vm.isSaving {
-                                    vm.toggleTempStatus() {
-                                        withAnimation {
+                                .scrollIndicators(.hidden)
+                            }
+                            
+                            // 공유 아이콘들
+                            HStack(spacing: 4) {
+                                Spacer()
+                                
+                                Button(action: {
+                                    withAnimation {
+                                        if vm.isEditing {
+                                            Task {
+                                                await vm.didTapEditing()
+                                            }
                                             vm.isEditing = false
-                                            vm.isSaving = true
+                                        } else {
+                                            // 편집 모드로 진입
+                                            vm.isEditing = true
+                                        }
+                                    }}, label: {
+                                        Image("edit_vector")
+                                            .resizable()
+                                            .renderingMode(.template)
+                                            .foregroundStyle(.black01Dynamic)
+                                            .frame(width: 40, height: 40)
+                                    })
+                                
+                                Button(action: {
+                                    if !vm.isSaving {
+                                        vm.toggleTempStatus() {
+                                            withAnimation {
+                                                vm.isEditing = false
+                                                vm.isSaving = true
+                                            }
                                         }
                                     }
+                                }) {
+                                    Image(vm.isSaving ? (colorScheme == .light ? "storage_gray": "storage_white") : "storage_vector")
+                                        .resizable()
+                                        .foregroundStyle(.black01Dynamic)
+                                        .frame(width: 40, height: 40)
                                 }
-                            }) {
-                                Image(vm.isSaving ? "storage_gray" : "storage_vector")
-                                    .resizable()
-                                    .frame(width: 40, height: 40)
+                                
+                                Button(action: {
+                                    isDeleteSheetPresented = true
+                                }) {
+                                    Image("delete_vector")
+                                        .resizable()
+                                        .renderingMode(.template)
+                                        .foregroundStyle(.black01Dynamic)
+                                        .frame(width: 40, height: 40)
+                                }
                             }
-                            
+                        }
+                        .padding(18)
+                        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
+                        .background(.white01Dynamic, in: RoundedRectangle(cornerRadius: 10))
+                        .overlay(alignment: .topTrailing) {
                             Button(action: {
-                                isDeleteSheetPresented = true
+                                vm.toggleScrap()
                             }) {
-                                Image("delete_vector")
+                                Image(vm.summary?.status == "SCRAP" ? "bookmark_green" : "bookmark_empty")
                                     .resizable()
-                                    .frame(width: 40, height: 40)
+                                    .renderingMode(.template)
+                                    .foregroundStyle(.green06Dynamic)
+                                    .frame(width: 20, height: 23)
                             }
+                            .padding(.trailing, 18)
                         }
-                    }
-                    .padding(18)
-                    .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
-                    .background(.white01, in: RoundedRectangle(cornerRadius: 10))
-                    .overlay(alignment: .topTrailing) {
-                        Button(action: {
-                            vm.toggleScrap()
-                        }) {
-                            Image(vm.summary?.status == "SCRAP" ? "bookmark_green" : "bookmark_empty")
-                                .resizable()
-                                .frame(width: 20, height: 23)
-                        }
-                        .padding(.trailing, 18)
-                    }
-                    .padding(.horizontal, 18)
-                    .padding(.bottom, 28)
-                        
+                        .padding(.horizontal, 18)
                         
                         //AI 답장 모달
-                        VStack {
-                               if state == .loading {
-                                   LoadingCardView()
-                               } else if state == .arrived {
-                                   ArrivedCardView(onConfirm: {
-                                       state = .complete
-                                   })
-                               } else if state == .complete {
-                                   CompleteCardView()
-                               }
-                           }
+                        if (!vm.isEditing) {
+                            VStack {
+                                if state == .loading {
+                                    LoadingCardView()
+                                } else if state == .arrived {
+                                    ArrivedCardView(onConfirm: {
+                                        state = .complete
+                                    })
+                                } else if state == .complete {
+                                    CompleteCardView()
+                                }
+                            }
+                            .padding(.horizontal, 18)
+                        }
+                    }
+                    .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
                 }
-                .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
             }
         }
         .animation(.easeInOut, value: isDeleteSheetPresented)
@@ -187,28 +202,25 @@ struct DiaryCheckView: View {
         )
         .toastView(toast: $vm.toast)
         .loadingIndicator(vm.isLoading)
-
-        
     }
     
-    
-    
     // MARK: -하위뷰들
+        
     private var headerView: some View {
         HStack {
             Button(action: {
                 container.navigationRouter.pop()
             }) {
-                Image(systemName: "chevron.left")
-                    .foregroundColor(.green06)
-                
+                Image("leftChevron")
+                    .renderingMode(.template)
+                    .foregroundColor(.diaryCheckIcon)
             }
             
             Spacer()
             
             Text(formatToKoreanDate(vm.summary?.diaryDate) ?? "날짜 없음")
                 .font(.pretendardSemiBold(20))
-                .foregroundColor(.green06)
+                .foregroundColor(.diaryCheckIcon)
             
             Spacer()
             
@@ -218,6 +230,8 @@ struct DiaryCheckView: View {
             }) {
                 Image("home_green")
                     .resizable()
+                    .renderingMode(.template)
+                    .foregroundColor(.diaryCheckIcon)
                     .frame(width: 24, height: 24)
                     .padding(.trailing,10)
             }
@@ -233,7 +247,7 @@ struct DiaryCheckView: View {
                     .frame(width: 60, height: 60)
             } else {
                 Circle()
-                    .fill(.white01)
+                    .fill(.white)
                     .frame(width: 60, height: 60)
                     .overlay(
                         ProgressView()
@@ -243,7 +257,7 @@ struct DiaryCheckView: View {
             
             Text(vm.summary?.emotion.displayName ?? "이미지 없음")
                 .font(.pretendardSemiBold(14))
-                .foregroundColor(.green04)
+                .foregroundColor(.green04Dynamic)
         }
     }
     
@@ -284,15 +298,15 @@ private struct LoadingCardView: View {
     
             Text("AI가 답장을 생성하고 있습니다.")
                 .font(.pretendardSemiBold(18))
-                .foregroundStyle(.black01)
+                .foregroundStyle(.black01Dynamic)
             
             Text("잠시만 기다려주세요.")
                 .font(.pretendardRegular(14))
-                .foregroundStyle(.gray09)
+                .foregroundStyle(.gray09Dynamic)
         }
         .onAppear { animate = true }
         .frame(width: 358, height: 176)
-        .background(Color.white01)
+        .background(Color.white01Dynamic)
         .cornerRadius(10)
     }
        
@@ -304,16 +318,19 @@ private struct ArrivedCardView: View {
     var onConfirm: () -> Void   // 버튼 액션을 외부에서 주입
     
     var body: some View {
-        VStack(spacing: 16) {
+        VStack(spacing: 12) {
             // 아이콘
             Image("envelope_closed")
                 .resizable()
+                .renderingMode(.template)
+                .foregroundStyle(.green06Dynamic)
                 .scaledToFit()
                 .frame(width: 35, height: 48)
             
             // 텍스트
             Text("AI의 답장이 도착했습니다.")
                 .font(.pretendardBold(18))
+                .foregroundStyle(.black01Dynamic)
 
             // 버튼
             Button {
@@ -323,16 +340,14 @@ private struct ArrivedCardView: View {
                     .font(.pretendardRegular(14))
                     .padding(.vertical, 8)
                     .padding(.horizontal, 20)
-                    .background(Color.green06)
-                    .foregroundStyle(.white01)
+                    .background(.green06Dynamic)
+                    .foregroundStyle(.white)
                     .cornerRadius(5)
             }
         }
-        .padding()
-        .frame(width:358, height: 176)
-        .background(Color.white01)
+        .frame(width: 358, height: 176)
+        .background(Color.white01Dynamic)
         .cornerRadius(10)
-        .shadow(radius: 2)
     }
 }
 
@@ -343,33 +358,33 @@ private struct CompleteCardView: View {
 
     var body: some View {
         VStack(alignment: .center, spacing: 12) {
-            Image( "envelope_open")
+            Image("envelope_open")
                 .resizable()
+                .renderingMode(.template)
+                .foregroundStyle(.green06Dynamic)
                 .scaledToFit()
                 .frame(width: 35, height: 48)
             
             // 상단 아이콘 + 제목
-            HStack(spacing: 8) {
-                    Text("\(nickname)")
+            HStack(spacing: 0) {
+                Text("\(nickname)")
                     .font(.pretendardSemiBold(18))
-                    .foregroundStyle(.green05)
-                + Text("에게 드리는 답장")
+                    .foregroundStyle(.green06Dynamic)
+                Text("님에게 드리는 답장")
                     .font(.pretendardSemiBold(18))
-                    .foregroundStyle(.black01)
-        
+                    .foregroundStyle(.black01Dynamic)
             }
 
             // 본문
             Text(reply)
                 .font(.pretendardRegular(16))
-                .foregroundStyle(.gray11)
+                .foregroundStyle(.gray11Dynamic)
                 .multilineTextAlignment(.leading)
+                .padding(12)
         }
-        .padding()
-        .background(Color.white01)
-        .frame(width: 358, height: 262)
+        .padding(24)
+        .background(Color.white01Dynamic)
         .cornerRadius(10)
-        .shadow(radius: 2)
     }
 }
 
@@ -392,7 +407,7 @@ private struct LoadingDotsView: View {
                             .repeatForever()
                             .delay(Double(i) * 0.15), // 점차적으로 딜레이
                         value: animate
-                                        )
+                    )
             }
         }
         .onAppear {
