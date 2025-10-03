@@ -28,7 +28,7 @@ class AccessTokenRefresher: @unchecked Sendable, RequestInterceptor {
     func retry(_ request: Request, for session: Session, dueTo error: any Error, completion: @escaping (RetryResult) -> Void) {
         guard request.retryCount < 1,
               let response = request.task?.response as? HTTPURLResponse,
-              [401, 404].contains(response.statusCode) else {
+              [401].contains(response.statusCode) else {
             return completion(.doNotRetry)
         }
         
@@ -38,7 +38,15 @@ class AccessTokenRefresher: @unchecked Sendable, RequestInterceptor {
             tokenProviding.refreshToken { [weak self] newToken, error in
                 guard let self = self else { return }
                 self.isRefreshing = false
-                let result = error == nil ? RetryResult.retry : RetryResult.doNotRetryWithError(error!)
+                
+                let result: RetryResult
+                if let error = error {
+                    NotificationCenter.default.post(name: .sessionExpired, object: nil)
+                    result = .doNotRetryWithError(error)
+                } else {
+                    result = .retry
+                }
+                
                 self.requestToRetry.forEach { $0(result) }
                 self.requestToRetry.removeAll()
             }

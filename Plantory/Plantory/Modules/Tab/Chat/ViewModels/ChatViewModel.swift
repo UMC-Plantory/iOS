@@ -23,7 +23,7 @@ class ChatViewModel: ObservableObject {
     /// postChat 함수가 로딩 중임을 나타냄
     @Published var isPostingChat: Bool = false
     
-    /// getLatestChat 함수가 로딩 중임을 나타냄
+    /// getLatestChat, deleteChats 함수가 로딩 중임을 나타냄
     @Published var isFetchingChats: Bool = false
     
     /// 메시지 페이지네이션에서 다음 페이지가 있는지 나타냄
@@ -138,6 +138,39 @@ class ChatViewModel: ObservableObject {
             })
             .store(in: &cancellables)
     }
+    
+    // 채팅 기록 초기화
+    public func deleteChats() async {
+        guard !isPostingChat, !isFetchingChats else { return }
+        
+        isFetchingChats = true
+        container.useCaseService.chatService.deleteChats()
+            .sink(receiveCompletion: { [weak self] completion in
+                // 오류 발생 시 처리
+                if case .failure(let error) = completion {
+                    self?.toast = CustomToast(
+                        title: "채팅 기록 초기화 오류",
+                        message: "\(error.errorDescription ?? "알 수 없는 에러")"
+                    )
+                    print("채팅 기록 초기화 오류: \(error.errorDescription ?? "알 수 없는 에러")")
+                    self?.isFetchingChats = false
+                }
+            }, receiveValue: { [weak self] response in
+                self?.toast = CustomToast(
+                    title: "채팅 기록 초기화",
+                    message: "채팅 기록이 초기화되었습니다."
+                )
+                self?.messages.removeAll()
+                self?.lastCreateAt = nil
+                self?.hasNext = true
+                self?.isFetchingChats = false
+                
+                _Concurrency.Task {
+                    await self?.getChatsList()
+                }
+            })
+            .store(in: &cancellables)
+   }
 }
 
 // MARK: - 보내는 메시지를 띄우기 위한 날짜 변환 함수

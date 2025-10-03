@@ -6,6 +6,7 @@ import CombineMoya
 struct MyPageView: View {
     @EnvironmentObject var container: DIContainer
     @EnvironmentObject var popupManager: PopupManager
+    @EnvironmentObject var sessionManager: SessionManager
     
     @State private var showSleepSheet = false
     @State private var showEmotionSheet = false
@@ -28,7 +29,7 @@ struct MyPageView: View {
             VStack {
                 HeaderView()
                 
-                Divider()
+                Divider().background(.gray04)
                 Spacer().frame(height: 45)
                 
                 // 프로필 관리 (VM에서 가공된 값만 바인딩)
@@ -41,7 +42,7 @@ struct MyPageView: View {
                 }
                 
                 Spacer().frame(height: 45)
-                Divider()
+                Divider().background(.gray04)
                 Spacer().frame(height: 24)
                 
                 // 통계 카드 (VM에서 생성한 stats)
@@ -77,6 +78,7 @@ struct MyPageView: View {
                                 onConfirm: {
                                     statsVM.logout()
                                     container.navigationRouter.reset()
+                                    sessionManager.isLoggedIn = false
                                 },
                                 onCancel: {
                                     popupManager.dismiss()
@@ -88,6 +90,10 @@ struct MyPageView: View {
             }
             .padding(.vertical, 24)
         }
+        .scrollIndicators(.hidden)
+        .background(
+            Color.adddiarybackground.ignoresSafeArea()
+        )
         .sheet(isPresented: $showSleepSheet) {
             SleepStatsView(container: container)
         }
@@ -108,6 +114,7 @@ struct HeaderView: View {
         HStack {
             Text("마이페이지")
                 .font(.pretendardMedium(20))
+                .foregroundStyle(.black01Dynamic)
             Spacer().frame(height: 17)
         }
         .padding(.horizontal, 28)
@@ -129,6 +136,7 @@ struct StatsSection: View {
         VStack(alignment: .leading, spacing: 24) {
             Text("통계")
                 .font(.pretendardMedium(20))
+                .foregroundStyle(.black01Dynamic)
                 .padding(.horizontal, 28)
 
             LazyVGrid(columns: columns, spacing: 24) {
@@ -150,13 +158,13 @@ struct MenuSection: View {
 
     var body: some View {
         VStack(spacing: 0) {
-            Divider().padding(.vertical, 8)
+            Divider().background(.gray04).padding(.vertical, 8)
             MenuRow(icon: "bookmark", title: "스크랩", action: scrapAction)
             MenuRow(icon: "scrap", title: "임시보관함", action: tempAction)
             MenuRow(icon: "delete", title: "휴지통", action: trashAction)
             MenuRow(icon: "logout", title: "로그아웃", action: logoutAction)
         }
-        .background(Color.white)
+        .background(Color.adddiarybackground)
     }
 }
 
@@ -170,9 +178,12 @@ struct MenuRow: View {
             HStack(spacing: 4) {
                 Image(icon)
                     .resizable()
+                    .renderingMode(.template)
+                    .foregroundStyle(.black01Dynamic)
                     .frame(width: 48, height: 48)
                 Text(title)
                     .font(.pretendardRegular(18))
+                    .foregroundStyle(.black01Dynamic)
                 Spacer()
             }
             .padding(.horizontal, 12)

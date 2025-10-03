@@ -81,7 +81,7 @@ struct PermitView: View {
         VStack(alignment: .leading, spacing: 8) {
             Text("서비스 이용 동의")
                 .font(.pretendardSemiBold(24))
-                .foregroundStyle(.black01)
+                .foregroundStyle(.black)
             
             Text("약관을 확인 후 버튼을 체크해주세요")
                 .font(.pretendardRegular(14))
@@ -93,7 +93,7 @@ struct PermitView: View {
         Toggle("약관 전체 동의", isOn: $viewModel.allPermit)
             .toggleStyle(CheckboxToggleStyle(style: .circle))
             .font(.pretendardSemiBold(18))
-            .foregroundStyle(.black01)
+            .foregroundStyle(.black)
     }
     
     private var detailedToggles: some View {

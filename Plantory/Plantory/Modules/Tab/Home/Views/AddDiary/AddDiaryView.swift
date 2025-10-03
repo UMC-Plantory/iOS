@@ -59,15 +59,17 @@ struct AddDiaryView: View {
                 ScrollView {
                     VStack { CompletedView() }
                         .frame(maxWidth: .infinity, minHeight: 1) // 안전: 불필요한 safeArea 계산 제거
-                        .background(Color.diarybackground.ignoresSafeArea())
+                        .background(Color.adddiarybackground.ignoresSafeArea())
                 }
-                .background(Color.diarybackground.ignoresSafeArea())
+                .background(Color.adddiarybackground.ignoresSafeArea())
                 .ignoresSafeArea(.keyboard)
             } else {
                 // 작성 화면
-                Color.diarybackground.ignoresSafeArea()
+                Color.adddiarybackground.ignoresSafeArea()
                 VStack {
                     headerView
+                        .background(Color.adddiarybackground)
+                    
                     Spacer()
                     stepContentView
                     Spacer().frame(height: 30)
@@ -202,7 +204,7 @@ struct AddDiaryView: View {
                     container.navigationRouter.pop()
                     container.navigationRouter.push(.baseTab)
                 }) {
-                    Image(.home).foregroundColor(.diaryfont)
+                    Image(.home).foregroundColor(.adddiaryIcon)
                 }
 
                 Spacer().frame(width: 80)
@@ -219,7 +221,7 @@ struct AddDiaryView: View {
                               : DiaryFormatters.day.date(from: vm.diaryDate).map { PrettyDateFormatter.day.string(from: $0) } ?? vm.diaryDate)
                     }
                     .font(.pretendardSemiBold(18))
-                    .foregroundStyle(.diaryfont)
+                    .foregroundStyle(Color.adddiaryIcon)
                 }
 
                 Spacer()
@@ -237,7 +239,7 @@ struct AddDiaryView: View {
 
                         Text(stepVM.steps[index].title)
                             .font(.pretendardRegular(14))
-                            .foregroundColor(.diaryfont)
+                            .foregroundColor(.adddiaryIcon)
                             .opacity(index == stepVM.currentStep ? 1 : 0)
                             .frame(height: labelHeight)
                             .lineLimit(1)

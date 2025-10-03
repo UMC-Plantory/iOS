@@ -20,8 +20,7 @@ struct TerrariumView: View {
 
     var body: some View {
         ZStack {
-            Color("yellow01")
-                .ignoresSafeArea()
+            Color.terrariumbackground.ignoresSafeArea()
 
             VStack(spacing: 0) {
                 CustomSegmentView(selectedSegment: $viewModel.selectedTab)
@@ -29,21 +28,24 @@ struct TerrariumView: View {
                 if viewModel.selectedTab == .terrarium {
                     GeometryReader { geometry in
                         VStack {
+                            Spacer()
+
                             HStack {
                                 SpeechBubble(message: Text(viewModel.wateringMessage))
                             }
                             .frame(maxWidth: .infinity, alignment: .trailing)
-                            .padding(.top, 39)
-                            .padding(.trailing, 16)
-                            .padding(.bottom,10)
+                            .padding(.top, 12)
+                            .padding(.trailing, 28)
+                            .padding(.bottom, 2)
+                            
+                            Spacer()
 
                             ProgressGaugeView(currentStage: viewModel.terrariumData?.terrariumWateringCount ?? 0)
 
                             Spacer()
 
                             Image(viewModel.terrariumData?.terrariumWateringCount ?? 0 < 3 ? "Sprout" : "Leaf")
-                                .resizable()
-                                .frame(width: 286, height: 286)
+                            
 
                             Spacer()
 
@@ -67,13 +69,14 @@ struct TerrariumView: View {
                                 }
                                 Spacer()
                             }
-                            .padding(.bottom, 96).padding(.leading, 16)
+                            .padding(.bottom, 96)
+                            .padding(.leading, 16)
                         }
                         .background(
                             Ellipse()
                                 .fill(Color("green04"))
-                                .frame(width: 631, height: 363)
-                                .offset(y: 60),
+                                .frame(width: 631, height: 413)
+                                .offset(y: 110),
                             alignment: .bottom
                         )
                     }
@@ -111,10 +114,6 @@ struct TerrariumView: View {
                 }
             )
             .environmentObject(container)
-            .onAppear {
-                // FlowerCompleteView가 나타날 때 갱신
-                viewModel.fetchTerrarium()
-            }
         }
         .loadingIndicator(viewModel.isLoading)
     }
@@ -180,7 +179,7 @@ struct WateringButton: View {
                     .fill(Color.white)
                     .overlay(
                         RoundedRectangle(cornerRadius: 30)
-                            .stroke(Color("green06"), lineWidth: 1)
+                            .stroke(Color("green06Always"), lineWidth: 1)
                     )
             )
             .shadow(color: Color.black.opacity(0.15), radius: 4, x: 0, y: 2)

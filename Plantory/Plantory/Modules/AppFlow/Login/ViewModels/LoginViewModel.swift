@@ -29,13 +29,18 @@ class LoginViewModel {
     /// Combine 구독 해제를 위한 Set
     var cancellables = Set<AnyCancellable>()
     
+    /// 자동 로그인 관리
+    let sessionManager: SessionManager
+    
     // MARK: - Init
         
     /// ViewModel 초기화
     /// - Parameters:
     ///   - container: DIContainer를 주입받아 서비스 사용
-    init(container: DIContainer) {
+    ///   - sessionManager: SessionManager를 주입받아 사용
+    init(container: DIContainer, sessionManager: SessionManager) {
         self.container = container
+        self.sessionManager = sessionManager
     }
     
     // MARK: - ManagerProperty
@@ -89,6 +94,7 @@ class LoginViewModel {
                     await self?.routeAfterLogin(status: response.memberStatus)
                 }
 
+                self?.sessionManager.isLoggedIn = response.memberStatus == .active
                 self?.isLoading = false
             })
             .store(in: &cancellables)
@@ -151,7 +157,8 @@ class LoginViewModel {
                 Task {
                     await self?.routeAfterLogin(status: response.memberStatus)
                 }
-
+                
+                self?.sessionManager.isLoggedIn = response.memberStatus == .active
                 self?.isLoading = false
             })
             .store(in: &cancellables)
@@ -167,7 +174,7 @@ class LoginViewModel {
         case .agree:
             container.navigationRouter.push(.profileInfo)
         case .active:
-            container.navigationRouter.push(.baseTab)
+            break
         }
     }
 }

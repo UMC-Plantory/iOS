@@ -57,7 +57,7 @@ public struct DropdownField: View {
                                     HStack {
                                         Text(option)
                                             .font(.pretendardRegular(14))
-                                            .foregroundColor(option == selection ? Color.green06 : Color.primary)
+                                            .foregroundColor(option == selection ? Color.green06Dynamic : Color.primary)
                                         Spacer()
                                     }
                                     .padding(.horizontal, 16)
@@ -67,7 +67,7 @@ public struct DropdownField: View {
                         }
                         .background(
                             RoundedRectangle(cornerRadius: 6)
-                                .fill(Color.white)
+                                .fill(Color.white01Dynamic)
                         )
                         .shadow(color: Color.black.opacity(0.1), radius: 4, x: 0, y: 2)
                         .offset(y: 90) // 버튼 높이만큼 내려서 팝업처럼 표시

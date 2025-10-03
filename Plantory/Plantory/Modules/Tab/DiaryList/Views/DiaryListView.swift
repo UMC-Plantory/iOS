@@ -25,7 +25,7 @@ struct DiaryListView: View {
 
     var body: some View {
         ZStack {
-            Color("brown01").ignoresSafeArea()
+            Color.homebackground.ignoresSafeArea()
 
             VStack(spacing: 20) {
                 DiaryHeaderView(
@@ -34,9 +34,10 @@ struct DiaryListView: View {
                     }
                 )
                 .padding(.horizontal, 16)
+                .padding(.trailing, 12)
 
                 Rectangle()
-                    .fill(Color.gray04)
+                    .fill(Color.gray04Dynamic)
                     .frame(height: 4)
                     .padding(.bottom, 12)
                     .padding(.horizontal, -18)
@@ -96,13 +97,19 @@ struct DiaryHeaderView: View {
         HStack {
             Text("일기목록")
                 .font(.pretendardSemiBold(20))
-                .foregroundColor(.black01)
+                .foregroundColor(.black01Dynamic)
+                .padding(.top)
 
             Spacer()
 
             HStack(spacing: 20) {
                 Button(action: onSearchTap) {
-                    Image("search").resizable().frame(width: 20, height: 20)
+                    Image("search")
+                        .resizable()
+                        .renderingMode(.template)
+                        .frame(width: 20, height: 20)
+                        .foregroundColor(.black01Dynamic)
+                        .padding(.top)
                 }
 
 //                Button(action: onMoreTap) {
@@ -126,21 +133,24 @@ struct DiaryMonthSectionView: View {
 
                 Text("\(Calendar.current.component(.month, from: Date()))월")
                     .font(.pretendardRegular(20))
-                    .foregroundColor(.green08)
+                    .foregroundColor(.green08Dynamic)
             }
 
             Spacer()
 
+            //필터 버튼
             Button {
                 isFilterSheetPresented = true
             } label: {
-                Image(isFilterSheetPresented ? "filter_green" : "filter_black")
+                Image("filter_green")
                     .resizable()
                     .frame(width: 48, height: 48)
+                    .padding(.trailing, -4)
             }
         }
     }
 }
+
 
 // MARK: - Preview
 #Preview {

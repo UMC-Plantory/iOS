@@ -6,12 +6,14 @@
 //
 
 import SwiftUI
+import SwiftData
 import Combine
 
 @MainActor
 final class DiaryCheckViewModel: ObservableObject {
     private enum DiaryStatus: String { case normal = "NORMAL", temp = "TEMP", scrap = "SCRAP", trash = "TRASH" }
     
+    @Published var nickname: String = ""
     @Published var summary: DiarySummary?
     
     @Published var toast: CustomToast? = nil
@@ -27,6 +29,8 @@ final class DiaryCheckViewModel: ObservableObject {
     private let container: DIContainer
     private var cancellables = Set<AnyCancellable>()
     
+    var context: ModelContext?
+    
     init(diaryId: Int, container: DIContainer) {
         self.diaryId = diaryId
         self.container = container
@@ -36,6 +40,8 @@ final class DiaryCheckViewModel: ObservableObject {
     
     @Published var selectedImage: UIImage?
     @Published var didDeleteProfileImage: Bool = false
+    
+    @Published var state: ReplyState? = nil
     
     // MARK: - 함수
     
@@ -59,8 +65,66 @@ final class DiaryCheckViewModel: ObservableObject {
         }
     }
     
+    // SwiftData에 저장된 isOpened 불러오기
+    private func isReplyOpened(id: Int) -> Bool {
+        let descriptor = FetchDescriptor<ReplyStateData>(
+            predicate: #Predicate { $0.id == id }
+        )
+        if let state = try? context?.fetch(descriptor).first {
+            return state.isOpened
+        }
+        return false
+    }
+    
+    // 조건을 바탕으로 ReplyState 결정
+    private func determineState(from summary: DiarySummary) -> ReplyState? {
+        let aiComment = summary.aiComment ?? ""
+        if summary.status == "TEMP", aiComment == "임시 코멘트" {
+            return nil
+        } else if aiComment == "임시 코멘트" {
+            return .loading
+        } else if isReplyOpened(id: summary.diaryId) {
+            return .complete
+        } else {
+            return .arrived
+        }
+    }
+    
+    // isOpened를 true로 변경
+    func saveAsOpened() {
+        guard let replyId = summary?.diaryId else { return }
+        
+        let descriptor = FetchDescriptor<ReplyStateData>(
+            predicate: #Predicate { $0.id == replyId }
+        )
+        
+        // id가 DB에 없으면 insert
+        if (try? context?.fetch(descriptor).first) == nil {
+            context?.insert(ReplyStateData(id: replyId, isOpened: true))
+            try? context?.save()
+        }
+    }
+    
     
     // MARK: - API
+    
+    //닉네임 불러오는 API
+    func fetchNickname() async {
+        self.isLoading = true
+        
+        container.useCaseService.profileService
+            .fetchProfileStats()
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] completion in
+                guard let self = self else { return }
+                self.isLoading = false
+            } receiveValue: { [weak self] r in
+                guard let self else { return }
+                self.nickname = r.nickname
+                self.isLoading = false
+            }
+            .store(in: &cancellables)
+    }
     
     //일기 불러오는 API
     func load() async {
@@ -80,6 +144,8 @@ final class DiaryCheckViewModel: ObservableObject {
             } receiveValue: { [weak self] summary in
                 self?.summary = summary
                 self?.editedContent = summary.content
+                self?.isSaving = summary.status == "TEMP"
+                self?.state = self?.determineState(from: summary)
             }
             .store(in: &cancellables)
     }
@@ -166,7 +232,6 @@ final class DiaryCheckViewModel: ObservableObject {
         guard let diaryId = summary?.diaryId else { return }
 
         isLoading = true
-        print(diaryId)
         container.useCaseService.diaryService.updateTempStatus(ids: [diaryId])
            .receive(on: DispatchQueue.main)
            .sink { [weak self] completion in

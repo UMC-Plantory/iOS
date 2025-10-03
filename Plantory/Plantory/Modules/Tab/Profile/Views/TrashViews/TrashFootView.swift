@@ -35,7 +35,7 @@ struct TrashFootView: View {
                 HStack {
                     Text("휴지통에 있는 항목은 이동된 날짜로부터 30일 뒤 영구삭제 됩니다.")
                         .font(.pretendardLight(12))
-                        .foregroundColor(.gray08)
+                        .foregroundColor(.gray08Dynamic)
                         .padding(.vertical, 11)
                 }
             }

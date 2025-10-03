@@ -23,7 +23,7 @@ struct SleepGaugeView: View {
             ZStack {
                 // 1) 큰 흰색 원
                 Circle()
-                    .fill(Color.white)
+                    .fill(Color.clear)
                     .frame(width: diameter, height: diameter)
 
                 // 2) 흰색 테두리 + 그림자
@@ -56,7 +56,7 @@ struct SleepGaugeView: View {
                 // 4) 중앙 텍스트
                 Text(label)
                     .font(.pretendardSemiBold(diameter * 0.2))
-                    .foregroundColor(.green06)
+                    .foregroundColor(.green06Dynamic)
             }
             .frame(width: geo.size.width, height: geo.size.height)
         }

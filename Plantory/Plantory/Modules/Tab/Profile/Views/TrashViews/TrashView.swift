@@ -17,19 +17,30 @@ struct TrashView: View {
     @State private var showRestorePopUp = false
 
     var body: some View {
-        VStack(spacing: 5) {
-            AlignmentView(isNew: $isNewSorting, selectedCount: checkedItems.count)
-
-            content
-
-            TrashFootView(
-                isEditing: $isEditing,
-                isEmpty: checkedItems.isEmpty,
-                onRestore: { withAnimation(.spring()) { showRestorePopUp = true } },
-                onDelete: { withAnimation(.spring()) { showDeletePopUp = true } }
-            )
+        ZStack {
+            Color.adddiarybackground.ignoresSafeArea()
+            
+            VStack {
+                Spacer()
+                
+                Divider().foregroundStyle(.gray04)
+                
+                VStack(spacing: 5) {
+                    AlignmentView(isNew: $isNewSorting, selectedCount: checkedItems.count)
+                    
+                    content
+                    
+                    TrashFootView(
+                        isEditing: $isEditing,
+                        isEmpty: checkedItems.isEmpty,
+                        onRestore: { withAnimation(.spring()) { showRestorePopUp = true } },
+                        onDelete: { withAnimation(.spring()) { showDeletePopUp = true } }
+                    )
+                }
+                .padding(.horizontal)
+            }
         }
-        .padding(.horizontal)
+        .padding(.horizontal, 8)
         .onChange(of: isNewSorting) { _, newValue in
             viewModel.fetchWaste(sort: newValue ? .latest : .oldest)
         }
@@ -61,6 +72,7 @@ struct TrashView: View {
     private var content: some View {
         if viewModel.isLoading {
             ProgressView()
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
         } else if let error = viewModel.errorMessage {
             Text(error).foregroundColor(.red)
         } else if sortedCells.isEmpty {
@@ -68,6 +80,7 @@ struct TrashView: View {
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
         } else {
             diaryList
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
         }
     }
 
@@ -104,11 +117,14 @@ struct TrashView: View {
             if isEditing {
                 Button(action: toggleAllSelection) {
                     Text(checkedItems.count == sortedCells.count ? "전체 선택 해제" : "전체 선택")
-                        .font(.pretendardRegular(14)).foregroundStyle(.green07)
+                        .font(.pretendardRegular(14)).foregroundStyle(.green07Dynamic)
                 }
             } else {
                 Button(action: dismiss.callAsFunction) {
-                    Image("leftChevron").fixedSize()
+                    Image("leftChevron")
+                        .renderingMode(.template)
+                        .foregroundStyle(.black01Dynamic)
+                        .fixedSize()
                 }
             }
         }
@@ -117,7 +133,7 @@ struct TrashView: View {
     private var navigationTrailing: some View {
         Button(action: { isEditing.toggle() }) {
             Text(isEditing ? "취소" : "편집")
-                .font(.pretendardRegular(14)).foregroundStyle(.green07)
+                .font(.pretendardRegular(14)).foregroundStyle(.green07Dynamic)
         }
     }
 
@@ -131,8 +147,8 @@ struct TrashView: View {
 
     private func performDeletion() {
         withAnimation(.spring()) { showDeletePopUp = false }
+        // Call Delete API
         viewModel.deleteForever(ids: Array(checkedItems))
-        // 실제로 삭제할 때는 fetch()로 수정된 리스트 불러오기 !!
         checkedItems.removeAll()
         isEditing = false
     }

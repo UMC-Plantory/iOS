@@ -18,18 +18,28 @@ struct TempStorageView: View {
 
     var body: some View {
         ZStack {
-            VStack(spacing: 5) {
-                AlignmentView(isNew: $isNewSorting, selectedCount: checkedItems.count)
-
-                content
-
-                TempFootView(
-                    isEditing: $isEditing,
-                    isEmpty: checkedItems.isEmpty,
-                    onDelete: { withAnimation(.spring()) { showPopUp = true } }
-                )
+            Color.adddiarybackground.ignoresSafeArea()
+            
+            VStack {
+                Spacer()
+                
+                Divider().background(.gray04)
+                
+                VStack(spacing: 5) {
+                    
+                    AlignmentView(isNew: $isNewSorting, selectedCount: checkedItems.count)
+                    
+                    content
+                    
+                    TempFootView(
+                        isEditing: $isEditing,
+                        isEmpty: checkedItems.isEmpty,
+                        onDelete: { withAnimation(.spring()) { showPopUp = true } }
+                    )
+                }
+                .padding(.horizontal)
             }
-            .padding(.horizontal)
+            .padding(.horizontal, 8)
             .onChange(of: isNewSorting) { _, newValue in
                 viewModel.fetchTemp(sort: newValue ? .latest : .oldest)
             }
@@ -55,6 +65,7 @@ struct TempStorageView: View {
     private var content: some View {
         if viewModel.isLoading {
             ProgressView()
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
         } else if let error = viewModel.errorMessage {
             Text(error).foregroundColor(.red)
         } else if sortedCells.isEmpty {
@@ -62,6 +73,7 @@ struct TempStorageView: View {
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
         } else {
             diaryList
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
         }
     }
 
@@ -87,7 +99,9 @@ struct TempStorageView: View {
                                 }
                             }
                         ),
-                        onNavigate: {}
+                        onNavigate: {
+                            container.navigationRouter.push(.diaryDetail(diaryId: cell.id))
+                        }
                     )
                     .frame(maxWidth: .infinity)
                 }
@@ -106,7 +120,10 @@ struct TempStorageView: View {
                 }
             } else {
                 Button(action: dismiss.callAsFunction) {
-                    Image("leftChevron").fixedSize()
+                    Image("leftChevron")
+                        .renderingMode(.template)
+                        .foregroundStyle(.black01Dynamic)
+                        .fixedSize()
                 }
             }
         }
@@ -115,7 +132,7 @@ struct TempStorageView: View {
     private var navigationTrailing: some View {
         Button(action: { isEditing.toggle() }) {
             Text(isEditing ? "취소" : "편집")
-                .font(.pretendardRegular(16)).foregroundStyle(.green07)
+                .font(.pretendardRegular(16)).foregroundStyle(.green07Dynamic)
         }
     }
 
@@ -158,7 +175,7 @@ struct TempFootView: View {
                 HStack {
                     Text("보관함에 있는 항목은 이동된 날짜로부터 30일 뒤 휴지통으로 이동합니다.")
                         .font(.pretendardLight(12))
-                        .foregroundColor(.gray08)
+                        .foregroundColor(.gray08Dynamic)
                         .padding(.vertical, 11)
                 }
             }
