@@ -6,18 +6,13 @@
 //
 
 import SwiftUI
+import SwiftData
 import Kingfisher
-
-//ai 답장 생성 상태
-enum ReplyState {
-    case loading //로딩중
-    case arrived //ai답장 생성 완료
-    case complete //ai답장 확인
-}
 
 // 개별일기를 확인하는 View
 struct DiaryCheckView: View {
     
+    @Environment(\.modelContext) private var context
     @Environment(\.colorScheme) var colorScheme
     
     @EnvironmentObject var container: DIContainer
@@ -49,10 +44,8 @@ struct DiaryCheckView: View {
     
     // MARK: -Body
     var body: some View {
-        ZStack {
-            Color.homebackground.ignoresSafeArea()
-            
-            VStack(alignment: .center, spacing: 48) {
+            ZStack {
+                Color.homebackground.ignoresSafeArea()
                 
                 ScrollView(.vertical, showsIndicators: false) {
                     VStack(alignment: .center, spacing: 48) {
@@ -165,14 +158,17 @@ struct DiaryCheckView: View {
                         //AI 답장 모달
                         if (!vm.isEditing) {
                             VStack {
-                                if state == .loading {
+                                if vm.state == nil {
+                                    EmptyView()
+                                } else if state == .loading {
                                     LoadingCardView()
                                 } else if state == .arrived {
                                     ArrivedCardView(onConfirm: {
-                                        state = .complete
+                                        vm.state = .complete
+                                        vm.saveAsOpened()
                                     })
                                 } else if state == .complete {
-                                    CompleteCardView()
+                                    CompleteCardView(vm: vm)
                                 }
                             }
                             .padding(.horizontal, 18)
@@ -187,6 +183,8 @@ struct DiaryCheckView: View {
         .task {
             UIApplication.shared.hideKeyboard()
             await vm.load()
+            await vm.fetchNickname()
+            vm.context = context
         }
         .popup(
             isPresented: $isDeleteSheetPresented,
@@ -226,7 +224,6 @@ struct DiaryCheckView: View {
             
             Button(action: {
                 container.navigationRouter.reset()
-                container.navigationRouter.push(.baseTab)
             }) {
                 Image("home_green")
                     .resizable()
@@ -284,10 +281,8 @@ struct DiaryCheckView: View {
     }
 }
 
-
-
- // MARK: -모달 뷰
-///AI 답장 로딩 중
+// MARK: - 모달 뷰
+/// AI 답장 로딩 중
 private struct LoadingCardView: View {
     @State private var animate = false
 
@@ -309,11 +304,9 @@ private struct LoadingCardView: View {
         .background(Color.white01Dynamic)
         .cornerRadius(10)
     }
-       
-    
 }
 
-///AI 답장 도착
+/// AI 답장 도착
 private struct ArrivedCardView: View {
     var onConfirm: () -> Void   // 버튼 액션을 외부에서 주입
     
@@ -353,8 +346,7 @@ private struct ArrivedCardView: View {
 
 ///AI답장 확인
 private struct CompleteCardView: View {
-    var nickname: String = "유엠씨"
-    var reply: String = "답장 내용 …… 어쩌구 저쩌구 오늘은 점심에 유엠이랑 밥을 먹었는데 너무 맛있었다. 저녁에는 친구 집들이를 갔다. 선물로 유리컵과 접시 세트를 사 갔는데 마침 집에 이러한 것들이 필요했다고 해서 너무 다행이었다."
+    @ObservedObject var vm: DiaryCheckViewModel
 
     var body: some View {
         VStack(alignment: .center, spacing: 12) {
@@ -367,7 +359,7 @@ private struct CompleteCardView: View {
             
             // 상단 아이콘 + 제목
             HStack(spacing: 0) {
-                Text("\(nickname)")
+                Text("\(vm.nickname)")
                     .font(.pretendardSemiBold(18))
                     .foregroundStyle(.green06Dynamic)
                 Text("님에게 드리는 답장")
@@ -376,7 +368,7 @@ private struct CompleteCardView: View {
             }
 
             // 본문
-            Text(reply)
+            Text(vm.summary?.aiComment ?? "답장 없음")
                 .font(.pretendardRegular(16))
                 .foregroundStyle(.gray11Dynamic)
                 .multilineTextAlignment(.leading)

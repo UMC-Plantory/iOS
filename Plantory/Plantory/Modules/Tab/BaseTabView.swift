@@ -12,6 +12,8 @@ struct BaseTabView: View {
     /// 의존성 주입을 위한 DI 컨테이너
     @EnvironmentObject var container: DIContainer
     
+    @EnvironmentObject var sessionManager: SessionManager
+    
     /// 팝업을 공통으로 관리하기 위한 Manager
     @StateObject private var popupManager = PopupManager()
 
@@ -63,6 +65,7 @@ struct BaseTabView: View {
                 ChatView(container: container)
             case .profile:
                 MyPageView(container: container)
+                    .environmentObject(sessionManager)
             }
         }
         .environmentObject(container)

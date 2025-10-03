@@ -7,11 +7,6 @@
 
 import SwiftUI
 
-// 테라리움 탭으로 전환 신호
-extension Notification.Name {
-    static let switchToTerrariumTab = Notification.Name("SwitchToTerrariumTab")
-}
-
 struct CompletedView: View {
     @EnvironmentObject var container: DIContainer
 
@@ -26,7 +21,6 @@ struct CompletedView: View {
                     Button(
                         action: {
                             container.navigationRouter.reset()
-                            container.navigationRouter.push(.baseTab)
                         }
                     ) {
                         Image(.home)
@@ -57,11 +51,8 @@ struct CompletedView: View {
                         action: {
                             // 1) 베이스 탭으로 이동
                             container.navigationRouter.reset()
-                            container.navigationRouter.push(.baseTab)
                             // 2) 테라리움 탭 전환 신호
-                            DispatchQueue.main.asyncAfter(deadline: .now() + 0.05) {
-                                NotificationCenter.default.post(name: .switchToTerrariumTab, object: nil)
-                            }
+                            container.selectedTab = .terrarium
                         }
                     )
 
