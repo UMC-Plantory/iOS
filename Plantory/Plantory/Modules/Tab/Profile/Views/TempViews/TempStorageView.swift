@@ -108,7 +108,10 @@ struct TempStorageView: View {
                 }
             } else {
                 Button(action: dismiss.callAsFunction) {
-                    Image("leftChevron").fixedSize()
+                    Image("leftChevron")
+                        .renderingMode(.template)
+                        .foregroundStyle(.black01Dynamic)
+                        .fixedSize()
                 }
             }
         }

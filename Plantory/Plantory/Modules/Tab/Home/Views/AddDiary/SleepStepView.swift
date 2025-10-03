@@ -132,7 +132,7 @@ struct SleepStepView: View {
         let wakeH24  = to24h(wakeHour,  wakePeriod)
 
         // 취침: 선택일의 시각
-        var start = Calendar.current.date(bySettingHour: sleepH24, minute: sleepMinute, second: 0, of: baseDay)!
+        let start = Calendar.current.date(bySettingHour: sleepH24, minute: sleepMinute, second: 0, of: baseDay)!
 
         // 기상: 취침보다 빠르면 다음날로 보정
         var end = Calendar.current.date(bySettingHour: wakeH24, minute: wakeMinute, second: 0, of: baseDay)!

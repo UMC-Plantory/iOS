@@ -43,7 +43,7 @@ struct DiaryStepView: View {
                     .foregroundStyle(.black01)
                     .background(Color.clear)
                     .scrollContentBackground(.hidden)
-                    .onChange(of: vm.content) { newValue in
+                    .onChange(of: vm.content, initial: false) { oldValue, newValue in
                         if newValue.count > maxLength {
                             vm.content = String(newValue.prefix(maxLength))
                         }
