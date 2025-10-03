@@ -22,8 +22,6 @@ struct DiaryCheckView: View {
     
     @State var isDeleteSheetPresented: Bool = false
     
-    @State private var state: ReplyState = .arrived
-    
     // VM 은 init에서 주입
     @StateObject private var vm: DiaryCheckViewModel
     
@@ -160,18 +158,17 @@ struct DiaryCheckView: View {
                             VStack {
                                 if vm.state == nil {
                                     EmptyView()
-                                } else if state == .loading {
+                                } else if vm.state == .loading {
                                     LoadingCardView()
-                                } else if state == .arrived {
+                                } else if vm.state == .arrived {
                                     ArrivedCardView(onConfirm: {
                                         vm.state = .complete
                                         vm.saveAsOpened()
                                     })
-                                } else if state == .complete {
+                                } else if vm.state == .complete {
                                     CompleteCardView(vm: vm)
                                 }
                             }
-                            .padding(.horizontal, 18)
                         }
                     }
                     .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
@@ -377,6 +374,7 @@ private struct CompleteCardView: View {
         .padding(24)
         .background(Color.white01Dynamic)
         .cornerRadius(10)
+        .padding(.horizontal, 18)
     }
 }
 

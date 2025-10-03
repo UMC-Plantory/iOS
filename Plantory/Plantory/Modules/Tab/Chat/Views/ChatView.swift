@@ -88,7 +88,9 @@ struct ChatView: View {
                             confirmTitle: "삭제하기",
                             cancelTitle: "취소",
                             onConfirm: {
-                                
+                                Task {
+                                    await viewModel.deleteChats()
+                                }
                             },
                             onCancel: {
                                 popupManager.dismiss()

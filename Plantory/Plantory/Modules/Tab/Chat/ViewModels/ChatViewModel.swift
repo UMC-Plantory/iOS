@@ -140,7 +140,7 @@ class ChatViewModel: ObservableObject {
     }
     
     // 채팅 기록 초기화
-    public func delteChats() async {
+    public func deleteChats() async {
         guard !isPostingChat, !isFetchingChats else { return }
         
         isFetchingChats = true

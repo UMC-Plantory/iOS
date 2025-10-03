@@ -144,6 +144,7 @@ private extension EmotionStatsView {
                         emotionKey: viewModel.topEmotionKey
                     )
                     .frame(width: 120, height: 120)
+                    .offset(y: 5)
                 }
             }
         }

@@ -138,7 +138,7 @@ private extension SleepStatsView {
                     label: viewModel.averageText
                 )
                 .frame(width: 120, height: 120)
-                .offset(y: 50)
+                .offset(y: 5)
             }
         }
     }
