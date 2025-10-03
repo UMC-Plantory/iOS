@@ -11,6 +11,7 @@ struct DiarySummary: Codable, Identifiable {
     let emotion: EmotionDisplay
     let content: String
     let diaryImgUrl: String?
+    let aiComment: String?
     
     // Identifiable 요구사항
     var id: Int { diaryId }

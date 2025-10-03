@@ -52,7 +52,7 @@ struct SearchResultsView: View {
         HStack(spacing: 10) {
             Button { dismiss() } label: {
                 Image(systemName: "chevron.left")
-                    .foregroundColor(Color("black01"))
+                    .foregroundColor(Color("black01Dynamic"))
                     .frame(width: 28, height: 28, alignment: .center)
                     .padding(.leading, 5)
             }
@@ -63,7 +63,7 @@ struct SearchResultsView: View {
             }
             .padding(.vertical, 8)
             .padding(.horizontal, 12)
-            .background(Color("brown01"))
+            .background(Color("brown01brown01Dynamic"))
             .cornerRadius(30)
         }
         .padding(.horizontal, 16)
@@ -75,7 +75,7 @@ struct SearchResultsView: View {
         TextField("검색어를 입력하세요", text: $query, onCommit: onSearch)
             .textInputAutocapitalization(.never)
             .disableAutocorrection(true)
-            .foregroundColor(Color("black01"))
+            .foregroundColor(Color("black01Dynamic"))
     }
 
     @ViewBuilder
@@ -148,6 +148,7 @@ private struct ResultsListView: View {
                     ProgressView().padding()
                 } else if hasNext {
                     Button("더 불러오기", action: onLoadMore)
+                        .foregroundColor(.black01Dynamic)
                         .padding(.vertical, 12)
                 }
             }

@@ -16,8 +16,9 @@ struct EmotionStepView: View {
 
         Text("오늘의 감정을 선택해주세요")
             .font(.pretendardSemiBold(20))
-            .foregroundStyle(.diaryfont)
-            .padding(.bottom,20)
+            .foregroundStyle(.adddiaryfont)
+            .padding(.bottom, 20)
+
         ZStack {
             RoundedRectangle(cornerRadius: 12)
                 .stroke(Color.green04, lineWidth: 1)

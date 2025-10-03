@@ -93,17 +93,18 @@ struct TopView: View {
                     viewModel.goToPreviousMonth()
                 } label: {
                     Image(systemName: "chevron.left")
-                        .foregroundColor(.black)
+                        .foregroundStyle(.black01Dynamic)
                 }
 
                 Text(Self.monthLabel(from: viewModel.selectedMonth))
+                    .foregroundStyle(.black01Dynamic)
                     .font(.headline)
 
                 Button {
                     viewModel.goToNextMonth()
                 } label: {
                     Image(systemName: "chevron.right")
-                        .foregroundColor(.black)
+                        .foregroundStyle(.black01Dynamic)
                 }
             }
         }

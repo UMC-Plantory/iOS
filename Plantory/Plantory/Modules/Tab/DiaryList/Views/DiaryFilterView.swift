@@ -72,29 +72,30 @@ struct DiaryFilterView: View {
                 HStack {
                     Text("필터")
                         .font(.pretendardSemiBold(20))
-                        .foregroundColor(Color("black01"))
+                        .foregroundColor(Color("black01Dynamic"))
                     Spacer()
                 }
                 .padding(.top, 32)
                 
-                Divider().background(.gray04)
+                Divider().background(.gray03)
                 
                 Text("나열")
                     .font(.pretendardSemiBold(18))
-                    .foregroundColor(Color("black01"))
+                    .foregroundColor(Color("black01Dynamic"))
                 
                 HStack(spacing: 32) {
                     OrderButton(title: "최신순",  isSelected: viewModel.sort == .latest) { viewModel.sort = .latest }
                     OrderButton(title: "오래된 순", isSelected: viewModel.sort == .oldest) { viewModel.sort = .oldest }
                 }
                 
-                Divider().background(.gray04)
+                Divider().background(.gray03)
                 
                 // 범위 선택
                 VStack(alignment: .center, spacing: 12) {
                     HStack(spacing: 16) {
                         Text("범위")
                             .font(.pretendardSemiBold(18))
+                            .foregroundColor(Color("black01Dynamic"))
                         Button {
                             monthStart = nil; monthEnd = nil
                         } label: {
@@ -112,7 +113,7 @@ struct DiaryFilterView: View {
                         Text(verbatim: "\(selectedYear)년").font(.pretendardRegular(16))
                         Button { selectedYear += 1 } label: { Image(systemName: "chevron.right") }
                     }
-                    .foregroundColor(.black01)
+                    .foregroundColor(.black01Dynamic)
                     
                     Spacer()
                     
@@ -139,19 +140,19 @@ struct DiaryFilterView: View {
                                 
                                 // 색상 규칙: endpoint 진한 초록, 범위는 연한 초록, 미래는 회색
                                 let backgroundColor: Color =
-                                future ? Color("gray03")
+                                future ? Color("gray03Dynamic")
                                 : endpoint ? Color("green04")
-                                : (inRange ? Color("green04").opacity(0.6) : Color("white01"))
+                                : (inRange ? Color("green04").opacity(0.6) : Color.white)
                                 
                                 let borderColor: Color =
-                                future ? Color("gray04")
+                                future ? Color("gray04Dynamic")
                                 : endpoint ? Color("green06")
                                 : (inRange ? Color("green06").opacity(0.6) : Color("gray04"))
                                 
                                 let textColor: Color =
                                 future ? Color("gray06")
                                 : endpoint ? Color("green06")
-                                : (inRange ? Color("green06").opacity(0.9) : Color("black01"))
+                                : (inRange ? Color("green06").opacity(0.9) : Color.black01Dynamic)
                                 
                                 VStack(spacing: 4) {
                                     Circle()
@@ -172,7 +173,7 @@ struct DiaryFilterView: View {
                 }
                 
                 Spacer()
-                Divider().background(.gray04)
+                Divider().background(.gray03)
                 
                 // 감정 선택
                 HStack(spacing: 16) {

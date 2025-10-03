@@ -7,28 +7,30 @@
 
 
 import SwiftUI
+import FirebaseMessaging
 
 
 /// 앱 내에서 특정 화면으로의 이동을 처리하는 라우팅 뷰입니다.
 struct NavigationRoutingView: View {
     @EnvironmentObject var container: DIContainer
+    @EnvironmentObject var sessionManager: SessionManager
     
     var body: some View {
         NavigationStack(path: $container.navigationRouter.path) {
-            LoginView(container: container)
+            BaseTabView()
                 .environmentObject(container)
+                .environmentObject(sessionManager)
                 .navigationDestination(for: NavigationDestination.self) { destination in
                     Group {
                         switch destination {
                         // 로그인, 회원가입 뷰
-                        case .login:
-                            LoginView(container: container)
                         case .permit:
                             PermitView(container: container)
                         case .policy(let num):
                             PolicyView(num: num)
                         case .profileInfo:
                             ProfileInfoView(container: container)
+                                .environmentObject(sessionManager)
                             
                         case .addDiary(let date):
                             AddDiaryView(container: container, date: date)
@@ -48,6 +50,7 @@ struct NavigationRoutingView: View {
                             EmotionStatsView(container: container)
                         case .profileManage:
                             ProfileManageView(container: container)
+                                .environmentObject(sessionManager)
                             
                         case .diarySearch:
                             DiarySearchView(container: container)
@@ -61,6 +64,15 @@ struct NavigationRoutingView: View {
                 }
         }
         .environmentObject(container)
+        .onAppear {
+            Messaging.messaging().token { token, error in
+              if let error = error {
+                print("Error fetching FCM registration token: \(error)")
+              } else if let token = token {
+                print("FCM registration token: \(token)")
+              }
+            }
+        }
     }
 }
 

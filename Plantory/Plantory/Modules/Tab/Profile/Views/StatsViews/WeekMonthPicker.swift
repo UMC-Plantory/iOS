@@ -21,7 +21,7 @@ struct WeekMonthPicker: View {
                     } label: {
                         Text(titles[idx])
                             .font(.pretendardSemiBold(20))
-                            .foregroundColor(selection == idx ? .black : .gray06)
+                            .foregroundColor(selection == idx ? .black01Dynamic : .gray08)
                             .frame(maxWidth: 60)
                     }
                     .buttonStyle(PlainButtonStyle())
@@ -30,7 +30,7 @@ struct WeekMonthPicker: View {
             HStack(spacing: 0) {
                 ForEach(0..<titles.count, id: \.self) { idx in
                     Rectangle()
-                        .fill(selection == idx ? Color.black : Color.clear)
+                        .fill(selection == idx ? Color.black01Dynamic : Color.gray08)
                         .frame(height: 1)
                         .frame(width: 84)
                 }

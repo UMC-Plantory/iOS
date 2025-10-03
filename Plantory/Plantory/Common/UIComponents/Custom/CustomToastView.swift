@@ -22,7 +22,7 @@ struct CustomToastView: View {
                     
                     Text(message)
                         .font(.pretendardRegular(12))
-                        .foregroundStyle(.white01)
+                        .foregroundStyle(.white)
                 }
                 
                 Spacer(minLength: 10)
@@ -31,15 +31,25 @@ struct CustomToastView: View {
                     onCancelTapped()
                 } label: {
                     Image(systemName: "xmark")
-                        .foregroundColor(Color.white)
+                        .foregroundColor(.white)
                 }
             }
             .padding()
         }
-        .background(Color.black01.opacity(0.6))
+        .background(Color.black01Dynamic.opacity(0.3))
         .frame(minWidth: 0, maxWidth: .infinity)
         .clipShape(RoundedRectangle(cornerRadius: 8))
         .shadow(color: Color.black.opacity(0.25), radius: 4, x: 0, y: 1)
         .padding(.horizontal, 32)
     }
+}
+
+#Preview {
+    CustomToastView(
+        title: "저장 완료",
+        message: "일기가 성공적으로 저장되었습니다.",
+        onCancelTapped: {
+            print("토스트 닫기 버튼 눌림")
+        }
+    )
 }
