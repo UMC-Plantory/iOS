@@ -107,7 +107,7 @@ final class AddDiaryViewModel {
     // MARK: - 서버 존재 여부 / TEMP 불러오기
     func checkDiaryExist(for date: String) {
         container.useCaseService.addDiaryService
-            .checkDiaryExist(date: date)
+            .checkDiaryExist(diaryDate: date )
             .receive(on: DispatchQueue.main)
             .sink(receiveCompletion: { _ in },
                   receiveValue: { [weak self] res in
@@ -118,7 +118,7 @@ final class AddDiaryViewModel {
     
     func loadServerTempIfAny(for date: String) {
         container.useCaseService.addDiaryService
-            .fetchTempDiary(date: date)
+            .fetchTempDiary(diaryDate: date)
             .receive(on: DispatchQueue.main)
             .sink(receiveCompletion: { [weak self] c in
                 if case .failure = c {
@@ -143,7 +143,7 @@ final class AddDiaryViewModel {
     // 서버 TEMP 존재 여부만 확인하고, 있을 때만 모달 on
     func probeServerTempExist(for date: String) {
         container.useCaseService.addDiaryService
-            .checkTempExist(date: date)
+            .checkTempExist(diaryDate: date)
             .receive(on: DispatchQueue.main)
             .sink(receiveCompletion: { _ in },
                   receiveValue: { [weak self] res in
