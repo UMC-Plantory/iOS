@@ -15,7 +15,7 @@ struct CustomSegmentView: View {
     var body: some View {
         ZStack(alignment: .bottom) {
             Rectangle()
-                .fill(Color("green04"))
+                .fill(Color("green06"))
                 .frame(height: 1)
                 .padding(.bottom, 1)
 

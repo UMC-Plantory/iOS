@@ -28,7 +28,7 @@ struct EmotionGaugeView: View {
             ZStack {
                 // 1) 큰 흰색 원
                 Circle()
-                    .fill(Color.white)
+                    .fill(Color.clear)
                     .frame(width: diameter, height: diameter)
 
                 // 2) 흰색 테두리 + 그림자

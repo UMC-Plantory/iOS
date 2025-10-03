@@ -22,8 +22,16 @@ struct ProfileManageView: View {
 
     var body: some View {
         ZStack {
-            ScrollView(.vertical, showsIndicators: false) {
-                profileContent
+            Color.adddiarybackground.ignoresSafeArea()
+            
+            VStack {
+                Spacer()
+                
+                Divider().background(.gray04)
+                
+                ScrollView(.vertical, showsIndicators: false) {
+                    profileContent
+                }
             }
         }
         .popup(
@@ -87,7 +95,10 @@ struct ProfileManageView: View {
     // MARK: - Back Button
     private var backButton: some View {
         Button(action: dismiss.callAsFunction) {
-            Image("leftChevron").fixedSize()
+            Image("leftChevron")
+                .renderingMode(.template)
+                .foregroundStyle(.black01Dynamic)
+                .fixedSize()
         }
     }
 }
@@ -108,7 +119,7 @@ struct ActionButtons: View {
                     .padding(.vertical, 8)
                     .background(
                         RoundedRectangle(cornerRadius: 5)
-                            .fill(Color.gray06)
+                            .fill(Color.gray07Dynamic)
                     )
             }
             Button(action: onSave) {
@@ -119,7 +130,7 @@ struct ActionButtons: View {
                     .padding(.vertical, 8)
                     .background(
                         RoundedRectangle(cornerRadius: 5)
-                            .fill(Color.green06)
+                            .fill(Color.green06Dynamic)
                     )
             }
         }
@@ -137,6 +148,7 @@ struct ReadOnlyInputField: View {
         VStack(alignment: .leading, spacing: 4) {
             Text(title)
                 .font(.pretendardRegular(14))
+                .foregroundStyle(Color.black01Dynamic)
 
             HStack {
                 Text(text)
@@ -148,7 +160,7 @@ struct ReadOnlyInputField: View {
             .padding(.vertical, 12)
             .background(
                 RoundedRectangle(cornerRadius: 5)
-                    .fill(Color.gray04)
+                    .fill(Color.gray04Dynamic)
                     .stroke(Color.gray08, lineWidth: 1)
             )
 
@@ -156,7 +168,7 @@ struct ReadOnlyInputField: View {
             if let message = message {
                 Text(message)
                     .font(.pretendardLight(12))
-                    .foregroundColor(Color.gray08)
+                    .foregroundColor(Color.gray08Dynamic)
             }
         }
     }

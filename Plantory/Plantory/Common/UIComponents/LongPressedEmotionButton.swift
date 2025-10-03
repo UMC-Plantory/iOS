@@ -21,7 +21,7 @@ struct LongPressEmotionButton: View {
             Image(isPressing ? tappedImage : untappedImage)
             Text(label)
                 .font(.pretendardRegular(14))
-                .foregroundStyle(isPressing ? .diaryfont : .gray08)
+                .foregroundStyle(isPressing ? .adddiaryfont : .gray08)
         }
         .frame(width: 60)                   // 터치 영역 고정
         .contentShape(Rectangle())          // 빈 공간도 터치 가능

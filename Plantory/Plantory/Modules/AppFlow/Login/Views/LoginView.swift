@@ -30,7 +30,7 @@ struct LoginView: View {
     var body: some View {
         ZStack(alignment: .center) {
             RadialGradient(
-                colors: [.white01, .green01],
+                colors: [.white, .green01],
                 center: .center,
                 startRadius: 0,
                 endRadius: 130

@@ -12,7 +12,7 @@ struct CompletedView: View {
 
     var body: some View {
         ZStack {
-            Color.diarybackground.ignoresSafeArea()
+            Color.adddiarybackground.ignoresSafeArea()
 
             VStack(spacing: 20) {
                 // 상단 홈 버튼
@@ -24,7 +24,7 @@ struct CompletedView: View {
                         }
                     ) {
                         Image(.home)
-                            .foregroundColor(.diaryfont)
+                            .foregroundColor(.adddiaryIcon)
                     }
                     Spacer().frame(width: 30)
                 }
@@ -38,7 +38,7 @@ struct CompletedView: View {
                 Text("오늘의 감정이\n마음의 잎을 틔워냈어요")
                     .font(.pretendardBold(20))
                     .multilineTextAlignment(.center)
-                    .foregroundStyle(.diaryfont)
+                    .foregroundStyle(.black01Dynamic)
                     .padding(.bottom, 20)
 
                 // 하단 버튼

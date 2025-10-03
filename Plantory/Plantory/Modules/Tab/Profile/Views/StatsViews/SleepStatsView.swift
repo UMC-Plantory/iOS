@@ -42,6 +42,9 @@ struct SleepStatsView: View {
             if page == 0 { viewModel.fetchWeekly() }
             else         { viewModel.fetchMonthly() }
         }
+        .background(
+            Color.white01Dynamic.ignoresSafeArea()
+        )
     }
 
 }
@@ -115,15 +118,16 @@ private extension SleepStatsView {
         VStack(alignment: .leading, spacing: 8) {
             Text(viewModel.comment)
                 .font(.pretendardSemiBold(18))
+                .foregroundStyle(.black01Dynamic)
 
             Text(viewModel.periodText)
                 .font(.pretendardRegular(16))
-                .foregroundColor(.gray09)
+                .foregroundColor(.gray09Dynamic)
 
             HStack(alignment: .top) {
                 Text(viewModel.averageComment)
                     .font(.pretendardRegular(12))
-                    .foregroundColor(.green06)
+                    .foregroundColor(.green06Dynamic)
                     .fixedSize(horizontal: false, vertical: true)
                     .frame(minHeight: 68, alignment: .topLeading)
 
@@ -134,6 +138,7 @@ private extension SleepStatsView {
                     label: viewModel.averageText
                 )
                 .frame(width: 120, height: 120)
+                .offset(y: 50)
             }
         }
     }

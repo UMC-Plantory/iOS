@@ -8,16 +8,20 @@
 import SwiftUI
 
 struct StrokeButtonStyle: ButtonStyle {
-
+    
+    @Environment(\.colorScheme) var colorScheme
+    
     func makeBody(configuration: Configuration) -> some View {
         configuration.label
-            .foregroundColor(Color.black01)
+            .foregroundColor(colorScheme == .light ? .black01Dynamic : .gray04)
             .background(
                 RoundedRectangle(cornerRadius: 5)
                     .fill(
-                        configuration.isPressed ? Color.gray02 : Color.white01
+                        colorScheme == .light ?
+                        configuration.isPressed ? Color.gray02Dynamic : Color.white01Dynamic
+                        : configuration.isPressed ? Color.gray09 : Color.gray08
                     )
-                    .strokeBorder(Color.gray04, lineWidth: 1)
+                    .strokeBorder(colorScheme == .light ? Color.gray04 : Color.gray08, lineWidth: 1)
             )
             .animation(.easeInOut(duration: 0.1), value: configuration.isPressed)
     }
