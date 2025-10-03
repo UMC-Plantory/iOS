@@ -40,7 +40,7 @@ struct MyGardenContent: View {
             if listItems.isEmpty {
                 NothingView(
                     mainText: "이번 달에 자란 식물이 없어요",
-                    subText: "오늘의 일기를 남기고 물뿌리개를 모아보세요\n 감정에 따라 특별한 식물이 자랍니다!"
+                    subText: "오늘의 일기로 물뿌리개를 얻고, 식물을 키워보세요!"
                 )
             } else {
                 PlantListView(items: listItems, onPlantTap: { id in

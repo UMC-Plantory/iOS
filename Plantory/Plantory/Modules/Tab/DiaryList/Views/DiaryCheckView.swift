@@ -175,7 +175,6 @@ struct DiaryCheckView: View {
                         }
                     }
                     .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
-                }
             }
         }
         .animation(.easeInOut, value: isDeleteSheetPresented)

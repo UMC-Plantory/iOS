@@ -65,7 +65,7 @@ struct ChatView: View {
         ZStack(alignment: .center) {
             Text("Plantory AI")
                 .font(.pretendardSemiBold(20))
-                .foregroundStyle(.black)
+                .foregroundStyle(.black01Dynamic)
             
             HStack(spacing: 20) {
                 Spacer()
@@ -97,6 +97,8 @@ struct ChatView: View {
                     }
                 }, label: {
                     Image("reset")
+                        .renderingMode(.template)
+                        .foregroundStyle(.black01Dynamic)
                 })
             }
         }
@@ -141,7 +143,7 @@ struct ChatView: View {
     // MARK: - Chat Message List
     @ViewBuilder
     private var chatMessageView: some View {
-        if viewModel.messages.isEmpty {
+        if !viewModel.isPostingChat && !viewModel.isFetchingChats && viewModel.messages.isEmpty {
             NothingView(
                 mainText: "아직 기록된 대화가 없어요",
                 subText: "첫 대화를 시작해 보세요!"
@@ -155,14 +157,11 @@ struct ChatView: View {
                 ) {
                     LazyVStack(spacing: 16) {
                         ForEach(viewModel.messages, id: \.id) { chat in
-                            //MARK: - Chat Message View
                             ChatBox(chatModel: chat)
-//                                .id(chat.id)
                         }
                         
                         if viewModel.isPostingChat {
                             ChatLoadingBox()
-                            
                         }
                     }
                 } onRefresh: {

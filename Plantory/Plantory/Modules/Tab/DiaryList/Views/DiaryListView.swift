@@ -110,7 +110,6 @@ struct DiaryHeaderView: View {
                         .frame(width: 20, height: 20)
                         .foregroundColor(.black01Dynamic)
                         .padding(.top)
-                        .padding(.trailing)
                 }
 
 //                Button(action: onMoreTap) {
