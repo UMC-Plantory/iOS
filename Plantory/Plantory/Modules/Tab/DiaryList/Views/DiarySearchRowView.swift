@@ -108,3 +108,18 @@ struct DiarySearchRow: View {
     }
 
 }
+
+#Preview {
+    DiarySearchRow(
+        entry: DiarySummary(
+            diaryId: 1,
+            diaryDate: "2025-09-27",
+            title: "가을 산책",
+            status: "SCRAP",
+            emotion: .HAPPY,
+            content: "오늘은 단풍이 정말 예뻤다. 따뜻한 햇살 덕분에 기분 좋은 하루였다.",
+            diaryImgUrl: nil,
+            aiComment: nil
+        )
+    )
+}
