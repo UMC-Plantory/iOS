@@ -56,7 +56,7 @@ struct MyPageView: View {
                                 }
 
                                 // 0번: HomeView로 이동
-                        set(0) { container.navigationRouter.push(.home) }
+                        set(0) { container.selectedTab = .home }
 
                                 // 1번: 감정 시트
                                 set(1) { showEmotionSheet = true }
@@ -65,7 +65,7 @@ struct MyPageView: View {
                                 set(2) { showSleepSheet = true }
 
                                 // 3번: GardenView로 이동
-                        set(3) { container.navigationRouter.push(.graden) }
+                        set(3) { container.selectedTab = .terrarium }
 
                                 return dict
                     }()

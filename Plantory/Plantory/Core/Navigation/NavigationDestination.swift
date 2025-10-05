@@ -25,8 +25,4 @@ enum NavigationDestination: Equatable, Hashable{
     
     case diarySearch
     case diaryDetail(diaryId: Int)
-    
-    // 마이페이지에서 홈페이지, 나의 정원 페이지로 이동하기 위함.
-    case home
-    case graden
 }
