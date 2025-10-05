@@ -6,189 +6,158 @@
 //
 
 import SwiftUI
-import SwiftData
 
-// MARK: - Formatters
-private enum DiaryFormatters {
-    static let day: DateFormatter = {
-        let f = DateFormatter()
-        f.dateFormat = "yyyy-MM-dd"
-        f.timeZone = TimeZone(identifier: "Asia/Seoul")
-        f.locale = Locale(identifier: "ko_KR")
-        return f
+struct MyDateFormatter {
+    static let shared: DateFormatter = {
+        let today = DateFormatter()
+        today.dateFormat = "yy.MM.dd"
+        return today
     }()
 }
 
-private enum PrettyDateFormatter {
-    static let day: DateFormatter = {
-        let f = DateFormatter()
-        f.dateFormat = "yy.MM.dd"
-        f.timeZone = TimeZone(identifier: "Asia/Seoul")
-        f.locale = Locale(identifier: "ko_KR")
-        return f
-    }()
-}
 
-// MARK: - View
 struct AddDiaryView: View {
-    // 단계/상태
+    // 단계 네비게이션
     @Bindable var stepVM: StepIndicatorViewModel
+    // API/데이터
     @Bindable var vm: AddDiaryViewModel
 
-    // DI / SwiftData / Scene
     @EnvironmentObject var container: DIContainer
-    @Environment(\.modelContext) private var modelContext
-    @Environment(\.scenePhase) private var scenePhase
 
-    // UI 상태
-    @State private var showNetworkPopup = false
-    @State private var selectedDate: Date
-    @State private var showFullCalendar = false
+    // 날짜 선택
+    @State private var selectedDate: Date = Date()
+    @State private var showFullCalendar: Bool = false // 캘린더 시트 관리 플래그
+    
+    @Environment(\.dismiss) var dismiss
 
-    // 초기화
     init(container: DIContainer, date: Date = Date()) {
         self._stepVM = Bindable(wrappedValue: StepIndicatorViewModel())
-        self._vm     = Bindable(wrappedValue: AddDiaryViewModel(container: container))
+        self._vm      = Bindable(wrappedValue: AddDiaryViewModel(container: container))
         self._selectedDate = State(initialValue: date)
     }
 
     var body: some View {
         ZStack(alignment: .top) {
             if vm.isCompleted {
-                // 완료 화면
+                
                 ScrollView {
-                    VStack { CompletedView() }
-                        .frame(maxWidth: .infinity, minHeight: 1) // 안전: 불필요한 safeArea 계산 제거
-                        .background(Color.adddiarybackground.ignoresSafeArea())
+                    VStack {
+                        CompletedView() // 실제 컴포넌트 필요
+                           
+                    }
+                    .frame(maxWidth: .infinity, minHeight: UIScreen.main.bounds.height - (UIApplication.shared.windows.first?.safeAreaInsets.top ?? 0) - (UIApplication.shared.windows.first?.safeAreaInsets.bottom ?? 0))
+                    .background(Color.adddiarybackground.ignoresSafeArea(.all, edges: .all))
                 }
-                .background(Color.adddiarybackground.ignoresSafeArea())
+                .background(Color.adddiarybackground.ignoresSafeArea(.all, edges: .all))
                 .ignoresSafeArea(.keyboard)
             } else {
-                // 작성 화면
                 Color.adddiarybackground.ignoresSafeArea()
-                VStack {
+
+                VStack{
                     headerView
                         .background(Color.adddiarybackground)
                     
                     Spacer()
+
                     stepContentView
-                    Spacer().frame(height: 30)
+                    Spacer().frame(height:30)
                     navigationButtons
                 }
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
                 .padding()
             }
-        }
-        .toastView(toast: $vm.toast)
+            
+            // 모달 1: 일기 중복 팝업 (확인 버튼만)
+            if let date = vm.showExistingDiaryDateForDatePicker {
+                BlurBackground() // 실제 컴포넌트 필요
+                PopUp( // 실제 컴포넌트 필요
+                    title: "일기 중복",
+                    message: "\(HomeViewModel.formatYMDForDisplay(date))에 이미 일기가 작성되었어요.",
+                    confirmTitle: "확인",
+                    cancelTitle: "확인",
+                    onConfirm: {
+                        // 확인 버튼 (confirmTitle): 팝업 상태 해제. 시트 닫기는 onChange에서 처리됨.
+                        vm.showExistingDiaryDateForDatePicker = nil
+                    },
+                    onCancel: {
+                        // 확인 버튼 (cancelTitle): 팝업 상태 해제. 시트 닫기는 onChange에서 처리됨.
+                        vm.showExistingDiaryDateForDatePicker = nil
+                    }
+                )
+            }
 
-        // 진입 시: 날짜 세팅 → 로컬/서버 보관본 존재 확인 → 네트워크 체크
+            // 모달 2: 임시 저장 불러오기 모달
+            if vm.showLoadTempPopup {
+                BlurBackground()
+                PopUp(
+                    title: "임시 저장된 일기",
+                    message: "해당 날짜에 보관된 일기가 있습니다. 불러오시겠습니까?",
+                    confirmTitle: "불러오기",
+                    cancelTitle: "새로 작성",
+                    onConfirm: {
+                        // 불러오기: 로드 후 팝업 닫기. 시트 닫기는 onChange에서 처리됨.
+                        vm.loadTemporaryDiary()
+                    },
+                    onCancel: {
+                        // 새로 작성: 팝업 닫기, 선택된 날짜로 확정한 후 시트 닫기
+                        vm.showLoadTempPopup = false
+                        vm.setDiaryDate(DiaryFormatters.day.string(from: selectedDate))
+                    }
+                )
+            }
+            
+            // 모달 3: 네트워크 불안정/임시 저장 완료 모달
+            if vm.showNetworkErrorPopup {
+                BlurBackground()
+                PopUp(
+                    title: "네트워크 불안정",
+                    message: "네트워크 연결이 불안정합니다. 입력한 내용은 임시 저장됩니다.",
+                    confirmTitle: "확인",
+                    cancelTitle: "확인",
+                    onConfirm: { vm.showNetworkErrorPopup = false },
+                    onCancel: { vm.showNetworkErrorPopup = false }
+                )
+            }
+        }
+        .toastView(toast: $vm.toast) // 실제 컴포넌트 필요
         .onAppear {
-            // 1. 날짜 세팅 및 오래된 임시본 정리
-            vm.setDiaryDate(DiaryFormatters.day.string(from: selectedDate))
-            vm.purgeOldDrafts(context: modelContext)
-
-            // 2. 이미 NORMAL 작성 여부 확인
-            vm.checkDiaryExist(for: vm.diaryDate)
-
-            // 3. 로컬 TEMP 존재 여부 확인 (뷰모델 내에서 서버 확인까지 분기)
-            vm.checkLocalDraftExist(context: modelContext)
-
-            // 4. 네트워크 오프라인이면 팝업
-            if !vm.isConnected { showNetworkPopup = true }
+            vm.checkForTemporaryDiary(for: selectedDate)
         }
-
-        // 화면 이탈 시 자동 임시저장 (뒤로가기/시트 닫기 등 포함)
+        .task {
+            UIApplication.shared.hideKeyboard() // 실제 확장 메서드 필요
+        }
+        .navigationBarBackButtonHidden(true)
         .onDisappear {
-            vm.autoSaveIfNeeded(context: modelContext)
-        }
-
-        // 앱 상태 전환(백그라운드/비활성) 시 자동 임시저장
-        .onChange(of: scenePhase) { _, phase in
-            if phase == .background || phase == .inactive {
-                vm.autoSaveIfNeeded(context: modelContext)
+            if !vm.isCompleted {
+                vm.tempSaveAndExit()
             }
         }
-
-        // 네트워크가 오프라인으로 바뀌면 팝업 + 로컬 임시저장
-        .onChange(of: vm.isConnected) { _, newValue in
-            if newValue == false {
-                showNetworkPopup = true
-                vm.forceTempAndSave(context: modelContext) // 로컬 저장
+        
+        // 🚨 핵심 로직: 팝업 상태가 변경되면 DatePickerCalendarView 시트를 즉시 내립니다.
+        .onChange(of: vm.showExistingDiaryDateForDatePicker) { _, date in
+            if date != nil {
+                withAnimation { showFullCalendar = false }
             }
         }
-
-        .task { UIApplication.shared.hideKeyboard() }
-
-        // === 팝업들 ===
-
-        // 네트워크 팝업 (네트워크 불안정 감지 시)
-        .popup(
-            isPresented: $showNetworkPopup,
-            title: "네트워크 오류",
-            message: "네트워크가 불안정하여 일기가 기기에 임시 저장되었습니다. (작성 계속 가능)",
-            confirmTitle: "확인",
-            onConfirm: { /* 이미 forceTempAndSave로 저장되었고 뷰모델의 상태가 정리됨 */ }
-        )
-
-        // 이미 작성된 일기(해당 날짜 NORMAL 존재)
-        .popup(
-            isPresented: Binding(get: { vm.showAlreadyExistPopup },
-                                 set: { vm.showAlreadyExistPopup = $0 }),
-            title: "이미 작성된 일기",
-            message: "선택한 날짜에 이미 작성된 일기가 있어요. 새로운 작성을 할 수 없어요.",
-            confirmTitle: "확인",
-            onConfirm: {
-                container.navigationRouter.pop()
-                container.navigationRouter.push(.baseTab)
+        .onChange(of: vm.showLoadTempPopup) { _, isShowing in
+            if isShowing {
+                withAnimation { showFullCalendar = false }
             }
-        )
-
-        // 로컬 임시보관 존재 (확인 시 실제 적용)
-        .popup(
-            isPresented: Binding(get: { vm.showLoadLocalDraftPopup },
-                                 set: { vm.showLoadLocalDraftPopup = $0 }),
-            title: "로컬 임시저장",
-            message: "이 날짜에 임시 저장된 일기가 있습니다. 불러오시겠어요?",
-            confirmTitle: "불러오기",
-            cancelTitle: "무시",
-            onConfirm: { vm.applyLocalDraft(context: modelContext) },
-            onCancel:  {
-                vm.deleteLocalDraft(context: modelContext) // 임시본 삭제
-                vm.showLoadLocalDraftPopup = false        // 팝업 닫기
-            }
-        )
-
-        // 서버 TEMP 존재 (확인 시 실제 fetch)
-        .popup(
-            isPresented: Binding(get: { vm.showLoadServerTempPopup },
-                                 set: { vm.showLoadServerTempPopup = $0 }),
-            title: "서버 임시저장",
-            message: "서버에 임시 저장된 일기가 있어요. 불러오시겠어요?",
-            confirmTitle: "불러오기",
-            cancelTitle: "건너뛰기",
-            onConfirm: { vm.loadServerTempIfAny(for: vm.diaryDate) }
-        )
-
-        // 날짜 선택 시트
+        }
+        
+        // Sheet 호출
         .sheet(isPresented: $showFullCalendar) {
-            DatePickerCalendarView(selectedDate: $selectedDate) {
-                // 날짜 변경 직전 자동 임시저장
-                vm.autoSaveIfNeeded(context: modelContext)
-
-                vm.setDiaryDate(DiaryFormatters.day.string(from: selectedDate))
+            DatePickerCalendarView(selectedDate: $selectedDate, vm: vm) {
+                // 중복/임시저장 팝업이 뜨지 않고 정상적으로 날짜가 확정된 경우
                 showFullCalendar = false
-
-                // 변경된 날짜로 상태 재점검
-                vm.checkDiaryExist(for: vm.diaryDate)
-                vm.checkLocalDraftExist(context: modelContext) // 로컬/서버 임시본 확인
             }
             .presentationDetents([.medium])
         }
-        .navigationBarBackButtonHidden(true)
     }
 
-    // MARK: - Header
+    // 홈버튼 + 현재 날짜/날짜선택
     private var headerView: some View {
+
         let labelHeight: CGFloat = 20
         let barGap: CGFloat = 6
         let barWidth: CGFloat = 80
@@ -197,30 +166,27 @@ struct AddDiaryView: View {
         return VStack {
             HStack {
                 Spacer().frame(width: 10)
-
-                // 홈 버튼: 떠나기 전에 자동 임시저장
                 Button(action: {
-                    vm.autoSaveIfNeeded(context: modelContext)
+                    vm.tempSaveAndExit()
                     container.navigationRouter.pop()
                     container.navigationRouter.push(.baseTab)
                 }) {
-                    Image(.home).foregroundColor(.adddiaryIcon)
+                    Image(.home) // 실제 이미지 리소스 필요
+                        .foregroundColor(Color.adddiaryIcon) // 실제 색상 리소스 필요
                 }
 
                 Spacer().frame(width: 80)
 
-                // 날짜 버튼
                 Button {
                     showFullCalendar = true
                 } label: {
                     HStack(spacing: 6) {
                         Image(systemName: "calendar")
                         Text(vm.diaryDate.isEmpty
-                              ? PrettyDateFormatter.day.string(from: Date())
-                              // yyyy-MM-dd 문자열을 Date로 변환하여 PrettyFormatter로 표시
-                              : DiaryFormatters.day.date(from: vm.diaryDate).map { PrettyDateFormatter.day.string(from: $0) } ?? vm.diaryDate)
+                              ? MyDateFormatter.shared.string(from: Date())
+                              : vm.diaryDate)
                     }
-                    .font(.pretendardSemiBold(18))
+                    .font(.pretendardSemiBold(18)) // 실제 폰트 확장 필요
                     .foregroundStyle(Color.adddiaryIcon)
                 }
 
@@ -229,17 +195,17 @@ struct AddDiaryView: View {
 
             Spacer().frame(height: 40)
 
-            // 스텝 인디케이터
+            // 스텝 인디케이터 (컬럼 너비 고정 + 고정 간격)
             HStack(spacing: barGap) {
                 ForEach(stepVM.steps.indices, id: \.self) { index in
                     VStack(spacing: 6) {
                         RoundedRectangle(cornerRadius: 70)
-                            .fill(index <= stepVM.currentStep ? Color.green04 : Color.gray08.opacity(0.3))
+                            .fill(index <= stepVM.currentStep ? Color.green04 : Color.gray08.opacity(0.3)) // 실제 색상 리소스 필요
                             .frame(width: barWidth, height: barHeight)
 
                         Text(stepVM.steps[index].title)
-                            .font(.pretendardRegular(14))
-                            .foregroundColor(.adddiaryIcon)
+                            .font(.pretendardRegular(14)) // 실제 폰트 확장 필요
+                            .foregroundColor(.adddiaryfont) // 실제 색상 리소스 필요
                             .opacity(index == stepVM.currentStep ? 1 : 0)
                             .frame(height: labelHeight)
                             .lineLimit(1)
@@ -252,37 +218,41 @@ struct AddDiaryView: View {
         }
     }
 
-    // MARK: - Steps
+    // 단계별 뷰
     @ViewBuilder
     private var stepContentView: some View {
         switch stepVM.currentStep {
         case 0:
-            EmotionStepView(vm: vm) { stepVM.goNext() }
+            EmotionStepView(vm: vm) { stepVM.goNext() } // 실제 컴포넌트 필요
         case 1:
-            DiaryStepView(vm: vm).padding(.top, 50)
+            DiaryStepView(vm: vm) // 실제 컴포넌트 필요
+                .padding(.top,50)
+
         case 2:
-            PhotoStepView(vm: vm).padding(.top, 70)
+            PhotoStepView(vm: vm) // 실제 컴포넌트 필요
+                .padding(.top,70)
         case 3:
-            SleepStepView(vm: vm, selectedDate: selectedDate)
+            SleepStepView(vm: vm, selectedDate: selectedDate) // 실제 컴포넌트 필요
         default:
             EmptyView()
         }
     }
 
-    // MARK: - Bottom Buttons
+    // 이전/다음/작성완료
     private var navigationButtons: some View {
-        if stepVM.currentStep == 0 { return AnyView(EmptyView()) }
-
-        let isDiaryStep = stepVM.currentStep == 1
-        let isCurrentStepValid = isDiaryStep ? vm.isDiaryContentValid : true
-        let isButtonDisabled = vm.isLoading || !isCurrentStepValid
+        if stepVM.currentStep == 0 {
+            return AnyView(EmptyView())
+        }
 
         return AnyView(
             HStack {
+                // 이전
                 if stepVM.currentStep != 0 {
-                    MainMiddleButton(text: "이전", isDisabled: vm.isLoading) {
-                        stepVM.goBack()
-                    }
+                    MainMiddleButton( // 실제 컴포넌트 필요
+                        text: "이전",
+                        isDisabled: false,
+                        action: { stepVM.goBack() }
+                    )
                     .tint(.green04)
                 } else {
                     Spacer().frame(width: 60)
@@ -290,19 +260,22 @@ struct AddDiaryView: View {
 
                 Spacer()
 
+                // 다음 or 작성완료
                 if stepVM.currentStep < stepVM.steps.count - 1 {
-                    MainMiddleButton(text: "다음", isDisabled: isButtonDisabled) {
-                        stepVM.goNext()
-                    }
-                    .tint(.green04)
+                    MainMiddleButton(
+                        text: "다음",
+                        isDisabled: false,
+                        action: { stepVM.goNext() }
+                    ).tint(.green04)
                 } else {
-                    MainMiddleButton(text: "작성완료", isDisabled: isButtonDisabled) {
-                        vm.setStatus("NORMAL")
-                        vm.submit()
-                        // 💡 중요: 서버 저장 성공 후 뷰모델에서 isCompleted 처리 후 로컬 임시본 삭제 로직이 실행됩니다.
-                        // 여기서 로컬 삭제를 호출하면 서버 통신 실패 시에도 삭제되므로,
-                        // 서버 통신 성공 후 로컬 임시본 삭제 로직은 vm.createDiary 성공 핸들러에 포함하는 것이 좋습니다.
-                    }
+                    MainMiddleButton(
+                        text: "작성완료",
+                        isDisabled: vm.isLoading,
+                        action: {
+                            vm.submit()
+                            withAnimation(.easeInOut) {}
+                        }
+                    )
                     .tint(.green04)
                 }
             }
@@ -311,12 +284,16 @@ struct AddDiaryView: View {
     }
 }
 
-// MARK: - Preview
-struct AddDiaryView_Previews: PreviewProvider {
+
+struct AddDiaryView_Preview: PreviewProvider {
+    static var devices = ["iPhone SE (3rd generation)", "iPhone 11", "iPhone 16 Pro Max"]
+
     static var previews: some View {
-        let container = DIContainer()
-        AddDiaryView(container: container)
-            .environmentObject(container)
-            .modelContainer(for: [DiaryDraft.self], inMemory: true)
+        ForEach(devices, id: \.self) { device in
+            AddDiaryView(container: DIContainer())
+                .environment(NavigationRouter())
+                .previewDevice(PreviewDevice(rawValue: device))
+                .previewDisplayName(device)
+        }
     }
 }

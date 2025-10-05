@@ -1,13 +1,17 @@
-// AddDiaryRouter.swift
+//
+//  AddDiaryRouter.swift
+//  Plantory
+//
+//  Created by 김지우 on 10/6/25.
+//
+
 
 import Foundation
 import Moya
 
 enum AddDiaryRouter: APITargetType {
-    case create(body: AddDiaryRequest)               // POST /diaries
-    case checkExist(diaryDate: String)               // GET  /diaries/exist?diaryDate=yyyy-MM-dd
-    case getTemp(diaryDate: String)                  // GET  /diaries/temp?diaryDate=yyyy-MM-dd
-    case checkTempExist(diaryDate: String)           // GET  /diaries/temp/exist?diaryDate=yyyy-MM-dd
+    case create(body: AddDiaryRequest)        // POST /diaries
+    case fetchDiaryStatus(date: String)       // GET /diaries/temp-status/exists?date=2025-10-06
 }
 
 extension AddDiaryRouter {
@@ -15,17 +19,18 @@ extension AddDiaryRouter {
 
     var path: String {
         switch self {
-        case .create:               return "/diaries"
-        case .checkExist:           return "/diaries/exist"
-        case .getTemp:              return "/diaries/temp"
-        case .checkTempExist:       return "/diaries/temp/exist"
+        case .create:
+            return "/diaries"
+        case .fetchDiaryStatus:
+            return "/diaries/temp-status/exists"
         }
     }
 
     var method: Moya.Method {
         switch self {
-        case .create:               return .post
-        case .checkExist, .getTemp, .checkTempExist:
+        case .create:
+            return .post
+        case .fetchDiaryStatus:
             return .get
         }
     }
@@ -35,18 +40,15 @@ extension AddDiaryRouter {
         case .create(let body):
             return .requestJSONEncodable(body)
 
-        case .checkExist(let diaryDate),
-             .getTemp(let diaryDate),
-             .checkTempExist(let diaryDate):
-            // 명세/DTO와 일관되게 'diaryDate' 키 사용
+        case .fetchDiaryStatus(let date):
+            // 쿼리 파라미터로 date를 전달
             return .requestParameters(
-                parameters: ["diaryDate": diaryDate],
+                parameters: ["date": date],
                 encoding: URLEncoding.queryString
             )
         }
     }
 
-    // APITargetType에서 Content-Type을 공통으로 처리하므로 생략 가능
     var headers: [String : String]? { nil }
 
     var sampleData: Data {
@@ -69,14 +71,17 @@ extension AddDiaryRouter {
             }
             """.utf8)
 
-        case .checkExist:
-            return Data(#"{"isSuccess":true,"code":"COMMON200","message":"성공입니다.","result":{"isExist":true}}"#.utf8)
-
-        case .getTemp:
-            return Data(#"{"isSuccess":true,"code":"COMMON200","message":"성공입니다.","result":{"diaryDate":"2025-06-20","emotion":"SOSO","content":"임시 내용","sleepStartTime":"2025-06-20T23:00","sleepEndTime":"2025-06-21T07:00","diaryImgUrl":null,"status":"TEMP"}}"#.utf8)
-
-        case .checkTempExist:
-            return Data(#"{"isSuccess":true,"code":"COMMON200","message":"성공입니다.","result":{"isExist":false}}"#.utf8)
+        case .fetchDiaryStatus:
+            return Data("""
+            {
+              "isSuccess": true,
+              "code": "COMMON200",
+              "message": "성공입니다.",
+              "result": {
+                "isExist": true
+              }
+            }
+            """.utf8)
         }
     }
 }
