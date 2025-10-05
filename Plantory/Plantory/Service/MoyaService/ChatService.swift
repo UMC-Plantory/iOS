@@ -17,6 +17,9 @@ protocol ChatServiceProtocol {
     
     /// 채팅 기록 조회
     func getChatsList(cursor: String?) -> AnyPublisher<ChatResult, APIError>
+    
+    /// 채팅 기록 초기화
+    func deleteChats() -> AnyPublisher<StatusResponseOnly, APIError>
 }
 
 /// Chat API를 사용하는 서비스
@@ -43,10 +46,18 @@ final class ChatService: ChatServiceProtocol {
 
     // MARK: - 채팅 기록 조회
     
-    /// 채팅 요청
+    /// 채팅 기록 조회
     /// - Parameter cursor: 커서값 (마지막으로 조회한 chat의 createdAt)
     /// - Returns: 채팅 응답을 Combine Publisher 형태로 반환
     func getChatsList(cursor: String?) -> AnyPublisher<ChatResult, APIError> {
         return provider.requestResult(.getChatsList(cursor: cursor), type: ChatResult.self)
+    }
+
+    // MARK: - 채팅 기록 초기화
+    
+    /// 채팅 기록 초기화
+    /// - Returns: 채팅 응답을 Combine Publisher 형태로 반환
+    func deleteChats() -> AnyPublisher<StatusResponseOnly, APIError> {
+        return provider.requestStatus(.deleteChats)
     }
 }

@@ -23,18 +23,22 @@ struct DiarySearchView: View {
     }
 
     var body: some View {
-        VStack(spacing: 10) {
-            topBar()
-                .padding(.horizontal, 16)
-            if vm.results.isEmpty {
-                recentSearchSection()
+        ZStack {
+            Color.searchbackground.ignoresSafeArea()
+            
+            VStack(spacing: 10) {
+                topBar()
                     .padding(.horizontal, 16)
-            } else {
-                searchResultSection
+                if vm.results.isEmpty {
+                    recentSearchSection()
+                        .padding(.horizontal, 16)
+                } else {
+                    searchResultSection
+                }
             }
+            .padding(.top, 25)
         }
         .frame(maxHeight: .infinity, alignment: .top)
-        .padding(.top, 25)
         .ignoresSafeArea(.keyboard)
         .navigationBarBackButtonHidden()
         .overlay {
@@ -55,7 +59,8 @@ struct DiarySearchView: View {
                 container.navigationRouter.pop()
             } label: {
                 Image("leftChevron")
-                    .foregroundColor(.black01)
+                    .renderingMode(.template)
+                    .foregroundColor(.black01Dynamic)
             }
 
             HStack {
@@ -66,7 +71,7 @@ struct DiarySearchView: View {
                 searchButton()
             }
             .padding(.horizontal, 14)
-            .background(Color("brown01"))
+            .background(.searchbar)
             .cornerRadius(30)
         }
     }
@@ -74,8 +79,8 @@ struct DiarySearchView: View {
     private func searchField() -> some View {
         TextField("키워드를 입력하세요", text: $vm.query)
             .padding(.vertical, 10)
-            .background(Color("brown01"))
-            .foregroundColor(.gray10)
+            .background(.searchbar)
+            .foregroundColor(.gray10Dynamic)
             .submitLabel(.search)
             .onSubmit {
                 let q = vm.query.trimmingCharacters(in: .whitespacesAndNewlines)
@@ -83,7 +88,7 @@ struct DiarySearchView: View {
                     vm.query = q
                     vm.results.removeAll()
                     vm.cursor = nil
-                    vm.hasNext = false
+                    vm.hasNext = true
                     vm.currentKeywords = ""
                     await vm.searchDiary(keyword: q)
                 }
@@ -96,13 +101,15 @@ struct DiarySearchView: View {
             Task {
                 vm.results.removeAll()
                 vm.cursor = nil
-                vm.hasNext = false
+                vm.hasNext = true
                 vm.currentKeywords = ""
                 await vm.searchDiary(keyword: vm.query)
             }
         } label: {
             Image("search")
                 .resizable()
+                .renderingMode(.template)
+                .foregroundColor(Color.black01Dynamic)
                 .frame(width: 20, height: 20)
         }
     }
@@ -112,7 +119,7 @@ struct DiarySearchView: View {
         HStack {
             Text("최근 검색어")
                 .font(.pretendardSemiBold(18))
-                .foregroundColor(.black01)
+                .foregroundColor(Color.black01Dynamic)
             Spacer()
             Button("모두 지우기") { vm.clearRecent() }
                 .font(.pretendardRegular(12))
@@ -138,14 +145,14 @@ struct DiarySearchView: View {
                     vm.query = keyword
                     vm.results.removeAll()
                     vm.cursor = nil
-                    vm.hasNext = false
+                    vm.hasNext = true
                     vm.currentKeywords = ""
                     await vm.searchDiary(keyword: keyword)
                 }
             } label: {
                 Text(keyword)
                     .font(.pretendardRegular(16))
-                    .foregroundColor(Color("gray10"))
+                    .foregroundColor(Color.gray10Dynamic)
             }
             Button {
                 if let i = vm.recentKeywords.firstIndex(of: keyword) {
@@ -155,21 +162,21 @@ struct DiarySearchView: View {
                 Image(systemName: "xmark")
                     .resizable()
                     .frame(width: 8, height: 8)
-                    .foregroundColor(.gray)
+                    .foregroundColor(.gray08)
             }
         }
         .padding(.vertical, 8)
         .padding(.horizontal, 12)
         .background(
             RoundedRectangle(cornerRadius: 20)
-                .stroke(Color.gray.opacity(0.3), lineWidth: 1)
+                .stroke(Color.gray06, lineWidth: 1)
         )
     }
 
     @ViewBuilder
     private var searchResultSection: some View {
         Rectangle()
-            .fill(Color.gray04)
+            .fill(Color.gray04Dynamic)
             .frame(height: 4)
             .padding(.horizontal, -18)
             .padding(.bottom, 24)
@@ -177,11 +184,11 @@ struct DiarySearchView: View {
         HStack {
             Text("‘\(vm.currentKeywords)’가 들어간 일기")
                 .font(.pretendardSemiBold(18))
-                .foregroundColor(Color("black01"))
+                .foregroundColor(Color("black01Dynamic"))
             Spacer()
             Text("\(vm.total)개")
                 .font(.pretendardRegular(12))
-                .foregroundColor(.gray)
+                .foregroundColor(.gray08Dynamic)
         }
         .padding(.horizontal, 16)
         
@@ -209,4 +216,9 @@ struct DiarySearchView: View {
             }
         }
     }
+}
+
+#Preview {
+    DiarySearchView(container: DIContainer())
+        .environmentObject(DIContainer())
 }

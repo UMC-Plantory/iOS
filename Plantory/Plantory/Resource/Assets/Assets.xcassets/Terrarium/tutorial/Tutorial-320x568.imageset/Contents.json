@@ -1,0 +1,12 @@
+{
+  "images" : [
+    {
+      "filename" : "Tutorial-320x568.pdf",
+      "idiom" : "universal"
+    }
+  ],
+  "info" : {
+    "author" : "xcode",
+    "version" : 1
+  }
+}

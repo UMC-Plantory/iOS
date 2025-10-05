@@ -28,7 +28,7 @@ struct PolicyView: View {
                 Text(termsSections[self.num].body)
                     .kerning(1)
                     .font(.pretendardRegular(14))
-                    .foregroundStyle(.black01)
+                    .foregroundStyle(.black)
             }
             .scrollIndicators(.hidden)
         }

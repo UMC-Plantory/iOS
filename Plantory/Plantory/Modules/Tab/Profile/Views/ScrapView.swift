@@ -25,31 +25,43 @@ struct ScrapView: View {
     }
     
     var body: some View {
-        VStack(spacing: 5) {
-            HStack {
+        ZStack {
+            Color.adddiarybackground.ignoresSafeArea()
+            VStack(spacing: 5) {
                 Spacer()
                 
-                Button {
-                    showMenu.toggle()
-                } label: {
-                    HStack(spacing: 4) {
-                        Text(isNew ? "최신순" : "오래된순")
-                            .font(.pretendardRegular(14))
-                            .foregroundStyle(.black01)
-                            .offset(x: 15)
-                        if showMenu {
-                            Image("Up")
-                        } else {
-                            Image("Down")
+                Divider().background(.gray04)
+                
+                HStack {
+                    Spacer()
+                    
+                    Button {
+                        showMenu.toggle()
+                    } label: {
+                        HStack(spacing: 4) {
+                            Text(isNew ? "최신순" : "오래된순")
+                                .font(.pretendardRegular(14))
+                                .foregroundStyle(.gray09Dynamic)
+                                .offset(x: 15)
+                            Group {
+                                if showMenu {
+                                    Image("Up")
+                                        .renderingMode(.template)
+                                } else {
+                                    Image("Down")
+                                        .renderingMode(.template)
+                                }
+                            }
+                            .foregroundStyle(.gray09Dynamic)
                         }
+                        .background(Color.adddiarybackground)
                     }
-                    .background(Color.white)
                 }
+                
+                Spacer()
+                
+                content
             }
-            
-            Spacer()
-
-            content
         }
         .overlay(
             Group {
@@ -60,8 +72,8 @@ struct ScrapView: View {
                             showMenu = false
                         } label: {
                             Text("최신순")
-                                .font(isNew ? .pretendardSemiBold(10) : .pretendardRegular(10))
-                                .foregroundColor(isNew ? .green06 : .black)
+                                .font(isNew ? .pretendardBold(10) : .pretendardRegular(10))
+                                .foregroundColor(isNew ? .green06Dynamic : .gray09Dynamic)
                                 .padding(8)
                                 .frame(maxWidth: .infinity, alignment: .leading)
                         }
@@ -71,12 +83,12 @@ struct ScrapView: View {
                         } label: {
                             Text("오래된순")
                                 .font(!isNew ? .pretendardSemiBold(10) : .pretendardRegular(10))
-                                .foregroundColor(!isNew ? .green06 : .black)
+                                .foregroundColor(isNew ? .green06Dynamic : .gray09Dynamic)
                                 .padding(8)
                                 .frame(maxWidth: .infinity, alignment: .leading)
                         }
                     }
-                    .background(Color.white)
+                    .background(Color.white01Dynamic)
                     .cornerRadius(8)
                     .shadow(color: .black.opacity(0.1), radius: 0, x: 2, y: 2)
                     .frame(width: 80)
@@ -97,7 +109,10 @@ struct ScrapView: View {
             title: "스크랩",
             leading: Button(action: { container.navigationRouter.pop()
             }, label: {
-                Image("leftChevron").fixedSize()
+                Image("leftChevron")
+                    .renderingMode(.template)
+                    .foregroundStyle(.black01Dynamic)
+                    .fixedSize()
             }
         ))
         .navigationBarBackButtonHidden(true)

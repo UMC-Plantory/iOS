@@ -23,5 +23,7 @@ extension APITargetType {
         }
     }
     
-    var validationType: ValidationType { .none }
+    var validationType: ValidationType {
+        return .customCodes((100..<600).filter { $0 != 401 })
+    }
 }

@@ -45,6 +45,6 @@ extension View {
 
 
 #Preview {
-    LoginView(container: .init())
+    LoginView(container: .init(), sessionManager: .init())
 }
 

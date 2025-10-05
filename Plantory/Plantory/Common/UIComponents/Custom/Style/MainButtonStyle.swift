@@ -22,7 +22,7 @@ struct MainButtonStyle: ButtonStyle {
                     .fill(
                         isDisabled
                             ? Color.gray08
-                            : (configuration.isPressed ? Color.green08 : Color.green06)
+                            : (configuration.isPressed ? Color.green08Dynamic : Color.green06Dynamic)
                     )
             )
             .animation(.easeInOut(duration: 0.1), value: configuration.isPressed)

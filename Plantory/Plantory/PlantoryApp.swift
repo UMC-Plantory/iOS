@@ -14,6 +14,8 @@ struct PlantoryApp: App {
     
     @StateObject private var container: DIContainer = .init()
     
+    @StateObject private var sessionManager = SessionManager()
+    
     @UIApplicationDelegateAdaptor(AppDelegate.self) var appDelegate
     
     init() {
@@ -22,8 +24,14 @@ struct PlantoryApp: App {
     
     var body: some Scene {
         WindowGroup {
-            NavigationRoutingView()
-                           .environmentObject(container)
+            RootView()
+               .environmentObject(container)
+               .environmentObject(sessionManager)
+               .onReceive(NotificationCenter.default.publisher(for: .sessionExpired)) { _ in
+                   // refresh 실패 → 자동 로그아웃 처리
+                   sessionManager.logout()
+               }
         }
+        .modelContainer(for: ReplyStateData.self)
     }
 }

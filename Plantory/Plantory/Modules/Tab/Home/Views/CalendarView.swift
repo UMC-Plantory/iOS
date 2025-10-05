@@ -111,15 +111,15 @@
                 Button(action: { changeMonth(-1) }) {
                     Image(systemName: "chevron.left")
                         .font(.pretendardRegular(20))
-                        .foregroundColor(.black)
+                        .foregroundColor(.black01Dynamic)
                 }
                 Text(month, formatter: calendarHeaderDateFormatter)
                     .font(.pretendardRegular(20))
-                    .foregroundStyle(.black01)
+                    .foregroundStyle(.black01Dynamic)
                 Button(action: { changeMonth(1) }) {
                     Image(systemName: "chevron.right")
                         .font(.pretendardRegular(20))
-                        .foregroundColor(.black)
+                        .foregroundColor(.black01Dynamic)
                 }
             }
         }
@@ -169,7 +169,7 @@
                             ? .white
                             : isFuture
                                 ? .gray06
-                                : (hasEntry ? .green05 : .gray10)
+                                : (hasEntry ? .green06 : .gray10Dynamic)
                     )
             }
             .frame(width: cellSize, height: cellSize)
