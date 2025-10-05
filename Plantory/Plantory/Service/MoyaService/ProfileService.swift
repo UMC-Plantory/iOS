@@ -31,6 +31,7 @@ protocol ProfileServiceProtocol {
     func fetchWeeklyEmotionStats() -> AnyPublisher<EmotionStatsResponse, APIError>
     func fetchMonthlyEmotionStats() -> AnyPublisher<EmotionStatsResponse, APIError>
 
+    
     // 임시 보관함 / 휴지통 / 스크랩
     func fetchTemp(sort: SortOrder) -> AnyPublisher<[Diary], APIError>
     func fetchWaste(sort: SortOrder) -> AnyPublisher<[Diary], APIError>
@@ -38,7 +39,10 @@ protocol ProfileServiceProtocol {
     func deleteWaste(diaryIds: [Int]) -> AnyPublisher<StatusResponseOnly, APIError>
     func restoreWaste(diaryIds: [Int]) -> AnyPublisher<StatusResponseOnly, APIError>
     func scrap(sort: SortOrder, cursor: String?) -> AnyPublisher<ScrapResponse, APIError>
+    // 개별 일기 조회 (GET /diaries/{id})
+    func fetchDiary(id: Int) -> AnyPublisher<DiarySummary, APIError>
 
+    
     // 프로필
     func fetchMyProfile() -> AnyPublisher<FetchProfileResponse, APIError>
     func patchProfile(
@@ -50,6 +54,7 @@ protocol ProfileServiceProtocol {
             deleteProfileImg: Bool
         ) -> AnyPublisher<PatchProfileResponse, APIError>
     func withdrawAccount() -> AnyPublisher<Void, APIError>
+    
     
     // 마이페이지
     func fetchProfileStats() -> AnyPublisher<ProfileStatsResponse, APIError>
@@ -121,6 +126,11 @@ final class ProfileService: ProfileServiceProtocol {
     
     func scrap(sort: SortOrder = .latest, cursor: String?) -> AnyPublisher<ScrapResponse, APIError> {
         provider.requestResult(.scrap(sort: sort.rawValue, cursor: cursor), type: ScrapResponse.self)
+    }
+    
+    // 단일 일기 조회 (GET /diaries/{id})
+    func fetchDiary(id: Int) -> AnyPublisher<DiarySummary, APIError> {
+        provider.requestResult(.fetchDiary(id: id), type: DiarySummary.self)
     }
 
 

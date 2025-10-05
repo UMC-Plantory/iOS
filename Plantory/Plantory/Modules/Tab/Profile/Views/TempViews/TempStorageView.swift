@@ -77,10 +77,12 @@ struct TempStorageView: View {
         }
     }
 
+    // 최신순 / 오래된순 정렬
     private var sortedCells: [TempViewModel.DiaryCellViewModel] {
         viewModel.cellViewModels.sorted(by: isNewSorting ? { $0.dateText > $1.dateText } : { $0.dateText < $1.dateText })
     }
 
+    // 임시보관함 리스트
     private var diaryList: some View {
         ScrollView {
             LazyVStack(spacing: 14) {

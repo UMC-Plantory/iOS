@@ -59,6 +59,11 @@ struct NavigationRoutingView: View {
                                 diaryId: diaryId,
                                 container: container
                             )
+                        
+                        case .home:
+                            HomeView(container: container)
+                        case .graden:
+                            MyGardenContent(container:   container)
                         }
                     }
                 }
