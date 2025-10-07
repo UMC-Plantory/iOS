@@ -9,7 +9,7 @@
 	<key>PLIST_VERSION</key>
 	<string>1</string>
 	<key>BUNDLE_ID</key>
-	<string>com.umc.plantory.Plantory</string>
+	<string>com.plantory.plantory</string>
 	<key>PROJECT_ID</key>
 	<string>plantory-1a893</string>
 	<key>STORAGE_BUCKET</key>
@@ -25,6 +25,6 @@
 	<key>IS_SIGNIN_ENABLED</key>
 	<true></true>
 	<key>GOOGLE_APP_ID</key>
-	<string>1:928272019697:ios:7cc204d7b5d5ec162bf950</string>
+	<string>1:928272019697:ios:374759a8c0cfa87c2bf950</string>
 </dict>
 </plist>

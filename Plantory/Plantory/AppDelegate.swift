@@ -17,11 +17,11 @@ class AppDelegate: NSObject, UIApplicationDelegate, UNUserNotificationCenterDele
     func application(_ application: UIApplication,
                      didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey : Any]? = nil) -> Bool {
         
-        // UNUserNotificationCenter의 델리게이트 설정 (포그라운드 알림 수신을 위해 필요)
-        UNUserNotificationCenter.current().delegate = self
-        
         // Firebase 초기화
         FirebaseApp.configure()
+        
+        // Firebase Messaging 델리게이트 설정
+        Messaging.messaging().delegate = self
         
         // 사용자에게 알림 권한 요청
         requestNotificationPermission()
@@ -29,8 +29,8 @@ class AppDelegate: NSObject, UIApplicationDelegate, UNUserNotificationCenterDele
         // 원격 푸시 알림 등록 요청 (APNs)
         application.registerForRemoteNotifications()
         
-        // Firebase Messaging 델리게이트 설정
-        Messaging.messaging().delegate = self
+        // UNUserNotificationCenter의 델리게이트 설정 (포그라운드 알림 수신을 위해 필요)
+        UNUserNotificationCenter.current().delegate = self
         
         return true
     }
