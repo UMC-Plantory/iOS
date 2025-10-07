@@ -10,7 +10,6 @@ import Combine
 import Moya
 import SwiftData
 
-
 enum DiaryFormatters {
     static let day: DateFormatter = {
         let f = DateFormatter()
@@ -21,28 +20,27 @@ enum DiaryFormatters {
     }()
 }
 
-
-
 @Observable
 final class AddDiaryViewModel {
-    
+
     // MARK: - Toast
-    
     var toast: CustomToast? = nil
-    
-    //모달 상태
-    var showLoadTempPopup: Bool = false      // 임시 저장된 일기 불러오기
-    var showNetworkErrorPopup: Bool = false  // 네트워크 불안정 시 임시 저장 알림
-    var showExistingDiaryDateForDatePicker: Date? = nil // DatePicker에서 중복 감지 시 사용 (핵심)
+
+    // 모달 상태
+    var showLoadTempPopup: Bool = false       // 임시 저장된 일기 불러오기
+    var showNetworkErrorPopup: Bool = false   // 네트워크 불안정 시 임시 저장 알림
+    var showExistingDiaryDateForDatePicker: Date? = nil // DatePicker 중복 감지
 
     // MARK: - 입력 상태 (UI 바인딩)
-    var diaryDate: String = ""                 // yyyy-MM-dd
-    var emotion: String = ""                   // SAD, ANGRY, HAPPY, SOSO, AMAZING
-    var content: String = ""                   // NORMAL일 때 필수
-    var sleepStartTime: String = ""            // yyyy-MM-dd'T'HH:mm (NORMAL 필수)
-    var sleepEndTime: String = ""              // yyyy-MM-dd'T'HH:mm (NORMAL 필수)
-    var diaryImage: UIImage? = nil             // 선택
-    var status: String = "NORMAL"              // NORMAL / TEMP
+    var diaryId: Int?
+    var diaryDate: String = ""                  // yyyy-MM-dd
+    var emotion: String = ""                    // SAD, ANGRY, HAPPY, SOSO, AMAZING
+    var content: String = ""                    // NORMAL일 때 필수
+    var sleepStartTime: String = ""             // yyyy-MM-dd'T'HH:mm (NORMAL 필수)
+    var sleepEndTime: String = ""               // yyyy-MM-dd'T'HH:mm (NORMAL 필수)
+    var diaryImage: UIImage? = nil              // 선택
+    var status: String = "NORMAL"               // NORMAL / TEMP
+    var isImgDeleted: Bool = false              // 이미지 삭제 플래그(교체가 아닌 ‘삭제’ 시 true)
 
     // MARK: - UI 상태
     var isLoading = false
@@ -61,46 +59,41 @@ final class AddDiaryViewModel {
     func setEmotion(_ v: String) { emotion = v }
     func setContent(_ v: String) { content = v }
     func setDiaryDate(_ v: String) { diaryDate = v } // yyyy-MM-dd
-    func setSleepTimes(start: String, end: String) {
-        sleepStartTime = start; sleepEndTime = end
-    }
+    func setSleepTimes(start: String, end: String) { sleepStartTime = start; sleepEndTime = end }
     func setImage(_ img: UIImage?) { diaryImage = img }
     func setStatus(_ v: String) { status = v } // NORMAL or TEMP
+    func markImageDeleted(_ deleted: Bool) { isImgDeleted = deleted }
 
-    // MARK: - 임시 저장 로직 (SwiftData 대체 Mock)
-
-    // 추가: 해당 날짜에 완료된 일기가 있는지 확인 (DatePickerCalendarView에서 사용)
+    // MARK: - (기존 확정 일기) 중복 체크 - 아직 API 미지정이라 Mock 유지
     func checkExistingFinalizedDiary(for date: Date) -> Bool {
         let dateString = DiaryFormatters.day.string(from: date)
-        // Mock: 10월 2일은 이미 최종 작성되었다고 가정
+        // TODO: 확정(NORMAL) 중복 체크 API 연결 시 교체
         return dateString == "2025-10-02"
     }
-    
-    // MARK: - 임시 저장 로직 (SwiftData → 실제 API)
+
+    // MARK: - 임시 저장 로직 (API)
     /// 해당 날짜에 임시저장(TEMP) 일기가 있는지 서버에서 확인
     func checkForTemporaryDiary(for date: Date) {
         let dateString = DiaryFormatters.day.string(from: date)
-        self.diaryDate = dateString                       // 선택한 날짜는 즉시 반영
+        self.diaryDate = dateString // 선택한 날짜 즉시 반영
 
-        container.useCaseService.addDiaryService.fetchTempDiary(date: diaryDate)
+        container.useCaseService.addDiaryService
+            .fetchTempDiaryResult(date: dateString)
             .receive(on: DispatchQueue.main)
             .sink(receiveCompletion: { [weak self] c in
-                guard let self = self else { return }
+                guard let self else { return }
                 if case .failure(let e) = c {
-                    // 조회 실패 시 토스트만 안내(UX 저해 최소화)
                     self.toast = CustomToast(
                         title: "임시 저장 조회 실패",
                         message: e.errorDescription ?? "네트워크 상태를 확인해주세요."
                     )
                 }
             }, receiveValue: { [weak self] existsResult in
-                guard let self = self else { return }
-                // 존재하면 불러오기 모달 표시
-                if status.isContiguousUTF8 == true {
-                    self.showLoadTempPopup = true
-                } else {
-                    self.showLoadTempPopup = false
-                }
+                guard let self else { return }
+                // 서버 DTO가 result{isExist: Bool}에서 바디로 파싱되어 들어온다고 가정(DiaryExistResult)
+                // 필요 시 existsResult.result.isExist 형태로 조정
+                let exists = (existsResult.isExist)
+                self.showLoadTempPopup = exists
             })
             .store(in: &cancellables)
     }
@@ -112,13 +105,20 @@ final class AddDiaryViewModel {
             self.toast = CustomToast(title: "불러오기 실패", message: "날짜가 선택되지 않았습니다.")
             return
         }
+        // diaryId가 없으면 불러올 수 없음 (현재 Router가 id 기반)
+        guard let id = diaryId else {
+            self.toast = CustomToast(title: "불러오기 실패", message: "임시 일기 ID를 찾을 수 없습니다.")
+            self.showLoadTempPopup = false
+            return
+        }
 
         showLoadTempPopup = false
 
-        container.useCaseService.addDiaryService.fetchTempDiary(date: diaryDate)          
+        container.useCaseService.addDiaryService
+            .fetchTempDiary(id: id)
             .receive(on: DispatchQueue.main)
             .sink(receiveCompletion: { [weak self] c in
-                guard let self = self else { return }
+                guard let self else { return }
                 if case .failure(let e) = c {
                     self.toast = CustomToast(
                         title: "임시 저장 불러오기 실패",
@@ -126,7 +126,7 @@ final class AddDiaryViewModel {
                     )
                 }
             }, receiveValue: { [weak self] temp in
-                guard let self = self else { return }
+                guard let self else { return }
                 self.applyTempDiary(temp)
                 self.toast = CustomToast(title: "임시 저장 불러오기", message: "임시 저장된 일기를 불러왔어요.")
             })
@@ -134,37 +134,39 @@ final class AddDiaryViewModel {
     }
 
     /// TEMP 응답 → ViewModel 상태 반영
-    private func applyTempDiary(_ temp: TempDiaryResponse) {
-        // 서버 스키마에 맞춰 안전하게 매핑 (필드명은 실제 Response에 맞게 조정)
-        // status는 작성 이어가기 UX를 위해 NORMAL로 전환
+    private func applyTempDiary(_ temp: TempDiaryResult) {
+        // temp.diaryId 없음 → 해당 라인 제거
+        // if let id = temp.diaryId { self.diaryId = id }
+
+        // diaryDate 가 String (non-optional) 이므로 바로 대입
+        self.diaryDate = temp.diaryDate
+
+        // 나머지는 서버가 옵셔널로 줄 수 있다고 가정하고 안전 매핑
         self.emotion        = temp.emotion ?? self.emotion
         self.content        = temp.content ?? ""
         self.sleepStartTime = temp.sleepStartTime ?? ""
         self.sleepEndTime   = temp.sleepEndTime ?? ""
-        // 임시: 이미지는 URL 문자열만 반환되는 경우가 많으므로 즉시 UIImage로 변환하지 않음
-        // 필요 시 별도 이미지 로더에서 비동기 로딩 권장.
-        // self.diaryImage  = ...
 
-        self.status = "NORMAL"
+        // 이미지 URL → UIImage 변환은 별도 로더 권장
+        self.status = "NORMAL"     // 이어서 작성 UX
+        self.isImgDeleted = false
     }
 
-    
-    /// 현재 입력된 내용을 임시 저장합니다.
-    func saveTemporaryDiary(status: String = "TEMP") {        self.status = status // 상태를 TEMP로 설정
-        
+
+    /// 현재 입력된 내용을 임시 저장합니다. (네트워크 이슈 시 자동 호출될 수 있음)
+    func saveTemporaryDiary(status: String = "TEMP") {
+        self.status = status
         if status == "TEMP" && self.showNetworkErrorPopup == false {
-            // 네트워크 오류 팝업과 함께 표시되는 경우는 중복 Toast X
-             self.toast = CustomToast(title: "자동 임시 저장", message: "입력 내용이 자동으로 임시 저장되었습니다.")
+            self.toast = CustomToast(title: "자동 임시 저장", message: "입력 내용이 자동으로 임시 저장되었습니다.")
         }
-        
+        // TODO: 서버 TEMP 저장 API 확정 시 호출부 추가
         print("Mock: 임시 저장 실행. 상태: \(self.status), 날짜: \(self.diaryDate)")
     }
-    
+
     /// 임시 저장 후 나가기
     func tempSaveAndExit() {
-        saveTemporaryDiary(status: "TEMP") // 강제 임시 저장
+        saveTemporaryDiary(status: "TEMP")
     }
-
 
     // MARK: - 제출
     func submit() {
@@ -184,11 +186,9 @@ final class AddDiaryViewModel {
                 errorMessage = "필수값 누락: \(missing.joined(separator: ", "))"
                 return
             }
-        } else {
-            if diaryDate.isEmpty {
-                errorMessage = "필수값 누락: diaryDate"
-                return
-            }
+        } else if diaryDate.isEmpty {
+            errorMessage = "필수값 누락: diaryDate"
+            return
         }
 
         isLoading = true
@@ -208,11 +208,10 @@ final class AddDiaryViewModel {
         container.useCaseService.imageService
             .generatePresignedURL(request: presignedReq)
             .flatMap { [weak self] res -> AnyPublisher<String, APIError> in
-                guard let self = self else { return Empty().eraseToAnyPublisher() }
-                // S3 PUT 업로드
+                guard let self else { return Empty().eraseToAnyPublisher() }
                 return self.container.useCaseService.imageService
                     .putImage(presignedURL: res.presignedUrl, data: data)
-                    .map { res.accessUrl } // 업로드 성공 시 accessUrl 전달
+                    .map { res.accessUrl }
                     .eraseToAnyPublisher()
             }
             .receive(on: DispatchQueue.main)
@@ -233,7 +232,7 @@ final class AddDiaryViewModel {
             sleepStartTime: status == "NORMAL" ? sleepStartTime : nil,
             sleepEndTime: status == "NORMAL" ? sleepEndTime : nil,
             diaryImgUrl: diaryImgUrl,
-            status: status
+            status: status,
         )
 
         container.useCaseService.addDiaryService
@@ -241,7 +240,9 @@ final class AddDiaryViewModel {
             .receive(on: DispatchQueue.main)
             .sink(receiveCompletion: { [weak self] c in
                 if case .failure(let e) = c { self?.handleError(e) }
-            }, receiveValue: { [weak self] _ in
+            }, receiveValue: { [weak self] res in
+                // 생성 성공 시 서버가 diaryId 등을 내려줄 수 있음 → 보관
+                // 필요 시 self?.diaryId = res.result.diaryId 등으로 매핑
                 self?.isLoading = false
                 self?.isCompleted = true
             })
@@ -254,15 +255,14 @@ final class AddDiaryViewModel {
 
         // 네트워크 불안정/API 에러 시 임시 저장 로직 추가
         if case .serverError(let code, _) = error, ["COMMON401", "JWT4001", "JWT4002"].contains(code) {
-             // 토큰 오류는 임시 저장 없이 로그인 필요 처리 (기존 로직)
-             errorMessage = error.errorDescription ?? "세션이 만료되었습니다. 다시 로그인해주세요."
+            // 토큰 오류는 임시 저장 없이 로그인 필요 처리
+            errorMessage = error.errorDescription ?? "세션이 만료되었습니다. 다시 로그인해주세요."
         } else if case .moyaError(_) = error {
-            // Moya 에러는 네트워크 연결 불안정으로 간주
+            // 네트워크 연결 불안정으로 간주
             errorMessage = "네트워크 연결이 불안정합니다. 입력한 내용은 임시 저장됩니다."
             showNetworkErrorPopup = true
-            saveTemporaryDiary(status: "TEMP") // 임시 저장 실행
+            saveTemporaryDiary(status: "TEMP")
         } else {
-            // 그 외 API 에러 처리
             errorMessage = error.errorDescription ?? "알 수 없는 오류가 발생했어요."
         }
 
@@ -270,6 +270,6 @@ final class AddDiaryViewModel {
             title: "일기 작성 오류",
             message: "\(errorMessage ?? "알 수 없는 에러")"
         )
-        print("일기 작성 오류: \(errorMessage!)")
+        print("일기 작성 오류: \(errorMessage ?? "unknown")")
     }
 }

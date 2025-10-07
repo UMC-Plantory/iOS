@@ -56,7 +56,18 @@ struct DiaryCreateResult: Decodable {
     let status: String
 }
 
+struct TempDiaryResult: Decodable {
+    let diaryDate: String
+    let emotion: String?
+    let content: String?
+    let sleepStartTime: String?   // "2025-06-20T23:00"
+    let sleepEndTime: String?     // "2025-06-21T07:00"
+    let diaryImgUrl: String?
+    let status: String            // "TEMP"
+}
+
 //임시저장 결과 조회
 struct TempDiaryExistResult: Decodable {
     let isExist: Bool
 }
+

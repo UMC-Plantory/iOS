@@ -42,9 +42,12 @@ final class AddDiaryService: AddDiaryServiceProtocol {
         provider.requestResult(.create(body: request), type: AddDiaryResponse.self)
     }
     
-    func fetchTempDiary(date: String) -> AnyPublisher<TempDiaryResponse, APIError> {
-            provider.requestResult(.fetchDiaryStatus(date: date), type: TempDiaryResponse.self)
+    func fetchTempDiaryResult(date: String) -> AnyPublisher<DiaryExistResult, APIError> {
+            provider.requestResult(.fetchDiaryStatus(date: date), type: DiaryExistResult.self)
     }
     
+    func fetchTempDiary(id: Int) -> AnyPublisher<TempDiaryResult, APIError> {
+        provider.requestResult(.fetchTempDiary(id: id), type: TempDiaryResult.self)
+    }
     
 }

@@ -36,14 +36,22 @@ struct DiaryExistResult: Decodable {
     let isExist: Bool
 }
 
-// MARK: - 임시 저장 일기 조회 응답
-/// GET /diaries/temp?diaryDate=yyyy-MM-dd
-struct TempDiaryResponse: Decodable {
-    let diaryDate: String
+struct TempDiaryRequest: Decodable{
     let emotion: String?
     let content: String?
-    let sleepStartTime: String?   // "2025-06-20T23:00"
-    let sleepEndTime: String?     // "2025-06-21T07:00"
+    let sleepStartTime: String?
+    let sleepEndTime: String?
+    let diaryImgUrl: String?
+    let status: String
+}
+
+// MARK: - 임시 저장 일기 조회 응답
+struct TempDiaryResponse: Decodable {
+    let diaryId: Int
+    let diaryDate: String
+    let emotion: String?
+    let title: String?
+    let content: String?
     let diaryImgUrl: String?
     let status: String            // "TEMP"
 }
