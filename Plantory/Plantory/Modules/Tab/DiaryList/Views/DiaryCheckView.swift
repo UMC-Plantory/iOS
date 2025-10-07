@@ -1,13 +1,13 @@
+//
+//  DiaryCheckView.swift
+//  Plantory
+//
+//  Created by 박병선 on 7/22/25.
+//
+
 import SwiftUI
 import SwiftData
 import Kingfisher
-
-// ai 답장 생성 상태
-enum ReplyState {
-    case loading // 로딩중
-    case arrived // ai답장 생성 완료
-    case complete // ai답장 확인
-}
 
 // 개별일기를 확인하는 View
 struct DiaryCheckView: View {
@@ -17,7 +17,7 @@ struct DiaryCheckView: View {
     
     @EnvironmentObject var container: DIContainer
     
-    // MARK: - 상태
+    //MARK: - 상태
     @State var diaryId: Int
     
     @State var isDeleteSheetPresented: Bool = false
@@ -25,50 +25,37 @@ struct DiaryCheckView: View {
     // VM 은 init에서 주입
     @StateObject private var vm: DiaryCheckViewModel
     
-    @State private var state: ReplyState = .loading
-    
     // MARK: - Init
-    init(
-        diaryId: Int,
-        container: DIContainer
-    ) {
-        self.diaryId = diaryId
+     init(
+       diaryId: Int,
+       container: DIContainer
+   ) {
+       self.diaryId = diaryId
 
-        _vm = StateObject(
-            wrappedValue: DiaryCheckViewModel(
-                diaryId: diaryId,
-                container: container
-            )
-        )
-    }
+       _vm = StateObject(
+           wrappedValue: DiaryCheckViewModel(
+               diaryId: diaryId,
+               container: container
+           )
+       )
+   }
     
-    // MARK: - Body
+    // MARK: -Body
     var body: some View {
-        ZStack {
-            Color.brown01.ignoresSafeArea()
-            
-            ScrollView(.vertical, showsIndicators: false) {
-                VStack(alignment: .center, spacing: 48) {
-                    VStack(spacing: 24) {
-                        // 뒤로가기, 날짜, 홈
-                        headerView
-                        
-                        Divider()
-                            .foregroundStyle(.gray04)
-                            .frame(height: 0.6)
-                            .padding(-18)
-                    }
-                    
-                    // 감정 아이콘
-                    emotionView
-                    
-                    // 일기 카드 내용
-                    VStack(alignment: .leading, spacing: 16) {
-                        // 제목
-                        Text(vm.summary?.title ?? "제목 없음")
-                            .font(.pretendardSemiBold(18))
-                            .foregroundColor(.black01)
-                            .padding(.top, 20)
+            ZStack {
+                Color.homebackground.ignoresSafeArea()
+                
+                ScrollView(.vertical, showsIndicators: false) {
+                    VStack(alignment: .center, spacing: 48) {
+                        VStack(spacing: 24) {
+                            // 뒤로가기, 날짜, 홈
+                            headerView
+                            
+                            Divider()
+                                .foregroundStyle(.gray04)
+                                .frame(height: 0.6)
+                                .padding(-18)
+                        }
                         
                         // 감정 아이콘
                         emotionView
@@ -98,12 +85,6 @@ struct DiaryCheckView: View {
                                 }
                                 .scrollIndicators(.hidden)
                             }
-                            .scrollIndicators(.hidden)
-                        }
-                        
-                        // 공유 아이콘들
-                        HStack(spacing: 4) {
-                            Spacer()
                             
                             // 공유 아이콘들
                             HStack(spacing: 4) {
@@ -120,26 +101,38 @@ struct DiaryCheckView: View {
                                             // 편집 모드로 진입
                                             vm.isEditing = true
                                         }
-                                        vm.isEditing = false
-                                    } else {
-                                        // 편집 모드로 진입
-                                        vm.isEditing = true
-                                    }
-                                }
-                            } label: {
-                                Image("edit_vector")
-                                    .resizable()
-                                    .frame(width: 40, height: 40)
-                            }
-                            
-                            Button(action: {
-                                if !vm.isSaving {
-                                    vm.toggleTempStatus() {
-                                        withAnimation {
-                                            vm.isEditing = false
-                                            vm.isSaving = true
+                                    }}, label: {
+                                        Image("edit_vector")
+                                            .resizable()
+                                            .renderingMode(.template)
+                                            .foregroundStyle(.black01Dynamic)
+                                            .frame(width: 40, height: 40)
+                                    })
+                                
+                                Button(action: {
+                                    if !vm.isSaving {
+                                        vm.toggleTempStatus() {
+                                            withAnimation {
+                                                vm.isEditing = false
+                                                vm.isSaving = true
+                                            }
                                         }
                                     }
+                                }) {
+                                    Image(vm.isSaving ? (colorScheme == .light ? "storage_gray": "storage_white") : "storage_vector")
+                                        .resizable()
+                                        .foregroundStyle(.black01Dynamic)
+                                        .frame(width: 40, height: 40)
+                                }
+                                
+                                Button(action: {
+                                    isDeleteSheetPresented = true
+                                }) {
+                                    Image("delete_vector")
+                                        .resizable()
+                                        .renderingMode(.template)
+                                        .foregroundStyle(.black01Dynamic)
+                                        .frame(width: 40, height: 40)
                                 }
                             }
                         }
@@ -158,37 +151,27 @@ struct DiaryCheckView: View {
                             }
                             .padding(.trailing, 18)
                         }
-                    }
-                    .padding(18)
-                    .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
-                    .background(.white01, in: RoundedRectangle(cornerRadius: 10))
-                    .overlay(alignment: .topTrailing) {
-                        Button(action: {
-                            vm.toggleScrap()
-                        }) {
-                            Image(vm.summary?.status == "SCRAP" ? "bookmark_green" : "bookmark_empty")
-                                .resizable()
-                                .frame(width: 20, height: 23)
-                        }
-                        .padding(.trailing, 18)
-                    }
-                    .padding(.horizontal, 18)
-                    .padding(.bottom, 28)
-                    
-                    // AI 답장 모달
-                    VStack {
-                        if state == .loading {
-                            LoadingCardView()
-                        } else if state == .arrived {
-                            ArrivedCardView(onConfirm: {
-                                state = .complete
-                            })
-                        } else if state == .complete {
-                            CompleteCardView()
+                        .padding(.horizontal, 18)
+                        
+                        //AI 답장 모달
+                        if (!vm.isEditing) {
+                            VStack {
+                                if vm.state == nil {
+                                    EmptyView()
+                                } else if vm.state == .loading {
+                                    LoadingCardView()
+                                } else if vm.state == .arrived {
+                                    ArrivedCardView(onConfirm: {
+                                        vm.state = .complete
+                                        vm.saveAsOpened()
+                                    })
+                                } else if vm.state == .complete {
+                                    CompleteCardView(vm: vm)
+                                }
+                            }
                         }
                     }
-                }
-                .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
+                    .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
             }
         }
         .animation(.easeInOut, value: isDeleteSheetPresented)
@@ -215,14 +198,16 @@ struct DiaryCheckView: View {
         .loadingIndicator(vm.isLoading)
     }
     
-    // MARK: - 하위 뷰들
+    // MARK: -하위뷰들
+        
     private var headerView: some View {
         HStack {
             Button(action: {
                 container.navigationRouter.pop()
             }) {
-                Image(systemName: "chevron.left")
-                    .foregroundColor(.green06)
+                Image("leftChevron")
+                    .renderingMode(.template)
+                    .foregroundColor(.diaryCheckIcon)
             }
             
             Spacer()
@@ -339,7 +324,7 @@ private struct ArrivedCardView: View {
 
             // 버튼
             Button {
-                onConfirm() // 버튼 클릭
+                onConfirm() //버튼 클릭
             } label: {
                 Text("답장 확인하기")
                     .font(.pretendardRegular(14))
@@ -350,14 +335,13 @@ private struct ArrivedCardView: View {
                     .cornerRadius(5)
             }
         }
-        .padding()
         .frame(width: 358, height: 176)
-        .background(Color.white01)
+        .background(Color.white01Dynamic)
         .cornerRadius(10)
     }
 }
 
-/// AI 답장 확인
+///AI답장 확인
 private struct CompleteCardView: View {
     @ObservedObject var vm: DiaryCheckViewModel
 
@@ -377,7 +361,7 @@ private struct CompleteCardView: View {
                     .foregroundStyle(.green06Dynamic)
                 Text("님에게 드리는 답장")
                     .font(.pretendardSemiBold(18))
-                    .foregroundStyle(.black01)
+                    .foregroundStyle(.black01Dynamic)
             }
 
             // 본문
@@ -394,7 +378,7 @@ private struct CompleteCardView: View {
     }
 }
 
-// LoadingCardView의 컴포넌트
+//LoadingCardView의 컴포넌트
 private struct LoadingDotsView: View {
     @State private var animate = false
     let totalDots = 6
