@@ -50,6 +50,9 @@ class HomeViewModel {
     var isLoadingDiary: Bool = false
     var requiresLogin: Bool = false
     var errorMessage: String?
+    
+    // 일기 중복 모달 상태 추가: 일기 작성된 날짜를 탭했을 때 띄울 팝업
+    var showExistingDiaryPopup: Date? = nil
 
     // MARK: - 초기화
     init(container: DIContainer) {
@@ -78,11 +81,11 @@ class HomeViewModel {
         container.useCaseService.homeService.getHomeMonthly(yearMonth: ym)
             .receive(on: DispatchQueue.main)
             .sink { [weak self] completion in
-                guard let self else { return }
+                guard let self = self else { return }
                 self.isLoadingMonthly = false
                 if case let .failure(err) = completion { self.handleMonthlyError(err) }
             } receiveValue: { [weak self] result in
-                guard let self else { return }
+                guard let self = self else { return }
                 self.wateringProgress = result.wateringProgress
                 self.continuousRecordCnt = result.continuousRecordCnt
                 self.diaryEmotionsByDate = Dictionary(
@@ -94,17 +97,34 @@ class HomeViewModel {
 
     /// 날짜 선택 시 호출 (미래 날짜는 요약 요청 X)
     func selectDate(_ date: Date) {
-        selectedDate = date
         let cal = Calendar.current
+        
+        // 1. 미래 날짜 처리
         if cal.startOfDay(for: date) > cal.startOfDay(for: Date()) {
-            // 미래 날짜: 요약/플래그 초기화만
+            selectedDate = date
+            diarySummary = nil
+            noDiaryForSelectedDate = false
+            showExistingDiaryPopup = nil // 기존 팝업 상태 초기화
+            return
+        }
+        
+        // 2. 일기 존재 여부 확인 (API 호출 전 로컬 상태 확인)
+        let dateKey = Self.formatYMD(date)
+        if diaryEmotionsByDate.keys.contains(dateKey) {
+            // 일기가 이미 작성된 날짜를 탭한 경우, 팝업 상태 업데이트
+            selectedDate = date
+            showExistingDiaryPopup = date
             diarySummary = nil
             noDiaryForSelectedDate = false
             return
         }
-        // / API 호출 전 상태 초기화(이전 상태 끌고 오지 않도록)
+
+        // 3. 일기 없음 (API 호출하여 요약 가져옴 - 없으면 noDiaryForSelectedDate = true)
+        selectedDate = date
+        // API 호출 전 상태 초기화
         diarySummary = nil
         noDiaryForSelectedDate = false
+        showExistingDiaryPopup = nil // 기존 팝업 상태 초기화
         loadDiarySummary(for: date)
     }
 
@@ -132,12 +152,12 @@ class HomeViewModel {
         container.useCaseService.homeService.getHomeDiary(date: dateString)
             .receive(on: DispatchQueue.main)
             .sink { [weak self] completion in
-                guard let self else { return }
+                guard let self = self else { return }
                 self.isLoadingDiary = false
                 if case let .failure(err) = completion { self.handleDiaryError(err) }
             } receiveValue: { [weak self] result in
-                guard let self else { return }
-                // / 요약이 있으면 '없음' 플래그는 확실히 false
+                guard let self = self else { return }
+                // 요약이 있으면 '없음' 플래그는 확실히 false
                 self.diarySummary = result
                 self.noDiaryForSelectedDate = false
             }
@@ -168,7 +188,7 @@ class HomeViewModel {
         switch err {
         case let .serverError(code, message):
             if code == "DIARY4001" {
-                // / 일기 없음: 요약 제거 + 없음 플래그 ON
+                // 일기 없음: 요약 제거 + 없음 플래그 ON
                 diarySummary = nil
                 noDiaryForSelectedDate = true
             } else if ["COMMON401","JWT4001","JWT4002"].contains(code) {
@@ -195,6 +215,14 @@ class HomeViewModel {
         let f = DateFormatter()
         f.locale = Locale(identifier: "ko_KR")
         f.dateFormat = "yyyy-MM-dd"
+        return f.string(from: date)
+    }
+    
+    // 팝업 메시지용 날짜 포맷터 추가
+    static func formatYMDForDisplay(_ date: Date) -> String {
+        let f = DateFormatter()
+        f.locale = Locale(identifier: "ko_KR")
+        f.dateFormat = "yyyy년 M월 d일"
         return f.string(from: date)
     }
 

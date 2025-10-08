@@ -9,14 +9,14 @@ import Foundation
 import Combine
 import Moya
 
-/// 일기 생성 서비스 프로토콜
-protocol AddDiaryServicieProtocol {
+/// 일기 생성/조회 서비스 프로토콜
+protocol AddDiaryServiceProtocol {
     /// 새 일기 등록 (NORMAL/TEMP 공통)
     func createDiary(_ request: AddDiaryRequest) -> AnyPublisher<AddDiaryResponse, APIError>
 }
 
 /// 일기 생성 서비스
-final class AddDiaryService: AddDiaryServicieProtocol {
+final class AddDiaryService: AddDiaryServiceProtocol {
 
     private let provider: MoyaProvider<AddDiaryRouter>
 
@@ -41,4 +41,13 @@ final class AddDiaryService: AddDiaryServicieProtocol {
     func createDiary(_ request: AddDiaryRequest) -> AnyPublisher<AddDiaryResponse, APIError> {
         provider.requestResult(.create(body: request), type: AddDiaryResponse.self)
     }
+    
+    func fetchTempDiaryResult(date: String) -> AnyPublisher<DiaryExistResult, APIError> {
+            provider.requestResult(.fetchDiaryStatus(date: date), type: DiaryExistResult.self)
+    }
+    
+    func fetchTempDiary(id: Int) -> AnyPublisher<TempDiaryResult, APIError> {
+        provider.requestResult(.fetchTempDiary(id: id), type: TempDiaryResult.self)
+    }
+    
 }
