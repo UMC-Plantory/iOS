@@ -126,11 +126,12 @@
 				};
 			};
 			buildConfigurationList = C05ECEE82E15232F0023AC5C /* Build configuration list for PBXProject "Plantory" */;
-			developmentRegion = en;
+			developmentRegion = ko;
 			hasScannedForEncodings = 0;
 			knownRegions = (
 				en,
 				Base,
+				ko,
 			);
 			mainGroup = C05ECEE42E15232F0023AC5C;
 			minimizedProjectReferenceProxies = 1;
