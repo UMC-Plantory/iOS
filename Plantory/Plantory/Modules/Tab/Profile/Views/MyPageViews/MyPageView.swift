@@ -10,6 +10,7 @@ struct MyPageView: View {
     
     @State private var showSleepSheet = false
     @State private var showEmotionSheet = false
+    @State private var showAlarmSheet = false
     @State private var showLogout = false
     @State private var isLoggingOut = false
     @State private var cancellables = Set<AnyCancellable>()
@@ -99,7 +100,7 @@ struct MyPageView: View {
                         }
                     },
                     alarmAction: {
-                        
+                        showAlarmSheet = true
                     }
                 )
             }
@@ -116,6 +117,10 @@ struct MyPageView: View {
         .sheet(isPresented: $showEmotionSheet) {
             EmotionStatsView(container: container)
                 .presentationDetents([.fraction(0.9)])
+        }
+        .sheet(isPresented: $showAlarmSheet) {
+            AlarmView()
+                .presentationDetents([.fraction(0.35)])
         }
         .navigationBarHidden(true)
         .loadingIndicator(statsVM.isLoading)

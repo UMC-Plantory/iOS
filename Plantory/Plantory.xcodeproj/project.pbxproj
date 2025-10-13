@@ -126,11 +126,12 @@
 				};
 			};
 			buildConfigurationList = C05ECEE82E15232F0023AC5C /* Build configuration list for PBXProject "Plantory" */;
-			developmentRegion = en;
+			developmentRegion = ko;
 			hasScannedForEncodings = 0;
 			knownRegions = (
 				en,
 				Base,
+				ko,
 			);
 			mainGroup = C05ECEE42E15232F0023AC5C;
 			minimizedProjectReferenceProxies = 1;
@@ -300,6 +301,8 @@
 		};
 		C05ECEF92E1523300023AC5C /* Debug */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReferenceAnchor = C05ECEEF2E15232F0023AC5C /* Plantory */;
+			baseConfigurationReferenceRelativePath = Secret.xcconfig;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
@@ -337,6 +340,8 @@
 		};
 		C05ECEFA2E1523300023AC5C /* Release */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReferenceAnchor = C05ECEEF2E15232F0023AC5C /* Plantory */;
+			baseConfigurationReferenceRelativePath = Secret.xcconfig;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
