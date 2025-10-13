@@ -45,13 +45,13 @@ struct SleepStepView: View {
         VStack(spacing: 40) {
             Text("하루의 시작과 마무리를 기록해보세요!")
                 .font(.pretendardSemiBold(20))
-                .foregroundColor(.diaryfont)
+                .foregroundColor(.adddiaryfont)
 
             //취침 시간 선택
             VStack(spacing: 16) {
                 Text("취침")
                     .font(.pretendardSemiBold(20))
-                    .foregroundColor(.diaryfont)
+                    .foregroundColor(.adddiaryfont)
 
                 timePickers(hour: $sleepHour, minute: $sleepMinute, period: $sleepPeriod)
             }
@@ -60,7 +60,7 @@ struct SleepStepView: View {
             VStack(spacing: 12) {
                 Text("기상")
                     .font(.pretendardSemiBold(20))
-                    .foregroundStyle(.diaryfont)
+                    .foregroundStyle(.adddiaryfont)
 
                 timePickers(hour: $wakeHour, minute: $wakeMinute, period: $wakePeriod)
             }
@@ -83,20 +83,20 @@ struct SleepStepView: View {
                 Picker("", selection: hour) {
                     ForEach(hours, id: \.self) { h in
                         Text("\(h)")
-                            .foregroundStyle(h == hour.wrappedValue ? .green04 : .diaryfont)
+                            .foregroundStyle(h == hour.wrappedValue ? .green04 : .adddiaryfont)
                     }
                 }
                 .pickerStyle(.wheel)
                 .frame(width: 60)
 
                 Text(":")
-                    .foregroundStyle(.diaryfont)
+                    .foregroundStyle(.adddiaryfont)
                 Spacer().frame(width: 4)
 
                 Picker("", selection: minute) {
                     ForEach(minutes, id: \.self) { m in
                         Text(String(format: "%02d", m))
-                            .foregroundStyle(m == minute.wrappedValue ? .green04 : .diaryfont)
+                            .foregroundStyle(m == minute.wrappedValue ? .green04 : .adddiaryfont)
                     }
                 }
                 .pickerStyle(.wheel)
@@ -105,7 +105,7 @@ struct SleepStepView: View {
                 Picker("", selection: period) {
                     ForEach(periods, id: \.self) { p in
                         Text(p)
-                            .foregroundStyle(p == period.wrappedValue ? .green04 : .diaryfont)
+                            .foregroundStyle(p == period.wrappedValue ? .green04 : .adddiaryfont)
                     }
                 }
                 .pickerStyle(.wheel)
@@ -132,7 +132,7 @@ struct SleepStepView: View {
         let wakeH24  = to24h(wakeHour,  wakePeriod)
 
         // 취침: 선택일의 시각
-        var start = Calendar.current.date(bySettingHour: sleepH24, minute: sleepMinute, second: 0, of: baseDay)!
+        let start = Calendar.current.date(bySettingHour: sleepH24, minute: sleepMinute, second: 0, of: baseDay)!
 
         // 기상: 취침보다 빠르면 다음날로 보정
         var end = Calendar.current.date(bySettingHour: wakeH24, minute: wakeMinute, second: 0, of: baseDay)!

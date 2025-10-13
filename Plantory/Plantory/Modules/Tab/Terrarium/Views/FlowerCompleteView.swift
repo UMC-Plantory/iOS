@@ -18,22 +18,23 @@ struct FlowerCompleteView: View {
         NavigationStack {
             VStack {
                 Spacer()
-
+                
                 Image(flowerImageName)
                     .resizable()
                     .frame(width: 286, height: 286)
                     .padding(.bottom, 16)
-
+                
                 middleContent
                     .padding(.bottom, 16)
-
+                
                 lowContent
-
+                
                 Spacer()
 
-                MainBigButton(
+                MainMiddleButton(
                     text: "나의 정원 가기",
                     isDisabled: false,
+                    fontSize: 20,
                     action: {
                         onGoToGarden?()
                     }
@@ -48,6 +49,9 @@ struct FlowerCompleteView: View {
                     .resizable()
                     .frame(width: 1036, height: 1036)
                     .ignoresSafeArea()
+            )
+            .background(
+                Color.white.ignoresSafeArea()
             )
             .customNavigation(
                 trailing:
@@ -126,15 +130,18 @@ private extension FlowerCompleteView {
         VStack(spacing: 4) {
             (
                 Text("축하합니다! \(viewModel.lastWateringResult?.nickname ?? "00")님이 ")
+                    .foregroundColor(.black)
                     .font(.pretendardSemiBold(16)) +
                 Text(viewModel.lastWateringResult?.flowerName ?? "식물")
                     .foregroundColor(.red)
                     .font(.pretendardSemiBold(16)) +
                 Text("를 피워냈어요!")
+                    .foregroundColor(.black)
                     .font(.pretendardSemiBold(16))
             )
             if let emo = flowerEmotionKorean {
                 Text("이번 식물은 ‘\(emo)’이 가장 많아요.")
+                    .foregroundColor(.black)
                     .font(.pretendardSemiBold(16))
             }
         }
@@ -173,4 +180,10 @@ private extension FlowerCompleteView {
             }
         }
     }
+}
+
+#Preview {
+    let container = DIContainer()
+    return FlowerCompleteView(viewModel: TerrariumViewModel(container: container))
+        .environmentObject(container)
 }

@@ -55,7 +55,7 @@ struct WeekChartView: View {
                    let idx = Array(yTickValues.reversed()).firstIndex(of: v) {
                     AxisValueLabel(yTickLabels[idx])
                         .font(.pretendardRegular(12))
-                        .foregroundStyle(.gray09)
+                        .foregroundStyle(.gray09Dynamic)
                 }
             }
         }
@@ -72,7 +72,7 @@ struct WeekChartView: View {
                                                         .day(.defaultDigits))
                         }
                         .font(.pretendardRegular(12))
-                        .foregroundStyle(.gray09)
+                        .foregroundStyle(.gray09Dynamic)
                     }
                 }
             }
@@ -142,7 +142,7 @@ struct MonthChartView: View {
                    let i = Array(yTicks.reversed()).firstIndex(of: v) {
                     AxisValueLabel(yLabels[i])
                         .font(.pretendardRegular(12))
-                        .foregroundStyle(.gray09)
+                        .foregroundStyle(.gray09Dynamic)
                 }
             }
         }
@@ -152,7 +152,7 @@ struct MonthChartView: View {
                     if let w = value.as(String.self) {
                         Text("\(w)주차")
                             .font(.pretendardRegular(12))
-                            .foregroundStyle(.gray09)
+                            .foregroundStyle(.gray09Dynamic)
                     }
                 }
             }

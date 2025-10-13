@@ -14,10 +14,20 @@ struct MyGardenContent: View {
     @State private var viewModel: TerrariumViewModel
     @State private var selectedSegment: String = "나의 정원"
     @State private var popupVM: PlantPopupViewModel
+    // Preview-only override: when set, UI will render with these items instead of fetching
+    @State private var previewOverrideItems: [TerrariumMonthlyListItem]? = nil
     
     init(container: DIContainer) {
         self.viewModel = TerrariumViewModel(container: container)
         self.popupVM = PlantPopupViewModel(container: container)
+    }
+    
+    /// Preview-only initializer: inject mock items but keep the same UI path
+    init(previewItems: [TerrariumMonthlyListItem]) {
+        let container = DIContainer()
+        self._viewModel = State(initialValue: TerrariumViewModel(container: container))
+        self._popupVM = State(initialValue: PlantPopupViewModel(container: container))
+        self._previewOverrideItems = State(initialValue: previewItems)
     }
 
     var body: some View {
@@ -25,9 +35,15 @@ struct MyGardenContent: View {
             TopView(viewModel: viewModel)
                 .padding(.bottom, 36)
 
-            // 데이터를 제대로 받아왔을 때, PlantListView 표시
-            if !viewModel.monthlyTerrariums.isEmpty {
-                PlantListView(items: viewModel.monthlyTerrariums, onPlantTap: { id in
+            // 데이터를 제대로 받아왔을 때, 또는 프리뷰 오버라이드가 있을 때 표시
+            let listItems = previewOverrideItems ?? viewModel.monthlyTerrariums
+            if listItems.isEmpty {
+                NothingView(
+                    mainText: "이번 달에 자란 식물이 없어요",
+                    subText: "오늘의 일기로 물뿌리개를 얻고, 식물을 키워보세요!"
+                )
+            } else {
+                PlantListView(items: listItems, onPlantTap: { id in
                     container.selectedTab = .terrarium
                     viewModel.selectedTab = .myGarden
                     popupVM.open(terrariumId: id)
@@ -44,11 +60,12 @@ struct MyGardenContent: View {
                     }
                 })
             }
-
             Spacer()
         }
         .onAppear {
-            viewModel.fetchMonthlyTerrarium()
+            if previewOverrideItems == nil {
+                viewModel.fetchMonthlyTerrarium()
+            }
         }
     }
 }
@@ -76,17 +93,18 @@ struct TopView: View {
                     viewModel.goToPreviousMonth()
                 } label: {
                     Image(systemName: "chevron.left")
-                        .foregroundColor(.black)
+                        .foregroundStyle(.black01Dynamic)
                 }
 
                 Text(Self.monthLabel(from: viewModel.selectedMonth))
+                    .foregroundStyle(.black01Dynamic)
                     .font(.headline)
 
                 Button {
                     viewModel.goToNextMonth()
                 } label: {
                     Image(systemName: "chevron.right")
-                        .foregroundColor(.black)
+                        .foregroundStyle(.black01Dynamic)
                 }
             }
         }
@@ -114,9 +132,9 @@ struct TopView: View {
 
 struct PlantListView: View {
     let columns = [
-        GridItem(.flexible()),
-        GridItem(.flexible()),
-        GridItem(.flexible())
+        GridItem(.fixed(114), spacing: 8),
+        GridItem(.fixed(114), spacing: 8),
+        GridItem(.fixed(114), spacing: 8)
     ]
 
     let items: [TerrariumMonthlyListItem]
@@ -155,7 +173,6 @@ struct PlantListView: View {
                     }
                 }
             }
-            .padding(.horizontal, 24)
         }
     }
     
@@ -173,4 +190,18 @@ struct PlantListView: View {
 
 #Preview {
     MyGardenContent(container: DIContainer())
+}
+
+#Preview("MyGardenContent – VM Path with Mock") {
+    let mockItems: [TerrariumMonthlyListItem] = [
+        .init(terrariumId: 1, bloomAt: Date(), flowerName: "장미"),
+        .init(terrariumId: 2, bloomAt: Date(), flowerName: "해바라기"),
+        .init(terrariumId: 3, bloomAt: Date(), flowerName: "민들레"),
+        .init(terrariumId: 4, bloomAt: Date(), flowerName: "개나리"),
+        .init(terrariumId: 5, bloomAt: Date(), flowerName: "물망초")
+    ]
+    // Keep environment objects so actions compile; they won't be used during preview taps
+    return MyGardenContent(previewItems: mockItems)
+        .environmentObject(DIContainer())
+        .environmentObject(PopupManager())
 }

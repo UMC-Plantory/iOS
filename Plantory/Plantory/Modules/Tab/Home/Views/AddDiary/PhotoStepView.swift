@@ -16,7 +16,7 @@ struct PhotoStepView: View {
         VStack {
             Text("오늘의 사진을 선택한다면 무엇인가요?")
                 .font(.pretendardSemiBold(20))
-                .foregroundStyle(.diaryfont)
+                .foregroundStyle(.adddiaryfont)
                 .multilineTextAlignment(.center)
                 .padding(.bottom, 64)
 

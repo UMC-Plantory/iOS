@@ -7,17 +7,12 @@
 
 import SwiftUI
 
-// 테라리움 탭으로 전환 신호
-extension Notification.Name {
-    static let switchToTerrariumTab = Notification.Name("SwitchToTerrariumTab")
-}
-
 struct CompletedView: View {
     @EnvironmentObject var container: DIContainer
 
     var body: some View {
         ZStack {
-            Color.diarybackground.ignoresSafeArea()
+            Color.adddiarybackground.ignoresSafeArea()
 
             VStack(spacing: 20) {
                 // 상단 홈 버튼
@@ -26,11 +21,10 @@ struct CompletedView: View {
                     Button(
                         action: {
                             container.navigationRouter.reset()
-                            container.navigationRouter.push(.baseTab)
                         }
                     ) {
                         Image(.home)
-                            .foregroundColor(.diaryfont)
+                            .foregroundColor(.adddiaryIcon)
                     }
                     Spacer().frame(width: 30)
                 }
@@ -44,7 +38,7 @@ struct CompletedView: View {
                 Text("오늘의 감정이\n마음의 잎을 틔워냈어요")
                     .font(.pretendardBold(20))
                     .multilineTextAlignment(.center)
-                    .foregroundStyle(.diaryfont)
+                    .foregroundStyle(.black01Dynamic)
                     .padding(.bottom, 20)
 
                 // 하단 버튼
@@ -57,11 +51,8 @@ struct CompletedView: View {
                         action: {
                             // 1) 베이스 탭으로 이동
                             container.navigationRouter.reset()
-                            container.navigationRouter.push(.baseTab)
                             // 2) 테라리움 탭 전환 신호
-                            DispatchQueue.main.asyncAfter(deadline: .now() + 0.05) {
-                                NotificationCenter.default.post(name: .switchToTerrariumTab, object: nil)
-                            }
+                            container.selectedTab = .terrarium
                         }
                     )
 

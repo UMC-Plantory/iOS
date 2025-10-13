@@ -12,6 +12,8 @@ struct BaseTabView: View {
     /// 의존성 주입을 위한 DI 컨테이너
     @EnvironmentObject var container: DIContainer
     
+    @EnvironmentObject var sessionManager: SessionManager
+    
     /// 팝업을 공통으로 관리하기 위한 Manager
     @StateObject private var popupManager = PopupManager()
 
@@ -42,10 +44,8 @@ struct BaseTabView: View {
                 .zIndex(99)
             }
         }
-        .onAppear {
-            UITabBar.appearance().backgroundColor = .white01
-            UITabBar.appearance().unselectedItemTintColor = .black01
-        }
+        .tint(.black01Dynamic)
+        .toolbarBackground(.white01Dynamic, for: .tabBar)
         .ignoresSafeArea(.keyboard)
         .navigationBarBackButtonHidden(true)
     }
@@ -65,9 +65,15 @@ struct BaseTabView: View {
                 ChatView(container: container)
             case .profile:
                 MyPageView(container: container)
+                    .environmentObject(sessionManager)
             }
         }
         .environmentObject(container)
         .environmentObject(popupManager)
     }
+}
+
+#Preview {
+    BaseTabView()
+        .environmentObject(DIContainer())
 }

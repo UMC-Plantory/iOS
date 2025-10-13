@@ -55,31 +55,25 @@ struct AddDiaryView: View {
                            
                     }
                     .frame(maxWidth: .infinity, minHeight: UIScreen.main.bounds.height - (UIApplication.shared.windows.first?.safeAreaInsets.top ?? 0) - (UIApplication.shared.windows.first?.safeAreaInsets.bottom ?? 0)) // 뷰포트 높이 이상으로 설정하여 공간 확보
-                    .background(Color.diarybackground.ignoresSafeArea(.all, edges: .all))
+                    .background(Color.adddiarybackground.ignoresSafeArea(.all, edges: .all))
                 }
-                .background(Color.diarybackground.ignoresSafeArea(.all, edges: .all)) // 전체 배경색을 안전하게 적용
+                .background(Color.adddiarybackground.ignoresSafeArea(.all, edges: .all)) // 전체 배경색을 안전하게 적용
                 .ignoresSafeArea(.keyboard) // 키보드가 올라와도 안전 영역 무시
-              
-
-
             } else {
-                
-                Color.diarybackground.ignoresSafeArea()
+                Color.adddiarybackground.ignoresSafeArea()
 
                 VStack{
                     headerView
+                        .background(Color.adddiarybackground)
+                    
                     Spacer()
 
-                      
-                        stepContentView
-                        Spacer().frame(height:30)
-                        navigationButtons
-                      
+                    stepContentView
+                    Spacer().frame(height:30)
+                    navigationButtons
                 }
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
                 .padding()
-
-                
             }
         }
         .toastView(toast: $vm.toast)
@@ -116,7 +110,7 @@ struct AddDiaryView: View {
                     container.navigationRouter.push(.baseTab)
                 }) {
                     Image(.home)
-                        .foregroundColor(.diaryfont)
+                        .foregroundColor(Color.adddiaryIcon)
                 }
 
                 Spacer().frame(width: 80)
@@ -131,7 +125,7 @@ struct AddDiaryView: View {
                               : vm.diaryDate)
                     }
                     .font(.pretendardSemiBold(18))
-                    .foregroundStyle(.diaryfont)
+                    .foregroundStyle(Color.adddiaryIcon)
                 }
 
                 Spacer()
@@ -149,7 +143,7 @@ struct AddDiaryView: View {
 
                         Text(stepVM.steps[index].title)
                             .font(.pretendardRegular(14))
-                            .foregroundColor(.diaryfont)
+                            .foregroundColor(.adddiaryfont)
                             .opacity(index == stepVM.currentStep ? 1 : 0) // 공간은 유지
                             .frame(height: labelHeight)
                             .lineLimit(1)

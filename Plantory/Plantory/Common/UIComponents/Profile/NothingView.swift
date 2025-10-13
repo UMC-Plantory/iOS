@@ -13,6 +13,8 @@ import SwiftUI
 ///  buttonTitle: "리스트 페이지로 이동하기",
 ///  buttonAction: {})
 struct NothingView: View {
+    @Environment(\.colorScheme) var colorScheme
+    
     let mainText: String
     let subText: String
     let buttonTitle: String?

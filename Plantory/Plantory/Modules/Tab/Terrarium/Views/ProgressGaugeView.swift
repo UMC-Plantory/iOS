@@ -84,7 +84,7 @@ struct ProgressGaugeView: View {
     // Helper: dynamic label colors
     private func labelColors() -> (sprout: Color, leaf: Color, flower: Color) {
         let green = Color("green06")
-        let brown = Color("brown03")
+        let brown = Color("brown04")
 
         if currentStage <= 3 { // 3 이하면: 새싹 green, 나머지 brown
             return (green, brown, brown)

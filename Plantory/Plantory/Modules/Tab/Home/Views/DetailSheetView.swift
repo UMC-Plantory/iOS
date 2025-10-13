@@ -43,8 +43,8 @@ struct DetailSheetView: View {
     }
 
     var body: some View {
-        // 배경색: 미래는 gray07, 그 외엔 white01
-        let sheetBackground = isFuture ? Color.gray07 : Color.white01
+        // 배경색: 미래는 gray04Dynamic, 그 외엔 white01Dynamic
+        let sheetBackground = isFuture ? Color.gray04Dynamic : Color.white01Dynamic
 
         ZStack {
             sheetBackground.ignoresSafeArea()
@@ -56,7 +56,7 @@ struct DetailSheetView: View {
                 HStack {
                     Text("\(date, formatter: dateFormatter)")
                         .font(.pretendardRegular(20))
-                        .foregroundColor(.black01)
+                        .foregroundColor(.black01Dynamic)
                     Spacer()
 
                     if showPlus {
@@ -75,7 +75,7 @@ struct DetailSheetView: View {
                         } label: {
                             Image(systemName: "plus")
                                 .font(.title3)
-                                .foregroundColor(.green05)
+                                .foregroundColor(.green06Dynamic)
                         }
                     }
                 }
@@ -140,7 +140,7 @@ struct DetailSheetView: View {
             Spacer()
             Text(text)
                 .font(.pretendardRegular(14))
-                .foregroundColor(.gray11)
+                .foregroundColor(.gray11Dynamic)
                 .multilineTextAlignment(.center)
             Spacer()
         }
