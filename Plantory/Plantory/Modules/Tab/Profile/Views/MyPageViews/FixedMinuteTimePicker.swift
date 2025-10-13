@@ -5,7 +5,7 @@ struct WheelColumn<T: Hashable & CustomStringConvertible>: View {
     @Binding var selection: T
     var rowHeight: CGFloat = 44
     var width: CGFloat = 36
-    var selectionBackground: Color = .white
+    var selectionBackground: Color = .clear
     var selectionLine: Color = .green04
 
     @State private var scrollID: T?
@@ -94,7 +94,7 @@ struct FixedMinuteTimePicker_Custom: View {
         HStack {
             WheelColumn(items: hours, selection: $hour,
                         rowHeight: rowHeight, width: 56,
-                        selectionBackground: .white, selectionLine: lineColor)
+                        selectionBackground: .clear, selectionLine: lineColor)
 
             Spacer().frame(width: 8)
             Text(":").font(.pretendardRegular(18))
@@ -104,7 +104,7 @@ struct FixedMinuteTimePicker_Custom: View {
             ZStack {
                 VStack(spacing: 0) {
                     Rectangle().fill(lineColor).frame(height: 1)
-                    Rectangle().fill(Color.white).frame(height: rowHeight - 2)
+                    Rectangle().fill(.clear).frame(height: rowHeight - 2)
                     Rectangle().fill(lineColor).frame(height: 1)
                 }
                 .frame(height: rowHeight * 3.5)
@@ -119,7 +119,7 @@ struct FixedMinuteTimePicker_Custom: View {
             // ▼ 여기만 변경: Bool 대신 Meridiem을 쓰되, Binding으로 연결
             WheelColumn(items: Meridiem.allCases, selection: meridiemBinding,
                         rowHeight: rowHeight, width: 64,
-                        selectionBackground: .white, selectionLine: lineColor)
+                        selectionBackground: .clear, selectionLine: lineColor)
         }
         .padding(.horizontal, 24)
         .padding(.vertical, 20)
