@@ -25,12 +25,12 @@ struct HomeView: View {
 
     // === 캘린더 레이아웃 상수 (CalendarView와 값 맞추기) ===
     private let cardWidth: CGFloat = 356
-    private let cellSize: CGFloat = 48          // CalendarView.CellView의 cellSize와 동일
-    private let gridSpacing: CGFloat = 6        // CalendarView LazyVGrid spacing과 동일
-    private let headerTopInset: CGFloat = 10    // 카드 상단 ↔ 요일 헤더 위 여백
-    private let headerRowHeight: CGFloat = 24   // 요일 헤더 높이
-    private let headerBottomGap: CGFloat = 8    // 요일 헤더 ↔ 날짜 그리드 사이 여백
-    private let cardBottomPadding: CGFloat = 12 // 그리드 아래 여백(미세 여백)
+    private let cellSize: CGFloat = 48
+    private let gridSpacing: CGFloat = 6
+    private let headerTopInset: CGFloat = 10
+    private let headerRowHeight: CGFloat = 24
+    private let headerBottomGap: CGFloat = 8
+    private let cardBottomPadding: CGFloat = 12
 
     // === 동적 높이 계산 ===
     private func monthGridRows(for month: Date) -> Int {
@@ -40,7 +40,7 @@ struct HomeView: View {
         let firstWeekday = cal.component(.weekday, from: monthStart) // Sun=1 … Sat=7
         let leadingBlanks = (firstWeekday + 5) % 7                   // Mon=0 … Sun=6
         let totalCells = leadingBlanks + days
-        return Int(ceil(Double(totalCells) / 7.0))                   // 4~6
+        return Int(ceil(Double(totalCells) / 7.0))
     }
 
     private func gridHeight(for month: Date) -> CGFloat {
@@ -60,34 +60,34 @@ struct HomeView: View {
 
             ScrollView {
                 Spacer().frame(height: 43)
-                HomeHeaderView()
+                HomeHeaderView() // 실제 컴포넌트 필요
                 Spacer().frame(height: 32)
 
-                Plantory.CalendarHeaderView(
+                Plantory.CalendarHeaderView( // 실제 컴포넌트 필요
                     month: viewModel.month,
                     onMoveMonth: { value in viewModel.moveMonth(by: value) },
                     onTapCalendar: { showMonthPicker = true },
-                    onTapPlus: { container.navigationRouter.push(.addDiary(date: Date())) } // 필요시 오늘 버튼
+                    onTapPlus: { container.navigationRouter.push(.addDiary(date: Date())) }
                 )
 
                 Spacer().frame(height: 4)
 
-                // === 캘린더 카드 (높이/내부 패딩을 월에 맞춰 유동 조절) ===
+                // === 캘린더 카드 ===
                 ZStack {
-                    // 배경 카드: 주 수에 맞춰 높이 변경
+                    // 배경 카드
                     RoundedRectangle(cornerRadius: 10)
-                        .fill(Color.calendarbackground)
+                        .fill(Color.calendarbackground) // 실제 색상 리소스 필요
                         .frame(width: cardWidth, height: cardHeight(for: viewModel.month))
                         .overlay(
                             // 요일 헤더(월~일)
                             VStack(spacing: 0) {
                                 Spacer().frame(height: headerTopInset)
                                 HStack(spacing: 0) {
-                                    ForEach(CalendarView.weekdaySymbols, id: \.self) { sym in
+                                    ForEach(CalendarView.weekdaySymbols, id: \.self) { sym in // CalendarView에 정의된 심볼 사용
                                         Text(sym)
-                                            .font(.pretendardRegular(14))
-                                            .foregroundColor(.gray11Dynamic)
-                                            .frame(maxWidth: .infinity) // 7등분 균등
+                                            .font(.pretendardRegular(14)) // 실제 폰트 확장 필요
+                                            .foregroundColor(.gray11Dynamic) // 실제 색상 리소스 필요
+                                            .frame(maxWidth: .infinity)
                                     }
                                 }
                                 .frame(height: headerRowHeight)
@@ -96,18 +96,19 @@ struct HomeView: View {
                         )
                         .padding(.vertical, 6)
 
-                    // 실제 날짜 그리드: 헤더 아래로 내리고, 뷰 자체 높이도 동적으로
-                    CalendarView(
+                    // 실제 날짜 그리드
+                    CalendarView( // 실제 컴포넌트 필요
                         month: $viewModel.month,
                         selectedDate: $viewModel.selectedDate,
+                        // 캘린더 탭 시 viewModel의 selectDate 로직 실행
+                        onDateSelected: { date in viewModel.selectDate(date) },
                         diaryEmotionsByDate: viewModel.diaryEmotionsByDate,
                         colorForDate: viewModel.colorForDate
                     )
                     .padding(.top, headerTopInset + headerRowHeight + headerBottomGap)
                     .frame(width: cardWidth, height: cardHeight(for: viewModel.month))
                     .onChange(of: viewModel.selectedDate) { _, newValue in
-                        guard let date = newValue else { return }
-                        viewModel.selectDate(date)
+                        guard newValue != nil else { return }
                         showingDetailSheet = true
                     }
                 }
@@ -133,7 +134,7 @@ struct HomeView: View {
                 showErrorAlert = (newValue != nil) || viewModel.requiresLogin
             }
 
-            //Month/Year Picker Overlay
+            // Month/Year Picker Overlay
             if showMonthPicker {
                 Color.black.opacity(0.35)
                     .ignoresSafeArea()
@@ -158,21 +159,25 @@ struct HomeView: View {
 
         // === 상세/작성 시트 ===
         .sheet(isPresented: $showingDetailSheet, onDismiss: {
+            // 시트가 닫히면 선택된 날짜 초기화
             viewModel.selectedDate = nil
         }) {
             if let date = viewModel.selectedDate {
-                //    시트는 DetailSheetView 하나만 사용
                 DetailSheetView(
                     viewModel: viewModel,
                     date: date,
-                    //    선택된 날짜로 작성 화면 이동
-                    onTapAdd: { container.navigationRouter.push(.addDiary(date: date)) }
+                    // 선택된 날짜로 작성 화면 이동
+                    onTapAdd: {
+                        showingDetailSheet = false
+                        container.navigationRouter.push(.addDiary(date: date))
+                    }
                 )
                 .environmentObject(container)
             }
         }
     }
 }
+
 
 #Preview {
     HomeView(container: .init())
