@@ -18,11 +18,14 @@ protocol KakaoDTO {
 /// KakaoDTO 프로토콜을 채택하여 공통 인터페이스를 제공
 struct KakaoUser: KakaoDTO, Codable {
     var idToken: String
+    var fcmToken: String?
 }
 
 /// 애플 로그인 요청 구조체
 struct AppleUser: Codable {
     let identityToken: String
+    let fcmToken: String?
+    let authorizationCode: String
 }
 
 /// 로그인 응답 구조체
@@ -72,3 +75,4 @@ struct SignupResponse: Codable {
     let profileImgUrl: String?
     let status: MemberStatus
 }
+
