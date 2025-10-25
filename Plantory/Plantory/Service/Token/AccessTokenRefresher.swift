@@ -40,9 +40,9 @@ class AccessTokenRefresher: @unchecked Sendable, RequestInterceptor {
                 self.isRefreshing = false
                 
                 let result: RetryResult
-                if let error = error {
+                if error != nil {
                     NotificationCenter.default.post(name: .sessionExpired, object: nil)
-                    result = .doNotRetryWithError(error)
+                    result = .doNotRetry
                 } else {
                     result = .retry
                 }
