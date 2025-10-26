@@ -202,7 +202,31 @@ struct RefreshableView<Content: View>: View {
                 return Color.clear
             }
         )
+        .overlay {
+            VStack {
+                Group {
+                    if let customIndicator = indicator() {
+                        customIndicator
+                    } else {
+                        basicIndicator
+                    }
+                }
+                .opacity(isLastPage ? 0 : refreshable.state.indicatorOpacity)
+                .offset(y: refreshable.scrollOffset * 0.3)
+                .animation(.linear, value: refreshable.state)
+                .padding(.top, 10)
+                Spacer()
+            }
+            .rotationEffect(.degrees(reverse ? 180 : 0))
+            .scaleEffect(x: -1)
+        }
         .rotationEffect(.degrees(reverse ? 180 : 0))
         .scaleEffect(x: -1)
+    }
+    
+    private var basicIndicator: some View {
+        ProgressView()
+            .padding(5)
+            .foregroundStyle(.gray02)
     }
 }
