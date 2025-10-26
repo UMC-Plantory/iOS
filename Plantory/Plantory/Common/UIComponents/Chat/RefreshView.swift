@@ -8,8 +8,8 @@
 import SwiftUI
 
 fileprivate struct Refreshable {
-    private let PENDING_THRESHOLD: CGFloat = 40
-    private let READY_THRESHOLD: CGFloat = 90
+    private let PENDING_THRESHOLD: CGFloat = 10
+    private let READY_THRESHOLD: CGFloat = 20
     
     enum State {
         /// The state where the user has not pulled down.
@@ -95,8 +95,8 @@ extension View {
 
 struct RefreshableView<Content: View>: View {
     private let GEOMETRY_HEIGHT: CGFloat = 15
-    private let START_PENDING_OFFSET: CGFloat = 40
-    private let START_READY_OFFSET: CGFloat = 90
+    private let START_PENDING_OFFSET: CGFloat = 10
+    private let START_READY_OFFSET: CGFloat = 20
     
     @Namespace private var namespace
     
@@ -166,7 +166,7 @@ struct RefreshableView<Content: View>: View {
         }
         .coordinateSpace(name: namespace)
         .simultaneousGesture(
-            DragGesture(minimumDistance: 0)
+            DragGesture(minimumDistance: -10)
                 .onChanged { _ in
                     isDragging = true
                 }

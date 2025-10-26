@@ -118,7 +118,7 @@ struct TempStorageView: View {
             if isEditing {
                 Button(action: toggleAllSelection) {
                     Text(checkedItems.count == sortedCells.count ? "전체 선택 해제" : "전체 선택")
-                        .font(.pretendardRegular(16)).foregroundStyle(.green07)
+                        .font(.pretendardRegular(16)).foregroundStyle(.green07Dynamic)
                 }
             } else {
                 Button(action: dismiss.callAsFunction) {

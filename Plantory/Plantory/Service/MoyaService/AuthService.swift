@@ -17,7 +17,7 @@ protocol AuthServiceProtocol {
     func kakaoLogin(idToken: KakaoUser) -> AnyPublisher<LoginResponse, APIError>
     
     /// 애플 로그인 요청
-    func appleLogin(identityToken: AppleUser) -> AnyPublisher<LoginResponse, APIError>
+    func appleLogin(request: AppleUser) -> AnyPublisher<LoginResponse, APIError>
     
     /// 약관 동의
     func postAgreements(request: AgreementsRequest) -> AnyPublisher<AgreementsResponse, APIError>
@@ -55,8 +55,8 @@ final class AuthService: AuthServiceProtocol {
     /// 로그인 요청
     /// - Parameter identityToken: 로그인 요청 모델
     /// - Returns: 채팅 응답을 Combine Publisher 형태로 반환
-    func appleLogin(identityToken: AppleUser) -> AnyPublisher<LoginResponse, APIError> {
-        return provider.requestResult(.appleLogin(identityToken: identityToken), type: LoginResponse.self)
+    func appleLogin(request: AppleUser) -> AnyPublisher<LoginResponse, APIError> {
+        return provider.requestResult(.appleLogin(request: request), type: LoginResponse.self)
     }
     
     // MARK: - 약관 동의

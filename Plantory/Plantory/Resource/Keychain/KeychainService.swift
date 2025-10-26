@@ -16,6 +16,9 @@ class KeychainService {
     private let account = "authToken"
     private let service = "com.plantory.Plantory"
     
+    // 별도의 fcm token 저장 키
+    private let fcmAccount = "fcmToken"
+    
     @discardableResult
     private func saveTokenInfo(_ tokenInfo: TokenInfo) -> OSStatus {
         do {
@@ -96,4 +99,52 @@ class KeychainService {
         print(deleteStatus == errSecSuccess ? "삭제 성공" : "삭제 실패")
         return deleteStatus
     }
+    
+    // MARK: - FCM Token 저장/조회/삭제
+    
+    @discardableResult
+    public func saveFCMToken(_ token: String) -> OSStatus {
+        guard let data = token.data(using: .utf8) else { return errSecParam }
+        let query: [String: Any] = [
+            kSecClass as String: kSecClassGenericPassword,
+            kSecAttrAccount as String: fcmAccount,
+            kSecAttrService as String: service,
+            kSecValueData as String: data,
+            kSecAttrAccessible as String: kSecAttrAccessibleAfterFirstUnlock
+        ]
+        SecItemDelete(query as CFDictionary)
+        let status = SecItemAdd(query as CFDictionary, nil)
+        print("FCM 토큰 저장 상태: \(status == errSecSuccess)")
+        return status
+    }
+    
+    public func loadFCMToken() -> String? {
+        let query: [String: Any] = [
+            kSecClass as String: kSecClassGenericPassword,
+            kSecAttrAccount as String: fcmAccount,
+            kSecAttrService as String: service,
+            kSecReturnData as String: true,
+            kSecMatchLimit as String: kSecMatchLimitOne
+        ]
+        var item: CFTypeRef?
+        let status = SecItemCopyMatching(query as CFDictionary, &item)
+        guard status == errSecSuccess, let data = item as? Data, let token = String(data: data, encoding: .utf8) else {
+            print("FCM 토큰 불러오기 실패 - status:", status)
+            return nil
+        }
+        return token
+    }
+    
+    @discardableResult
+    public func deleteFCMToken() -> OSStatus {
+        let query: [String: Any] = [
+            kSecClass as String: kSecClassGenericPassword,
+            kSecAttrAccount as String: fcmAccount,
+            kSecAttrService as String: service
+        ]
+        let status = SecItemDelete(query as CFDictionary)
+        print(status == errSecSuccess ? "FCM 토큰 삭제 성공" : "FCM 토큰 삭제 실패")
+        return status
+    }
 }
+

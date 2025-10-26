@@ -175,7 +175,6 @@ struct ChatView: View {
                         viewModel.shouldScrollToBottom = false
                     }
                 }
-                .scrollIndicators(.hidden)
             }
         }
     }
