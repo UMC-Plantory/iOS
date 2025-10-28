@@ -121,6 +121,7 @@ struct MyPageView: View {
         .sheet(isPresented: $showAlarmSheet) {
             AlarmView()
                 .presentationDetents([.fraction(0.35)])
+                .presentationDragIndicator(.hidden)
         }
         .navigationBarHidden(true)
         .loadingIndicator(statsVM.isLoading)

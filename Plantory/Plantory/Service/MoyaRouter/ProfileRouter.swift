@@ -38,6 +38,8 @@ enum ProfileRouter: APITargetType {
     // 전체 마이페이지
     case profileStats
     case logout
+    // 사용자 푸시알림 시간 설정
+    case patchPushTime(alarmTime: Int)
 }
 
 extension ProfileRouter {
@@ -74,12 +76,13 @@ extension ProfileRouter {
             
         // 전체 마이페이지
         case .logout: return "/members/auth"
+        case .patchPushTime : return "/members/push-time"
         }
     }
 
     var method: Moya.Method {
         switch self {
-        case .wastePatch, .restore, .patchProfile, .withdrawAccount:
+        case .wastePatch, .restore, .patchProfile, .withdrawAccount, .patchPushTime:
             return .patch
 
         case .deleteDiary, .logout:
@@ -169,6 +172,13 @@ extension ProfileRouter {
         // 전체 마이페이지
         case .profileStats:
             return .requestPlain
+        // 알람 시간 설정
+        case .patchPushTime(let alarmTime):
+            return .requestParameters(
+                parameters: ["alarmTime": alarmTime],
+                encoding: JSONEncoding.default
+            )
+
         }
     }
 
@@ -286,7 +296,7 @@ extension ProfileRouter {
                 
                 """
         case .profileStats:
-                    json = """
+            json = """
                     {
                       "userCustomId": "songe2",
                       "nickname": "송이",
@@ -305,6 +315,16 @@ extension ProfileRouter {
             json = """
                 
                 """
+            
+        case .patchPushTime:
+            json = """
+            {
+              "isSuccess": true,
+              "code": "COMMON200",
+              "message": "성공입니다.",
+              "result": null
+            }
+            """
         }
         return Data(json.utf8)
     }
