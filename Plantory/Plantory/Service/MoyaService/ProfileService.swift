@@ -59,6 +59,7 @@ protocol ProfileServiceProtocol {
     // 마이페이지
     func fetchProfileStats() -> AnyPublisher<ProfileStatsResponse, APIError>
     func logout() -> AnyPublisher<Void, APIError>
+    func patchPushTime(alarmTime: Int) -> AnyPublisher<StatusResponseOnly, APIError>
 }
 
 // MARK: - Profile API를 사용하는 서비스
@@ -175,6 +176,11 @@ final class ProfileService: ProfileServiceProtocol {
                 .map { _ in () }                // 본문은 쓰지 않음 → Void
                 .eraseToAnyPublisher()
     }
+    
+    func patchPushTime(alarmTime: Int) -> AnyPublisher<StatusResponseOnly, APIError> {
+        provider.requestStatus(.patchPushTime(alarmTime: alarmTime))
+    }
+
 }
 
 extension DateFormatter {
