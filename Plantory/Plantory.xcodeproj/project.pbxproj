@@ -13,12 +13,14 @@
 		C05ED3E92E153BC80023AC5C /* KakaoSDK in Frameworks */ = {isa = PBXBuildFile; productRef = C05ED3E82E153BC80023AC5C /* KakaoSDK */; };
 		C05ED3EB2E153BC80023AC5C /* KakaoSDKAuth in Frameworks */ = {isa = PBXBuildFile; productRef = C05ED3EA2E153BC80023AC5C /* KakaoSDKAuth */; };
 		C05ED3ED2E153BC80023AC5C /* KakaoSDKCommon in Frameworks */ = {isa = PBXBuildFile; productRef = C05ED3EC2E153BC80023AC5C /* KakaoSDKCommon */; };
+		C06BAB132EAD02C200C5F69D /* Secret.xcconfig in Resources */ = {isa = PBXBuildFile; fileRef = C06BA98B2EAD02C200C5F69D /* Secret.xcconfig */; };
 		C072380E2E45EF9000EF9CF0 /* FirebaseCore in Frameworks */ = {isa = PBXBuildFile; productRef = C072380D2E45EF9000EF9CF0 /* FirebaseCore */; };
 		C07238102E45EF9000EF9CF0 /* FirebaseMessaging in Frameworks */ = {isa = PBXBuildFile; productRef = C072380F2E45EF9000EF9CF0 /* FirebaseMessaging */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
 		C05ECEED2E15232F0023AC5C /* Plantory.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Plantory.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		C06BA98B2EAD02C200C5F69D /* Secret.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Secret.xcconfig; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
@@ -66,6 +68,7 @@
 			children = (
 				C05ECEEF2E15232F0023AC5C /* Plantory */,
 				C05ECEEE2E15232F0023AC5C /* Products */,
+				C06BA98B2EAD02C200C5F69D /* Secret.xcconfig */,
 			);
 			sourceTree = "<group>";
 		};
@@ -156,6 +159,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				C06BAB132EAD02C200C5F69D /* Secret.xcconfig in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -174,8 +178,7 @@
 /* Begin XCBuildConfiguration section */
 		C05ECEF62E1523300023AC5C /* Debug */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReferenceAnchor = C05ECEEF2E15232F0023AC5C /* Plantory */;
-			baseConfigurationReferenceRelativePath = Secret.xcconfig;
+			baseConfigurationReference = C06BA98B2EAD02C200C5F69D /* Secret.xcconfig */;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
@@ -241,8 +244,7 @@
 		};
 		C05ECEF72E1523300023AC5C /* Release */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReferenceAnchor = C05ECEEF2E15232F0023AC5C /* Plantory */;
-			baseConfigurationReferenceRelativePath = Secret.xcconfig;
+			baseConfigurationReference = C06BA98B2EAD02C200C5F69D /* Secret.xcconfig */;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
@@ -301,8 +303,7 @@
 		};
 		C05ECEF92E1523300023AC5C /* Debug */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReferenceAnchor = C05ECEEF2E15232F0023AC5C /* Plantory */;
-			baseConfigurationReferenceRelativePath = Secret.xcconfig;
+			baseConfigurationReference = C06BA98B2EAD02C200C5F69D /* Secret.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
@@ -340,8 +341,7 @@
 		};
 		C05ECEFA2E1523300023AC5C /* Release */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReferenceAnchor = C05ECEEF2E15232F0023AC5C /* Plantory */;
-			baseConfigurationReferenceRelativePath = Secret.xcconfig;
+			baseConfigurationReference = C06BA98B2EAD02C200C5F69D /* Secret.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;

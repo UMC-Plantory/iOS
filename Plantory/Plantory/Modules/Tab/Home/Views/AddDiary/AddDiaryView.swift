@@ -38,7 +38,6 @@ struct AddDiaryView: View {
     @State private var selectedDate: Date = Date()
     @State private var showFullCalendar: Bool = false
 
-
     init(container: DIContainer, date: Date = Date()) {
         self._stepVM = Bindable(wrappedValue: StepIndicatorViewModel())
         self._vm      = Bindable(wrappedValue: AddDiaryViewModel(container: container))
@@ -48,13 +47,16 @@ struct AddDiaryView: View {
     var body: some View {
         ZStack(alignment: .top) {
             if vm.isCompleted {
-                
-                ScrollView { // CompletedView를 스크롤뷰로 감싸 작은 화면에서 잘리지 않도록 함
-                    VStack {
-                        CompletedView()
-                           
+                GeometryReader { geometry in
+                    ScrollView { // CompletedView를 스크롤뷰로 감싸 작은 화면에서 잘리지 않도록 함
+                        VStack {
+                            CompletedView()
+                        }
                     }
-                    .frame(maxWidth: .infinity, minHeight: UIScreen.main.bounds.height - (UIApplication.shared.windows.first?.safeAreaInsets.top ?? 0) - (UIApplication.shared.windows.first?.safeAreaInsets.bottom ?? 0)) // 뷰포트 높이 이상으로 설정하여 공간 확보
+                    .frame(
+                        maxWidth: .infinity,
+                        minHeight: geometry.size.height
+                    )
                     .background(Color.adddiarybackground.ignoresSafeArea(.all, edges: .all))
                 }
                 .background(Color.adddiarybackground.ignoresSafeArea(.all, edges: .all)) // 전체 배경색을 안전하게 적용
@@ -107,7 +109,6 @@ struct AddDiaryView: View {
                 Spacer().frame(width: 10)
                 Button(action: {
                     container.navigationRouter.pop()
-                    container.navigationRouter.push(.baseTab)
                 }) {
                     Image(.home)
                         .foregroundColor(Color.adddiaryIcon)

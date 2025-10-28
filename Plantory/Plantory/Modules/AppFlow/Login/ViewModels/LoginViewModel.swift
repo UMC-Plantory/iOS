@@ -71,7 +71,12 @@ class LoginViewModel {
     private func sendKakaoLoginToServer(idToken: KakaoUser) async throws {
         self.isLoading = true
 
-        container.useCaseService.authService.kakaoLogin(idToken: idToken)
+        // Keychain에 저장된 FCM 토큰 읽기
+        let fcm = keychainManager.loadFCMToken()
+        var request = idToken
+        request.fcmToken = fcm
+
+        container.useCaseService.authService.kakaoLogin(idToken: request)
             .receive(on: DispatchQueue.main)
             .sink(receiveCompletion: { [weak self] completion in
                 if case .failure(let error) = completion {
@@ -117,25 +122,35 @@ class LoginViewModel {
     private func handleLoginSuccess(credential: ASAuthorizationAppleIDCredential) async throws {
         // identityToken, authorizationCode 추출
         guard let identityToken = credential.identityToken,
-              let identityTokenString = String(data: identityToken, encoding: .utf8) else {
+              let authorizationCode = credential.authorizationCode,
+              let identityTokenString = String(data: identityToken, encoding: .utf8),
+        let authorizationCodeString = String(data: authorizationCode, encoding: .utf8) else {
             throw NSError(domain: "AppleTokenError", code: -2)
         }
         
         // 서버에 로그인 요청
         try await sendAppleLoginToServer(
-            identityToken: identityTokenString
+            identityToken: identityTokenString,
+            authorizationCode: authorizationCodeString
         )
     }
     
     /// 애플 로그인 API 호출
     private func sendAppleLoginToServer(
-        identityToken: String
+        identityToken: String,
+        authorizationCode: String
     ) async throws {
         self.isLoading = true
         
-        let identityToken = AppleUser(identityToken: identityToken)
+        // Keychain에 저장된 FCM 토큰 읽기
+        let fcm = keychainManager.loadFCMToken()
+        let request = AppleUser(
+            identityToken: identityToken,
+            fcmToken: fcm,
+            authorizationCode: authorizationCode
+        )
 
-        container.useCaseService.authService.appleLogin(identityToken: identityToken)
+        container.useCaseService.authService.appleLogin(request: request)
             .receive(on: DispatchQueue.main)
             .sink(receiveCompletion: { [weak self] completion in
                 if case .failure(let error) = completion {
@@ -178,3 +193,4 @@ class LoginViewModel {
         }
     }
 }
+

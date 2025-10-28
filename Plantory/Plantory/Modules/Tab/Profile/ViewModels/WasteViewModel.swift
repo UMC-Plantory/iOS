@@ -143,7 +143,7 @@ public class WasteViewModel: ObservableObject {
                     self?.errorMessage = error.localizedDescription
                 }
             } receiveValue: { [weak self] _ in
-                guard let self else { return }
+                guard self != nil else { return }
             }
             .store(in: &cancellables)
     }

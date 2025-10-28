@@ -88,37 +88,9 @@ extension AppDelegate: MessagingDelegate {
     // FCM 등록 토큰 수신 시 호출됨 (앱 최초 실행, 또는 토큰 갱신 시)
     func messaging(_ messaging: Messaging, didReceiveRegistrationToken fcmToken: String?) {
         guard let fcmToken = fcmToken else { return }
-        
-        // 콘솔에 FCM 토큰 출력
-        print("FCM 등록 토큰 수신: \(fcmToken)")
-        
-        // 여기서 서버로 FCM 토큰을 전송하는 함수 호출
-//        sendDeviceTokenToServer(fcmToken)
-    }
-    
-    /// 서버에 FCM 토큰 전송 (예: 사용자 로그인 후 서버에 등록)
-    private func sendDeviceTokenToServer(_ token: String) {
-        // 예시 API URL (자신의 서버 주소로 교체하세요)
-        guard let url = URL(string: "https://여러분 서버 주소/api/device-token") else { return }
-        
-        var request = URLRequest(url: url)
-        request.httpMethod = "POST"
-        
-        // 전송할 JSON body 구성
-        let body: [String: String] = ["deviceToken": token]
-        request.httpBody = try? JSONSerialization.data(withJSONObject: body)
-        request.addValue("application/json", forHTTPHeaderField: "Content-Type")
-        
-        print("서버로 디바이스 토큰 전송 중: \(token)")
-        
-        // 서버에 HTTP POST 요청 실행
-        URLSession.shared.dataTask(with: request) { data, response, error in
-            if let error = error {
-                print("서버 전송 실패: \(error.localizedDescription)")
-            } else {
-                print("디바이스 토큰 서버 전송 성공")
-            }
-        }.resume()
+        print("FCM Token 수신: \(fcmToken)")
+        // 키체인에 저장
+        KeychainService.shared.saveFCMToken(fcmToken)
     }
 }
 
@@ -127,3 +99,4 @@ extension Notification.Name {
     /// 디바이스 토큰 수신 시 NotificationCenter를 통해 전달
     static let deviceTokenReceived = Notification.Name("deviceTokenReceived")
 }
+
