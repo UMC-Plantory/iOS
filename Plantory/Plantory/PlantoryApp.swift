@@ -31,6 +31,11 @@ struct PlantoryApp: App {
                    // refresh 실패 → 자동 로그아웃 처리
                    sessionManager.logout()
                }
+               .onOpenURL(perform: { url in
+                   if (AuthApi.isKakaoTalkLoginUrl(url)) {
+                       _ = AuthController.handleOpenUrl(url: url)
+                   }
+               })
         }
         .modelContainer(for: ReplyStateData.self)
     }

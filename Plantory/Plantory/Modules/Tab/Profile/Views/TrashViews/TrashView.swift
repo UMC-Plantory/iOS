@@ -103,7 +103,9 @@ struct TrashView: View {
                                 else { checkedItems.remove(cell.id) }
                             }
                         ),
-                        onNavigate: {}
+                        onNavigate: {
+                            container.navigationRouter.push(.diaryDetail(diaryId: cell.id))
+                        }
                     )
                     .frame(maxWidth: .infinity)
                 }

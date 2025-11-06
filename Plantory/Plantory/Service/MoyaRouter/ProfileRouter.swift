@@ -24,6 +24,9 @@ enum ProfileRouter: APITargetType {
     /// 휴지통 → 임시보관함(복원)
     case restore(diaryIds: [Int])
     
+    //단일 일기 데이터 조회
+    case fetchDiary(id: Int)
+    
     // 스크랩
     case scrap(sort: String, cursor: String?)
     
@@ -35,6 +38,8 @@ enum ProfileRouter: APITargetType {
     // 전체 마이페이지
     case profileStats
     case logout
+    // 사용자 푸시알림 시간 설정
+    case patchPushTime(alarmTime: Int)
 }
 
 extension ProfileRouter {
@@ -58,6 +63,9 @@ extension ProfileRouter {
         case .deleteDiary:            return "/diaries"
         // 스크랩
         case .scrap:                    return "/diaries/scrap-status"
+        // 단일 일기 조회
+        case .fetchDiary(let id):
+            return "/diaries/\(id)"
             
         // 마이프로필
         case .myProfile: return "/members/myprofile"
@@ -68,12 +76,13 @@ extension ProfileRouter {
             
         // 전체 마이페이지
         case .logout: return "/members/auth"
+        case .patchPushTime : return "/members/push-time"
         }
     }
 
     var method: Moya.Method {
         switch self {
-        case .wastePatch, .restore, .patchProfile, .withdrawAccount:
+        case .wastePatch, .restore, .patchProfile, .withdrawAccount, .patchPushTime:
             return .patch
 
         case .deleteDiary, .logout:
@@ -141,6 +150,10 @@ extension ProfileRouter {
                 parameters: ["diaryIds": diaryIds],
                 encoding: JSONEncoding.default
             )
+            
+        // GET: 단일 일기 조회
+        case .fetchDiary:
+            return .requestPlain
 
         // PATCH: 프로필 수정 (JSON body)
         case .patchProfile(let nickname, let userCustomId, let gender, let birth, let profileImgUrl, let deleteProfileImg):
@@ -159,6 +172,13 @@ extension ProfileRouter {
         // 전체 마이페이지
         case .profileStats:
             return .requestPlain
+        // 알람 시간 설정
+        case .patchPushTime(let alarmTime):
+            return .requestParameters(
+                parameters: ["alarmTime": alarmTime],
+                encoding: JSONEncoding.default
+            )
+
         }
     }
 
@@ -246,6 +266,26 @@ extension ProfileRouter {
                }
             }
             """
+            
+        case .fetchDiary:
+            // 단일 일기 조회
+            json = """
+            {
+              "isSuccess": true,
+              "code": "COMMON200",
+              "message": "성공입니다.",
+              "result": {
+                "diaryId": 1,
+                "diaryDate": "2025-06-20"
+                "emotion": "HAPPY",
+                "title": "일기 제목1",
+                "content": "오늘은…",
+                "diaryImgUrl": "https…",
+                "status": "NORMAL"
+              }
+            }
+            """
+            
         case .myProfile:
             json = """
             { "code": 200, "message": "프로필 조회 성공",
@@ -256,7 +296,7 @@ extension ProfileRouter {
                 
                 """
         case .profileStats:
-                    json = """
+            json = """
                     {
                       "userCustomId": "songe2",
                       "nickname": "송이",
@@ -275,6 +315,16 @@ extension ProfileRouter {
             json = """
                 
                 """
+            
+        case .patchPushTime:
+            json = """
+            {
+              "isSuccess": true,
+              "code": "COMMON200",
+              "message": "성공입니다.",
+              "result": null
+            }
+            """
         }
         return Data(json.utf8)
     }

@@ -99,7 +99,7 @@ private extension EmotionStatsView {
 
     // ----- 실제 주간/월간 본문 -----
     var weeklyContent: some View {
-        VStack(alignment: .leading, spacing: 20) {
+        VStack(alignment: .leading, spacing: 28) {
             headerSection
             EmotionPercentageChartView(data: viewModel.emotionPercentages)
                 .frame(maxWidth: .infinity, alignment: .leading)
@@ -107,7 +107,7 @@ private extension EmotionStatsView {
     }
 
     var monthlyContent: some View {
-        VStack(alignment: .leading, spacing: 20) {
+        VStack(alignment: .leading, spacing: 28) {
             headerSection
             EmotionPercentageChartView(data: viewModel.emotionPercentages)
                 .frame(maxWidth: .infinity, alignment: .leading)
@@ -119,11 +119,10 @@ private extension EmotionStatsView {
         VStack(alignment: .leading, spacing: 8) {
             Text(viewModel.comment)
                 .font(.pretendardSemiBold(18))
-                .foregroundStyle(.black01Dynamic)
 
             Text(viewModel.periodText)
                 .font(.pretendardRegular(16))
-                .foregroundColor(.gray09Dynamic)
+                .foregroundColor(.gray09)
 
             HStack(alignment: .top) {
                 (
@@ -132,7 +131,7 @@ private extension EmotionStatsView {
                     + Text("이 가장 많이 기록 되었어요!")
                 )
                 .font(.pretendardRegular(12))
-                .foregroundColor(.green06Dynamic)
+                .foregroundColor(.green06)
                 .fixedSize(horizontal: false, vertical: true)
                 .frame(minHeight: 68, alignment: .topLeading)
 
@@ -144,7 +143,6 @@ private extension EmotionStatsView {
                         emotionKey: viewModel.topEmotionKey
                     )
                     .frame(width: 120, height: 120)
-                    .offset(y: 5)
                 }
             }
         }

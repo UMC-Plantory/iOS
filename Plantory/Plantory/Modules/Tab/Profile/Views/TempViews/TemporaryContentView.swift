@@ -22,7 +22,7 @@ struct TemporaryContentView: View {
                     .foregroundColor(.black01Dynamic)
                 Text(dateText)
                     .font(.pretendardMedium(14))
-                    .foregroundColor(.gray08Dynamic)
+                    .foregroundColor(.gray)
             }
             .frame(height: 48)
             Spacer()

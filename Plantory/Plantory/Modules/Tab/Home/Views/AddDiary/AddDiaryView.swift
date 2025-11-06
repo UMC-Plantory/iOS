@@ -26,9 +26,13 @@ struct AddDiaryView: View {
 
     // 날짜 선택
     @State private var selectedDate: Date = Date()
+
     @State private var showFullCalendar: Bool = false // 캘린더 시트 관리 플래그
     
     @Environment(\.dismiss) var dismiss
+
+    @State private var showFullCalendar: Bool = false
+
 
     init(container: DIContainer, date: Date = Date()) {
         self._stepVM = Bindable(wrappedValue: StepIndicatorViewModel())
@@ -39,6 +43,7 @@ struct AddDiaryView: View {
     var body: some View {
         ZStack(alignment: .top) {
             if vm.isCompleted {
+
                 
                 ScrollView {
                     VStack {
@@ -46,6 +51,18 @@ struct AddDiaryView: View {
                            
                     }
                     .frame(maxWidth: .infinity, minHeight: UIScreen.main.bounds.height - (UIApplication.shared.windows.first?.safeAreaInsets.top ?? 0) - (UIApplication.shared.windows.first?.safeAreaInsets.bottom ?? 0))
+
+                GeometryReader { geometry in
+                    ScrollView { // CompletedView를 스크롤뷰로 감싸 작은 화면에서 잘리지 않도록 함
+                        VStack {
+                            CompletedView()
+                        }
+                    }
+                    .frame(
+                        maxWidth: .infinity,
+                        minHeight: geometry.size.height
+                    )
+
                     .background(Color.adddiarybackground.ignoresSafeArea(.all, edges: .all))
                 }
                 .background(Color.adddiarybackground.ignoresSafeArea(.all, edges: .all))
@@ -133,7 +150,7 @@ struct AddDiaryView: View {
             }
         }
         
-        // 🚨 핵심 로직: 팝업 상태가 변경되면 DatePickerCalendarView 시트를 즉시 내립니다.
+        //핵심 로직: 팝업 상태가 변경되면 DatePickerCalendarView 시트를 즉시 내립니다.
         .onChange(of: vm.showExistingDiaryDateForDatePicker) { _, date in
             if date != nil {
                 withAnimation { showFullCalendar = false }
@@ -169,7 +186,6 @@ struct AddDiaryView: View {
                 Button(action: {
                     vm.tempSaveAndExit()
                     container.navigationRouter.pop()
-                    container.navigationRouter.push(.baseTab)
                 }) {
                     Image(.home) // 실제 이미지 리소스 필요
                         .foregroundColor(Color.adddiaryIcon) // 실제 색상 리소스 필요

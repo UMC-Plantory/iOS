@@ -42,9 +42,6 @@ struct SleepStatsView: View {
             if page == 0 { viewModel.fetchWeekly() }
             else         { viewModel.fetchMonthly() }
         }
-        .background(
-            Color.white01Dynamic.ignoresSafeArea()
-        )
     }
 
 }
@@ -98,16 +95,18 @@ private extension SleepStatsView {
 
     // ----- 실제 주간/월간 본문 -----
     var weeklyContent: some View {
-        VStack(alignment: .leading, spacing: 20) {
+        VStack(alignment: .leading) {
             headerSection
+            Spacer().frame(height: 28)
             WeekChartView(daily: viewModel.daily)
                 .frame(maxWidth: .infinity, alignment: .leading)
         }
     }
 
     var monthlyContent: some View {
-        VStack(alignment: .leading, spacing: 20) {
+        VStack(alignment: .leading) {
             headerSection
+            Spacer().frame(height: 28)
             MonthChartView(weekly: viewModel.monthly)
                 .frame(maxWidth: .infinity, alignment: .leading)
         }
@@ -118,16 +117,15 @@ private extension SleepStatsView {
         VStack(alignment: .leading, spacing: 8) {
             Text(viewModel.comment)
                 .font(.pretendardSemiBold(18))
-                .foregroundStyle(.black01Dynamic)
 
             Text(viewModel.periodText)
                 .font(.pretendardRegular(16))
-                .foregroundColor(.gray09Dynamic)
+                .foregroundColor(.gray09)
 
             HStack(alignment: .top) {
                 Text(viewModel.averageComment)
                     .font(.pretendardRegular(12))
-                    .foregroundColor(.green06Dynamic)
+                    .foregroundColor(.green06)
                     .fixedSize(horizontal: false, vertical: true)
                     .frame(minHeight: 68, alignment: .topLeading)
 
@@ -138,7 +136,6 @@ private extension SleepStatsView {
                     label: viewModel.averageText
                 )
                 .frame(width: 120, height: 120)
-                .offset(y: 5)
             }
         }
     }

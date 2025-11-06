@@ -84,13 +84,15 @@ final public class ProfileViewModel: ObservableObject {
         isLoading = true
         errorMessage = ""
 
+        let safeBirth = ProfileViewModel.normalizeBirth(birth) // 서버엔 항상 yyyy-MM-dd
+
         container.useCaseService.profileService
             .patchProfile(
-                nickname:       name,          // nickname
-                userCustomId:   id,            // userCustomId (문자열)
-                gender:         serverGender(from: gender),        // "MALE"/"FEMALE"
-                birth:          birth,         // "YYYY-MM-DD"
-                profileImgUrl:  profileImgUrl, // 프로필 이미지 URL
+                nickname:       name,
+                userCustomId:   id,
+                gender:         serverGender(from: gender),
+                birth:          safeBirth,                 // <- 보장
+                profileImgUrl:  profileImgUrl,
                 deleteProfileImg: deleteProfileImg
             )
             .receive(on: DispatchQueue.main)
@@ -102,12 +104,12 @@ final public class ProfileViewModel: ObservableObject {
                 }
             } receiveValue: { [weak self] _ in
                 guard let self = self else { return }
-                // 성공 시 최신 상태 동기화를 위해 GET 다시 호출
                 self.fetchProfile()
                 self.container.navigationRouter.pop()
             }
             .store(in: &cancellables)
     }
+
 
     /// 이미지 선택/삭제 상태를 반영하여 업로드 및 패치를 한번에 처리
     public func saveProfileChanges(selectedImage: UIImage?, didDeleteProfileImage: Bool) {
@@ -173,7 +175,16 @@ final public class ProfileViewModel: ObservableObject {
     private func setupValidationBindings() {
         $name.map(Self.validateName).assign(to: &$nameState)
         $id.map(Self.validateID).assign(to: &$idState)
-        $birth.map(Self.validateBirthDate).assign(to: &$birthState)
+        $birth
+            .sink { [weak self] raw in
+                guard let self = self else { return }
+                let normalized = Self.normalizeBirth(raw)
+                if normalized != self.birth { // 피드백 루프 방지
+                    self.birth = normalized
+                }
+                self.birthState = ProfileViewModel.validateBirthDate(raw) // 정규화 후 상태 반영
+            }
+            .store(in: &cancellables)
     }
 
     // MARK: - Validation Methods
@@ -194,10 +205,17 @@ final public class ProfileViewModel: ObservableObject {
 
     private static func validateBirthDate(_ input: String) -> FieldState {
         guard !input.isEmpty else { return .normal }
-        let regex = #"^\d{4}-\d{2}-\d{2}$"#
-        return input.range(of: regex, options: .regularExpression) != nil
-            ? .success(message: "유효한 생년월일입니다.")
-            : .error(message: "YYYY-MM-DD 형식이어야 합니다.")
+        let normalized = normalizeBirth(input) // 2003.08.05 / 20030805 → 2003-08-05
+        // yyyy-MM-dd 포맷/존재 날짜인지 확인
+        let df = DateFormatter()
+        df.locale = Locale(identifier: "en_US_POSIX")
+        df.calendar = Calendar(identifier: .gregorian)
+        df.dateFormat = "yyyy-MM-dd"
+        if df.date(from: normalized) != nil {
+            return .success(message: "유효한 생년월일입니다.")
+        } else {
+            return .error(message: "YYYY-MM-DD 형식의 올바른 날짜여야 합니다.")
+        }
     }
     
     // MARK: - Gender mapping
@@ -216,5 +234,30 @@ final public class ProfileViewModel: ObservableObject {
         default:            return "그 외"
         }
     }
+    
+    // MARK: - 생년월일 정규화
+    // 1) 파일 상단 private 포맷터/도우미 추가 (class 내부 아무 곳)
+    private let yyyyMMddDashFormatter: DateFormatter = {
+        let df = DateFormatter()
+        df.locale = Locale(identifier: "en_US_POSIX")
+        df.calendar = Calendar(identifier: .gregorian)
+        df.dateFormat = "yyyy-MM-dd"
+        return df
+    }()
+
+    private static func normalizeBirth(_ input: String) -> String {
+        // 숫자만 추출
+        let digits = input.replacingOccurrences(of: "[^0-9]", with: "", options: .regularExpression)
+        guard digits.count >= 8 else { return input } // 불완전 입력은 그대로 두기 (타이핑 중)
+        let y = String(digits.prefix(4))
+        let m = String(digits.dropFirst(4).prefix(2))
+        let d = String(digits.dropFirst(6).prefix(2))
+        return "\(y)-\(m)-\(d)"
+    }
+
+    private func isValidYYYYMMDD(_ s: String) -> Bool {
+        return yyyyMMddDashFormatter.date(from: s) != nil
+    }
+
 }
 

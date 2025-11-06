@@ -10,6 +10,7 @@ struct MyPageView: View {
     
     @State private var showSleepSheet = false
     @State private var showEmotionSheet = false
+    @State private var showAlarmSheet = false
     @State private var showLogout = false
     @State private var isLoggingOut = false
     @State private var cancellables = Set<AnyCancellable>()
@@ -50,13 +51,25 @@ struct MyPageView: View {
                     stats: statsVM.stats,
                     actions: {
                         var dict: [UUID: () -> Void] = [:]
-                        if statsVM.stats.indices.contains(1) {
-                            dict[statsVM.stats[1].id] = { showEmotionSheet = true }
-                        }
-                        if statsVM.stats.indices.contains(2) {
-                            dict[statsVM.stats[2].id] = { showSleepSheet = true }
-                        }
-                        return dict
+                        // 안전하게 인덱스 매핑하는 헬퍼
+                                func set(_ i: Int, _ action: @escaping () -> Void) {
+                                    guard statsVM.stats.indices.contains(i) else { return }
+                                    dict[statsVM.stats[i].id] = action
+                                }
+
+                                // 0번: HomeView로 이동
+                        set(0) { container.selectedTab = .home }
+
+                                // 1번: 감정 시트
+                                set(1) { showEmotionSheet = true }
+
+                                // 2번: 수면 시트
+                                set(2) { showSleepSheet = true }
+
+                                // 3번: GardenView로 이동
+                        set(3) { container.selectedTab = .terrarium }
+
+                                return dict
                     }()
                 )
                 
@@ -85,6 +98,9 @@ struct MyPageView: View {
                                 }
                             )
                         }
+                    },
+                    alarmAction: {
+                        showAlarmSheet = true
                     }
                 )
             }
@@ -96,9 +112,16 @@ struct MyPageView: View {
         )
         .sheet(isPresented: $showSleepSheet) {
             SleepStatsView(container: container)
+                .presentationDetents([.fraction(0.9)])
         }
         .sheet(isPresented: $showEmotionSheet) {
             EmotionStatsView(container: container)
+                .presentationDetents([.fraction(0.9)])
+        }
+        .sheet(isPresented: $showAlarmSheet) {
+            AlarmView()
+                .presentationDetents([.fraction(0.35)])
+                .presentationDragIndicator(.hidden)
         }
         .navigationBarHidden(true)
         .loadingIndicator(statsVM.isLoading)
@@ -155,6 +178,7 @@ struct MenuSection: View {
     let tempAction:  () -> Void
     let trashAction: () -> Void
     let logoutAction: () -> Void
+    let alarmAction: () -> Void
 
     var body: some View {
         VStack(spacing: 0) {
@@ -163,6 +187,9 @@ struct MenuSection: View {
             MenuRow(icon: "scrap", title: "임시보관함", action: tempAction)
             MenuRow(icon: "delete", title: "휴지통", action: trashAction)
             MenuRow(icon: "logout", title: "로그아웃", action: logoutAction)
+            Divider().padding(.vertical, 8)
+            MenuRow(icon: "alarm", title: "알람 설정", action: alarmAction)
+
         }
         .background(Color.adddiarybackground)
     }

@@ -129,6 +129,25 @@ public class WasteViewModel: ObservableObject {
             .store(in: &cancellables)
     }
 
+    // 개별 일기 정보 GET
+    public func getDiary(id: Int) {
+        isLoading = true
+        errorMessage = nil
+        
+        container.useCaseService.profileService
+            .fetchDiary(id: id)
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] completion in
+                self?.isLoading = false
+                if case let .failure(error) = completion {
+                    self?.errorMessage = error.localizedDescription
+                }
+            } receiveValue: { [weak self] _ in
+                guard self != nil else { return }
+            }
+            .store(in: &cancellables)
+    }
+    
     // MARK: - Handlers
     private func handleWaste(_ diaries: [Diary]) {
         self.diaries = diaries
