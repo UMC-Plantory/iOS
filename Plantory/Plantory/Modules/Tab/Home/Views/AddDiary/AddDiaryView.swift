@@ -15,16 +15,6 @@ struct MyDateFormatter {
     }()
 }
 
-// 공통 포맷터
-private enum DiaryFormatters {
-    static let day: DateFormatter = {
-        let f = DateFormatter()
-        f.dateFormat = "yyyy-MM-dd"
-        f.timeZone = TimeZone(identifier: "Asia/Seoul")
-        f.locale = Locale(identifier: "ko_KR")
-        return f
-    }()
-}
 
 struct AddDiaryView: View {
     // 단계 네비게이션
@@ -36,7 +26,13 @@ struct AddDiaryView: View {
 
     // 날짜 선택
     @State private var selectedDate: Date = Date()
+
+    @State private var showFullCalendar: Bool = false // 캘린더 시트 관리 플래그
+    
+    @Environment(\.dismiss) var dismiss
+
     @State private var showFullCalendar: Bool = false
+
 
     init(container: DIContainer, date: Date = Date()) {
         self._stepVM = Bindable(wrappedValue: StepIndicatorViewModel())
@@ -47,6 +43,15 @@ struct AddDiaryView: View {
     var body: some View {
         ZStack(alignment: .top) {
             if vm.isCompleted {
+
+                
+                ScrollView {
+                    VStack {
+                        CompletedView() // 실제 컴포넌트 필요
+                           
+                    }
+                    .frame(maxWidth: .infinity, minHeight: UIScreen.main.bounds.height - (UIApplication.shared.windows.first?.safeAreaInsets.top ?? 0) - (UIApplication.shared.windows.first?.safeAreaInsets.bottom ?? 0))
+
                 GeometryReader { geometry in
                     ScrollView { // CompletedView를 스크롤뷰로 감싸 작은 화면에서 잘리지 않도록 함
                         VStack {
@@ -57,10 +62,11 @@ struct AddDiaryView: View {
                         maxWidth: .infinity,
                         minHeight: geometry.size.height
                     )
+
                     .background(Color.adddiarybackground.ignoresSafeArea(.all, edges: .all))
                 }
-                .background(Color.adddiarybackground.ignoresSafeArea(.all, edges: .all)) // 전체 배경색을 안전하게 적용
-                .ignoresSafeArea(.keyboard) // 키보드가 올라와도 안전 영역 무시
+                .background(Color.adddiarybackground.ignoresSafeArea(.all, edges: .all))
+                .ignoresSafeArea(.keyboard)
             } else {
                 Color.adddiarybackground.ignoresSafeArea()
 
@@ -77,19 +83,89 @@ struct AddDiaryView: View {
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
                 .padding()
             }
+            
+            // 모달 1: 일기 중복 팝업 (확인 버튼만)
+            if let date = vm.showExistingDiaryDateForDatePicker {
+                BlurBackground() // 실제 컴포넌트 필요
+                PopUp( // 실제 컴포넌트 필요
+                    title: "일기 중복",
+                    message: "\(HomeViewModel.formatYMDForDisplay(date))에 이미 일기가 작성되었어요.",
+                    confirmTitle: "확인",
+                    cancelTitle: "확인",
+                    onConfirm: {
+                        // 확인 버튼 (confirmTitle): 팝업 상태 해제. 시트 닫기는 onChange에서 처리됨.
+                        vm.showExistingDiaryDateForDatePicker = nil
+                    },
+                    onCancel: {
+                        // 확인 버튼 (cancelTitle): 팝업 상태 해제. 시트 닫기는 onChange에서 처리됨.
+                        vm.showExistingDiaryDateForDatePicker = nil
+                    }
+                )
+            }
+
+            // 모달 2: 임시 저장 불러오기 모달
+            if vm.showLoadTempPopup {
+                BlurBackground()
+                PopUp(
+                    title: "임시 저장된 일기",
+                    message: "해당 날짜에 보관된 일기가 있습니다. 불러오시겠습니까?",
+                    confirmTitle: "불러오기",
+                    cancelTitle: "새로 작성",
+                    onConfirm: {
+                        // 불러오기: 로드 후 팝업 닫기. 시트 닫기는 onChange에서 처리됨.
+                        vm.loadTemporaryDiary()
+                    },
+                    onCancel: {
+                        // 새로 작성: 팝업 닫기, 선택된 날짜로 확정한 후 시트 닫기
+                        vm.showLoadTempPopup = false
+                        vm.setDiaryDate(DiaryFormatters.day.string(from: selectedDate))
+                    }
+                )
+            }
+            
+            // 모달 3: 네트워크 불안정/임시 저장 완료 모달
+            if vm.showNetworkErrorPopup {
+                BlurBackground()
+                PopUp(
+                    title: "네트워크 불안정",
+                    message: "네트워크 연결이 불안정합니다. 입력한 내용은 임시 저장됩니다.",
+                    confirmTitle: "확인",
+                    cancelTitle: "확인",
+                    onConfirm: { vm.showNetworkErrorPopup = false },
+                    onCancel: { vm.showNetworkErrorPopup = false }
+                )
+            }
         }
-        .toastView(toast: $vm.toast)
+        .toastView(toast: $vm.toast) // 실제 컴포넌트 필요
         .onAppear {
-            // 최초 진입 시 오늘 날짜를 diaryDate에 세팅
-            vm.diaryDate = DiaryFormatters.day.string(from: selectedDate)
+            vm.checkForTemporaryDiary(for: selectedDate)
         }
         .task {
-            UIApplication.shared.hideKeyboard() // 초기 진입 시 키보드 숨김
+            UIApplication.shared.hideKeyboard() // 실제 확장 메서드 필요
         }
         .navigationBarBackButtonHidden(true)
+        .onDisappear {
+            if !vm.isCompleted {
+                vm.tempSaveAndExit()
+            }
+        }
+        
+        //핵심 로직: 팝업 상태가 변경되면 DatePickerCalendarView 시트를 즉시 내립니다.
+        .onChange(of: vm.showExistingDiaryDateForDatePicker) { _, date in
+            if date != nil {
+                withAnimation { showFullCalendar = false }
+            }
+        }
+        .onChange(of: vm.showLoadTempPopup) { _, isShowing in
+            if isShowing {
+                withAnimation { showFullCalendar = false }
+            }
+        }
+        
+        // Sheet 호출
         .sheet(isPresented: $showFullCalendar) {
-            DatePickerCalendarView(selectedDate: $selectedDate) {
-                vm.diaryDate = DiaryFormatters.day.string(from: selectedDate)
+            DatePickerCalendarView(selectedDate: $selectedDate, vm: vm) {
+                // 중복/임시저장 팝업이 뜨지 않고 정상적으로 날짜가 확정된 경우
                 showFullCalendar = false
             }
             .presentationDetents([.medium])
@@ -108,10 +184,11 @@ struct AddDiaryView: View {
             HStack {
                 Spacer().frame(width: 10)
                 Button(action: {
+                    vm.tempSaveAndExit()
                     container.navigationRouter.pop()
                 }) {
-                    Image(.home)
-                        .foregroundColor(Color.adddiaryIcon)
+                    Image(.home) // 실제 이미지 리소스 필요
+                        .foregroundColor(Color.adddiaryIcon) // 실제 색상 리소스 필요
                 }
 
                 Spacer().frame(width: 80)
@@ -125,7 +202,7 @@ struct AddDiaryView: View {
                               ? MyDateFormatter.shared.string(from: Date())
                               : vm.diaryDate)
                     }
-                    .font(.pretendardSemiBold(18))
+                    .font(.pretendardSemiBold(18)) // 실제 폰트 확장 필요
                     .foregroundStyle(Color.adddiaryIcon)
                 }
 
@@ -139,13 +216,13 @@ struct AddDiaryView: View {
                 ForEach(stepVM.steps.indices, id: \.self) { index in
                     VStack(spacing: 6) {
                         RoundedRectangle(cornerRadius: 70)
-                            .fill(index <= stepVM.currentStep ? Color.green04 : Color.gray08.opacity(0.3))
-                            .frame(width: barWidth, height: barHeight) // stepBarWidth -> barWidth, stepBarHeight -> barHeight
+                            .fill(index <= stepVM.currentStep ? Color.green04 : Color.gray08.opacity(0.3)) // 실제 색상 리소스 필요
+                            .frame(width: barWidth, height: barHeight)
 
                         Text(stepVM.steps[index].title)
-                            .font(.pretendardRegular(14))
-                            .foregroundColor(.adddiaryfont)
-                            .opacity(index == stepVM.currentStep ? 1 : 0) // 공간은 유지
+                            .font(.pretendardRegular(14)) // 실제 폰트 확장 필요
+                            .foregroundColor(.adddiaryfont) // 실제 색상 리소스 필요
+                            .opacity(index == stepVM.currentStep ? 1 : 0)
                             .frame(height: labelHeight)
                             .lineLimit(1)
                             .minimumScaleFactor(0.85)
@@ -153,7 +230,7 @@ struct AddDiaryView: View {
                     .frame(width: barWidth)
                 }
             }
-            .frame(maxWidth: .infinity, alignment: .center) // 그룹은 가운데 정렬
+            .frame(maxWidth: .infinity, alignment: .center)
         }
     }
 
@@ -162,16 +239,16 @@ struct AddDiaryView: View {
     private var stepContentView: some View {
         switch stepVM.currentStep {
         case 0:
-            EmotionStepView(vm: vm) { stepVM.goNext() }
+            EmotionStepView(vm: vm) { stepVM.goNext() } // 실제 컴포넌트 필요
         case 1:
-            DiaryStepView(vm: vm)
+            DiaryStepView(vm: vm) // 실제 컴포넌트 필요
                 .padding(.top,50)
 
         case 2:
-            PhotoStepView(vm: vm)
+            PhotoStepView(vm: vm) // 실제 컴포넌트 필요
                 .padding(.top,70)
         case 3:
-            SleepStepView(vm: vm, selectedDate: selectedDate)
+            SleepStepView(vm: vm, selectedDate: selectedDate) // 실제 컴포넌트 필요
         default:
             EmptyView()
         }
@@ -187,7 +264,7 @@ struct AddDiaryView: View {
             HStack {
                 // 이전
                 if stepVM.currentStep != 0 {
-                    MainMiddleButton(
+                    MainMiddleButton( // 실제 컴포넌트 필요
                         text: "이전",
                         isDisabled: false,
                         action: { stepVM.goBack() }
@@ -212,9 +289,7 @@ struct AddDiaryView: View {
                         isDisabled: vm.isLoading,
                         action: {
                             vm.submit()
-                            withAnimation(.easeInOut) {
-                                vm.isCompleted = true // CompletedView로 전환
-                            }
+                            withAnimation(.easeInOut) {}
                         }
                     )
                     .tint(.green04)
@@ -224,6 +299,7 @@ struct AddDiaryView: View {
         )
     }
 }
+
 
 struct AddDiaryView_Preview: PreviewProvider {
     static var devices = ["iPhone SE (3rd generation)", "iPhone 11", "iPhone 16 Pro Max"]
