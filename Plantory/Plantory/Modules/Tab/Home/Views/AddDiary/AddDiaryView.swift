@@ -103,7 +103,6 @@ struct AddDiaryView: View {
             title: "해당 날짜에 이미 작성된 일기가 있습니다.",
             message: "각 날짜에 해당하는 하나의 일기만 작성 가능합니다.",
             confirmTitle: "확인",
-            cancelTitle: nil,
             onConfirm: {
                 vm.showLoadNormalPopup = false
             }
@@ -129,7 +128,6 @@ struct AddDiaryView: View {
             title: "네트워크 불안정",
             message: "네트워크 연결이 불안정합니다. 입력한 내용은 임시 저장됩니다.",
             confirmTitle: "확인",
-            cancelTitle: nil,
             onConfirm: { vm.showNetworkErrorPopup = false }
         )
         

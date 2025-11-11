@@ -58,7 +58,7 @@ extension View {
         title: String,
         message: String,
         confirmTitle: String = "확인",
-        cancelTitle: String?,
+        cancelTitle: String? = nil,
         onConfirm: @escaping () -> Void = {},
         onCancel: @escaping () -> Void = {}
     ) -> some View {

@@ -38,6 +38,11 @@ struct DatePickerCalendarView: View {
         // 1. 이미 작성된 일기가 있는지 확인
         vm.checkExistingFinalizedDiary(for: selected)
         
+        // 만약 이미 작성된 일기가 있다면, 임시 일기 체크 및 확정 로직을 건너뜀
+        if vm.showLoadNormalPopup {
+            return
+        }
+        
         // 2. 임시 저장된 일기가 있는지 확인
         vm.checkForTemporaryDiary(for: selected)
         

@@ -83,8 +83,7 @@ final class AddDiaryViewModel {
                 }
             }, receiveValue: { [weak self] existsResult in
                 guard let self else { return }
-                let exists = (existsResult.exist)
-                self.showLoadNormalPopup = exists
+                self.showLoadNormalPopup = existsResult.exist
             })
             .store(in: &cancellables)
     }
@@ -108,8 +107,7 @@ final class AddDiaryViewModel {
                 }
             }, receiveValue: { [weak self] existsResult in
                 guard let self else { return }
-                let exists = (existsResult.exist)
-                self.showLoadTempPopup = exists
+                self.showLoadTempPopup = existsResult.exist
             })
             .store(in: &cancellables)
     }
