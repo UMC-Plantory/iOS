@@ -5,9 +5,9 @@
 //  Created by 주민영 on 7/24/25.
 //
 
-import Foundation
 import Combine
 import AuthenticationServices
+import SwiftUI
 
 /// 로그인 화면에서 사용되는 ViewModel
 /// 사용자 ID/비밀번호 로그인 및 카카오 로그인 기능을 제공하며, 키체인과 앱 흐름 전환을 관리함
@@ -32,15 +32,19 @@ class LoginViewModel {
     /// 자동 로그인 관리
     let sessionManager: SessionManager
     
+    /// 로그인 화면전환 관리
+    let loginRouter: LoginRouter
+    
     // MARK: - Init
         
     /// ViewModel 초기화
     /// - Parameters:
     ///   - container: DIContainer를 주입받아 서비스 사용
     ///   - sessionManager: SessionManager를 주입받아 사용
-    init(container: DIContainer, sessionManager: SessionManager) {
+    init(container: DIContainer, sessionManager: SessionManager, loginRouter: LoginRouter) {
         self.container = container
         self.sessionManager = sessionManager
+        self.loginRouter = loginRouter
     }
     
     // MARK: - ManagerProperty
@@ -97,9 +101,12 @@ class LoginViewModel {
                 
                 Task {
                     await self?.routeAfterLogin(status: response.memberStatus)
+                    
+                    withAnimation(.easeInOut(duration: 0.3)) {
+                        self?.sessionManager.isLoggedIn = response.memberStatus == .active
+                    }
                 }
-
-                self?.sessionManager.isLoggedIn = response.memberStatus == .active
+                
                 self?.isLoading = false
             })
             .store(in: &cancellables)
@@ -171,9 +178,11 @@ class LoginViewModel {
                 
                 Task {
                     await self?.routeAfterLogin(status: response.memberStatus)
+                    
+                    withAnimation(.easeInOut(duration: 0.3)) {
+                        self?.sessionManager.isLoggedIn = response.memberStatus == .active
+                    }
                 }
-                
-                self?.sessionManager.isLoggedIn = response.memberStatus == .active
                 self?.isLoading = false
             })
             .store(in: &cancellables)
@@ -185,9 +194,9 @@ class LoginViewModel {
     private func routeAfterLogin(status: MemberStatus) {
         switch status {
         case .pending, .inActive:
-            container.navigationRouter.push(.permit)
+            loginRouter.push(.permit)
         case .agree:
-            container.navigationRouter.push(.profileInfo)
+            loginRouter.push(.profileInfo)
         case .active:
             break
         }

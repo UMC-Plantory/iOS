@@ -43,11 +43,11 @@ struct NothingView: View {
                 VStack {
                     Text(mainText)
                         .font(.pretendardSemiBold(16))
-                        .foregroundStyle(.gray10)
+                        .foregroundStyle(.gray10Dynamic)
                     Spacer().frame(height: 5)
                     Text(subText)
                         .font(.pretendardMedium(14))
-                        .foregroundStyle(.gray07)
+                        .foregroundStyle(.gray07Dynamic)
                 }
                 
                 if let title = buttonTitle,
@@ -55,11 +55,11 @@ struct NothingView: View {
                     Button(action: action) {
                         Text(title)
                             .font(.pretendardRegular(14))
-                            .foregroundStyle(.green06)
+                            .foregroundStyle(.green06Dynamic)
                             .padding(.horizontal, 8)
                             .padding(.vertical, 4)
                             .background(
-                                RoundedRectangle(cornerRadius: 5).stroke(.green06, lineWidth: 1)
+                                RoundedRectangle(cornerRadius: 5).stroke(.green06Dynamic, lineWidth: 1)
                             )
                     }
                 }

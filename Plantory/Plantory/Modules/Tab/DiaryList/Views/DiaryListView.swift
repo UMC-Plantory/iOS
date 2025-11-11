@@ -62,26 +62,36 @@ struct DiaryListView: View {
     
     // 스크롤 리스트
     private var DiaryListContent: some View {
-        ScrollView {
-            LazyVStack(spacing: 16) {
-                ForEach(viewModel.diaries) { diary in
-                    Button {
-                        container.navigationRouter.push(.diaryDetail(diaryId: diary.diaryId))
-                    } label: {
-                        DiaryRow(entry: diary)
-                    }
-                    .buttonStyle(.plain)
-                    .onAppear {
-                        if diary.id == viewModel.diaries.last?.id {
-                            Task {
-                                await viewModel.fetchFilteredDiaries()
+        Group {
+            if viewModel.diaries.isEmpty {
+                NothingView(
+                    mainText: "아직 작성한 일기가 없어요",
+                    subText: "오늘 첫 일기를 써보세요!"
+                )
+                .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .center)
+            } else {
+                ScrollView {
+                    LazyVStack(spacing: 16) {
+                        ForEach(viewModel.diaries) { diary in
+                            Button {
+                                container.navigationRouter.push(.diaryDetail(diaryId: diary.diaryId))
+                            } label: {
+                                DiaryRow(entry: diary)
+                            }
+                            .buttonStyle(.plain)
+                            .onAppear {
+                                if diary.id == viewModel.diaries.last?.id {
+                                    Task {
+                                        await viewModel.fetchFilteredDiaries()
+                                    }
+                                }
                             }
                         }
+                        
+                        if viewModel.isLoading {
+                            ProgressView().padding()
+                        }
                     }
-                }
-
-                if viewModel.isLoading {
-                    ProgressView().padding()
                 }
             }
         }

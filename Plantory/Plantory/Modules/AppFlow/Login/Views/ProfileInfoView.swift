@@ -9,7 +9,7 @@ import SwiftUI
 
 struct ProfileInfoView: View {
     
-    @EnvironmentObject var container: DIContainer
+    @EnvironmentObject var loginRouter: LoginRouter
     @EnvironmentObject var sessionManager: SessionManager
     
     // MARK: - Property
@@ -41,9 +41,12 @@ struct ProfileInfoView: View {
                 cancelTitle: "취소",
                 onConfirm: {
                     // 로그인 화면으로 이동한 후 팝업 닫기
-                    container.navigationRouter.reset()
+                    loginRouter.reset()
                 }
             )
+            .task {
+                UIApplication.shared.hideKeyboard()
+            }
             .toastView(toast: $viewModel.toast)
             .loadingIndicator(viewModel.isLoading)
     }
@@ -58,7 +61,9 @@ struct ProfileInfoView: View {
                     subText: "플랜토리의 다양한 서비스를 이용해보세요.",
                     buttonTitle: "홈으로 이동하기",
                     buttonAction: {
-                        sessionManager.isLoggedIn = true
+                        withAnimation(.easeInOut(duration: 0.3)) {
+                            sessionManager.isLoggedIn = true
+                        }
                     }
                 )
                 .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .center)
@@ -71,6 +76,7 @@ struct ProfileInfoView: View {
         }
         .padding(.horizontal, 16)
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
+        .background(Color.white01Dynamic)
         .navigationBarBackButtonHidden()
     }
     
@@ -110,6 +116,8 @@ struct ProfileInfoView: View {
                     withAnimation(.spring()) { isShowingGoToLoginPopup = true }
                 }, label: {
                     Image("leftChevron")
+                        .renderingMode(.template)
+                        .foregroundStyle(.black01Dynamic)
                         .fixedSize()
                 })
                 
@@ -117,12 +125,14 @@ struct ProfileInfoView: View {
             }
             .overlay {
                 Image("logo_text")
+                    .renderingMode(.template)
+                    .foregroundStyle(.black01Dynamic)
                     .fixedSize()
             }
             
             Divider()
                 .frame(height: 1)
-                .foregroundStyle(.gray06)
+                .foregroundStyle(.gray06Dynamic)
         }
     }
     

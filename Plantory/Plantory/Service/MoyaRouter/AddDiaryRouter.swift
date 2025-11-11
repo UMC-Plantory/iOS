@@ -11,7 +11,8 @@ import Moya
 
 enum AddDiaryRouter: APITargetType {
     case create(body: AddDiaryRequest)        // 일기 작성
-    case fetchDiaryStatus(date: String)       // 해당 날짜에 저장된 일기가 있는지 확인
+    case fetchNormalDiaryStatus(date: String)  // 해당 날짜에 저장된 일기가 있는지 확인
+    case fetchDiaryStatus(date: String)       // 해당 날짜에 임시 저장된 일기가 있는지 확인
     case fetchTempDiary(id:Int)
 }
 
@@ -22,6 +23,8 @@ extension AddDiaryRouter {
         switch self {
         case .create:
             return "/diaries"
+        case .fetchNormalDiaryStatus:
+            return "/diaries/normal-status/exists"
         case .fetchDiaryStatus:
             return "/diaries/temp-status/exists"
         case .fetchTempDiary:
@@ -33,9 +36,7 @@ extension AddDiaryRouter {
         switch self {
         case .create:
             return .post
-        case .fetchDiaryStatus:
-            return .get
-        case .fetchTempDiary:
+        default:
             return .get
         }
     }
@@ -44,6 +45,13 @@ extension AddDiaryRouter {
         switch self {
         case .create(let body):
             return .requestJSONEncodable(body)
+            
+        case .fetchNormalDiaryStatus(let date):
+            // 쿼리 파라미터로 date를 전달
+            return .requestParameters(
+                parameters: ["date": date],
+                encoding: URLEncoding.queryString
+            )
             
         case .fetchDiaryStatus(let date):
             // 쿼리 파라미터로 date를 전달
@@ -79,6 +87,18 @@ extension AddDiaryRouter {
             }
             """.utf8)
                 
+            case .fetchNormalDiaryStatus:
+                return Data("""
+            {
+              "isSuccess": true,
+              "code": "COMMON200",
+              "message": "성공입니다.",
+              "result": {
+                "exist": true
+              }
+            }
+            """.utf8)
+                
             case .fetchDiaryStatus:
                 return Data("""
             {
@@ -86,7 +106,7 @@ extension AddDiaryRouter {
               "code": "COMMON200",
               "message": "성공입니다.",
               "result": {
-                "isExist": true
+                "exist": true
               }
             }
             """.utf8)

@@ -31,8 +31,6 @@ struct AddDiaryView: View {
     
     @Environment(\.dismiss) var dismiss
 
-    @State private var showFullCalendar: Bool = false
-
 
     init(container: DIContainer, date: Date = Date()) {
         self._stepVM = Bindable(wrappedValue: StepIndicatorViewModel())
@@ -43,27 +41,26 @@ struct AddDiaryView: View {
     var body: some View {
         ZStack(alignment: .top) {
             if vm.isCompleted {
-
-                
                 ScrollView {
                     VStack {
-                        CompletedView() // 실제 컴포넌트 필요
-                           
+                        CompletedView()
+                        
                     }
                     .frame(maxWidth: .infinity, minHeight: UIScreen.main.bounds.height - (UIApplication.shared.windows.first?.safeAreaInsets.top ?? 0) - (UIApplication.shared.windows.first?.safeAreaInsets.bottom ?? 0))
-
-                GeometryReader { geometry in
-                    ScrollView { // CompletedView를 스크롤뷰로 감싸 작은 화면에서 잘리지 않도록 함
-                        VStack {
-                            CompletedView()
+                    
+                    GeometryReader { geometry in
+                        ScrollView { // CompletedView를 스크롤뷰로 감싸 작은 화면에서 잘리지 않도록 함
+                            VStack {
+                                CompletedView()
+                            }
                         }
+                        .frame(
+                            maxWidth: .infinity,
+                            minHeight: geometry.size.height
+                        )
+                        
+                        .background(Color.adddiarybackground.ignoresSafeArea(.all, edges: .all))
                     }
-                    .frame(
-                        maxWidth: .infinity,
-                        minHeight: geometry.size.height
-                    )
-
-                    .background(Color.adddiarybackground.ignoresSafeArea(.all, edges: .all))
                 }
                 .background(Color.adddiarybackground.ignoresSafeArea(.all, edges: .all))
                 .ignoresSafeArea(.keyboard)
@@ -83,65 +80,16 @@ struct AddDiaryView: View {
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
                 .padding()
             }
-            
-            // 모달 1: 일기 중복 팝업 (확인 버튼만)
-            if let date = vm.showExistingDiaryDateForDatePicker {
-                BlurBackground() // 실제 컴포넌트 필요
-                PopUp( // 실제 컴포넌트 필요
-                    title: "일기 중복",
-                    message: "\(HomeViewModel.formatYMDForDisplay(date))에 이미 일기가 작성되었어요.",
-                    confirmTitle: "확인",
-                    cancelTitle: "확인",
-                    onConfirm: {
-                        // 확인 버튼 (confirmTitle): 팝업 상태 해제. 시트 닫기는 onChange에서 처리됨.
-                        vm.showExistingDiaryDateForDatePicker = nil
-                    },
-                    onCancel: {
-                        // 확인 버튼 (cancelTitle): 팝업 상태 해제. 시트 닫기는 onChange에서 처리됨.
-                        vm.showExistingDiaryDateForDatePicker = nil
-                    }
-                )
-            }
-
-            // 모달 2: 임시 저장 불러오기 모달
-            if vm.showLoadTempPopup {
-                BlurBackground()
-                PopUp(
-                    title: "임시 저장된 일기",
-                    message: "해당 날짜에 보관된 일기가 있습니다. 불러오시겠습니까?",
-                    confirmTitle: "불러오기",
-                    cancelTitle: "새로 작성",
-                    onConfirm: {
-                        // 불러오기: 로드 후 팝업 닫기. 시트 닫기는 onChange에서 처리됨.
-                        vm.loadTemporaryDiary()
-                    },
-                    onCancel: {
-                        // 새로 작성: 팝업 닫기, 선택된 날짜로 확정한 후 시트 닫기
-                        vm.showLoadTempPopup = false
-                        vm.setDiaryDate(DiaryFormatters.day.string(from: selectedDate))
-                    }
-                )
-            }
-            
-            // 모달 3: 네트워크 불안정/임시 저장 완료 모달
-            if vm.showNetworkErrorPopup {
-                BlurBackground()
-                PopUp(
-                    title: "네트워크 불안정",
-                    message: "네트워크 연결이 불안정합니다. 입력한 내용은 임시 저장됩니다.",
-                    confirmTitle: "확인",
-                    cancelTitle: "확인",
-                    onConfirm: { vm.showNetworkErrorPopup = false },
-                    onCancel: { vm.showNetworkErrorPopup = false }
-                )
-            }
         }
-        .toastView(toast: $vm.toast) // 실제 컴포넌트 필요
-        .onAppear {
-            vm.checkForTemporaryDiary(for: selectedDate)
-        }
+        .toastView(toast: $vm.toast)
         .task {
-            UIApplication.shared.hideKeyboard() // 실제 확장 메서드 필요
+            UIApplication.shared.hideKeyboard()
+            
+            // 1. 이미 작성된 일기가 있는지 확인
+            vm.checkExistingFinalizedDiary(for: selectedDate)
+            
+            // 2. 임시 저장된 일기가 있는지 확인
+            vm.checkForTemporaryDiary(for: selectedDate)
         }
         .navigationBarBackButtonHidden(true)
         .onDisappear {
@@ -150,17 +98,38 @@ struct AddDiaryView: View {
             }
         }
         
-        //핵심 로직: 팝업 상태가 변경되면 DatePickerCalendarView 시트를 즉시 내립니다.
-        .onChange(of: vm.showExistingDiaryDateForDatePicker) { _, date in
-            if date != nil {
-                withAnimation { showFullCalendar = false }
+        .popup(
+            isPresented: $vm.showLoadNormalPopup,
+            title: "해당 날짜에 이미 작성된 일기가 있습니다.",
+            message: "각 날짜에 해당하는 하나의 일기만 작성 가능합니다.",
+            confirmTitle: "확인",
+            onConfirm: {
+                vm.showLoadNormalPopup = false
             }
-        }
-        .onChange(of: vm.showLoadTempPopup) { _, isShowing in
-            if isShowing {
-                withAnimation { showFullCalendar = false }
+        )
+        .popup(
+            isPresented: $vm.showLoadTempPopup,
+            title: "임시 저장된 일기",
+            message: "해당 날짜에 보관된 일기가 있습니다. 불러오시겠습니까?",
+            confirmTitle: "불러오기",
+            cancelTitle: "새로 작성",
+            onConfirm: {
+                // 불러오기: 로드 후 팝업 닫기. 시트 닫기는 onChange에서 처리됨.
+                vm.loadTemporaryDiary()
+            },
+            onCancel: {
+                // 새로 작성: 팝업 닫기, 선택된 날짜로 확정한 후 시트 닫기
+                vm.showLoadTempPopup = false
+                vm.setDiaryDate(DiaryFormatters.day.string(from: selectedDate))
             }
-        }
+        )
+        .popup(
+            isPresented: $vm.showNetworkErrorPopup,
+            title: "네트워크 불안정",
+            message: "네트워크 연결이 불안정합니다. 입력한 내용은 임시 저장됩니다.",
+            confirmTitle: "확인",
+            onConfirm: { vm.showNetworkErrorPopup = false }
+        )
         
         // Sheet 호출
         .sheet(isPresented: $showFullCalendar) {

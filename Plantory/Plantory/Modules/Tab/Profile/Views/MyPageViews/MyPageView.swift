@@ -91,7 +91,9 @@ struct MyPageView: View {
                                 onConfirm: {
                                     statsVM.logout()
                                     container.navigationRouter.reset()
-                                    sessionManager.isLoggedIn = false
+                                    withAnimation(.easeInOut(duration: 0.3)) {
+                                        sessionManager.isLoggedIn = false
+                                    }
                                 },
                                 onCancel: {
                                     popupManager.dismiss()

@@ -95,7 +95,7 @@ private struct ArrivedCardView: View {
     }
 }
 
-/// AI답장 확인
+/// AI 답장 확인
 private struct CompleteCardView: View {
     @ObservedObject var vm: DiaryCheckViewModel
 
@@ -122,12 +122,11 @@ private struct CompleteCardView: View {
             Text(vm.summary?.aiComment ?? "답장 없음")
                 .font(.pretendardRegular(16))
                 .foregroundStyle(.gray11Dynamic)
-                .multilineTextAlignment(.leading)
+                .multilineTextAlignment(.center)
                 .padding(12)
         }
         .padding(24)
         .frame(maxWidth: .infinity)
-        .frame(height: 176)
         .background(Color.white01Dynamic)
         .cornerRadius(10)
     }

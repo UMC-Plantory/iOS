@@ -9,7 +9,7 @@ import SwiftUI
 
 struct PolicyView: View {
     
-    @EnvironmentObject var container: DIContainer
+    @EnvironmentObject var loginRouter: LoginRouter
     
     var num: Int = 0
     
@@ -20,7 +20,7 @@ struct PolicyView: View {
     var body: some View {
         VStack(spacing: 0) {
             Divider()
-                .foregroundStyle(.gray06)
+                .foregroundStyle(.gray06Dynamic)
                 .frame(height: 1)
                 .padding(.top, 8)
             
@@ -28,20 +28,23 @@ struct PolicyView: View {
                 Text(termsSections[self.num].body)
                     .kerning(1)
                     .font(.pretendardRegular(14))
-                    .foregroundStyle(.black)
+                    .foregroundStyle(.black01Dynamic)
             }
             .scrollIndicators(.hidden)
         }
         .padding(.horizontal, 16)
         .navigationBarBackButtonHidden(true)
+        .background(Color.white01Dynamic)
         .customNavigation(
             title: "\(termsSections[self.num].title)",
             leading:
                 Button(action: {
                     print("뒤로가기")
-                    container.navigationRouter.pop()
+                    loginRouter.pop()
                 }, label: {
                     Image("leftChevron")
+                        .renderingMode(.template)
+                        .foregroundStyle(.black01Dynamic)
                         .fixedSize()
                 })
         )

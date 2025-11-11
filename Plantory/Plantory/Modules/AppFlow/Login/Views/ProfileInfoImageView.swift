@@ -68,13 +68,13 @@ struct ProfileInfoImageView: View {
                                 .frame(maxWidth: .infinity)
                         }
                     }
-                    .background(Color.white)
+                    .background(Color.white01Dynamic)
                     .cornerRadius(5)
                     .shadow(color: Color.black.opacity(0.1), radius: 2, x: 0, y: 2)
                     .frame(width: 90)
                     .offset(x: 60, y: 50)
                     .zIndex(2)
-                    .foregroundStyle(.black)
+                    .foregroundStyle(.black01Dynamic)
                 }
             }
             Spacer()

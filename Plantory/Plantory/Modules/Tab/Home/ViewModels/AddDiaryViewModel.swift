@@ -27,6 +27,7 @@ final class AddDiaryViewModel {
     var toast: CustomToast? = nil
 
     // 모달 상태
+    var showLoadNormalPopup: Bool = false       // 저장된 일기 팝업
     var showLoadTempPopup: Bool = false       // 임시 저장된 일기 불러오기
     var showNetworkErrorPopup: Bool = false   // 네트워크 불안정 시 임시 저장 알림
     var showExistingDiaryDateForDatePicker: Date? = nil // DatePicker 중복 감지
@@ -64,11 +65,27 @@ final class AddDiaryViewModel {
     func setStatus(_ v: String) { status = v } // NORMAL or TEMP
     func markImageDeleted(_ deleted: Bool) { isImgDeleted = deleted }
 
-    // MARK: - (기존 확정 일기) 중복 체크 - 아직 API 미지정이라 Mock 유지
-    func checkExistingFinalizedDiary(for date: Date) -> Bool {
+    // MARK: - 기존 확정 일기 중복 체크
+    func checkExistingFinalizedDiary(for date: Date) {
         let dateString = DiaryFormatters.day.string(from: date)
-        // TODO: 확정(NORMAL) 중복 체크 API 연결 시 교체
-        return dateString == "2025-10-02"
+        self.diaryDate = dateString // 선택한 날짜 즉시 반영
+
+        container.useCaseService.addDiaryService
+            .fetchNormalDiaryStatus(date: dateString)
+            .receive(on: DispatchQueue.main)
+            .sink(receiveCompletion: { [weak self] c in
+                guard let self else { return }
+                if case .failure(let e) = c {
+                    self.toast = CustomToast(
+                        title: "저장 조회 실패",
+                        message: e.errorDescription ?? "네트워크 상태를 확인해주세요."
+                    )
+                }
+            }, receiveValue: { [weak self] existsResult in
+                guard let self else { return }
+                self.showLoadNormalPopup = existsResult.exist
+            })
+            .store(in: &cancellables)
     }
 
     // MARK: - 임시 저장 로직 (API)
@@ -90,10 +107,7 @@ final class AddDiaryViewModel {
                 }
             }, receiveValue: { [weak self] existsResult in
                 guard let self else { return }
-                // 서버 DTO가 result{isExist: Bool}에서 바디로 파싱되어 들어온다고 가정(DiaryExistResult)
-                // 필요 시 existsResult.result.isExist 형태로 조정
-                let exists = (existsResult.isExist)
-                self.showLoadTempPopup = exists
+                self.showLoadTempPopup = existsResult.exist
             })
             .store(in: &cancellables)
     }

@@ -35,16 +35,16 @@ private struct YearDropdown: View {
                                 // 쉼표 방지
                                 Text(verbatim: "\(y)년")
                                     .font(.pretendardRegular(14))
-                                    .foregroundColor(.white01Dynamic)
+                                    .foregroundColor(.white01)
                                 Spacer()
                             }
                             .padding(.horizontal, 16)
                             .frame(height: rowHeight)
-                            .background(y == selected ? Color.white01Dynamic.opacity(0.08) : .clear)
+                            .background(y == selected ? Color.white01.opacity(0.08) : .clear)
                         }
                         .id(y)
 
-                        Divider().background(Color.white01Dynamic.opacity(0.5))
+                        Divider().background(Color.white01.opacity(0.5))
                     }
                 }
             }

@@ -26,14 +26,17 @@ class PermitViewModel {
     let container: DIContainer
     /// Combine 구독 해제를 위한 Set
     var cancellables = Set<AnyCancellable>()
+    /// 로그인 화면 전환을 위함
+    let loginRouter: LoginRouter
     
     // MARK: - Init
         
     /// ViewModel 초기화
     /// - Parameters:
     ///   - container: DIContainer를 주입받아 서비스 사용
-    init(container: DIContainer) {
+    init(container: DIContainer, loginRouter: LoginRouter) {
         self.container = container
+        self.loginRouter = loginRouter
     }
     
     // MARK: - States
@@ -111,7 +114,7 @@ class PermitViewModel {
                 }
             }, receiveValue: { [weak self] response in
                 // post 성공 시, 개인정보 입력 뷰로 이동
-                self?.container.navigationRouter.push(.profileInfo)
+                self?.loginRouter.push(.profileInfo)
                 
                 self?.isLoading = false
             })

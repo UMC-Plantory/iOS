@@ -108,23 +108,10 @@ class HomeViewModel {
             return
         }
         
-        // 2. 일기 존재 여부 확인 (API 호출 전 로컬 상태 확인)
-        let dateKey = Self.formatYMD(date)
-        if diaryEmotionsByDate.keys.contains(dateKey) {
-            // 일기가 이미 작성된 날짜를 탭한 경우, 팝업 상태 업데이트
-            selectedDate = date
-            showExistingDiaryPopup = date
-            diarySummary = nil
-            noDiaryForSelectedDate = false
-            return
-        }
-
-        // 3. 일기 없음 (API 호출하여 요약 가져옴 - 없으면 noDiaryForSelectedDate = true)
         selectedDate = date
-        // API 호출 전 상태 초기화
         diarySummary = nil
         noDiaryForSelectedDate = false
-        showExistingDiaryPopup = nil // 기존 팝업 상태 초기화
+        showExistingDiaryPopup = nil
         loadDiarySummary(for: date)
     }
 
