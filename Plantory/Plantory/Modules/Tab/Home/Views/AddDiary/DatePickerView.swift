@@ -36,11 +36,7 @@ struct DatePickerCalendarView: View {
         let selected = internalSelectedDate
         
         // 1. 이미 작성된 일기가 있는지 확인
-        if vm.checkExistingFinalizedDiary(for: selected) {
-            // AddDiaryView가 팝업을 띄우도록 상태를 업데이트하고, 시트 닫기는 AddDiaryView의 onChange에 맡깁니다.
-            vm.showExistingDiaryDateForDatePicker = selected
-            return
-        }
+        vm.checkExistingFinalizedDiary(for: selected)
         
         // 2. 임시 저장된 일기가 있는지 확인
         vm.checkForTemporaryDiary(for: selected)
@@ -59,7 +55,7 @@ struct DatePickerCalendarView: View {
                 selection: $internalSelectedDate,
                 displayedComponents: [.date]
             )
-            .datePickerStyle(GraphicalDatePickerStyle())
+            .datePickerStyle(.graphical)
             .labelsHidden()
 
             Button("확인") {
@@ -69,7 +65,7 @@ struct DatePickerCalendarView: View {
             .foregroundColor(.green04)
         }
         .padding()
-        .background(RoundedRectangle(cornerRadius: 20).fill(Color.white))
+        .background(RoundedRectangle(cornerRadius: 20).fill(Color.white01Dynamic))
         .padding(.horizontal, 32)
         .shadow(radius: 10)
     }

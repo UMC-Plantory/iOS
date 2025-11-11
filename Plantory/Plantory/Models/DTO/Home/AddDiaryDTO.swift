@@ -33,7 +33,7 @@ struct AddDiaryResponse: Codable {
 
 // MARK: - 존재 여부 공통 응답(result)
 struct DiaryExistResult: Decodable {
-    let isExist: Bool
+    let exist: Bool
 }
 
 struct TempDiaryRequest: Decodable{
