@@ -9,7 +9,7 @@ import SwiftUI
 
 struct PermitView: View {
     
-    @EnvironmentObject var container: DIContainer
+    @EnvironmentObject var loginRouter: LoginRouter
     
     // MARK: - Property
     
@@ -19,9 +19,10 @@ struct PermitView: View {
 
     /// DIContainer와 앱 흐름 ViewModel(AppFlowViewModel)을 주입받아 초기화
     init(
-        container: DIContainer
+        container: DIContainer,
+        loginRouter: LoginRouter
     ) {
-        self.viewModel = .init(container: container)
+        self.viewModel = .init(container: container, loginRouter: loginRouter)
     }
     
     // MARK: - Body
@@ -36,7 +37,7 @@ struct PermitView: View {
                         allToggle
                         
                         Divider()
-                            .foregroundStyle(.gray06)
+                            .foregroundStyle(.gray06Dynamic)
                         
                         detailedToggles
                     }
@@ -63,13 +64,16 @@ struct PermitView: View {
         }
         .padding(.top, 10)
         .navigationBarBackButtonHidden(true)
+        .background(Color.white01Dynamic)
         .customNavigation(
             leading:
                 Button(action: {
                     print("뒤로가기")
-                    container.navigationRouter.pop()
+                    loginRouter.pop()
                 }, label: {
                     Image("leftChevron")
+                        .renderingMode(.template)
+                        .foregroundStyle(.black01Dynamic)
                         .fixedSize()
                 })
         )
@@ -81,7 +85,7 @@ struct PermitView: View {
         VStack(alignment: .leading, spacing: 8) {
             Text("서비스 이용 동의")
                 .font(.pretendardSemiBold(24))
-                .foregroundStyle(.black)
+                .foregroundStyle(.black01Dynamic)
             
             Text("약관을 확인 후 버튼을 체크해주세요")
                 .font(.pretendardRegular(14))
@@ -93,7 +97,7 @@ struct PermitView: View {
         Toggle("약관 전체 동의", isOn: $viewModel.allPermit)
             .toggleStyle(CheckboxToggleStyle(style: .circle))
             .font(.pretendardSemiBold(18))
-            .foregroundStyle(.black)
+            .foregroundStyle(.black01Dynamic)
     }
     
     private var detailedToggles: some View {
@@ -103,16 +107,17 @@ struct PermitView: View {
                     Toggle(item.title, isOn: item.binding)
                         .toggleStyle(CheckboxToggleStyle(style: .circle))
                         .font(.pretendardRegular(16))
-                        .foregroundStyle(.gray10)
+                        .foregroundStyle(.gray10Dynamic)
                     
                     Spacer()
                     
                     Button(action: {
-                        container.navigationRouter.push(.policy(num: item.num))
+                        loginRouter.push(.policy(num: item.num))
                     }, label: {
                         Image("rightChevron")
+                            .renderingMode(.template)
+                            .foregroundStyle(.gray10Dynamic)
                             .fixedSize()
-                            .foregroundStyle(.gray10)
                     })
                 }
             }
@@ -126,11 +131,5 @@ struct PermitView: View {
             PermitItem(num: 1, title: "(필수) 개인정보 수집/이용동의", binding: $viewModel.informationPermit),
             PermitItem(num: 2, title: "(선택) 마케팅 수신 동의", binding: $viewModel.marketingPermit)
         ]
-    }
-}
-
-#Preview {
-    NavigationStack {
-        PermitView(container: DIContainer())
     }
 }

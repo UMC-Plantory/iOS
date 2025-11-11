@@ -13,7 +13,7 @@ struct PopupModifier: ViewModifier {
     let title: String
     let message: String
     let confirmTitle: String
-    let cancelTitle: String
+    let cancelTitle: String?
     let onConfirm: () -> Void
     let onCancel: () -> Void
     
@@ -58,7 +58,7 @@ extension View {
         title: String,
         message: String,
         confirmTitle: String = "확인",
-        cancelTitle: String = "취소",
+        cancelTitle: String?,
         onConfirm: @escaping () -> Void = {},
         onCancel: @escaping () -> Void = {}
     ) -> some View {

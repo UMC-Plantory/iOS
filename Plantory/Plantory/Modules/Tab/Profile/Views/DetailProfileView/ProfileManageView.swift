@@ -43,7 +43,9 @@ struct ProfileManageView: View {
             onConfirm: {
                 vm.withdrawAccount()
                 container.navigationRouter.reset()
-                sessionManager.isLoggedIn = false
+                withAnimation(.easeInOut(duration: 0.3)) {
+                    sessionManager.isLoggedIn = false
+                }
             }
         )
         .task {

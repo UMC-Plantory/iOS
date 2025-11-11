@@ -14,7 +14,7 @@ struct PopUp: View {
     let title: String
     let message: String
     let confirmTitle: String
-    let cancelTitle: String
+    let cancelTitle: String?
     let onConfirm: () -> Void
     let onCancel: () -> Void
     
@@ -44,10 +44,12 @@ struct PopUp: View {
                     Spacer()
                     
                     // 취소 버튼
-                    StrokeSmallButton(
-                        text: cancelTitle,
-                        action: onCancel
-                    )
+                    if let cancelTitle = cancelTitle {
+                        StrokeSmallButton(
+                            text: cancelTitle,
+                            action: onCancel
+                        )
+                    }
                     
                     // 확인 버튼
                     MainSmallButton(

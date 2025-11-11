@@ -9,8 +9,6 @@ import SwiftUI
 
 struct LoginView: View {
     
-    @EnvironmentObject var container: DIContainer
-    
     // MARK: - Property
     
     @State var viewModel: LoginViewModel
@@ -20,9 +18,14 @@ struct LoginView: View {
     /// DIContainer를 주입받아 초기화
     init(
         container: DIContainer,
-        sessionManager: SessionManager
+        sessionManager: SessionManager,
+        loginRouter: LoginRouter
     ) {
-        self.viewModel = .init(container: container, sessionManager: sessionManager)
+        self.viewModel = .init(
+            container: container,
+            sessionManager: sessionManager,
+            loginRouter: loginRouter
+        )
     }
     
     // MARK: - Body
@@ -111,19 +114,6 @@ struct LoginView: View {
                 Image("appleLogin")
                     .fixedSize()
             })
-        }
-    }
-}
-
-struct LoginView_Preview: PreviewProvider {
-    static var devices = ["iPhone SE (3rd generation)", "iPhone 11", "iPhone 16 Pro Max"]
-    
-    static var previews: some View {
-        ForEach(devices, id: \.self) { device in
-            LoginView(container: DIContainer(), sessionManager: SessionManager())
-                .environment(NavigationRouter())
-                .previewDevice(PreviewDevice(rawValue: device))
-                .previewDisplayName(device)
         }
     }
 }

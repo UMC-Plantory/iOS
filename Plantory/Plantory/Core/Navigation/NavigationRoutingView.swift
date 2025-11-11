@@ -23,15 +23,8 @@ struct NavigationRoutingView: View {
                 .navigationDestination(for: NavigationDestination.self) { destination in
                     Group {
                         switch destination {
-                        // 로그인, 회원가입 뷰
-                        case .permit:
-                            PermitView(container: container)
-                        case .policy(let num):
-                            PolicyView(num: num)
-                        case .profileInfo:
-                            ProfileInfoView(container: container)
-                                .environmentObject(sessionManager)
                             
+                        // 일기 작성 뷰
                         case .addDiary(let date):
                             AddDiaryView(container: container, date: date)
                             
