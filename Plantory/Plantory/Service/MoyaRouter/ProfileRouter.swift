@@ -82,10 +82,10 @@ extension ProfileRouter {
 
     var method: Moya.Method {
         switch self {
-        case .wastePatch, .restore, .patchProfile, .withdrawAccount, .patchPushTime:
+        case .wastePatch, .restore, .patchProfile, .patchPushTime:
             return .patch
 
-        case .deleteDiary, .logout:
+        case .deleteDiary, .logout, .withdrawAccount:
             return .delete
             
         default:
