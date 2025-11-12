@@ -72,6 +72,7 @@ class LoginViewModel {
     }
     
     /// 카카오 로그인 API 호출
+    @MainActor
     private func sendKakaoLoginToServer(idToken: KakaoUser) async throws {
         self.isLoading = true
 
@@ -98,13 +99,10 @@ class LoginViewModel {
                 )
                 /// 받은 토큰을 키체인에 저장
                 self?.keychainManager.saveToken(tokenInfo)
+                self?.routeAfterLogin(status: response.memberStatus)
                 
-                Task {
-                    await self?.routeAfterLogin(status: response.memberStatus)
-                    
-                    withAnimation(.easeInOut(duration: 0.3)) {
-                        self?.sessionManager.isLoggedIn = response.memberStatus == .active
-                    }
+                if (response.memberStatus == .active) {
+                    self?.sessionManager.login()
                 }
                 
                 self?.isLoading = false
@@ -143,6 +141,7 @@ class LoginViewModel {
     }
     
     /// 애플 로그인 API 호출
+    @MainActor
     private func sendAppleLoginToServer(
         identityToken: String,
         authorizationCode: String
@@ -175,13 +174,10 @@ class LoginViewModel {
                 )
                 /// 받은 토큰을 키체인에 저장
                 self?.keychainManager.saveToken(tokenInfo)
+                self?.routeAfterLogin(status: response.memberStatus)
                 
-                Task {
-                    await self?.routeAfterLogin(status: response.memberStatus)
-                    
-                    withAnimation(.easeInOut(duration: 0.3)) {
-                        self?.sessionManager.isLoggedIn = response.memberStatus == .active
-                    }
+                if (response.memberStatus == .active) {
+                    self?.sessionManager.login()
                 }
                 self?.isLoading = false
             })

@@ -64,8 +64,7 @@ struct BaseTabView: View {
             case .chat:
                 ChatView(container: container)
             case .profile:
-                MyPageView(container: container)
-                    .environmentObject(sessionManager)
+                MyPageView(container: container, sessionManager: sessionManager)
             }
         }
         .environmentObject(container)

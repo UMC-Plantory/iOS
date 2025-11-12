@@ -62,7 +62,7 @@ struct ProfileInfoView: View {
                     buttonTitle: "홈으로 이동하기",
                     buttonAction: {
                         withAnimation(.easeInOut(duration: 0.3)) {
-                            sessionManager.isLoggedIn = true
+                            sessionManager.login()
                         }
                     }
                 )

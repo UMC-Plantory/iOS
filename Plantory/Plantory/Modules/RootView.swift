@@ -8,7 +8,6 @@ import SwiftUI
 
 struct RootView: View {
     @AppStorage("lastResetDate") private var lastResetDate: Date?
-    @AppStorage("isLoggedIn") var isLoggedIn: Bool = false
     
     @Environment(\.modelContext) private var context
     @EnvironmentObject var container: DIContainer

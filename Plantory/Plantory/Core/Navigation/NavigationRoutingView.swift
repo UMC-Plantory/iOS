@@ -42,8 +42,7 @@ struct NavigationRoutingView: View {
                         case .emotionStats:
                             EmotionStatsView(container: container)
                         case .profileManage:
-                            ProfileManageView(container: container)
-                                .environmentObject(sessionManager)
+                            ProfileManageView(container: container, sessionManager: sessionManager)
                             
                         case .diarySearch:
                             DiarySearchView(container: container)
