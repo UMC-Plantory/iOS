@@ -3,9 +3,7 @@ import UIKit
 
 // MARK: - ProfileManageView
 struct ProfileManageView: View {
-    private let container: DIContainer
     @Environment(\.dismiss) private var dismiss
-    @EnvironmentObject var sessionManager: SessionManager
 
     @StateObject private var vm: ProfileViewModel
 
@@ -15,9 +13,8 @@ struct ProfileManageView: View {
 
     @State private var isShowingSignOutPopup = false
 
-    init(container: DIContainer) {
-        self.container = container
-        _vm = StateObject(wrappedValue: ProfileViewModel(container: container))
+    init(container: DIContainer, sessionManager: SessionManager) {
+        _vm = StateObject(wrappedValue: ProfileViewModel(container: container, sessionManager: sessionManager))
     }
 
     var body: some View {
@@ -42,10 +39,6 @@ struct ProfileManageView: View {
             cancelTitle: "취소",
             onConfirm: {
                 vm.withdrawAccount()
-                container.navigationRouter.reset()
-                withAnimation(.easeInOut(duration: 0.3)) {
-                    sessionManager.isLoggedIn = false
-                }
             }
         )
         .task {
@@ -177,5 +170,5 @@ struct ReadOnlyInputField: View {
 }
 
 #Preview {
-    NavigationStack { ProfileManageView(container: .init()) }
+    NavigationStack { ProfileManageView(container: .init(), sessionManager: .init()) }
 }

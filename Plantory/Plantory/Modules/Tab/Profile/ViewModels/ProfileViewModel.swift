@@ -1,8 +1,8 @@
-import Foundation
 import Moya
 import Combine
 import CombineMoya
 import UIKit
+import SwiftUI
 
 /// 프로필 조회 및 수정 기능을 담당하는 뷰모델
 /// 뷰모델 초기화 시 기본 샘플 ID로 즉시 조회 수행
@@ -33,14 +33,17 @@ final public class ProfileViewModel: ObservableObject {
     private var cancellables = Set<AnyCancellable>()
     /// DIContainer를 통해 의존성 주입
     let container: DIContainer
+    let sessionManager: SessionManager
 
     // MARK: - Initialization
     /// - memberId: 조회에 사용할 회원 UUID 문자열 (기본값: 샘플 "uuid123")
     /// - provider: 네트워크/테스트용 Moya Provider (기본값 stub 즉시 응답)
     init(
-        container: DIContainer
+        container: DIContainer,
+        sessionManager: SessionManager
     ) {
         self.container = container
+        self.sessionManager = sessionManager
         setupValidationBindings()
         fetchProfile()
     }
@@ -166,6 +169,11 @@ final public class ProfileViewModel: ObservableObject {
                 guard let self = self else { return }
                 _ = KeychainService.shared.deleteToken()
                 self.isWithdrawn = true
+                
+                container.navigationRouter.reset()
+                withAnimation(.easeInOut(duration: 0.3)) {
+                    self.sessionManager.logout()
+                }
             }
             .store(in: &cancellables)
     }

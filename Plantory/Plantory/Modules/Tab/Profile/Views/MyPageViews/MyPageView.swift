@@ -6,7 +6,6 @@ import CombineMoya
 struct MyPageView: View {
     @EnvironmentObject var container: DIContainer
     @EnvironmentObject var popupManager: PopupManager
-    @EnvironmentObject var sessionManager: SessionManager
     
     @State private var showSleepSheet = false
     @State private var showEmotionSheet = false
@@ -20,9 +19,9 @@ struct MyPageView: View {
     @StateObject private var sleepViewModel: SleepStatsViewModel
     @StateObject private var statsVM: MyPageStatsViewModel
     
-    init(container: DIContainer) {
+    init(container: DIContainer, sessionManager: SessionManager) {
         _sleepViewModel = StateObject(wrappedValue: SleepStatsViewModel(container: container))
-        _statsVM = StateObject(wrappedValue: MyPageStatsViewModel(container: container))
+        _statsVM = StateObject(wrappedValue: MyPageStatsViewModel(container: container, sessionManager: sessionManager))
     }
     
     var body: some View {
@@ -90,10 +89,6 @@ struct MyPageView: View {
                                 cancelTitle: "취소",
                                 onConfirm: {
                                     statsVM.logout()
-                                    container.navigationRouter.reset()
-                                    withAnimation(.easeInOut(duration: 0.3)) {
-                                        sessionManager.isLoggedIn = false
-                                    }
                                 },
                                 onCancel: {
                                     popupManager.dismiss()
@@ -224,5 +219,5 @@ struct MenuRow: View {
 
 // MARK: - Preview
 #Preview {
-    MyPageView(container: .init())
+    MyPageView(container: .init(), sessionManager: SessionManager())
 }

@@ -1,4 +1,4 @@
-import Foundation
+import SwiftUI
 import Combine
 
 final class MyPageStatsViewModel: ObservableObject {
@@ -21,9 +21,11 @@ final class MyPageStatsViewModel: ObservableObject {
 
     private let container: DIContainer
     private var cancellables = Set<AnyCancellable>()
+    private let sessionManager: SessionManager
 
-    init(container: DIContainer) {
+    init(container: DIContainer, sessionManager: SessionManager) {
         self.container = container
+        self.sessionManager = sessionManager
         fetch()
     }
 
@@ -64,9 +66,14 @@ final class MyPageStatsViewModel: ObservableObject {
                     self.logoutErrorMessage = err.localizedDescription
                     self.isLoading = false
                 }
-            } receiveValue: { [weak self] _ in   // ← 여기 `_` 추가!
+            } receiveValue: { [weak self] _ in
                 self?.didLogout = true
                 self?.isLoading = false
+                
+                self?.container.navigationRouter.reset()
+                withAnimation(.easeInOut(duration: 0.3)) {
+                    self?.sessionManager.logout()
+                }
             }
             .store(in: &cancellables)
     }
