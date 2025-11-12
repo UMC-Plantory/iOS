@@ -53,12 +53,12 @@ protocol ProfileServiceProtocol {
             profileImgUrl: String,
             deleteProfileImg: Bool
         ) -> AnyPublisher<PatchProfileResponse, APIError>
-    func withdrawAccount() -> AnyPublisher<Void, APIError>
+    func withdrawAccount() -> AnyPublisher<StatusResponseOnly, APIError>
     
     
     // 마이페이지
     func fetchProfileStats() -> AnyPublisher<ProfileStatsResponse, APIError>
-    func logout() -> AnyPublisher<Void, APIError>
+    func logout() -> AnyPublisher<StatusResponseOnly, APIError>
     func patchPushTime(alarmTime: Int) -> AnyPublisher<StatusResponseOnly, APIError>
 }
 
@@ -161,20 +161,16 @@ final class ProfileService: ProfileServiceProtocol {
             )
         }
     
-    func withdrawAccount() -> AnyPublisher<Void, APIError> {
-            provider.requestResult(.withdrawAccount, type: BasicAck.self)
-                .map { _ in () }                // 본문은 쓰지 않음 → Void
-                .eraseToAnyPublisher()
-        }
+    func withdrawAccount() -> AnyPublisher<StatusResponseOnly, APIError> {
+        return provider.requestStatus(.withdrawAccount)
+    }
     
     func fetchProfileStats() -> AnyPublisher<ProfileStatsResponse, APIError> {
         provider.requestResult(.profileStats, type: ProfileStatsResponse.self)
     }
     
-    func logout() -> AnyPublisher<Void, APIError> {
-            provider.requestResult(.logout, type: BasicAck.self)
-                .map { _ in () }                // 본문은 쓰지 않음 → Void
-                .eraseToAnyPublisher()
+    func logout() -> AnyPublisher<StatusResponseOnly, APIError> {
+        return provider.requestStatus(.profileStats)
     }
     
     func patchPushTime(alarmTime: Int) -> AnyPublisher<StatusResponseOnly, APIError> {
