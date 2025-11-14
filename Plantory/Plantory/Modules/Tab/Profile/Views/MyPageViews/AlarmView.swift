@@ -1,22 +1,18 @@
 import SwiftUI
 
 struct AlarmView: View {
+    @EnvironmentObject var statsVM: MyPageStatsViewModel
+
     @State private var hour = 6
     @State private var isPM = true
-    @Environment(\.dismiss) private var dismiss   // 시트 닫기용
+    @Environment(\.dismiss) private var dismiss
 
     var body: some View {
         VStack {
-            // MARK: - Header View
             HStack {
-                Button {
-                    dismiss()                      // 취소 → 시트 닫기
-                } label: {
-                    Text("취소")
-                        .font(.pretendardRegular(18))
-                        .foregroundStyle(.green06)
-                }
-                .buttonStyle(.plain)
+                Button("취소") { dismiss() }
+                    .font(.pretendardRegular(18))
+                    .foregroundStyle(.green06)
 
                 Spacer()
 
@@ -26,14 +22,12 @@ struct AlarmView: View {
 
                 Spacer()
 
-                Button {
-                    print("저장")                  // 저장 → print
-                } label: {
-                    Text("저장")
-                        .font(.pretendardRegular(18))
-                        .foregroundStyle(.green06)
+                Button("저장") {
+                    statsVM.patchPushTime(hour: hour, isPM: isPM)
+                    dismiss()
                 }
-                .buttonStyle(.plain)
+                .font(.pretendardRegular(18))
+                .foregroundStyle(.green06)
             }
             .padding(.horizontal, 32)
             .padding(.top, 30)
@@ -52,6 +46,10 @@ struct AlarmView: View {
     }
 }
 
+
 #Preview {
     AlarmView()
+        .environmentObject(
+            MyPageStatsViewModel(container: DIContainer())
+        )
 }

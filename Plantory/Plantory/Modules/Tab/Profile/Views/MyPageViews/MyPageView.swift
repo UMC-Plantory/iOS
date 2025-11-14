@@ -120,6 +120,7 @@ struct MyPageView: View {
         }
         .sheet(isPresented: $showAlarmSheet) {
             AlarmView()
+                .environmentObject(statsVM)
                 .presentationDetents([.fraction(0.35)])
                 .presentationDragIndicator(.hidden)
         }

@@ -15,6 +15,10 @@ final class MyPageStatsViewModel: ObservableObject {
     @Published private(set) var didLogout = false
     @Published private(set) var logoutErrorMessage: String?
     
+    // 알람 시간 저장 중 상태
+    @Published private(set) var isSavingAlarm = false
+    @Published private(set) var alarmSaveErrorMessage: String?
+    
     // MARK: - 로딩
     
     @Published var isLoading = false
@@ -70,7 +74,36 @@ final class MyPageStatsViewModel: ObservableObject {
             }
             .store(in: &cancellables)
     }
+    
+    /// 알람 시간 PATCH (hour: 1~12, isPM: 오전/오후 플래그)
+    func patchPushTime(hour: Int, isPM: Bool) {
+        // 12시간제를 24시간제로 변환 (서버가 0~23 기준이라고 가정)
+        let normalizedHour = hour % 12
+        let alarmTime24 = isPM ? (normalizedHour + 12) : normalizedHour
 
+        guard !isSavingAlarm else { return }
+        isSavingAlarm = true
+        alarmSaveErrorMessage = nil
+        isLoading = true
+
+        container.useCaseService.profileService
+            .patchPushTime(alarmTime: alarmTime24)
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] completion in
+                guard let self else { return }
+                self.isSavingAlarm = false
+                self.isLoading = false
+
+                if case let .failure(error) = completion {
+                    self.alarmSaveErrorMessage = error.localizedDescription
+                    print("patchPushTime error: \(error)")
+                }
+            } receiveValue: { _ in
+                // 필요하면 여기에서 성공 토스트/상태 업데이트
+                print("알람 시간 저장 성공: \(alarmTime24)")
+            }
+            .store(in: &cancellables)
+        }
 
     // avgSleepTime(분) → "6h 53m"
     private static func makeStats(from r: ProfileStatsResponse) -> [Stat] {
