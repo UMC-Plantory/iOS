@@ -39,17 +39,9 @@ struct AlarmView: View {
                 hour: $hour,
                 isPM: $isPM,
                 rowHeight: 43,
-                columnSpacing: 30,
+                columnSpacing: 30,   // ← 이거 무시되고 내가 내부에서 spacing 따로 잡아줌
                 lineColor: .green04
             )
         }
     }
-}
-
-
-#Preview {
-    AlarmView()
-        .environmentObject(
-            MyPageStatsViewModel(container: DIContainer())
-        )
 }
