@@ -6,3 +6,11 @@
 //
 
 import Foundation
+
+//달력 모델
+struct CalendarDay: Identifiable {
+    var id: UUID = .init()
+    let day: Int
+    let date: Date
+    let isCurrentMonth: Bool
+}

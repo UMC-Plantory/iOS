@@ -13,7 +13,7 @@ enum AddDiaryRouter: APITargetType {
     case create(body: AddDiaryRequest)        // 일기 작성
     case fetchNormalDiaryStatus(date: String)  // 해당 날짜에 저장된 일기가 있는지 확인
     case fetchDiaryStatus(date: String)       // 해당 날짜에 임시 저장된 일기가 있는지 확인
-    case fetchTempDiary(id:Int)
+    case fetchTempDiary(id:Int)              //임시저장한 일기를 다시 불러옴
 }
 
 extension AddDiaryRouter {

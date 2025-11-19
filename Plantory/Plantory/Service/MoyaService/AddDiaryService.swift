@@ -21,7 +21,6 @@ final class AddDiaryService: AddDiaryServiceProtocol {
     private let provider: MoyaProvider<AddDiaryRouter>
 
     /// 기본 생성자
-    /// - note: 토큰/로깅 등 공통 플러그인은 APIManager에서 구성했다고 가정
     init(provider: MoyaProvider<AddDiaryRouter> = APIManager.shared.createProvider(for: AddDiaryRouter.self)) {
         self.provider = provider
     }

@@ -60,10 +60,10 @@ struct HomeView: View {
 
             ScrollView {
                 Spacer().frame(height: 43)
-                HomeHeaderView() // 실제 컴포넌트 필요
+                HomeHeaderView()     
                 Spacer().frame(height: 32)
 
-                Plantory.CalendarHeaderView( // 실제 컴포넌트 필요
+                Plantory.CalendarHeaderView(     
                     month: viewModel.month,
                     onMoveMonth: { value in viewModel.moveMonth(by: value) },
                     onTapCalendar: { showMonthPicker = true },
@@ -97,7 +97,7 @@ struct HomeView: View {
                         .padding(.vertical, 6)
 
                     // 실제 날짜 그리드
-                    CalendarView( // 실제 컴포넌트 필요
+                    CalendarView(     
                         month: $viewModel.month,
                         selectedDate: $viewModel.selectedDate,
                         // 캘린더 탭 시 viewModel의 selectDate 로직 실행

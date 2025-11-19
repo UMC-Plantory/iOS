@@ -17,6 +17,9 @@ struct MyDateFormatter {
 
 
 struct AddDiaryView: View {
+    
+    //일기 임시 저장 보관소
+    @Environment(\.modelContext) private var modelContext
     // 단계 네비게이션
     @Bindable var stepVM: StepIndicatorViewModel
     // API/데이터
@@ -82,19 +85,21 @@ struct AddDiaryView: View {
             }
         }
         .toastView(toast: $vm.toast)
+        /*
         .task {
             UIApplication.shared.hideKeyboard()
             
-            // 1. 이미 작성된 일기가 있는지 확인
+            //이미 작성된 일기가 있는지 확인
             vm.checkExistingFinalizedDiary(for: selectedDate)
             
-            // 2. 임시 저장된 일기가 있는지 확인
+            //임시 저장된 일기가 있는지 확인
             vm.checkForTemporaryDiary(for: selectedDate)
         }
+         */
         .navigationBarBackButtonHidden(true)
         .onDisappear {
             if !vm.isCompleted {
-                vm.tempSaveAndExit()
+                vm.tempSaveAndExit(context: modelContext, selectedDate: selectedDate)
             }
         }
         
@@ -152,16 +157,20 @@ struct AddDiaryView: View {
         return VStack {
             HStack {
                 Spacer().frame(width: 10)
+                
+                //홈 버튼
                 Button(action: {
-                    vm.tempSaveAndExit()
+                    //홈 버튼 누르면 자동으로 작성중이던 내용 임시저장 되도록 수정함
+                    vm.tempSaveAndExit(context: modelContext, selectedDate: selectedDate)
                     container.navigationRouter.pop()
                 }) {
-                    Image(.home) // 실제 이미지 리소스 필요
-                        .foregroundColor(Color.adddiaryIcon) // 실제 색상 리소스 필요
+                    Image(.home)
+                        .foregroundColor(Color.adddiaryIcon)
                 }
 
                 Spacer().frame(width: 80)
 
+                //DatePicker 모달
                 Button {
                     showFullCalendar = true
                 } label: {
@@ -171,7 +180,7 @@ struct AddDiaryView: View {
                               ? MyDateFormatter.shared.string(from: Date())
                               : vm.diaryDate)
                     }
-                    .font(.pretendardSemiBold(18)) // 실제 폰트 확장 필요
+                    .font(.pretendardSemiBold(18))
                     .foregroundStyle(Color.adddiaryIcon)
                 }
 
@@ -185,12 +194,12 @@ struct AddDiaryView: View {
                 ForEach(stepVM.steps.indices, id: \.self) { index in
                     VStack(spacing: 6) {
                         RoundedRectangle(cornerRadius: 70)
-                            .fill(index <= stepVM.currentStep ? Color.green04 : Color.gray08.opacity(0.3)) // 실제 색상 리소스 필요
+                            .fill(index <= stepVM.currentStep ? Color.green04 : Color.gray08.opacity(0.3))
                             .frame(width: barWidth, height: barHeight)
 
                         Text(stepVM.steps[index].title)
-                            .font(.pretendardRegular(14)) // 실제 폰트 확장 필요
-                            .foregroundColor(.adddiaryfont) // 실제 색상 리소스 필요
+                            .font(.pretendardRegular(14))
+                            .foregroundColor(.adddiaryfont)
                             .opacity(index == stepVM.currentStep ? 1 : 0)
                             .frame(height: labelHeight)
                             .lineLimit(1)
@@ -208,16 +217,16 @@ struct AddDiaryView: View {
     private var stepContentView: some View {
         switch stepVM.currentStep {
         case 0:
-            EmotionStepView(vm: vm) { stepVM.goNext() } // 실제 컴포넌트 필요
+            EmotionStepView(vm: vm) { stepVM.goNext() }     
         case 1:
-            DiaryStepView(vm: vm) // 실제 컴포넌트 필요
+            DiaryStepView(vm: vm)     
                 .padding(.top,50)
 
         case 2:
-            PhotoStepView(vm: vm) // 실제 컴포넌트 필요
+            PhotoStepView(vm: vm)     
                 .padding(.top,70)
         case 3:
-            SleepStepView(vm: vm, selectedDate: selectedDate) // 실제 컴포넌트 필요
+            SleepStepView(vm: vm, selectedDate: selectedDate)     
         default:
             EmptyView()
         }
@@ -231,9 +240,9 @@ struct AddDiaryView: View {
 
         return AnyView(
             HStack {
-                // 이전
+                // 이전 버튼
                 if stepVM.currentStep != 0 {
-                    MainMiddleButton( // 실제 컴포넌트 필요
+                    MainMiddleButton(     
                         text: "이전",
                         isDisabled: false,
                         action: { stepVM.goBack() }
@@ -245,7 +254,7 @@ struct AddDiaryView: View {
 
                 Spacer()
 
-                // 다음 or 작성완료
+                // 다음 or 작성완료 버튼
                 if stepVM.currentStep < stepVM.steps.count - 1 {
                     MainMiddleButton(
                         text: "다음",
