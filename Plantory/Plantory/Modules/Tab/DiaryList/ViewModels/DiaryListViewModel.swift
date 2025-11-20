@@ -27,16 +27,8 @@ class DiaryListViewModel: ObservableObject {
     // MARK: - Filter State
     
     @Published var sort: SortOrder = .latest     // "latest" | "oldest"
-    @Published var from: String? = {
-        let year = Calendar.current.component(.year, from: Date())
-        return "\(year)-01"
-    }()
-    @Published var to: String? = {
-        let now = Date()
-        let formatter = DateFormatter()
-        formatter.dateFormat = "yyyy-MM"
-        return formatter.string(from: now)
-    }()
+    @Published var from: String?
+    @Published var to: String?
     @Published var emotion: Set<Emotion> = [.all]
     @Published var cursor: String? = nil
     @Published var size: Int = 10
@@ -55,6 +47,7 @@ class DiaryListViewModel: ObservableObject {
  
     init(container: DIContainer) {
         self.container = container
+        resetDateRange()
     }
  
     //MARK: - 함수
@@ -102,5 +95,15 @@ class DiaryListViewModel: ObservableObject {
                 }
             })
             .store(in: &cancellables)
+    }
+    
+    // from과 to를 초기값으로 설정; from은 올해의 1월, to는 현재 년/월
+    func resetDateRange() {
+        let year = Calendar.current.component(.year, from: Date())
+        self.from = "\(year)-01"
+
+        let formatter = DateFormatter()
+        formatter.dateFormat = "yyyy-MM"
+        self.to = formatter.string(from: Date())
     }
 }

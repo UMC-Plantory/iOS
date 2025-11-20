@@ -97,7 +97,22 @@ struct DiaryFilterView: View {
                             .font(.pretendardSemiBold(18))
                             .foregroundColor(Color("black01Dynamic"))
                         Button {
-                            monthStart = nil; monthEnd = nil
+                            viewModel.resetDateRange()
+                            
+                            if let from = viewModel.from,
+                               let start = Int(from.suffix(2)) {
+                                self.selectedYear = Int(from.prefix(4)) ?? selectedYear
+                                self.monthStart = start
+                            } else {
+                                self.monthStart = nil
+                            }
+
+                            if let to = viewModel.to,
+                               let end = Int(to.suffix(2)) {
+                                self.monthEnd = end
+                            } else {
+                                self.monthEnd = nil
+                            }
                         } label: {
                             Image(systemName: "arrow.counterclockwise")
                                 .font(.system(size: 14))
