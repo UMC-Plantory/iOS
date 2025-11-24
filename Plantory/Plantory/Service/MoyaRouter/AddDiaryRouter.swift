@@ -10,10 +10,14 @@ import Foundation
 import Moya
 
 enum AddDiaryRouter: APITargetType {
-    case create(body: AddDiaryRequest)        // 일기 작성
-    case fetchNormalDiaryStatus(date: String)  // 해당 날짜에 저장된 일기가 있는지 확인
-    case fetchDiaryStatus(date: String)       // 해당 날짜에 임시 저장된 일기가 있는지 확인
-    case fetchTempDiary(id:Int)              //임시저장한 일기를 다시 불러옴
+    // 일기 생성 (NORMAL 또는 TEMP)
+    case create(body: AddDiaryRequest)
+    // 정식 저장 일기 존재 여부 조회
+    case fetchNormalDiaryStatus(date: String)
+    // 임시 저장 일기 존재 여부 조회
+    case fetchTempDiaryStatus(date: String)
+    // 임시 저장된 일기 실제 데이터 불러오기
+    case fetchTempDiary(id:Int)
 }
 
 extension AddDiaryRouter {
@@ -21,14 +25,18 @@ extension AddDiaryRouter {
     
     var path: String {
         switch self {
+       
         case .create:
             return "/diaries"
+
         case .fetchNormalDiaryStatus:
             return "/diaries/normal-status/exists"
-        case .fetchDiaryStatus:
+
+        case .fetchTempDiaryStatus:
             return "/diaries/temp-status/exists"
-        case .fetchTempDiary:
-            return "/diaries/{diary_id}"
+
+        case .fetchTempDiary(let id):
+            return "/diaries/\(id)"
         }
     }
     
@@ -36,6 +44,7 @@ extension AddDiaryRouter {
         switch self {
         case .create:
             return .post
+    
         default:
             return .get
         }
@@ -43,30 +52,35 @@ extension AddDiaryRouter {
     
     var task: Task {
         switch self {
+       
         case .create(let body):
             return .requestJSONEncodable(body)
-            
+
         case .fetchNormalDiaryStatus(let date):
-            // 쿼리 파라미터로 date를 전달
             return .requestParameters(
                 parameters: ["date": date],
                 encoding: URLEncoding.queryString
             )
-            
-        case .fetchDiaryStatus(let date):
-            // 쿼리 파라미터로 date를 전달
+
+        case .fetchTempDiaryStatus(let date):
             return .requestParameters(
                 parameters: ["date": date],
                 encoding: URLEncoding.queryString
             )
-        case .fetchTempDiary(let id):
-            return .requestParameters(
-                parameters: ["diaryId": id],
-                encoding: URLEncoding.queryString)
+
+        case .fetchTempDiary:
+            return .requestPlain
         }
         
-        var headers: [String : String]? { nil }
-        
+        var headers: [String: String]? {
+               switch self {
+               case .create:
+                   return ["Content-Type": "application/json"]
+               default:
+                   return nil     // Token은 APIManager에서 자동 주입
+               }
+           }
+
         var sampleData: Data {
             switch self {
             case .create:
@@ -87,6 +101,7 @@ extension AddDiaryRouter {
             }
             """.utf8)
                 
+            
             case .fetchNormalDiaryStatus:
                 return Data("""
             {
@@ -99,7 +114,7 @@ extension AddDiaryRouter {
             }
             """.utf8)
                 
-            case .fetchDiaryStatus:
+            case .fetchTempDiaryStatus:
                 return Data("""
             {
               "isSuccess": true,

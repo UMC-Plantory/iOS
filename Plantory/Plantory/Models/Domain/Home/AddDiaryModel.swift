@@ -8,7 +8,7 @@
 import Foundation
 import SwiftData
 
-// SwiftData 임시저장 모델 (30일 보관)
+
 @Model
 final class DiaryDraft {
     @Attribute(.unique) var diaryDate: String            // yyyy-MM-dd (키)
@@ -35,6 +35,8 @@ final class DiaryDraft {
         self.createdAt = createdAt
     }
 }
+
+// MARK: - 일기 생성 요청 (서버 TEMP/NORMAL 공용)
 struct DiaryCreateRequest: Encodable {
     let diaryDate: String                    // yyyy-MM-dd
     let emotion: String?                     // NORMAL 필수, TEMP 선택
@@ -45,7 +47,7 @@ struct DiaryCreateRequest: Encodable {
     let status: String                       // "NORMAL" | "TEMP"
 }
 
-// 생성 결과(result)
+// MARK: - 생성 응답(result)
 struct DiaryCreateResult: Decodable {
     let diaryId: Int
     let diaryDate: String
@@ -56,6 +58,7 @@ struct DiaryCreateResult: Decodable {
     let status: String
 }
 
+// MARK: - TEMP 불러오기 응답
 struct TempDiaryResult: Decodable {
     let diaryDate: String
     let emotion: String?
@@ -66,8 +69,14 @@ struct TempDiaryResult: Decodable {
     let status: String            // "TEMP"
 }
 
-//임시저장 결과 조회
+// MARK: - TEMP 존재 여부
 struct TempDiaryExistResult: Decodable {
-    let isExist: Bool
+    let exist: Bool
 }
+
+// MARK: - NORMAL 존재 여부
+struct AlreadyDiaryExistResult: Decodable {
+    let exist: Bool
+}
+
 

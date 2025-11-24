@@ -5,9 +5,10 @@
 //  Created by 김지우 on 8/14/25.
 //
 
-// merge후 Home 폴더 안으로 이동 예정
 
 import Foundation
+
+///NORMAL/TEMP의 응답 구조체를 하나로 합침(전에는 따로 있었음)
 
 // MARK: - 일기 작성 요청
 struct AddDiaryRequest: Codable {
@@ -29,29 +30,11 @@ struct AddDiaryResponse: Codable {
     let content: String?
     let diaryImgUrl: String?
     let status: String
+    let aiComment: String?
 }
 
 // MARK: - 존재 여부 공통 응답(result)
+// /diaries/temp-status/exists, /diaries/normal-status/exists 공용
 struct DiaryExistResult: Decodable {
     let exist: Bool
-}
-
-struct TempDiaryRequest: Decodable{
-    let emotion: String?
-    let content: String?
-    let sleepStartTime: String?
-    let sleepEndTime: String?
-    let diaryImgUrl: String?
-    let status: String
-}
-
-// MARK: - 임시 저장 일기 조회 응답
-struct TempDiaryResponse: Decodable {
-    let diaryId: Int
-    let diaryDate: String
-    let emotion: String?
-    let title: String?
-    let content: String?
-    let diaryImgUrl: String?
-    let status: String            // "TEMP"
 }

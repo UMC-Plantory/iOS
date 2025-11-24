@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import SwiftData
 
 struct MyDateFormatter {
     static let shared: DateFormatter = {
@@ -15,11 +16,13 @@ struct MyDateFormatter {
     }()
 }
 
-
 struct AddDiaryView: View {
     
-    //일기 임시 저장 보관소
+    //일기 임시 저장 보관소 (네트워크 에러 시 비상용)
     @Environment(\.modelContext) private var modelContext
+    //앱 상태(활성/백그라운드) 감지 변수
+    @Environment(\.scenePhase) var scenePhase
+    
     // 단계 네비게이션
     @Bindable var stepVM: StepIndicatorViewModel
     // API/데이터
@@ -29,11 +32,12 @@ struct AddDiaryView: View {
 
     // 날짜 선택
     @State private var selectedDate: Date = Date()
-
     @State private var showFullCalendar: Bool = false // 캘린더 시트 관리 플래그
     
+    // 로컬 SwiftData에 draft가 있는지 여부 (네트워크 에러로 저장된 경우)
+    @State private var hasLocalDraft: Bool = false
+    
     @Environment(\.dismiss) var dismiss
-
 
     init(container: DIContainer, date: Date = Date()) {
         self._stepVM = Bindable(wrappedValue: StepIndicatorViewModel())
@@ -47,12 +51,16 @@ struct AddDiaryView: View {
                 ScrollView {
                     VStack {
                         CompletedView()
-                        
                     }
-                    .frame(maxWidth: .infinity, minHeight: UIScreen.main.bounds.height - (UIApplication.shared.windows.first?.safeAreaInsets.top ?? 0) - (UIApplication.shared.windows.first?.safeAreaInsets.bottom ?? 0))
+                    .frame(
+                        maxWidth: .infinity,
+                        minHeight: UIScreen.main.bounds.height
+                        - (UIApplication.shared.windows.first?.safeAreaInsets.top ?? 0)
+                        - (UIApplication.shared.windows.first?.safeAreaInsets.bottom ?? 0)
+                    )
                     
                     GeometryReader { geometry in
-                        ScrollView { // CompletedView를 스크롤뷰로 감싸 작은 화면에서 잘리지 않도록 함
+                        ScrollView {
                             VStack {
                                 CompletedView()
                             }
@@ -61,7 +69,6 @@ struct AddDiaryView: View {
                             maxWidth: .infinity,
                             minHeight: geometry.size.height
                         )
-                        
                         .background(Color.adddiarybackground.ignoresSafeArea(.all, edges: .all))
                     }
                 }
@@ -85,24 +92,44 @@ struct AddDiaryView: View {
             }
         }
         .toastView(toast: $vm.toast)
-        /*
+        
         .task {
             UIApplication.shared.hideKeyboard()
             
-            //이미 작성된 일기가 있는지 확인
+            // 선택된 날짜 기준으로 서버 상태 확인
             vm.checkExistingFinalizedDiary(for: selectedDate)
-            
-            //임시 저장된 일기가 있는지 확인
             vm.checkForTemporaryDiary(for: selectedDate)
+            
+            // 로컬 SwiftData에 draft가 있는지 별도로 확인
+            let dateString = DiaryFormatters.day.string(from: selectedDate)
+            let descriptor = FetchDescriptor<DiaryDraft>(
+                predicate: #Predicate { $0.diaryDate == dateString }
+            )
+            if let _ = try? modelContext.fetch(descriptor).first {
+                hasLocalDraft = true
+                vm.showLoadTempPopup = true
+            } else {
+                hasLocalDraft = false
+            }
         }
-         */
+         
         .navigationBarBackButtonHidden(true)
         .onDisappear {
+            // 작성 완료 전, 화면을 이탈하면 서버 TEMP로만 자동 임시저장
             if !vm.isCompleted {
                 vm.tempSaveAndExit(context: modelContext, selectedDate: selectedDate)
             }
         }
         
+        // 네트워크 에러 안내 모달이 뜨면, 현재 내용을 로컬 SwiftData에 비상 저장
+        .onChange(of: vm.showNetworkErrorPopup) { newValue in
+            if newValue {
+                vm.saveLocalDraftIfNeeded(context: modelContext, selectedDate: selectedDate)
+                hasLocalDraft = true
+            }
+        }
+        
+        // 이미 작성된 NORMAL 일기 존재 안내 모달
         .popup(
             isPresented: $vm.showLoadNormalPopup,
             title: "해당 날짜에 이미 작성된 일기가 있습니다.",
@@ -112,6 +139,8 @@ struct AddDiaryView: View {
                 vm.showLoadNormalPopup = false
             }
         )
+        
+        // 임시 저장(서버 TEMP 또는 로컬 draft) 존재 안내 모달
         .popup(
             isPresented: $vm.showLoadTempPopup,
             title: "임시 저장된 일기",
@@ -119,19 +148,30 @@ struct AddDiaryView: View {
             confirmTitle: "불러오기",
             cancelTitle: "새로 작성",
             onConfirm: {
-                // 불러오기: 로드 후 팝업 닫기. 시트 닫기는 onChange에서 처리됨.
-                vm.loadTemporaryDiary()
+                // 로컬 draft가 있으면 우선 로컬에서 불러오기
+                if hasLocalDraft {
+                    vm.loadLocalDraftIfExists(context: modelContext, for: selectedDate)
+                } else {
+                    // 로컬이 없으면 서버 TEMP 기준으로 불러오기 (diaryId 필요)
+                    vm.loadTemporaryDiaryFromServer()
+                }
             },
             onCancel: {
-                // 새로 작성: 팝업 닫기, 선택된 날짜로 확정한 후 시트 닫기
+                // 새로 작성: 로컬 draft가 있으면 삭제
+                if hasLocalDraft {
+                    vm.deleteLocalDraft(context: modelContext, for: selectedDate)
+                    hasLocalDraft = false
+                }
                 vm.showLoadTempPopup = false
                 vm.setDiaryDate(DiaryFormatters.day.string(from: selectedDate))
             }
         )
+        
+        // 네트워크 불안정 안내 모달
         .popup(
             isPresented: $vm.showNetworkErrorPopup,
             title: "네트워크 불안정",
-            message: "네트워크 연결이 불안정합니다. 입력한 내용은 임시 저장됩니다.",
+            message: "네트워크 연결이 불안정합니다. 입력한 내용은 기기 안에 임시 저장됩니다.",
             confirmTitle: "확인",
             onConfirm: { vm.showNetworkErrorPopup = false }
         )
@@ -139,7 +179,6 @@ struct AddDiaryView: View {
         // Sheet 호출
         .sheet(isPresented: $showFullCalendar) {
             DatePickerCalendarView(selectedDate: $selectedDate, vm: vm) {
-                // 중복/임시저장 팝업이 뜨지 않고 정상적으로 날짜가 확정된 경우
                 showFullCalendar = false
             }
             .presentationDetents([.medium])
@@ -160,7 +199,7 @@ struct AddDiaryView: View {
                 
                 //홈 버튼
                 Button(action: {
-                    //홈 버튼 누르면 자동으로 작성중이던 내용 임시저장 되도록 수정함
+                    //홈 버튼 누르면 서버 TEMP로 자동 임시저장 후 화면 이탈
                     vm.tempSaveAndExit(context: modelContext, selectedDate: selectedDate)
                     container.navigationRouter.pop()
                 }) {
@@ -189,7 +228,7 @@ struct AddDiaryView: View {
 
             Spacer().frame(height: 40)
 
-            // 스텝 인디케이터 (컬럼 너비 고정 + 고정 간격)
+            // 스텝 인디케이터
             HStack(spacing: barGap) {
                 ForEach(stepVM.steps.indices, id: \.self) { index in
                     VStack(spacing: 6) {
@@ -217,16 +256,15 @@ struct AddDiaryView: View {
     private var stepContentView: some View {
         switch stepVM.currentStep {
         case 0:
-            EmotionStepView(vm: vm) { stepVM.goNext() }     
+            EmotionStepView(vm: vm) { stepVM.goNext() }
         case 1:
-            DiaryStepView(vm: vm)     
+            DiaryStepView(vm: vm)
                 .padding(.top,50)
-
         case 2:
-            PhotoStepView(vm: vm)     
+            PhotoStepView(vm: vm)
                 .padding(.top,70)
         case 3:
-            SleepStepView(vm: vm, selectedDate: selectedDate)     
+            SleepStepView(vm: vm, selectedDate: selectedDate)
         default:
             EmptyView()
         }
@@ -242,7 +280,7 @@ struct AddDiaryView: View {
             HStack {
                 // 이전 버튼
                 if stepVM.currentStep != 0 {
-                    MainMiddleButton(     
+                    MainMiddleButton(
                         text: "이전",
                         isDisabled: false,
                         action: { stepVM.goBack() }
@@ -278,7 +316,6 @@ struct AddDiaryView: View {
     }
 }
 
-
 struct AddDiaryView_Preview: PreviewProvider {
     static var devices = ["iPhone SE (3rd generation)", "iPhone 11", "iPhone 16 Pro Max"]
 
@@ -291,3 +328,4 @@ struct AddDiaryView_Preview: PreviewProvider {
         }
     }
 }
+    
