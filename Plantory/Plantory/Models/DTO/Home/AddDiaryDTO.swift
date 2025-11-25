@@ -38,3 +38,15 @@ struct AddDiaryResponse: Codable {
 struct DiaryExistResult: Decodable {
     let exist: Bool
 }
+
+
+struct TempDiaryResponse: Decodable {
+    let diaryId: Int
+    let diaryDate: String
+    let emotion: String?
+    let title: String?
+    let content: String?
+    let diaryImgUrl: String?
+    let status: String
+}
+

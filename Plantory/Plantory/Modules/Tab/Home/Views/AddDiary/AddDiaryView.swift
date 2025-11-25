@@ -99,19 +99,14 @@ struct AddDiaryView: View {
             // 선택된 날짜 기준으로 서버 상태 확인
             vm.checkExistingFinalizedDiary(for: selectedDate)
             vm.checkForTemporaryDiary(for: selectedDate)
-            
-            // 로컬 SwiftData에 draft가 있는지 별도로 확인
-            let dateString = DiaryFormatters.day.string(from: selectedDate)
-            let descriptor = FetchDescriptor<DiaryDraft>(
-                predicate: #Predicate { $0.diaryDate == dateString }
-            )
-            if let _ = try? modelContext.fetch(descriptor).first {
-                hasLocalDraft = true
-                vm.showLoadTempPopup = true
-            } else {
-                hasLocalDraft = false
-            }
         }
+        .onChange(of: vm.didLoadTempDiary) { _, didLoad in
+                if didLoad {
+                    let nextStep = vm.nextStepAfterLoad()
+                    stepVM.currentStep = nextStep
+                }
+            }
+        
          
         .navigationBarBackButtonHidden(true)
         .onDisappear {
@@ -148,20 +143,9 @@ struct AddDiaryView: View {
             confirmTitle: "불러오기",
             cancelTitle: "새로 작성",
             onConfirm: {
-                // 로컬 draft가 있으면 우선 로컬에서 불러오기
-                if hasLocalDraft {
-                    vm.loadLocalDraftIfExists(context: modelContext, for: selectedDate)
-                } else {
-                    // 로컬이 없으면 서버 TEMP 기준으로 불러오기 (diaryId 필요)
-                    vm.loadTemporaryDiaryFromServer()
-                }
+                vm.loadTemporaryDiaryFromServer()
             },
             onCancel: {
-                // 새로 작성: 로컬 draft가 있으면 삭제
-                if hasLocalDraft {
-                    vm.deleteLocalDraft(context: modelContext, for: selectedDate)
-                    hasLocalDraft = false
-                }
                 vm.showLoadTempPopup = false
                 vm.setDiaryDate(DiaryFormatters.day.string(from: selectedDate))
             }

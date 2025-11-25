@@ -31,6 +31,10 @@ final class AddDiaryViewModel {
     var showLoadTempPopup: Bool = false         // 임시 저장된 일기 불러오기
     var showNetworkErrorPopup: Bool = false     // 네트워크 불안정 시 임시 저장 알림
     
+    //임시저장 불러오기 완료 시점 감지용
+    var didLoadTempDiary: Bool = false
+
+    
     // MARK: - 입력 상태 (UI 바인딩)
     var diaryId: Int?
     var diaryDate: String = ""                  // yyyy-MM-dd
@@ -111,6 +115,15 @@ final class AddDiaryViewModel {
             .store(in: &cancellables)
     }
     
+    // MARK: - Step 자동 이동 계산
+        func nextStepAfterLoad() -> Int {
+            if emotion.isEmpty { return 0 }
+            if content.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty { return 1 }
+            if diaryImage == nil { return 2 }
+            if sleepStartTime.isEmpty || sleepEndTime.isEmpty { return 3 }
+            return 3
+        }
+        
     /// 특정 TEMP 일기를 서버에서 실제로 불러올 때 사용 (diaryId 기반)
     func loadTemporaryDiaryFromServer() {
         guard let id = diaryId else {
@@ -135,6 +148,7 @@ final class AddDiaryViewModel {
             }, receiveValue: { [weak self] temp in
                 guard let self else { return }
                 self.applyTempDiary(temp)
+                self.didLoadTempDiary = true //불러오기 완료 플래그
                 self.toast = CustomToast(title: "임시 저장 불러오기", message: "임시 저장된 일기를 불러왔어요.")
             })
             .store(in: &cancellables)
@@ -145,11 +159,12 @@ final class AddDiaryViewModel {
         self.diaryDate      = temp.diaryDate
         self.emotion        = temp.emotion ?? ""
         self.content        = temp.content ?? ""
-        self.sleepStartTime = temp.sleepStartTime ?? ""
-        self.sleepEndTime   = temp.sleepEndTime ?? ""
+        sleepStartTime = ""
+        sleepEndTime   = ""
         self.status         = "NORMAL"     // 이어서 작성 UX
         self.isImgDeleted   = false
     }
+    
     
     // MARK: - 서버 TEMP 자동 저장 (화면 이탈 시)
     /// 현재 입력된 내용을 서버에 TEMP 상태로 임시 저장 (화면 이탈용)
@@ -354,7 +369,7 @@ final class AddDiaryViewModel {
             try context.save()
             
         } catch {
-            // 에러 처리 필요 시 추가
+            
         }
     }
     
@@ -401,7 +416,7 @@ final class AddDiaryViewModel {
                 try context.save()
             }
         } catch {
-            // 에러 처리 필요 시 추가
+            
         }
     }
 }

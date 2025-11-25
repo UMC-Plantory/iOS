@@ -35,8 +35,8 @@ extension AddDiaryRouter {
         case .fetchTempDiaryStatus:
             return "/diaries/temp-status/exists"
 
-        case .fetchTempDiary(let id):
-            return "/diaries/\(id)"
+        case .fetchTempDiary:
+            return "/diaries/{diary_id}"
         }
     }
     
@@ -44,7 +44,7 @@ extension AddDiaryRouter {
         switch self {
         case .create:
             return .post
-    
+            
         default:
             return .get
         }
@@ -68,8 +68,8 @@ extension AddDiaryRouter {
                 encoding: URLEncoding.queryString
             )
 
-        case .fetchTempDiary:
-            return .requestPlain
+        case .fetchTempDiary(let id):
+            return .requestParameters(parameters: ["id": id], encoding: URLEncoding.queryString )
         }
         
         var headers: [String: String]? {
@@ -129,19 +129,19 @@ extension AddDiaryRouter {
             case .fetchTempDiary:
                 return Data("""
             {
-                "isSuccess": true,
-                "code": "COMMON200",
-                "message": "일기 수정 성공",
-                "result": {
-                    "diaryId": 1,
-                    "diaryDate": "2025-06-20"
-                    "emotion": "HAPPY",
-                    "title": "일기 제목1",
-                    "content": "오늘은…",
-                    "diaryImgUrl": "https…",
-                    "status": "NORMAL",
-                    }
-                }
+              "isSuccess": true,
+              "code": "COMMON200",
+              "message": "성공입니다.",
+              "result": {
+                "diaryId": 1,
+                "diaryDate": "2025-06-20"
+                "emotion": "HAPPY",
+                "title": "일기 제목1",
+                "content": "오늘은…",
+                "diaryImgUrl": "https…",
+                "status": "NORMAL"
+              }
+            }
             """.utf8)
                 
                 

@@ -60,6 +60,7 @@ struct DiaryCreateResult: Decodable {
 
 // MARK: - TEMP 불러오기 응답
 struct TempDiaryResult: Decodable {
+    /*
     let diaryDate: String
     let emotion: String?
     let content: String?
@@ -67,6 +68,15 @@ struct TempDiaryResult: Decodable {
     let sleepEndTime: String?     // "2025-06-21T07:00"
     let diaryImgUrl: String?
     let status: String            // "TEMP"
+     */
+    
+    let diaryId: Int
+    let diaryDate: String
+    let emotion: String?
+    let title: String?
+    let content: String?
+    let diaryImgUrl: String?
+    let status: String
 }
 
 // MARK: - TEMP 존재 여부
