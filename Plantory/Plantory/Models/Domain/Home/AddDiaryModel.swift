@@ -57,7 +57,7 @@ struct DiaryCreateResult: Decodable {
     let diaryImgUrl: String?
     let status: String
 }
-
+/*
 // MARK: - TEMP 불러오기 응답
 struct TempDiaryResult: Decodable {
     /*
@@ -78,6 +78,7 @@ struct TempDiaryResult: Decodable {
     let diaryImgUrl: String?
     let status: String
 }
+ */
 
 // MARK: - TEMP 존재 여부
 struct TempDiaryExistResult: Decodable {
