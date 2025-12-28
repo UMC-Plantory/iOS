@@ -145,8 +145,7 @@ struct AddDiaryView: View {
             confirmTitle: "불러오기",
             cancelTitle: "새로 작성",
             onConfirm: {
-                vm_diary.toggleTempStatus()
-                vm.showLoadTempPopup = false
+                container.navigationRouter.push(.tempStorage)
             },
             onCancel: {
                 vm.showLoadTempPopup = false
