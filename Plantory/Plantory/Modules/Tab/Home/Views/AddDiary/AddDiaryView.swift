@@ -27,6 +27,8 @@ struct AddDiaryView: View {
     @Bindable var stepVM: StepIndicatorViewModel
     // API/데이터
     @Bindable var vm: AddDiaryViewModel
+    //임시저장 기능을 위한 DiaryViewModel
+    @StateObject private var vm_diary: DiaryCheckViewModel
 
     @EnvironmentObject var container: DIContainer
 
@@ -112,7 +114,7 @@ struct AddDiaryView: View {
         .onDisappear {
             // 작성 완료 전, 화면을 이탈하면 서버 TEMP로만 자동 임시저장
             if !vm.isCompleted {
-                vm.tempSaveAndExit(context: modelContext, selectedDate: selectedDate)
+                vm_diary.toggleTempStatus()
             }
         }
         
@@ -143,7 +145,8 @@ struct AddDiaryView: View {
             confirmTitle: "불러오기",
             cancelTitle: "새로 작성",
             onConfirm: {
-                vm.loadTemporaryDiaryFromServer()
+                vm_diary.toggleTempStatus()
+                vm.showLoadTempPopup = false
             },
             onCancel: {
                 vm.showLoadTempPopup = false

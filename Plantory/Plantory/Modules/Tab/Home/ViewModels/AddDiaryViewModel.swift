@@ -178,7 +178,7 @@ final class AddDiaryViewModel {
             sleepStartTime: sleepStartTime.isEmpty ? nil : sleepStartTime,
             sleepEndTime: sleepEndTime.isEmpty ? nil : sleepEndTime,
             diaryImgUrl: nil,      // 자동 TEMP에서는 이미지 업로드는 생략
-            status: status
+            status: status, isImgDeleted: <#Bool?#>
         )
         
         container.useCaseService.addDiaryService
@@ -278,7 +278,7 @@ final class AddDiaryViewModel {
             sleepStartTime: status == "NORMAL" ? sleepStartTime : nil,
             sleepEndTime: status == "NORMAL" ? sleepEndTime : nil,
             diaryImgUrl: diaryImgUrl,
-            status: status
+            status: status, isImgDeleted: false
         )
         
         container.useCaseService.addDiaryService
