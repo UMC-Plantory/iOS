@@ -14,7 +14,7 @@ class KeychainService {
     private init() {}
     
     private let account = "authToken"
-    private let service = "com.plantory.Plantory"
+    private let service = "com.plantory.app"
     
     // 별도의 fcm token 저장 키
     private let fcmAccount = "fcmToken"
