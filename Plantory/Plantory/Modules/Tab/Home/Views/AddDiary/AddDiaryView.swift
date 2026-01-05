@@ -20,15 +20,11 @@ struct AddDiaryView: View {
     
     //일기 임시 저장 보관소 (네트워크 에러 시 비상용)
     @Environment(\.modelContext) private var modelContext
-    //앱 상태(활성/백그라운드) 감지 변수
-    @Environment(\.scenePhase) var scenePhase
     
     // 단계 네비게이션
     @Bindable var stepVM: StepIndicatorViewModel
     // API/데이터
     @Bindable var vm: AddDiaryViewModel
-    //임시저장 기능을 위한 DiaryViewModel
-    @StateObject private var vm_diary: DiaryCheckViewModel
 
     @EnvironmentObject var container: DIContainer
 
@@ -50,31 +46,18 @@ struct AddDiaryView: View {
     var body: some View {
         ZStack(alignment: .top) {
             if vm.isCompleted {
-                ScrollView {
-                    VStack {
-                        CompletedView()
+                GeometryReader { geometry in
+                    ScrollView {
+                        VStack {
+                            CompletedView()
+                        }
                     }
                     .frame(
                         maxWidth: .infinity,
-                        minHeight: UIScreen.main.bounds.height
-                        - (UIApplication.shared.windows.first?.safeAreaInsets.top ?? 0)
-                        - (UIApplication.shared.windows.first?.safeAreaInsets.bottom ?? 0)
+                        minHeight: geometry.size.height
                     )
-                    
-                    GeometryReader { geometry in
-                        ScrollView {
-                            VStack {
-                                CompletedView()
-                            }
-                        }
-                        .frame(
-                            maxWidth: .infinity,
-                            minHeight: geometry.size.height
-                        )
-                        .background(Color.adddiarybackground.ignoresSafeArea(.all, edges: .all))
-                    }
+                    .background(Color.adddiarybackground.ignoresSafeArea(.all, edges: .all))
                 }
-                .background(Color.adddiarybackground.ignoresSafeArea(.all, edges: .all))
                 .ignoresSafeArea(.keyboard)
             } else {
                 Color.adddiarybackground.ignoresSafeArea()
@@ -111,12 +94,6 @@ struct AddDiaryView: View {
         
          
         .navigationBarBackButtonHidden(true)
-        .onDisappear {
-            // 작성 완료 전, 화면을 이탈하면 서버 TEMP로만 자동 임시저장
-            if !vm.isCompleted {
-                vm_diary.toggleTempStatus()
-            }
-        }
         
         // 네트워크 에러 안내 모달이 뜨면, 현재 내용을 로컬 SwiftData에 비상 저장
         .onChange(of: vm.showNetworkErrorPopup) { newValue in
@@ -186,7 +163,7 @@ struct AddDiaryView: View {
                 //홈 버튼
                 Button(action: {
                     //홈 버튼 누르면 서버 TEMP로 자동 임시저장 후 화면 이탈
-                    vm.tempSaveAndExit(context: modelContext, selectedDate: selectedDate)
+                    vm.tempSaveAndExit(selectedDate: selectedDate)
                     container.navigationRouter.pop()
                 }) {
                     Image(.home)
@@ -234,6 +211,7 @@ struct AddDiaryView: View {
                 }
             }
             .frame(maxWidth: .infinity, alignment: .center)
+            .interactivePopDisabled(true)
         }
     }
 

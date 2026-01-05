@@ -39,12 +39,7 @@ typealias TempDiaryResult = DiaryDetailResponse
 // MARK: - 존재 여부 공통 응답(result)
 struct DiaryExistResult: Decodable {
     
-    let isExist: Bool
-
     // 기존 코드에서 result.exist 로 접근하므로 제공
-    var exist: Bool { isExist }
-    
-    //일기 여부 조회와 함께 해당 다이어리에 대한 id가 뜨도록 해야 함
-    //백엔드에 요청 완료
+    let exist: Bool
 }
 

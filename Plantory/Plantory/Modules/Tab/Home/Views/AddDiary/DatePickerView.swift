@@ -57,7 +57,7 @@ struct DatePickerCalendarView: View {
         
         // 1. 기존 날짜(작성 중이던 날짜) 내용을 서버 TEMP로 자동 임시저장
         //    로컬 SwiftData 저장은 네트워크 에러 상황에서만 별도로 처리
-        vm.tempSaveAndExit(context: modelContext, selectedDate: previousDate)
+        vm.tempSaveAndExit(selectedDate: previousDate)
         
         // 2. 새 날짜로 전환 + 시트 닫기
         finalizeSelection(date: newDate)

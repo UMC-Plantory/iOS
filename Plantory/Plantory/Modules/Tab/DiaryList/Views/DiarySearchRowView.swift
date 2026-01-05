@@ -38,7 +38,7 @@ struct DiarySearchRow: View {
                             .padding(.top, 8)
 
                         // 내용
-                        Text(entry.content)
+                        Text(entry.content ?? "")
                             .font(.subheadline)
                             .foregroundColor(Color("gray08"))
                             .padding(.top,4)

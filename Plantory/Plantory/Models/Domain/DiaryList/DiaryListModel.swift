@@ -11,7 +11,7 @@ struct DiaryEntry: Identifiable, Equatable {
     let id :Int
     let date: Date
     let title: String
-    let content: String
+    let content: String?
     let emotion: Emotion
     let isFavorite: Bool
     var isScrapped: Bool = false
@@ -23,7 +23,7 @@ extension DiaryEntry {
         self.id = summary.diaryId
         self.date = DateFormatter.yyyyMMdd.date(from: summary.diaryDate) ?? Date()
         self.title = summary.title
-        self.content = summary.content
+        self.content = summary.content ?? nil
         self.emotion = Emotion(apiString: summary.emotion.rawValue)
         self.isFavorite = false                     // 서버 필드가 없다면 기본값
         self.isScrapped = (summary.status == "SCRAP")

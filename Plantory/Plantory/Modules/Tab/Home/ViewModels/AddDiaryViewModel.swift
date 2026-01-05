@@ -169,16 +169,16 @@ final class AddDiaryViewModel {
     // MARK: - 서버 TEMP 자동 저장 (화면 이탈 시)
     /// 현재 입력된 내용을 서버에 TEMP 상태로 임시 저장 (화면 이탈용)
     func saveTemporaryDiary(status: String = "TEMP") {
-        guard !diaryDate.isEmpty else { return }
+        guard !diaryDate.isEmpty, !emotion.isEmpty else { return }
         
         let body = AddDiaryRequest(
             diaryDate: diaryDate,
-            emotion: emotion.isEmpty ? nil : emotion,
+            emotion: emotion,
             content: content.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty ? nil : content,
             sleepStartTime: sleepStartTime.isEmpty ? nil : sleepStartTime,
             sleepEndTime: sleepEndTime.isEmpty ? nil : sleepEndTime,
             diaryImgUrl: nil,      // 자동 TEMP에서는 이미지 업로드는 생략
-            status: status, isImgDeleted: <#Bool?#>
+            status: status, isImgDeleted: false
         )
         
         container.useCaseService.addDiaryService
@@ -203,7 +203,7 @@ final class AddDiaryViewModel {
     }
     
     /// 임시 저장 후 나가기 (화면 이탈 시 서버 TEMP만 호출)
-    func tempSaveAndExit(context: ModelContext, selectedDate: Date) {
+    func tempSaveAndExit(selectedDate: Date) {
         guard !isCompleted else { return }
         
         if diaryDate.isEmpty {

@@ -40,6 +40,10 @@ struct TempStorageView: View {
                 .padding(.horizontal)
             }
             .padding(.horizontal, 8)
+            .onAppear {
+                // 화면이 다시 보일 때 현재 정렬 기준으로 목록 재조회
+                viewModel.fetchTemp(sort: isNewSorting ? .latest : .oldest)
+            }
             .onChange(of: isNewSorting) { _, newValue in
                 viewModel.fetchTemp(sort: newValue ? .latest : .oldest)
             }
@@ -152,6 +156,8 @@ struct TempStorageView: View {
         viewModel.moveToTrash(ids: Array(checkedItems))
         checkedItems.removeAll()
         isEditing = false
+        // 삭제 후에도 최신 상태를 보장하고 싶다면 아래 줄을 추가할 수 있습니다.
+        // viewModel.fetchTemp(sort: isNewSorting ? .latest : .oldest)
     }
 }
 
