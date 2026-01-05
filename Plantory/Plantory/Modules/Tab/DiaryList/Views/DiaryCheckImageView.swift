@@ -18,23 +18,36 @@ struct DiaryCheckImageView: View {
         Group {
             if vm.isEditing {
                 Button(action: { withAnimation(.easeInOut) { showCameraMenu.toggle() } }) {
-                    Group {
+                    ZStack {
+                        // 1) 사용자가 고른 이미지가 있음 → 이걸 우선 표시
                         if let img = vm.selectedImage {
                             Image(uiImage: img)
                                 .resizable()
                                 .aspectRatio(contentMode: .fill)
                                 .frame(height: 215)
                                 .clipShape(RoundedRectangle(cornerRadius: 10))
+                            
+                            // 2) selectedImage 없고 서버 이미지 있음 → 서버 이미지 표시
+                        } else if !vm.didDeleteProfileImage,
+                                  let url = vm.summary?.diaryImgUrl,
+                                  let imgUrl = URL(string: url) {
+                            KFImage(imgUrl)
+                                .placeholder { ProgressView() }
+                                .retry(maxCount: 3, interval: .seconds(3))
+                                .resizable()
+                                .aspectRatio(contentMode: .fill)
+                                .frame(height: 215)
+                                .clipShape(RoundedRectangle(cornerRadius: 10))
+                                .opacity(0.4)
+                        // 3) 둘 다 없음 → 기본 박스
                         } else {
-                            ZStack {
-                                RoundedRectangle(cornerRadius: 10)
-                                    .fill(.gray04)
-                                
-                                Image(systemName: "camera")
-                                    .font(.system(size: 30))
-                                    .foregroundColor(.gray)
-                            }
+                            RoundedRectangle(cornerRadius: 10)
+                                .fill(.gray04)
                         }
+                        
+                        Image(systemName: "camera")
+                            .font(.system(size: 30))
+                            .foregroundColor(.gray)
                     }
                     .frame(height: 215)
                     .frame(maxWidth: .infinity, alignment: .center)

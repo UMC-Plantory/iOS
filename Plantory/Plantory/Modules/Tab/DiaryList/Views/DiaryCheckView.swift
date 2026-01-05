@@ -77,6 +77,7 @@ struct DiaryCheckView: View {
                                     .font(.pretendardRegular(16))
                                     .foregroundColor(.black01Dynamic)
                                     .frame(height: 140)
+                                    .scrollContentBackground(.hidden)
                             } else {
                                 ScrollView(.vertical) {
                                     Text(vm.editedContent)
@@ -186,7 +187,7 @@ struct DiaryCheckView: View {
         .loadingIndicator(vm.isLoading)
     }
     
-    // MARK: -하위뷰들
+    // MARK: - 하위뷰들
         
     private var headerView: some View {
         HStack {

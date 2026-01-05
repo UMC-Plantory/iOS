@@ -199,13 +199,29 @@ final public class ProfileViewModel: ObservableObject {
             ? .success(message: "사용 가능한 ID입니다.")
             : .error(message: "2~20자의 영문, 숫자 또는 밑줄만 가능합니다.")
     }
-
+    
     private static func validateBirthDate(_ input: String) -> FieldState {
         guard !input.isEmpty else { return .normal }
+
         let regex = #"^\d{4}-\d{2}-\d{2}$"#
-        return input.range(of: regex, options: .regularExpression) != nil
-            ? .success(message: "유효한 생년월일입니다.")
-            : .error(message: "YYYY-MM-DD 형식이어야 합니다.")
+        guard input.range(of: regex, options: .regularExpression) != nil else {
+            return .error(message: "생년월일 입력 양식은 0000-00-00을 따라야 합니다.")
+        }
+
+        let formatter = DateFormatter()
+        formatter.dateFormat = "yyyy-MM-dd"
+        formatter.locale = Locale(identifier: "ko_KR")
+
+        guard let date = formatter.date(from: input) else {
+            return .error(message: "YYYY-MM-DD 형식이어야 합니다.")
+        }
+
+        // 현재 날짜보다 큰 경우(미래)
+        if date > Date() {
+            return .error(message: "생년월일은 오늘보다 이후 날짜일 수 없습니다.")
+        }
+
+        return .success(message: "유효한 생년월일입니다.")
     }
     
     // MARK: - Gender mapping
