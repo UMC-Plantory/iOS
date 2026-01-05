@@ -143,7 +143,7 @@ final class DiaryCheckViewModel: ObservableObject {
                 }
             } receiveValue: { [weak self] summary in
                 self?.summary = summary
-                self?.editedContent = summary.content
+                self?.editedContent = summary.content ?? ""
                 self?.isSaving = summary.status == "TEMP"
                 self?.state = self?.determineState(from: summary)
             }

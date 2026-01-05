@@ -9,7 +9,7 @@ struct DiarySummary: Codable, Identifiable {
     let title: String
     var status: String //일기의 상태(예: "NORMAL", "TEMP", "TRASH" 등)를 나타내는 필드
     let emotion: EmotionDisplay
-    let content: String
+    let content: String?
     let diaryImgUrl: String?
     let aiComment: String?
     
