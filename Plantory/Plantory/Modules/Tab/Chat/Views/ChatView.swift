@@ -55,6 +55,7 @@ struct ChatView: View {
             UIApplication.shared.hideKeyboard()
             await viewModel.getChatsList()
         }
+        .scrollDismissesKeyboard(.interactively)
         .toastView(toast: $viewModel.toast)
         .loadingIndicator(viewModel.isFetchingChats)
     }
@@ -194,6 +195,10 @@ struct ChatView: View {
                 .focused($isFocused)
                 .submitLabel(.send)
                 .onSubmit({
+                    if viewModel.textInput.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
+                        return
+                    }
+                    
                     guard !viewModel.isPostingChat else { return }
                     Task {
                         await viewModel.sendMessage()
@@ -203,7 +208,7 @@ struct ChatView: View {
             
             // MARK: - Send Button
             SendButton(
-                isDisabled: viewModel.textInput.isEmpty,
+                isDisabled: viewModel.textInput.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty,
                 action: {
                     Task {
                         await viewModel.sendMessage()
